@@ -353,6 +353,7 @@ const SAVE_DEFAULTS = {
   unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
   stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0 },
   stamps: {}, families: {}, titles: [], boards: [], board: '', startLevel: 0, bounty: { day: '', n: 0, k: '', claimed: false }, wheel: { day: '', result: '', ad: false },
+  spins: 0, spinSales: true, paidSpins: 0,
 };
 const save = JSON.parse(JSON.stringify(SAVE_DEFAULTS));
 function loadSave() {
@@ -1950,12 +1951,20 @@ function drawWheel() {
   c2.fillStyle = '#5a3a1e'; c2.beginPath(); c2.arc(0, 0, 24, 0, TAU); c2.fill(); c2.fillStyle = '#ffd54a'; c2.beginPath(); c2.arc(0, 0, 14, 0, TAU); c2.fill();
   c2.fillStyle = '#fff4e4'; c2.strokeStyle = '#2a1208'; c2.lineWidth = 3; c2.beginPath(); c2.moveTo(-16, -R0 - 14); c2.lineTo(16, -R0 - 14); c2.lineTo(0, -R0 + 16); c2.closePath(); c2.fill(); c2.stroke();
 }
+// Spin packs (simulated money). Selling spins is a game of chance under Belgian law, so spinSales is a switch
+// meant to follow the store country: off in Belgium, on elsewhere.
+const SPIN_PACKS = [{ n: 5, eur: .99 }, { n: 12, eur: 1.99 }, { n: 20, eur: 2.99 }];
+const fmtEur = e => '€' + e.toFixed(2).replace('.', ',');
+function buySpins(pack) { if (!save.spinSales) return false; simBuy(pack.eur); save.spins += pack.n; store(); updateWheelUI(); return true; }
+// Which spin comes next: the free one of the day, the one after the video, or a bought one.
+function nextSpinKind() { const today = dayKey(); if (save.wheel.day !== today) return 'free'; if (!save.wheel.ad) return 'ad'; if (save.spins > 0) return 'paid'; return ''; }
 function spinWheel(instant) {
-  const today = dayKey(); if (wheelSpin || (save.wheel.day === today && save.wheel.ad)) return false;
-  const second = save.wheel.day === today, idx = wheelPick(), n = WHEEL.length, seg = TAU / n;
+  const today = dayKey(), kind = nextSpinKind(); if (wheelSpin || !kind) return false;
+  const idx = wheelPick(), n = WHEEL.length, seg = TAU / n;
   let to = -Math.PI / 2 - (idx * seg + seg / 2) + rnd(-seg * .35, seg * .35); while (to < wheelAngle + TAU * 4) to += TAU;
-  wheelSpin = { from: wheelAngle, to, t0: performance.now(), dur: instant ? 1 : 3800, idx, second };
-  save.wheel = { day: today, result: WHEEL[idx].label, ad: second }; store(); updateWheelUI();
+  wheelSpin = { from: wheelAngle, to, t0: performance.now(), dur: instant ? 1 : 3800, idx, kind };
+  if (kind === 'paid') { save.spins--; save.paidSpins++; } else save.wheel = { day: today, result: WHEEL[idx].label, ad: kind === 'ad' };
+  store(); updateWheelUI();
   if (instant) finishWheel(); else requestAnimationFrame(wheelFrame);
   return true;
 }
@@ -1969,11 +1978,13 @@ function finishWheel() {
   const txt = giveReward(WHEEL[s.idx].r); SFX.collect(); const t = $('#wheel-text'); if (t) t.innerHTML = `Het rad zegt: <b>${WHEEL[s.idx].label}</b> · ${txt}`; updateWheelUI(); track('wheel', s.idx); checkStickers();
 }
 function updateWheelUI() {
-  const b = $('#btn-spin'), sub = $('#wheel-sub'); if (!b) return; const today = dayKey(), spun = save.wheel.day === today, adUsed = spun && save.wheel.ad;
-  if (!spun) { b.textContent = 'Draai'; sub.textContent = 'Eén gratis draai per dag, als inlogbonus.'; }
-  else if (!adUsed) { b.textContent = save.noAds ? 'Nog een draai' : 'Filmpje: nog een draai'; sub.textContent = `Vandaag al: ${save.wheel.result}. Nog één extra draai mogelijk.`; }
+  const b = $('#btn-spin'), sub = $('#wheel-sub'), packs = $('#spin-packs'); if (!b) return; const kind = nextSpinKind();
+  if (kind === 'free') { b.textContent = 'Draai'; sub.textContent = 'Eén gratis draai per dag, als inlogbonus.'; }
+  else if (kind === 'ad') { b.textContent = save.noAds ? 'Nog een draai' : 'Filmpje: nog een draai'; sub.textContent = `Vandaag al: ${save.wheel.result}. Nog één extra draai mogelijk.`; }
+  else if (kind === 'paid') { b.textContent = `Draai (nog ${save.spins} gekocht)`; sub.textContent = `Vandaag: ${save.wheel.result}. Gekochte draaien kun je altijd gebruiken.`; }
   else { b.textContent = 'Morgen weer'; sub.textContent = `Vandaag: ${save.wheel.result}. Morgen om 7 uur draait het rad opnieuw.`; }
-  b.disabled = !!wheelSpin || adUsed;
+  b.disabled = !!wheelSpin || !kind;
+  if (packs) { packs.hidden = !save.spinSales; packs.querySelectorAll('[data-pack]').forEach((pb, i) => { pb.disabled = !!wheelSpin; }); const own = $('#spin-own'); if (own) own.textContent = save.spins ? `Je hebt ${save.spins} gekochte draai${save.spins === 1 ? '' : 'en'}.` : ''; }
 }
 function todayBadge() {
   ensureMissions(); touchStreak(); let n = 0;
@@ -1997,7 +2008,8 @@ function openToday() {
   const missions = save.missions.list.map((m, i) => `<div class="mrow"><div class="mt">${m.text}<div class="small">Beloning: ${rewardText(MISSION_REWARDS[i])}</div><div class="mbar"><i style="width:${Math.round(100 * m.prog / m.goal)}%"></i></div></div><button class="btn${m.done && !m.claimed ? ' primary' : ''}" data-mi="${i}" ${m.done && !m.claimed ? '' : 'disabled'}>${m.claimed ? 'Ontvangen' : m.done ? 'Ontvang' : `${m.prog}/${m.goal}`}</button></div>`).join('');
   const g = weekendGame(), w = WEEKEND[g], dailyLabel = pendingDaily && pendingDaily !== today ? `Uitdaging van ${pendingDaily}: speel het mes van die dag (telt niet als record).` : dailyPlayedToday() ? `Gespeeld: ${fmtTime(save.daily.best)}. Morgen om 7 uur een nieuw mes.` : 'Eén gratis poging. Iedereen krijgt vandaag exact dezelfde messen, vanaf level 1.';
   $('#today-body').innerHTML =
-    `<div class="sec" style="align-items:center;text-align:center"><h3>Rad van de dag</h3><canvas id="wheel" width="340" height="340" style="width:170px;height:170px"></canvas><div class="small" id="wheel-text">${save.wheel.day === today ? `Vandaag: <b>${save.wheel.result}</b>` : 'Draai voor je inlogbonus van vandaag.'}</div><button class="btn primary" id="btn-spin">Draai</button><div class="small" id="wheel-sub"></div></div>` +
+    `<div class="sec" style="align-items:center;text-align:center"><h3>Rad van de dag</h3><canvas id="wheel" width="340" height="340" style="width:170px;height:170px"></canvas><div class="small" id="wheel-text">${save.wheel.day === today ? `Vandaag: <b>${save.wheel.result}</b>` : 'Draai voor je inlogbonus van vandaag.'}</div><button class="btn primary" id="btn-spin">Draai</button><div class="small" id="wheel-sub"></div>` +
+    `<div id="spin-packs" style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="small">Extra draaien kopen:</div><div class="row" style="gap:6px">${SPIN_PACKS.map((p, i) => `<button class="btn" style="font-size:13px;padding:7px 10px;flex:0 1 auto" data-pack="${i}">${p.n} · ${fmtEur(p.eur)}</button>`).join('')}</div><div class="small" id="spin-own"></div><div class="small" style="opacity:.75">Simulatie. Dit is in België een kansspel; daar staat de verkoop uit (schakelaar in de winkel).</div></div></div>` +
     `<div class="sec"><h3>Dagreeks</h3><div class="mrow"><div class="mt"><b>Dag ${save.streak}</b> op rij${save.shieldUsed === today ? ' (reeksschild gebruikt)' : ''}<div class="dots">${dots}</div><div class="small">Vandaag: ${rewardText(sr)} · dag 7: feesthoedje · dag 30: gouden kroontje</div></div><button class="btn${claimedStreak ? '' : ' primary'}" id="btn-streak" ${claimedStreak ? 'disabled' : ''}>${claimedStreak ? 'Ontvangen' : 'Ontvang'}</button></div><div class="small">Reeksschild: ${save.shields} (vangt één gemiste dag op) · <button class="linkbtn" id="btn-shield" ${save.sap < 50 ? 'disabled' : ''}>Koop · 50 sap</button></div></div>` +
     `<div class="sec"><h3>Opdrachten van vandaag</h3>${missions}</div>` +
     `<div class="sec"><h3>Mes van de dag</h3><div class="mrow"><div class="mt">${dailyLabel}</div><button class="btn primary" id="btn-daily" ${dailyPlayedToday() && !(pendingDaily && pendingDaily !== today) ? 'disabled' : ''}>Speel</button></div></div>` +
@@ -2005,10 +2017,11 @@ function openToday() {
     `<div class="sec"><h3>Onbeperkte hartjes</h3><div class="mrow"><div class="mt">Voorraad: <b>${save.unlimitedBank} min</b>. ${heartsUnlimited() ? 'Nu actief, ' + heartsLine().toLowerCase() + '.' : 'Activeer wanneer je tijd hebt om te spelen.'}</div><button class="btn${save.unlimitedBank >= 30 ? ' primary' : ''}" id="btn-unl-bank" ${save.unlimitedBank >= 30 ? '' : 'disabled'}>Activeer 30 min</button></div></div>`;
   drawWheel(); updateWheelUI();
   $('#btn-spin').addEventListener('click', () => {
-    if (wheelSpin) return; const spun = save.wheel.day === dayKey(), adUsed = spun && save.wheel.ad; if (adUsed) return; SFX.click();
-    if (!spun || save.noAds) spinWheel();
-    else { adThen = () => { openToday(); spinWheel(); }; G.state = 'ad'; adT = 3000; $('#ad-count').textContent = '3'; showScreen('scr-ad'); }
+    if (wheelSpin) return; const kind = nextSpinKind(); if (!kind) return; SFX.click();
+    if (kind === 'ad' && !save.noAds) { adThen = () => { openToday(); spinWheel(); }; G.state = 'ad'; adT = 3000; $('#ad-count').textContent = '3'; showScreen('scr-ad'); }
+    else spinWheel();
   });
+  $('#today-body').querySelectorAll('[data-pack]').forEach(pb => pb.addEventListener('click', () => { SFX.collect(); buySpins(SPIN_PACKS[+pb.dataset.pack]); }));
   $('#btn-streak').addEventListener('click', () => { if (save.streakClaimed === today) return; SFX.collect(); save.streakClaimed = today; const t = giveReward(sr); track('claim', 'streak'); openToday(); addText(W / 2, H * .3, t, '#ffd54a'); });
   $('#btn-shield').addEventListener('click', () => { if (save.sap < 50) return; SFX.click(); save.sap -= 50; save.shields++; store(); openToday(); });
   $('#today-body').querySelectorAll('[data-mi]').forEach(b => b.addEventListener('click', () => { const m = save.missions.list[+b.dataset.mi]; if (!m || !m.done || m.claimed) return; SFX.collect(); m.claimed = true; giveReward(MISSION_REWARDS[+b.dataset.mi]); track('claim', 'mission'); openToday(); }));
@@ -2169,6 +2182,7 @@ function openShop() {
   const boardRows = [{ id: '', name: 'Volgt de keuken (standaard)' }].concat(THEMES.filter(t => t.id).map(t => ({ id: t.id, name: t.name }))).map(bd => { const own = !bd.id || save.boards.includes(bd.id), worn = (save.board || '') === bd.id; return `<div class="mrow"><div class="mt"><b>${bd.name}</b>${!own ? `<div class="small">Fruitkaart: level ${bd.id === 'ruitjes' ? 20 : 40} vol</div>` : ''}</div>${worn ? '<button class="btn" disabled>Actief</button>' : own ? `<button class="btn" data-board="${bd.id}">Gebruik</button>` : ''}</div>`; }).join('');
   $('#shop-body').innerHTML = `<div class="sec"><h3>Hoedjes</h3><div class="small">Puur voor de sier: geen invloed op het spel. Het hoedje vliegt mee weg als je gesneden wordt.</div>${hatRows}</div>` +
     `<div class="sec"><h3>Bordskins</h3>${boardRows}</div>` +
+    `<div class="sec"><h3>Draaien aan het rad</h3><div class="small">Gekochte draaien gebruik je wanneer je wilt, bovenop de gratis draai van de dag. Je hebt er ${save.spins}.</div>${save.spinSales ? SPIN_PACKS.map((p, i) => item('spin' + i, `${p.n} draai${p.n > 1 ? 'en' : ''}`, `${(p.eur / p.n * 100).toFixed(0)} cent per draai`, fmtEur(p.eur), i === 0)).join('') : '<div class="small">Verkoop staat uit.</div>'}${item('spinsales', 'Verkoop van draaien', save.spinSales ? 'Aan. In België is betalen voor een toevalsprijs een kansspel; zet dit daar uit (in de echte app per land).' : 'Uit (België). Elders aanzetten.', save.spinSales ? 'Zet uit' : 'Zet aan')}</div>` +
     `<div class="sec"><h3>Hulpmiddelen</h3>${item('shield-sap', 'Reeksschild', `Vangt één gemiste dag van je dagreeks op. Je hebt er ${save.shields}.`, '50 sap', save.sap >= 50)}${item('shield-eur', 'Reeksschild', 'Hetzelfde schild, met geld.', '€0,99')}${item('unl30', 'Onbeperkte hartjes · 30 min', 'Komt in je voorraad; activeer wanneer je tijd hebt.', '€0,49')}</div>` +
     `<div class="sec"><h3>Sap</h3>${item('sap300', '300 sap', 'Voor fruit, hoedjes en doorgaan.', '€0,99')}${item('sap1000', '1000 sap', 'De voordelige pot.', '€2,49', true)}</div>` +
     `<div class="sec"><h3>Pas en reclame</h3>${save.pass.premium ? '<div class="small">Fruitpas: betaald spoor actief.</div>' : item('pass', 'Fruitpas', 'Het tweede spoor van dit seizoen: hoedjes, schilden, onbeperkte minuten.', '€4,99', true)}${save.noAds ? '<div class="small">Reclamevrij: actief. Filmpjes worden overgeslagen.</div>' : item('noads', 'Reclamevrij', 'Geen filmpjes meer bij doorgaan en hartjes; je krijgt de beloning meteen.', '€3,99')}</div>` +
@@ -2187,6 +2201,8 @@ function openShop() {
     else if (id === 'sap1000') { simBuy(2.49); save.sap += 1000; }
     else if (id === 'pass') { simBuy(4.99); ensurePass(); save.pass.premium = true; }
     else if (id === 'noads') { simBuy(3.99); save.noAds = true; }
+    else if (id === 'spinsales') save.spinSales = !save.spinSales;
+    else if (id.startsWith('spin')) { const p = SPIN_PACKS[+id.slice(4)]; if (p) buySpins(p); }
     store(); openShop();
   }));
   showScreen('scr-shop'); pauseBtn.hidden = true;
@@ -2202,7 +2218,7 @@ const HOOK = window.fruitvlucht = {
   openToday, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,
-  WHEEL, spinWheel: () => spinWheel(true),
+  WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, buySpins, nextSpinKind,
   step(ms) { let left = ms; while (left > 0) { const d = Math.min(16, left); update(d); left -= d; } render(); },
   forceAim(tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; const s = lineThrough(G.px + b.ox, G.py + b.oy, Math.random() * Math.PI, 0, { tele: tele || 60, dur: 160 }); return { ax: s.ax, ay: s.ay, bx: s.bx, by: s.by }; },
   move(dx, dy) { G.tx += dx; G.ty += dy; },

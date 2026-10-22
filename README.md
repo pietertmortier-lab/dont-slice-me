@@ -20,3 +20,10 @@ from there by hand, so the version label in the menu tells you which build you a
   eigen browser.
 - Feedback: hoe lang overleef je, op welk level wordt het te snel, welk fruit is het leukst, en zou je de
   snijfoto delen?
+
+## Nieuw in v0.8 (22 oktober, avond)
+
+- Compacter beginmenu: Spelen staat meteen in beeld. Het fruit kies je op een eigen scherm (de rij "Je speelt als" of de knop Fruit onderaan). Een uitroepteken betekent dat je een nieuw fruit kunt ontgrendelen.
+- Balk onderaan met Home, Fruit, Vandaag, Rad, Spellen, Stempels en Winkel; een rood uitroepteken zegt dat daar iets voor je klaarstaat.
+- Tussenspel: om de vier levels (5, 9, 13, ...) een minigame van 12 seconden: Suikerstorm, Tik de klontjes, Spiegelkeuken en Net-niet-sprint. Je kunt er niet in doodgaan; de score wordt sap (maximaal 40, plus 10 bonus bij het doel).
+- Mes van de dag laat dubbel zoveel klontjes vallen. Het rad toont zijn prijzen als symbolen. Draaien kopen staat uit (kansspelwet). Elk onderdeel legt zichzelf uit voor je erop tikt.

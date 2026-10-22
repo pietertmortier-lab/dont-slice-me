@@ -34,7 +34,7 @@ body{background:var(--counter);color:var(--ink);font-family:var(--font-ui);overf
 .panel{background:var(--panel);border:1px solid var(--panel-edge);border-radius:24px;padding:20px 16px;width:min(100%,400px);box-shadow:0 20px 60px rgba(0,0,0,.5);backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:12px;text-align:center;margin:auto 0}
 h1,h2{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.05}
 h2{font-size:34px;font-weight:600}
-.logo{font-size:48px;font-weight:700;color:var(--sugar);text-shadow:0 4px 0 #8a4a10,0 10px 24px rgba(0,0,0,.45);letter-spacing:.01em}
+.logo{font-size:42px;font-weight:700;color:var(--sugar);text-shadow:0 4px 0 #8a4a10,0 10px 24px rgba(0,0,0,.45);letter-spacing:.01em}
 .tag{margin:0;color:var(--ink-dim);font-size:15px}
 .small{font-size:13px;color:var(--ink-dim);margin:0;line-height:1.45}
 .rules{font-size:12.5px;line-height:1.4;color:var(--ink-dim);background:rgba(0,0,0,.2);border-left:3px solid #ffd54a;padding:6px 9px;border-radius:0 8px 8px 0;margin:0}
@@ -83,11 +83,19 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .heartline{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
 .navrow{display:flex;gap:8px;flex-wrap:wrap}
 .navrow .btn{flex:1 1 40%;font-size:15px;padding:9px 10px;position:relative}
+.navrow.slim .btn{font-size:14px;padding:8px 10px}
+.pickrow{position:relative;display:flex;align-items:center;gap:10px;background:rgba(255,235,210,.07);border:1px solid var(--panel-edge);border-radius:16px;padding:8px 12px;color:var(--ink);cursor:pointer;text-align:left;font:inherit;width:100%}
+.pickrow canvas{width:40px;height:40px;flex:0 0 40px}
+.pickrow .pn{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.pickrow .pn b{font-family:var(--font-display);font-size:18px;font-weight:600}
+.pickrow .pn small{font-size:12px;color:var(--ink-dim)}
+.pickrow .chev{font-size:26px;color:var(--ink-dim);line-height:1}
 .badge-n{position:absolute;top:-7px;right:-4px;background:var(--knife);color:#fff;border-radius:999px;font:800 11px var(--font-ui);padding:2px 7px;box-shadow:0 2px 0 rgba(0,0,0,.35)}
 .sec{display:flex;flex-direction:column;gap:8px;text-align:left;background:rgba(255,235,210,.06);border-radius:16px;padding:12px}
 .sec.focus{outline:2px solid var(--sugar);outline-offset:3px}
 #hub{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:4px;padding:10px max(8px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(23,16,11,0),rgba(23,16,11,.94) 35%);pointer-events:auto;z-index:5}
-#hub button{position:relative;flex:1 1 0;max-width:72px;background:rgba(30,17,9,.94);border:1px solid var(--panel-edge);border-radius:14px;color:var(--ink-dim);font:800 10.5px/1 var(--font-ui);padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+#hub button{position:relative;flex:1 1 0;max-width:64px;min-width:0;background:rgba(30,17,9,.94);border:1px solid var(--panel-edge);border-radius:14px;color:var(--ink-dim);font:800 10px/1 var(--font-ui);padding:7px 1px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+#hub button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #hub button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #hub button.on{color:var(--sugar);border-color:rgba(255,213,74,.55);background:rgba(255,213,74,.1)}
 #hub .hb{position:absolute;top:-7px;right:5px;background:var(--knife);color:#fff;border-radius:999px;font:900 12px/18px var(--font-ui);font-style:normal;width:18px;height:18px;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.35);animation:hubpop 1.4s ease-in-out infinite}
@@ -138,17 +146,26 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <p class="tag">Jij bent het fruit. Ontwijk het mes.</p>
       <div class="stats"><span>Level <b id="menu-level">1</b></span><span>Record <b id="menu-best">0,0 s</b></span><span><canvas id="menu-sap-icon" width="40" height="40"></canvas><b id="menu-sap">0</b> sap</span><span>Pogingen <b id="menu-runs">0</b></span></div>
       <div class="heartline"><span class="hearts" id="menu-hearts"></span><span class="small" id="menu-heart-timer"></span></div>
+      <button class="btn primary big" id="btn-play">Spelen</button>
+      <button class="pickrow" id="btn-fruit" type="button" title="Kies een ander fruit"><canvas id="pick-icon" width="80" height="80"></canvas><span class="pn"><small>Je speelt als</small><b id="pick-name">Appel</b><small id="pick-sub">Tik om van fruit te wisselen.</small></span><span class="chev">›</span><span class="badge-n" id="fruit-badge" hidden>!</span></button>
+      <div class="lvpick" id="lvpick" hidden><span>Start bij level</span><button class="linkbtn" id="lv-minus" aria-label="Lager level">−</button><b id="lv-cur">1</b><button class="linkbtn" id="lv-plus" aria-label="Hoger level">+</button><button class="linkbtn" id="lv-max">hoogste</button><span class="lvhint">Lager starten is rustiger en levert stempels op de Fruitkaart op; je hoogste level blijft bewaard.</span></div>
+      <div class="navrow slim"><button class="btn ghost" id="btn-album" title="Stickers, keukenbonussen en de Fruitpedia">Album</button><button class="btn ghost" id="btn-pass" title="Seizoenstreden met beloningen">Fruitpas<span class="badge-n" id="pass-badge" hidden>!</span></button></div>
+      <p class="small">Album: stickers, keukenbonussen en de Fruitpedia · Fruitpas: seizoenstreden met beloningen · balk onderaan: fruit, Vandaag, rad, spellen, stempels en winkel.</p>
+      <p class="small">Raak het scherm aan: het fruit hangt boven je vinger. Op de computer: sleep met de muis of gebruik de pijltjes. Suikerklontjes zijn sap.</p>
+      <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><span id="ver">Prototype v0.8 · geen echte aankopen</span></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-fruit" hidden>
+    <div class="panel">
+      <h2>Fruit</h2>
+      <p class="small">Elk fruit heeft een eigen eigenschap. Tik een kaartje voor de uitleg en dan op Kies. Vergrendeld fruit koop je met sap; speeltijd maakt een fruit sterker (niveau 5) en goud (niveau 10).</p>
       <div class="detail">
         <canvas id="detail-icon" width="152" height="152"></canvas>
         <div class="detail-txt"><div class="nm" id="detail-name"></div><div class="tr" id="detail-trait"></div><div class="eur" id="detail-xp"></div><div class="eur" id="detail-price"></div><button class="btn" id="btn-choose">Kies</button></div>
       </div>
       <div class="grid" id="fruit-list"></div>
-      <button class="btn primary big" id="btn-play">Spelen</button>
-      <div class="lvpick" id="lvpick" hidden><span>Start bij level</span><button class="linkbtn" id="lv-minus" aria-label="Lager level">−</button><b id="lv-cur">1</b><button class="linkbtn" id="lv-plus" aria-label="Hoger level">+</button><button class="linkbtn" id="lv-max">hoogste</button><span class="lvhint">Lager starten is rustiger en levert stempels op de Fruitkaart op; je hoogste level blijft bewaard.</span></div>
-      <div class="navrow"><button class="btn" id="btn-today" title="Rad, dagreeks, opdrachten, Mes van de dag, weekendspel">Vandaag<span class="badge-n" id="today-badge" hidden>!</span></button><button class="btn" id="btn-kaart" title="Levels herspelen met ander fruit voor stempels en beloningen">Fruitkaart<span class="badge-n" id="kaart-badge" hidden>!</span></button><button class="btn ghost" id="btn-album" title="Stickers, keukenbonussen en de Fruitpedia">Album</button><button class="btn ghost" id="btn-pass" title="Seizoenstreden met beloningen">Fruitpas<span class="badge-n" id="pass-badge" hidden>!</span></button><button class="btn ghost" id="btn-shop" title="Hoedjes, bordskins, hulpmiddelen">Winkel</button></div>
-      <div class="rules" id="nav-legend"><b>Vandaag:</b> rad, dagreeks, opdrachten, Mes van de dag en weekendspel · <b>Fruitkaart:</b> levels herspelen met ander fruit voor stempels en beloningen · <b>Album:</b> stickers, keukenbonussen, Fruitpedia · <b>Fruitpas:</b> seizoenstreden met beloningen · <b>Winkel:</b> hoedjes, bordskins, hulpmiddelen</div>
-      <p class="small">Raak het scherm aan: het fruit hangt boven je vinger. Op de computer: sleep met de muis of gebruik de pijltjes. Suikerklontjes zijn sap.</p>
-      <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><span id="ver">Prototype v0.7 · geen echte aankopen</span></div>
+      <button class="btn ghost" id="btn-fruit-back">Terug naar het menu</button>
     </div>
   </section>
 
@@ -254,10 +271,11 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
   </section>
   <nav id="hub" hidden aria-label="Hoofdmenu">
     <button data-hub="home" title="Terug naar het hoofdmenu"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/><path d="M10 19v-5h4v5"/></svg><span>Home</span><i class="hb" hidden>!</i></button>
+    <button data-hub="fruit" title="Kies je fruit; ! = nieuw fruit te ontgrendelen"><svg viewBox="0 0 24 24"><path d="M12 7.5c-4.6-2.6-8.2 1-8.2 5.4S7.4 21.5 12 19.4c4.6 2.1 8.2-2.1 8.2-6.5S16.6 4.9 12 7.5z"/><path d="M12 7.5V4.5M12 4.5c1.5-1.5 3.5-1.5 4.5-1"/></svg><span>Fruit</span><i class="hb" hidden>!</i></button>
     <button data-hub="today" title="Dagreeks, opdrachten en onbeperkte hartjes"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.6" fill="currentColor" stroke="none"/></svg><span>Vandaag</span><i class="hb" hidden>!</i></button>
     <button data-hub="wheel" title="Rad van de dag"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8.5"/><path d="M12 4.5v17M3.5 13h17M6 7l12 12M18 7 6 19"/><circle cx="12" cy="13" r="2" fill="currentColor" stroke="none"/><path d="M9.5 1.5h5L12 4.5z" fill="currentColor" stroke="none"/></svg><span>Rad</span><i class="hb" hidden>!</i></button>
-    <button data-hub="games" title="Mes van de dag en het weekendspel"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/><path d="M12 14v3M8.5 20h7M10 17h4v3"/></svg><span>Spelletjes</span><i class="hb" hidden>!</i></button>
-    <button data-hub="kaart" title="Fruitkaart: stempels per level en fruit"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" fill="currentColor"/></svg><span>Fruitkaart</span><i class="hb" hidden>!</i></button>
+    <button data-hub="games" title="Mes van de dag en het weekendspel"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/><path d="M12 14v3M8.5 20h7M10 17h4v3"/></svg><span>Spellen</span><i class="hb" hidden>!</i></button>
+    <button data-hub="kaart" title="Fruitkaart: stempels per level en fruit"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" fill="currentColor"/></svg><span>Stempels</span><i class="hb" hidden>!</i></button>
     <button data-hub="shop" title="Winkel"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></svg><span>Winkel</span><i class="hb" hidden>!</i></button>
   </nav>
   <button id="btn-pause" hidden aria-label="Pauze">II</button>
@@ -371,7 +389,7 @@ const SAVE_DEFAULTS = {
   streak: 0, streakLast: '', streakClaimed: '', shields: 0, firstRunDay: '',
   missions: { day: '', list: [] }, daily: { day: '', played: false, best: 0 }, weekend: { week: '', cleared: false, best: 0, game: '' },
   unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
-  stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0 },
+  stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0, interDone: 0 },
   stamps: {}, families: {}, titles: [], boards: [], board: '', startLevel: 0, bounty: { day: '', n: 0, k: '', claimed: false }, wheel: { day: '', result: '', ad: false },
   spins: 0, spinSalesOn: false, paidSpins: 0,
 };
@@ -565,7 +583,7 @@ const curTheme = () => THEMES[boardTheme < 0 ? 0 : boardTheme];
 const G = {
   state: 'menu', t: 0, fruit: 'appel', form: null, px: 180, py: 380, tx: 180, ty: 380, vx: 0, vy: 0, ang: 0, spin: 0, bodies: [], armor: 0, split: false,
   segLost: 0, lost: new Set(), inv: 0, sprint: 0, trail: [],
-  slashes: [], cubes: [], parts: [], texts: [], stains: [], scars: [], debris: [], nextSlash: 0, nextCube: 0, bossBanner: 0, bossText: '',
+  slashes: [], cubes: [], parts: [], texts: [], stains: [], scars: [], debris: [], nextSlash: 0, nextCube: 0, bossBanner: 0, bossText: '', inter: null, interPending: null,
   timeScale: 1, shake: 0, zoom: 1, flash: 0, dyingT: 0, death: null, snapped: false, snapshot: null, snapshotUrl: '', card: null, cardFile: null,
   continueUsed: false, cubesRun: 0, sapRun: 0, bonusSap: 0, near: 0, slashCount: 0, scared: 0, lookX: 0, lookY: -1,
   level: 1, levelSap: 0, levelsGained: 0, levelBanner: 0, levelNote: '', levelT: 0, phase: 1, power: null, drop: null, dropAt: -1, slowmo: 0, themeFlash: 0,
@@ -574,22 +592,22 @@ const G = {
 };
 let contT = 0, adT = 0, adThen = null, heartTick = 0, menuT = 1200, shareText = '', menuSel = 'appel', verTaps = 0, pendingDaily = '';
 const pauseBtn = document.getElementById('btn-pause');
-const screens = ['scr-menu', 'scr-pause', 'scr-continue', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-today', 'scr-album', 'scr-pass', 'scr-shop', 'scr-kaart'];
+const screens = ['scr-menu', 'scr-fruit', 'scr-pause', 'scr-continue', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-today', 'scr-album', 'scr-pass', 'scr-shop', 'scr-kaart'];
 function showScreen(id) { for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); }
 // ---- Hub: a fixed bar under every menu screen (and the pause screen) so the rad, the daily knife, the weekend
 // game, the Fruitkaart and the shop are one tap away, with a "!" whenever something is waiting there.
-const hub = $('#hub'), HUB_SCREENS = { 'scr-menu': 'home', 'scr-today': 'today', 'scr-kaart': 'kaart', 'scr-shop': 'shop', 'scr-album': '', 'scr-pass': '', 'scr-hearts': '', 'scr-over': '', 'scr-pause': '' };
+const hub = $('#hub'), HUB_SCREENS = { 'scr-menu': 'home', 'scr-fruit': 'fruit', 'scr-today': 'today', 'scr-kaart': 'kaart', 'scr-shop': 'shop', 'scr-album': '', 'scr-pass': '', 'scr-hearts': '', 'scr-over': '', 'scr-pause': '' };
 let hubConfirm = '';
 function passClaimable() { ensurePass(); const t = passTier(); for (let i = 1; i <= t; i++) { if (!save.pass.claimedFree.includes(i) || (save.pass.premium && !save.pass.claimedPrem.includes(i))) return true; } return false; }
 function hubBadges() {
   const spin = nextSpinKind(), b = ensureBounty();
-  return { home: false, today: todayBadge() > 0, wheel: spin === 'free' || spin === 'ad', games: !dailyPlayedToday() || (weekendOpen() && !weekendCleared()), kaart: !!(b && b.n && !b.claimed), shop: false, pass: passClaimable() };
+  return { home: false, fruit: unlockable(), today: todayBadge() > 0, wheel: spin === 'free' || spin === 'ad', games: !dailyPlayedToday() || (weekendOpen() && !weekendCleared()), kaart: !!(b && b.n && !b.claimed), shop: false, pass: passClaimable() };
 }
 function updateHub(id) {
   const show = !!id && id in HUB_SCREENS; hub.hidden = !show; $('#ui').classList.toggle('hub', show); if (!show) return;
   const b = hubBadges(), cur = HUB_SCREENS[id];
   hub.querySelectorAll('[data-hub]').forEach(btn => { const k = btn.dataset.hub; btn.classList.toggle('on', k === cur); btn.querySelector('.hb').hidden = !b[k]; });
-  for (const [sel, on] of [['#today-badge', b.today], ['#kaart-badge', b.kaart], ['#pass-badge', b.pass]]) { const el = $(sel); if (el) el.hidden = !on; }
+  for (const [sel, on] of [['#fruit-badge', b.fruit], ['#pass-badge', b.pass]]) { const el = $(sel); if (el) el.hidden = !on; }
 }
 function hubGo(k) {
   if (['play', 'dying', 'continue', 'ad'].includes(G.state)) return;
@@ -598,7 +616,7 @@ function hubGo(k) {
     hubConfirm = ''; quitRun();
   }
   SFX.click();
-  if (k === 'home') openMenu(); else if (k === 'today') openToday(); else if (k === 'wheel') openToday('sec-rad'); else if (k === 'games') openToday('sec-mes'); else if (k === 'kaart') openKaart(); else if (k === 'shop') openShop();
+  if (k === 'home') openMenu(); else if (k === 'fruit') openFruit(); else if (k === 'today') openToday(); else if (k === 'wheel') openToday('sec-rad'); else if (k === 'games') openToday('sec-mes'); else if (k === 'kaart') openKaart(); else if (k === 'shop') openShop();
 }
 hub.querySelectorAll('[data-hub]').forEach(btn => btn.addEventListener('click', () => hubGo(btn.dataset.hub)));
 const fruitDef = () => FRUITS[G.fruit];
@@ -653,7 +671,7 @@ function startRun(type, free, mode) {
   G.fruit = (type && FRUITS[type]) ? type : save.fruit; const f = fruitDef();
   G.state = 'play'; G.t = 0; G.form = null; G.px = G.tx = W / 2; G.py = G.ty = H * .6; G.vx = G.vy = 0; G.ang = 0; G.spin = 0; G.armor = f.armor || 0; G.split = false;
   G.segLost = 0; G.lost = new Set(); G.inv = mode === 'normal' && hasPerk(1) ? 3000 : 1200; G.sprint = 0; G.trail = []; G.continues = 0; G.shellGiven = 0; G.perkBanner = 0;
-  G.slashes = []; G.cubes = []; G.parts = []; G.texts = []; G.stains = []; G.scars = []; G.debris = []; G.nextSlash = 2000; G.nextCube = 1500; G.bossBanner = 0; G.bossText = '';
+  G.slashes = []; G.cubes = []; G.parts = []; G.texts = []; G.stains = []; G.scars = []; G.debris = []; G.nextSlash = 2000; G.nextCube = 1500; G.bossBanner = 0; G.bossText = ''; G.inter = null; G.interPending = null;
   G.levelT = 0; G.phase = 1; G.slowmo = 0; G.themeFlash = 0; G.levelNote = '';
   G.timeScale = 1; G.shake = 0; G.zoom = 1; G.flash = 0; G.death = null; G.snapped = false; G.snapshot = null; G.snapshotUrl = ''; G.card = null; G.cardFile = null;
   G.continueUsed = false; G.cubesRun = 0; G.sapRun = 0; G.bonusSap = 0; G.near = 0; G.slashCount = 0; G.scared = 0;
@@ -669,12 +687,14 @@ function startRun(type, free, mode) {
 }
 // Sap earned during a run (cubes, kiwi near misses) also counts towards the level goal.
 function gainSap(v) {
+  if (G.inter && G.inter.phase === 'play') { G.inter.score += v; G.inter.n++; return; } // a minigame pays out at its end
   save.sap += v; G.sapRun += v; G.levelSap += v; track('sap', v);
   if (G.mode === 'rain' || G.mode === 'exam' || G.mode === 'knife') return; // the weekend games have no levels
   while (G.levelSap >= levelGoal(G.level)) {
     if (G.mode === 'normal') stamp(G.level, G.fruit); // level completed with this fruit: a stamp on the Fruitkaart
     G.levelSap -= levelGoal(G.level); G.level++; G.levelsGained++; G.levelBanner = 2600; G.bannerTitle = ''; G.inv = Math.max(G.inv, 1500); G.shake = 5;
     G.levelT = 0; G.phase = 1; G.nextSlash = Math.max(G.nextSlash, 1500); // the new level starts calm again
+    if (interDue(G.level)) G.interPending = interKindFor(G.level); // every fourth level opens with a minigame
     if (themeIndex(G.level) !== themeIndex(G.level - 1)) {
       G.themeFlash = 900; G.levelNote = 'Nieuwe keuken: ' + THEMES[themeIndex(G.level)].name;
       const pk = perkAt(Math.floor((G.level - 1) / 5)); if (pk && G.mode === 'normal') { G.perkBanner = 5500; G.perkName = pk.name; G.perkInfo = pk.info; track('kitchen', Math.floor((G.level - 1) / 5)); }
@@ -788,6 +808,7 @@ function checkCuts(s, x1, y1, x2, y2) {
     if (r.d < b.r + 2.5 + wide && !s.hit.has(b.id)) { s.hit.add(b.id); onHit(s, b, bx, by); if (G.state !== 'play') return; }
     else if (r.t >= 0 && r.t <= 1 && r.d < b.r + 18 + wide && !s.near.has(b.id) && !s.hit.has(b.id)) {
       s.near.add(b.id); G.near++; G.nearStreak++; SFX.near(); track('near', G.near);
+      if (G.inter && G.inter.kind === 'sprint' && G.inter.phase === 'play') { G.inter.score += 3; G.inter.n++; addText(bx, by - b.r - 8, 'Net niet! +3', INTER.sprint.col); continue; }
       const ns = f.nearSap ? Math.round(f.nearSap * boost('nearSap')) : 0;
       if (G.nearStreak % 3 === 0) { G.slowmo = Math.max(G.slowmo, 320); gainSap(2 + ns); addText(bx, by - b.r - 8, `Net niet ×${G.nearStreak}! +${2 + ns} sap`, '#ffd54a'); G.flash = .3; }
       else if (ns) { gainSap(ns); addText(bx, by - b.r - 8, `Net niet! +${ns} sap`, '#ffd54a'); }
@@ -797,6 +818,7 @@ function checkCuts(s, x1, y1, x2, y2) {
   }
 }
 function onHit(s, b, bx, by) {
+  if (G.inter) { if (G.inter.phase === 'play') { G.flash = .4; G.shake = 6; SFX.crack(); buzz(30); finishInter(true); } return; } // no dying in a minigame
   const f = fruitDef(); G.combo = 0; G.nearStreak = 0; track('hit');
   if (G.armor > 0) {
     G.armor--; G.inv = f.armorInv || 1000; G.flash = .5; G.shake = 8; burst(bx, by, 18, f.juice, 260); buzz(40);
@@ -898,12 +920,12 @@ function updatePlayer(dt) {
   const f = fruitDef(), ease = curEase(), sp = 360 * dt / 1000;
   if (drag) {
     const k2 = 1 - Math.exp(-dt / 1000 * 9); drag.off.x = lerp(drag.off.x, 0, k2); drag.off.y = lerp(drag.off.y, -LIFT, k2);
-    G.tx = drag.lx + drag.off.x; G.ty = drag.ly + drag.off.y;
+    G.tx = mirrored() ? W - (drag.lx + drag.off.x) : drag.lx + drag.off.x; G.ty = drag.ly + drag.off.y;
   } else {
     let kx = 0, ky = 0;
     if (keys.has('ArrowLeft') || keys.has('a')) kx--; if (keys.has('ArrowRight') || keys.has('d')) kx++;
     if (keys.has('ArrowUp') || keys.has('w')) ky--; if (keys.has('ArrowDown') || keys.has('s')) ky++;
-    G.tx += kx * sp; G.ty += ky * sp;
+    G.tx += (mirrored() ? -kx : kx) * sp; G.ty += ky * sp;
   }
   if (f.rotates) { G.spin += dt * .0011 + G.vx * dt * .00002; for (const b of G.bodies) { const c = Math.cos(G.spin), s = Math.sin(G.spin); b.ox = c * b.lx - s * b.ly; b.oy = s * b.lx + c * b.ly; } }
   const ext = G.bodies.reduce((m, b) => Math.max(m, Math.hypot(b.ox, b.oy) + b.r), 0) + 6;
@@ -932,7 +954,7 @@ const offBoard = (o, m) => o.x < -m || o.x > W + m || o.y < -m || o.y > H + m;
 function updateCubes(dt) {
   const f = fruitDef(), mult = f.sapMult || 1;
   G.nextCube -= dt;
-  if (G.nextCube <= 0 && G.cubes.length < cubeCap()) {
+  if (!G.inter && G.nextCube <= 0 && G.cubes.length < cubeCap()) {
     G.nextCube = rndR(2600, 4200) * (f.cubeRate || 1) * boost('cubes') * modeCubeRate() * Math.max(.45, 1 - .0055 * (G.level - 1));
     const gold = R() < Math.min(.3, .15 + .0015 * (G.level - 1)) + (G.mode === 'rain' ? .15 : 0) + (hasPerk(4) ? .15 : 0);
     G.cubes.push(Object.assign(edgeSpawn(rndR(34, 46), 24), { ph: Math.random() * TAU, r: gold ? 14 : 11, gold, rot: rnd(-.3, .3), dead: false, t: 0 }));
@@ -1298,6 +1320,77 @@ async function shareCard() {
   }
 }
 
+// ---- Tussenspel: every fourth level of a normal run (5, 9, 13, ...) opens with a 12-second minigame, a different
+// one each time, so the rhythm keeps changing. Nothing can kill you here; the score is paid out in sap at the end
+// and the run's clock and level timer wait.
+const INTER = {
+  storm:   { name: 'Suikerstorm',     how: ['Klontjes van alle kanten!', 'Pak er zoveel je kunt in 12 s.'], short: 'pak de klontjes', target: 20, col: '#8fd3ff' },
+  tik:     { name: 'Tik de klontjes', how: ['Klontjes floepen op en verdwijnen weer.', 'Tik ze aan voor ze weg zijn.'], short: 'tik de klontjes aan', target: 14, col: '#ffd54a' },
+  spiegel: { name: 'Spiegelkeuken',   how: ['Links is rechts en rechts is links!', 'Verzamel klontjes met omgekeerde besturing.'], short: 'links = rechts!', target: 10, col: '#b78cff' },
+  sprint:  { name: 'Net-niet-sprint', how: ['Trage, brede messen, geen gevaar.', 'Scheer er rakelings langs: elke "net niet" is 3.'], short: 'scheer langs het mes', target: 12, col: '#ff9a5a' },
+};
+const INTER_ORDER = ['storm', 'tik', 'spiegel', 'sprint'], INTER_EVERY = 4, INTER_DUR = 12000, INTER_INTRO = 2200, INTER_OUTRO = 2000, INTER_CAP = 40; // sap per minigame, bonus aside
+const interDue = level => G.mode === 'normal' && level > 1 && (level - 1) % INTER_EVERY === 0;
+const interKindFor = level => INTER_ORDER[(Math.floor((level - 1) / INTER_EVERY) - 1 + INTER_ORDER.length * 8) % INTER_ORDER.length];
+const mirrored = () => !!(G.inter && G.inter.kind === 'spiegel' && G.inter.phase === 'play');
+function startInter(kind) {
+  if (G.state !== 'play' || !INTER[kind]) return;
+  G.inter = { kind, phase: 'intro', t: 0, left: INTER_DUR, score: 0, n: 0, total: 0, taps: [], spawn: 0, result: [], perkLater: G.perkBanner > 0 ? G.perkBanner : 0 };
+  G.slashes = []; G.hazards = []; G.drop = null; G.levelBanner = 0; G.bossBanner = 0; G.perkBanner = 0; G.inv = Math.max(G.inv, 800); G.combo = 0; SFX.slow(); setTimeout(() => SFX.go(), 120);
+}
+function updateInter(dt) {
+  const it = G.inter; it.t += dt;
+  if (it.phase === 'intro') { if (it.t >= INTER_INTRO) { it.phase = 'play'; it.t = 0; } return; }
+  if (it.phase === 'done') { if (it.t >= INTER_OUTRO) endInter(); return; }
+  it.left -= dt; it.spawn -= dt;
+  const cube = (speed, goldChance) => { const gold = Math.random() < goldChance; G.cubes.push(Object.assign(edgeSpawn(speed, 24), { ph: Math.random() * TAU, r: gold ? 14 : 11, gold, rot: rnd(-.3, .3), dead: false, t: 0 })); };
+  if (it.kind === 'storm') { if (it.spawn <= 0 && G.cubes.length < 10) { it.spawn = 420; cube(rndR(70, 110), .2); } }
+  else if (it.kind === 'spiegel') { if (it.spawn <= 0 && G.cubes.length < 8) { it.spawn = 600; cube(rndR(40, 60), .2); } }
+  else if (it.kind === 'sprint') { if (it.spawn <= 0) { it.spawn = 900; const a = Math.random() * Math.PI, off = rnd(26, 58) * (Math.random() < .5 ? -1 : 1); lineThrough(G.px + Math.cos(a + Math.PI / 2) * off, G.py + Math.sin(a + Math.PI / 2) * off, a, 0, { tele: 1100, dur: 260 }); } }
+  else if (it.kind === 'tik') {
+    if (it.spawn <= 0 && it.taps.length < 4) { it.spawn = 700; it.taps.push({ x: rnd(40, W - 40), y: rnd(110, H - 50), gold: Math.random() < .2, t: 0, life: 1400 }); }
+    for (const c of it.taps) c.t += dt; it.taps = it.taps.filter(c => c.t < c.life);
+  }
+  if (it.left <= 0) finishInter(false);
+}
+function interTap(x, y) {
+  const it = G.inter; if (!it || it.kind !== 'tik' || it.phase !== 'play') return false; let best = null, bd = 36;
+  for (const c of it.taps) { const d = Math.hypot(c.x - x, c.y - y); if (d < bd) { bd = d; best = c; } }
+  if (!best) return false; it.taps = it.taps.filter(c => c !== best); const v = best.gold ? 5 : 1; it.score += v; it.n++;
+  burst(best.x, best.y, 14, ['#ffffff', '#ffe9a8'], 200); addText(best.x, best.y - 20, `+${v}`, INTER.tik.col); SFX.collect(); return true;
+}
+function finishInter(hit) {
+  const it = G.inter, d = INTER[it.kind]; if (it.phase !== 'play') return; const bonus = !hit && it.score >= d.target ? 10 : 0, capped = it.score > INTER_CAP; it.total = Math.min(it.score, INTER_CAP) + bonus; it.phase = 'done'; it.t = 0; it.taps = []; G.slashes = [];
+  it.result = hit ? ['Au! Geraakt, maar niets verloren.', `${it.score} sap, geen bonus.`] : [`${it.score} sap${bonus ? ' · doel gehaald!' : ''}${capped ? ` (max ${INTER_CAP})` : ''}`, bonus ? '+10 bonus-sap erbij.' : `Het doel was ${d.target}. Volgende keer!`];
+  save.sap += it.total; G.sapRun += it.total; save.stats.interDone = (save.stats.interDone || 0) + 1; track('inter', { kind: it.kind, score: it.score, hit });
+  if (it.total) addText(G.px, G.py - curR() - 26, `+${it.total} sap`, d.col); SFX.go(); store();
+}
+// When a minigame ends its own cubes vanish with it, so nothing it spawned pays out twice.
+function endInter() { const it = G.inter; G.inter = null; for (const c of G.cubes) if (!c.dead) burst(c.x, c.y, 4, ['#ffffff', '#ffe9a8'], 120); G.cubes = []; G.nextCube = 1200; G.nextSlash = 1500; G.inv = Math.max(G.inv, 1200); if (it.perkLater) G.perkBanner = it.perkLater; }
+function drawTaps() {
+  for (const c of G.inter.taps) {
+    const k = 1 - c.t / c.life, sz = c.gold ? 14 : 11, pop = Math.min(1, c.t / 150); ctx.save(); ctx.translate(c.x, c.y); ctx.scale(pop, pop);
+    ctx.strokeStyle = INTER.tik.col; ctx.lineWidth = 3; ctx.globalAlpha = .9; ctx.beginPath(); ctx.arc(0, 0, sz + 12, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke(); ctx.globalAlpha = 1;
+    drawSugar(0, 0, sz, c.gold, 0); ctx.restore();
+  }
+}
+function drawInterHud() {
+  const it = G.inter, d = INTER[it.kind];
+  if (it.phase === 'intro' || it.phase === 'done') {
+    const len = it.phase === 'intro' ? INTER_INTRO : INTER_OUTRO, a = clamp(Math.min(it.t / 250, (len - it.t) / 300), 0, 1), y = H * .36, lines = it.phase === 'intro' ? d.how : it.result;
+    ctx.globalAlpha = a; ctx.fillStyle = 'rgba(20,10,40,.8)'; ctx.fillRect(0, y, W, 118); ctx.fillStyle = d.col; ctx.fillRect(0, y, W, 5);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#fff4e4'; ctx.font = `800 12px ${FU}`; ctx.fillText(it.phase === 'intro' ? 'TUSSENSPEL · EVEN IETS ANDERS' : 'TUSSENSPEL VOORBIJ', W / 2, y + 14);
+    ctx.fillStyle = d.col; ctx.font = `700 30px ${FD}`; ctx.fillText(it.phase === 'intro' ? d.name : `+${it.total} sap`, W / 2, y + 32);
+    ctx.fillStyle = '#fff4e4'; ctx.font = `800 13px ${FU}`; ctx.fillText(lines[0] || '', W / 2, y + 76); ctx.fillText(lines[1] || '', W / 2, y + 94); ctx.globalAlpha = 1; return;
+  }
+  const bw = 240, bx = W / 2 - bw / 2, by = G.power ? 134 : 80, frac = clamp(it.left / INTER_DUR, 0, 1);
+  ctx.fillStyle = 'rgba(20,10,40,.8)'; ctx.fillRect(bx, by, bw, 48); ctx.fillStyle = d.col; ctx.fillRect(bx, by, 6, 48);
+  ctx.textAlign = 'left'; ctx.font = `800 15px ${FU}`; ctx.fillStyle = d.col; ctx.fillText(d.name, bx + 16, by + 7);
+  ctx.textAlign = 'right'; ctx.fillStyle = '#fff4e4'; ctx.fillText(`${Math.ceil(it.left / 1000)} s`, bx + bw - 10, by + 7);
+  ctx.textAlign = 'left'; ctx.font = `600 11.5px ${FU}`; ctx.fillText(`${it.score} / ${d.target} · ${d.short}`, bx + 16, by + 27);
+  ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(bx + 6, by + 44, bw - 6, 4); ctx.fillStyle = d.col; ctx.fillRect(bx + 6, by + 44, (bw - 6) * frac, 4);
+}
+
 // ---- Update
 function update(real) {
   switch (G.state) {
@@ -1309,7 +1402,10 @@ function update(real) {
     case 'play': {
       // A bonus pickup slows the world to 15% for three seconds (the fruit still follows the finger at full speed).
       const ts = G.slowmo > 0 ? (G.slowmo > 600 ? .15 : lerp(1, .15, G.slowmo / 600)) : 1; if (G.slowmo > 0) G.slowmo -= real;
-      const dt = real * ts; G.t += dt; G.levelT += dt;
+      const dt = real * ts;
+      if (G.interPending && !G.inter && G.levelBanner < 1500) { startInter(G.interPending); G.interPending = null; }
+      if (G.inter) { updateInter(dt); updatePlayer(real); updateSlashes(dt); updateCubes(dt); updateFx(dt, real); break; } // the run's clock and level timer wait
+      G.t += dt; G.levelT += dt;
       if (G.mode === 'normal' && hasPerk(8) && G.t >= (G.shellGiven + 1) * 60000) { G.shellGiven++; G.armor++; addText(G.px, G.py - curR() - 26, 'Taaie schil: +1', '#ffd54a'); SFX.collect(); }
       updatePlayer(real); updatePowers(dt); updateSpawner(dt); updateHazards(dt); updateSlashes(dt); updateCubes(dt); updateMode(dt); updateFx(dt, real); break;
     }
@@ -1322,7 +1418,7 @@ function update(real) {
     }
     case 'continue': { contT -= real; $('#cont-bar').style.width = clamp(contT / 7000 * 100, 0, 100) + '%'; updateFx(real * .2, real); if (contT <= 0) finishRun(); break; }
     case 'ad': { adT -= real; if (!save.noAds) $('#ad-count').textContent = Math.max(1, Math.ceil(adT / 1000)); if (adT <= 0) { const then = adThen; adThen = null; if (then) then(); else doContinue(); } break; }
-    case 'over': case 'pause': case 'today': case 'album': case 'pass': case 'shop': case 'kaart': updateFx(real * .3, real); break;
+    case 'over': case 'pause': case 'today': case 'album': case 'pass': case 'shop': case 'kaart': case 'fruit': updateFx(real * .3, real); break;
   }
 }
 
@@ -1784,6 +1880,7 @@ function drawHud() {
     ctx.fillStyle = '#fff'; ctx.font = `700 36px ${FD}`; ctx.fillText('DE CHEF!', W / 2, H * .3 + 6);
     ctx.fillStyle = '#ffd54a'; ctx.font = `800 14px ${FU}`; ctx.fillText(G.bossText, W / 2, H * .3 + 44); ctx.globalAlpha = 1;
   }
+  if (G.inter) drawInterHud();
   ctx.restore();
 }
 function render() {
@@ -1796,7 +1893,7 @@ function render() {
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
   if (G.state === 'dying' && G.death) { ctx.translate(G.death.x, G.death.y); ctx.scale(G.zoom, G.zoom); ctx.translate(-G.death.x, -G.death.y); }
   ctx.drawImage(board, 0, 0, W, H);
-  drawStains(); drawScars(); drawHazards(); drawCubes(); drawDrop(); drawSlashes(0);
+  drawStains(); drawScars(); drawHazards(); drawCubes(); if (G.inter && G.inter.kind === 'tik') drawTaps(); drawDrop(); drawSlashes(0);
   if (G.state !== 'menu') { if (G.mode === 'knife') drawAI(); else { drawPlayer(); if (G.state === 'play') drawPowerAura(); } }
   drawDebris(); drawParticles(); drawSlashes(1); drawTexts();
   if (G.flash > .02) { ctx.fillStyle = `rgba(255,60,40,${G.flash * .35})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
@@ -1819,9 +1916,11 @@ function renderSapIcon() { const c = $('#menu-sap-icon'); if (!c) return; const 
 function buildMenu() {
   $('#menu-best').textContent = fmtTime(save.best); $('#menu-sap').textContent = String(save.sap); $('#menu-runs').textContent = String(save.runs); $('#menu-level').textContent = String(save.level);
   $('#menu-hearts').innerHTML = heartsHTML(); $('#menu-heart-timer').textContent = heartsLine(); heartTick = 1000;
-  $('#today-badge').hidden = todayBadge() === 0;
-  $('#btn-sound').textContent = save.sound ? 'Geluid: aan' : 'Geluid: uit'; $('#ver').textContent = HOOK.testAll ? 'Testmodus: alle fruit tijdelijk vrij' : 'Prototype v0.7 · geen echte aankopen';
+  $('#btn-sound').textContent = save.sound ? 'Geluid: aan' : 'Geluid: uit'; $('#ver').textContent = HOOK.testAll ? 'Testmodus: alle fruit tijdelijk vrij' : 'Prototype v0.8 · geen echte aankopen';
   renderSapIcon();
+  updateLevelPick(); renderPick();
+}
+function buildFruitGrid() {
   if (!FRUITS[menuSel]) menuSel = save.fruit;
   const list = $('#fruit-list'); list.innerHTML = '';
   for (const key of ORDER) {
@@ -1830,7 +1929,7 @@ function buildMenu() {
     const c = document.createElement('canvas'); c.width = c.height = 88; renderIcon(c.getContext('2d'), key, 44, !own); card.append(c);
     const nm = document.createElement('span'); nm.textContent = f.name; card.append(nm);
     const st = document.createElement('span'); st.className = 'st' + (own && fruitMedal(key) ? ' medal ' + fruitMedal(key) : ''); st.textContent = own ? (fruitMedal(key) || (save.fruit === key ? 'gekozen' : 'vrij')) : `${f.price} sap`; card.append(st);
-    card.addEventListener('click', () => { SFX.click(); menuSel = key; buildMenu(); });
+    card.addEventListener('click', () => { SFX.click(); menuSel = key; buildFruitGrid(); });
     list.append(card);
   }
   const f = FRUITS[menuSel], own = owned(menuSel);
@@ -1838,17 +1937,26 @@ function buildMenu() {
   const lv = xpLevel(menuSel), xp = save.xp[menuSel] || 0, fl = fruitLevels(menuSel), md = fruitMedal(menuSel);
   $('#detail-name').textContent = f.name; $('#detail-trait').textContent = f.trait;
   $('#detail-xp').textContent = own ? `Niveau ${lv}${lv >= 5 ? ' (eigenschap versterkt)' : ` · ${xp}/${xpForLevel(lv + 1)} s tot sterker`} · ${fl} level${fl === 1 ? '' : 's'} uitgespeeld${md ? ` · ${md}` : ' · brons bij 10'}` : 'Speeltijd versterkt de eigenschap (niveau 5); uitgespeelde levels geven medailles, goud bij 50.';
-  updateLevelPick();
   $('#detail-price').textContent = own ? (f.price ? `Ontgrendeld (${f.price} sap).` : 'Gratis startfruit.') : (save.sap < f.price ? `Kost ${f.price} sap, je hebt er ${save.sap}. Later ook ${f.eur}.` : `Kost ${f.price} sap. Later ook ${f.eur}.`);
   const b = $('#btn-choose'); b.className = 'btn' + (own && save.fruit === menuSel ? ' primary' : '');
   b.textContent = own ? (save.fruit === menuSel ? 'Gekozen' : 'Kies') : `Koop · ${f.price} sap`; b.disabled = !own && save.sap < f.price;
 }
 $('#btn-choose').addEventListener('click', () => {
-  const f = FRUITS[menuSel]; SFX.click();
-  if (owned(menuSel)) { if (HOOK.testAll && !save.owned.includes(menuSel)) { save.fruit = menuSel; buildMenu(); return; } save.fruit = menuSel; }
-  else if (save.sap >= f.price) { save.sap -= f.price; save.owned.push(menuSel); save.fruit = menuSel; SFX.collect(); }
-  store(); buildMenu();
+  const f = FRUITS[menuSel]; SFX.click(); let ok = false;
+  if (owned(menuSel)) { save.fruit = menuSel; ok = true; }
+  else if (save.sap >= f.price) { save.sap -= f.price; save.owned.push(menuSel); save.fruit = menuSel; SFX.collect(); ok = true; }
+  store(); if (ok) openMenu(); else buildFruitGrid(); // a chosen fruit takes you straight back to Spelen
 });
+// The fruit screen: all fruits with their traits, one tap away from the menu's "Je speelt als" row and the hub.
+// A "!" on both means a new fruit is affordable right now.
+function unlockable() { return ORDER.some(k => !owned(k) && save.sap >= FRUITS[k].price); }
+function renderPick() {
+  const f = FRUITS[save.fruit]; renderIcon($('#pick-icon').getContext('2d'), save.fruit, 40, false, { hat: save.hat, gold: isGold(save.fruit) });
+  $('#pick-name').textContent = f.name; const u = unlockable(); $('#pick-sub').textContent = u ? 'Nieuw fruit te ontgrendelen! Tik om te kijken.' : 'Tik om van fruit te wisselen.'; $('#fruit-badge').hidden = !u;
+}
+function openFruit() { G.state = 'fruit'; menuSel = save.fruit; buildFruitGrid(); showScreen('scr-fruit'); pauseBtn.hidden = true; }
+$('#btn-fruit').addEventListener('click', () => { SFX.click(); openFruit(); });
+$('#btn-fruit-back').addEventListener('click', () => { SFX.click(); openMenu(); });
 $('#ver').addEventListener('click', () => { verTaps++; if (verTaps >= 5) { verTaps = 0; HOOK.testAll = !HOOK.testAll; if (!HOOK.testAll && !save.owned.includes(save.fruit)) save.fruit = 'appel'; buildMenu(); } });
 
 // ---- Input
@@ -1861,7 +1969,7 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => keys.delete(e.key));
 function toLogical(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left - ax) / S, y: (e.clientY - r.top - ay) / S }; }
 canvas.addEventListener('pointerdown', e => {
-  AU.init(); if (G.state !== 'play') return; const p = toLogical(e);
+  AU.init(); if (G.state !== 'play') return; const p = toLogical(e); interTap(p.x, p.y);
   drag = { id: e.pointerId, lx: p.x, ly: p.y, off: { x: G.tx - p.x, y: G.ty - p.y }, sx: p.x, sy: p.y };
   try { canvas.setPointerCapture(e.pointerId); } catch (err) {} e.preventDefault();
 });
@@ -2103,7 +2211,6 @@ function openToday(focus) {
   showScreen('scr-today'); pauseBtn.hidden = true;
   if (typeof focus === 'string') { const el = $('#' + focus); if (el) { el.classList.add('focus'); setTimeout(() => el.classList.remove('focus'), 1800); requestAnimationFrame(() => el.scrollIntoView({ block: 'start', behavior: 'smooth' })); } }
 }
-$('#btn-today').addEventListener('click', () => { SFX.click(); openToday(); });
 $('#btn-today-back').addEventListener('click', () => { SFX.click(); openMenu(); });
 
 // ---- Fruitkaart: a stamp for every (level, fruit) pair you complete. Rows (a level with all 14 fruits),
@@ -2168,7 +2275,6 @@ function openKaart() {
   $('#kaart-body').querySelectorAll('[data-kl]').forEach(btn => btn.addEventListener('click', () => { SFX.click(); save.startLevel = +btn.dataset.kl; if (btn.dataset.kf && owned(btn.dataset.kf)) save.fruit = btn.dataset.kf; store(); startRun(save.fruit); }));
   showScreen('scr-kaart'); pauseBtn.hidden = true;
 }
-$('#btn-kaart').addEventListener('click', () => { SFX.click(); openKaart(); });
 $('#btn-kaart-back').addEventListener('click', () => { SFX.click(); openMenu(); });
 function updateLevelPick() {
   const box = $('#lvpick'); box.hidden = save.level <= 1; const cur = clamp(save.startLevel || save.level, 1, save.level);
@@ -2280,15 +2386,14 @@ function openShop() {
   }));
   showScreen('scr-shop'); pauseBtn.hidden = true;
 }
-$('#btn-shop').addEventListener('click', () => { SFX.click(); openShop(); });
 $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); });
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.7.1', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.8.0', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
-  openToday, openMenu, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
+  openToday, openMenu, openFruit, unlockable, INTER, startInter, interTap, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,
   WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, buySpins, nextSpinKind, modeCubeRate, cubeCap, pause, resume, hubGo, hubBadges, passClaimable,

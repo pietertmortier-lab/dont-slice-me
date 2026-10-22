@@ -25,7 +25,7 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Compacter beginmenu: Spelen staat meteen in beeld. Het fruit kies je op een eigen scherm (de rij "Je speelt als" of de knop Fruit onderaan). Een uitroepteken betekent dat je een nieuw fruit kunt ontgrendelen.
 - Balk onderaan met Home, Fruit, Vandaag, Rad, Spellen, Stempels en Winkel; een rood uitroepteken zegt dat daar iets voor je klaarstaat.
-- Tussenspel: om de vier levels (5, 9, 13, ...) een minigame van 15 seconden (met aftelling vooraf; alles pak je door erover te zweven): Suikerstorm, Tik de klontjes, Spiegelkeuken en Net-niet-sprint. Je kunt er niet in doodgaan; de score wordt sap (maximaal 40, plus 10 bonus bij het doel).
+- Tussenspel: om de vier levels (5, 9, 13, ...) een minigame van 15 seconden (met aftelling vooraf; alles pak je door erover te zweven): Suikerstorm, Spiegelkeuken en Net-niet-sprint. Je kunt er niet in doodgaan; de score wordt sap (maximaal 40, plus 10 bonus bij het doel).
 - Mes van de dag laat dubbel zoveel klontjes vallen. Het rad toont zijn prijzen als symbolen. Draaien kopen staat uit (kansspelwet). Elk onderdeel legt zichzelf uit voor je erop tikt.
 
 ## Nieuw in v0.9 (22 oktober, nacht)

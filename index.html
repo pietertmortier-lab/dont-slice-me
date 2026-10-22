@@ -1408,22 +1408,21 @@ async function shareCard() {
   }
 }
 
-// ---- Tussenspel: every fourth level of a normal run (5, 9, 13, ...) opens with a 12-second minigame, a different
-// one each time, so the rhythm keeps changing. Nothing can kill you here; the score is paid out in sap at the end
+// ---- Tussenspel: every fourth level of a normal run (5, 9, 13, ...) opens with a 15-second minigame, a different
+// one each time, so the rhythm keeps changing. Everything in them is collected by hovering the fruit over it. Nothing can kill you here; the score is paid out in sap at the end
 // and the run's clock and level timer wait.
 const INTER = {
   storm:   { name: 'Suikerstorm',     how: ['Klontjes van alle kanten!', 'Zweef erover met je fruit: 15 s lang.'], short: 'zweef over de klontjes', target: 12, col: '#8fd3ff' },
-  tik:     { name: 'Tik de klontjes', how: ['Klontjes floepen op en verdwijnen weer.', 'Raak ze aan met je fruit of tik erop.'], short: 'raak ze aan of tik erop', target: 8, col: '#ffd54a' },
   spiegel: { name: 'Spiegelkeuken',   how: ['Links is rechts en rechts is links!', 'Verzamel klontjes met omgekeerde besturing.'], short: 'links = rechts!', target: 6, col: '#b78cff' },
   sprint:  { name: 'Net-niet-sprint', how: ['Trage messen, geen gevaar.', 'Blijf er rakelings naast: elke "net niet" is 3.'], short: 'blijf rakelings naast het mes', target: 6, col: '#ff9a5a' },
 };
-const INTER_ORDER = ['storm', 'tik', 'spiegel', 'sprint'], INTER_EVERY = 4, INTER_DUR = 15000, INTER_INTRO = 3000, INTER_OUTRO = 2000, INTER_CAP = 40; // sap per minigame, bonus aside
+const INTER_ORDER = ['storm', 'spiegel', 'sprint'], INTER_EVERY = 4, INTER_DUR = 15000, INTER_INTRO = 3000, INTER_OUTRO = 2000, INTER_CAP = 40; // sap per minigame, bonus aside
 const interDue = level => G.mode === 'normal' && level > 1 && (level - 1) % INTER_EVERY === 0;
-const interKindFor = level => INTER_ORDER[(Math.floor((level - 1) / INTER_EVERY) - 1 + INTER_ORDER.length * 8) % INTER_ORDER.length];
+const interKindFor = level => INTER_ORDER[(Math.floor((level - 1) / INTER_EVERY) - 1 + INTER_ORDER.length * 12) % INTER_ORDER.length];
 const mirrored = () => !!(G.inter && G.inter.kind === 'spiegel' && G.inter.phase === 'play');
 function startInter(kind) {
   if (G.state !== 'play' || !INTER[kind]) return;
-  G.inter = { kind, phase: 'intro', t: 0, left: INTER_DUR, score: 0, n: 0, total: 0, taps: [], spawn: 0, result: [], perkLater: G.perkBanner > 0 ? G.perkBanner : 0 };
+  G.inter = { kind, phase: 'intro', t: 0, left: INTER_DUR, score: 0, n: 0, total: 0, spawn: 0, result: [], perkLater: G.perkBanner > 0 ? G.perkBanner : 0 };
   G.slashes = []; G.hazards = []; G.drop = null; G.cubes = []; G.levelBanner = 0; G.bossBanner = 0; G.perkBanner = 0; G.inv = Math.max(G.inv, 800); G.combo = 0; SFX.slow(); setTimeout(() => SFX.go(), 120);
 }
 function updateInter(dt) {
@@ -1435,24 +1434,10 @@ function updateInter(dt) {
   if (it.kind === 'storm') { if (it.spawn <= 0 && G.cubes.length < 12) { it.spawn = 360; cube(rndR(60, 95), .2); } }
   else if (it.kind === 'spiegel') { if (it.spawn <= 0 && G.cubes.length < 9) { it.spawn = 500; cube(rndR(35, 55), .2); } }
   else if (it.kind === 'sprint') { if (it.spawn <= 0) { it.spawn = 900; const a = Math.random() * Math.PI, off = rnd(26, 58) * (Math.random() < .5 ? -1 : 1); lineThrough(G.px + Math.cos(a + Math.PI / 2) * off, G.py + Math.sin(a + Math.PI / 2) * off, a, 0, { tele: 1100, dur: 260 }); } }
-  else if (it.kind === 'tik') {
-    if (it.spawn <= 0 && it.taps.length < 5) { it.spawn = 650; it.taps.push({ x: rnd(40, W - 40), y: rnd(110, H - 50), gold: Math.random() < .2, t: 0, life: 3000 }); }
-    for (const c of it.taps) { c.t += dt; for (const b of G.bodies) if (Math.hypot(G.px + b.ox - c.x, G.py + b.oy - c.y) < b.r + 16) c.hit = true; }
-    for (const c of it.taps.filter(c => c.hit)) collectTap(c); it.taps = it.taps.filter(c => c.t < c.life);
-  }
   if (it.left <= 0) finishInter(false);
 }
-function collectTap(c) {
-  const it = G.inter; if (!it || !it.taps.includes(c)) return; it.taps = it.taps.filter(x => x !== c); const v = c.gold ? 5 : 1; it.score += v; it.n++;
-  burst(c.x, c.y, 14, ['#ffffff', '#ffe9a8'], 200); addText(c.x, c.y - 20, `+${v}`, INTER.tik.col); SFX.collect();
-}
-function interTap(x, y) {
-  const it = G.inter; if (!it || it.kind !== 'tik' || it.phase !== 'play') return false; let best = null, bd = 36;
-  for (const c of it.taps) { const d = Math.hypot(c.x - x, c.y - y); if (d < bd) { bd = d; best = c; } }
-  if (!best) return false; collectTap(best); return true;
-}
 function finishInter(hit) {
-  const it = G.inter, d = INTER[it.kind]; if (it.phase !== 'play') return; const bonus = !hit && it.score >= d.target ? 10 : 0, capped = it.score > INTER_CAP; it.total = Math.min(it.score, INTER_CAP) + bonus; it.phase = 'done'; it.t = 0; it.taps = []; G.slashes = [];
+  const it = G.inter, d = INTER[it.kind]; if (it.phase !== 'play') return; const bonus = !hit && it.score >= d.target ? 10 : 0, capped = it.score > INTER_CAP; it.total = Math.min(it.score, INTER_CAP) + bonus; it.phase = 'done'; it.t = 0; G.slashes = [];
   for (const c of G.cubes) if (!c.dead) burst(c.x, c.y, 4, ['#ffffff', '#ffe9a8'], 120); G.cubes = []; // the game's cubes vanish with its end signal
   it.result = hit ? ['Geraakt, maar niets verloren: je houdt alles.', `${it.score} sap verdiend; bij ${d.target} zit er 10 bonus bij.`] : [`${it.score} sap verdiend${bonus ? ' · doel gehaald!' : ''}${capped ? ` (max ${INTER_CAP})` : ''}`, bonus ? '+10 bonus-sap erbij.' : `Vanaf ${d.target} zit er 10 bonus bij. Alles is van jou.`];
   save.sap += it.total; G.sapRun += it.total; save.stats.interDone = (save.stats.interDone || 0) + 1; track('inter', { kind: it.kind, score: it.score, hit });
@@ -1460,13 +1445,6 @@ function finishInter(hit) {
 }
 // When a minigame ends its own cubes vanish with it, so nothing it spawned pays out twice.
 function endInter() { const it = G.inter; G.inter = null; G.nextCube = 1200; G.nextSlash = 1500; G.inv = Math.max(G.inv, 1200); if (it.perkLater) G.perkBanner = it.perkLater; }
-function drawTaps() {
-  for (const c of G.inter.taps) {
-    const k = 1 - c.t / c.life, sz = c.gold ? 14 : 11, pop = Math.min(1, c.t / 150); ctx.save(); ctx.translate(c.x, c.y); ctx.scale(pop, pop);
-    ctx.strokeStyle = INTER.tik.col; ctx.lineWidth = 3; ctx.globalAlpha = .9; ctx.beginPath(); ctx.arc(0, 0, sz + 12, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke(); ctx.globalAlpha = 1;
-    drawSugar(0, 0, sz, c.gold, 0); ctx.restore();
-  }
-}
 function drawInterHud() {
   const it = G.inter, d = INTER[it.kind];
   if (it.phase === 'intro' || it.phase === 'done') {
@@ -2080,7 +2058,7 @@ function render() {
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
   if (G.state === 'dying' && G.death) { ctx.translate(G.death.x, G.death.y); ctx.scale(G.zoom, G.zoom); ctx.translate(-G.death.x, -G.death.y); }
   ctx.drawImage(board, 0, 0, W, H);
-  drawStains(); drawScars(); drawZones(); drawHazards(); drawCubes(); drawSeekers(); drawDecoy(); if (G.inter && G.inter.kind === 'tik') drawTaps(); drawDrop(); drawSlashes(0);
+  drawStains(); drawScars(); drawZones(); drawHazards(); drawCubes(); drawSeekers(); drawDecoy(); drawDrop(); drawSlashes(0);
   if (G.state !== 'menu') { if (G.mode === 'knife') drawAI(); else { drawPlayer(); if (G.state === 'play') drawPowerAura(); } }
   drawForkWarning(); // on top of the fruit: the fork strikes where you are, so its warning must not hide under you
   drawDebris(); drawParticles(); drawSlashes(1); drawTexts();
@@ -2171,7 +2149,7 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => keys.delete(e.key));
 function toLogical(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left - ax) / S, y: (e.clientY - r.top - ay) / S }; }
 canvas.addEventListener('pointerdown', e => {
-  AU.init(); if (G.state !== 'play') return; const p = toLogical(e); interTap(p.x, p.y);
+  AU.init(); if (G.state !== 'play') return; const p = toLogical(e);
   drag = { id: e.pointerId, lx: p.x, ly: p.y, off: { x: G.tx - p.x, y: G.ty - p.y }, sx: p.x, sy: p.y };
   try { canvas.setPointerCapture(e.pointerId); } catch (err) {} e.preventDefault();
 });
@@ -2590,11 +2568,11 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.9.3', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.9.4', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
   openToday, openMenu, openFruit, openHelp, markSeen, markFresh, powerScale, powerInfo, liftFor, unlockable, INTER, spawnSeekers, addZone, zoneSlow, shrinkStage, fruitJitter, drawForkWarning,
-  lineNear(off, tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; return lineThrough(G.px + b.ox + off, G.py + b.oy, Math.PI / 2, 0, { tele: tele || 60, dur: 160 }); }, startInter, interTap, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
+  lineNear(off, tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; return lineThrough(G.px + b.ox + off, G.py + b.oy, Math.PI / 2, 0, { tele: tele || 60, dur: 160 }); }, startInter, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,
   WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, buySpins, nextSpinKind, modeCubeRate, cubeCap, pause, resume, hubGo, hubBadges, passClaimable,

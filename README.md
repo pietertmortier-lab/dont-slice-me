@@ -43,3 +43,7 @@ from there by hand, so the version label in the menu tells you which build you a
 - Winkel: Dagdeal (elke dag één fruit voor de helft), Keukensleutel (je volgende keukenbonus nu al), Startboost (begin een poging met een bonusvoorwerp), Sapverdubbelaar (een uur dubbel sap), Fruitmanden (een hele familie in één keer), Spelletjesmunten. Alles blijft simulatie en is ook met sap te verdienen.
 - Los spelletje: op Vandaag speel je met een munt een tussenspel buiten een poging. Twee nieuwe tussenspelletjes: Kersen plukken en Goudkoorts.
 - Fruitkaart: de laatste één of twee stempels van een rij zijn te koop (simulatie).
+
+## Nieuw in v0.11
+
+- Fruitvlucht Plus als simulatie: 7 dagen gratis proberen, daarna maand of jaar. Geen reclame, hartjes groeien dubbel zo snel en één extra, Fruitpas premium elk seizoen, elke dag 2 munten en een Startboost, Dagdeal voor een derde, elke maand een fruit gratis te spelen, gouden koksmuts en de bordskin Plus-marmer. Opzeggen kan altijd; je houdt het hoedje en de skin.

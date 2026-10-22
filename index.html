@@ -1935,7 +1935,7 @@ function checkStickers() {
 }
 function openAlbum() {
   G.state = 'album'; checkStickers(); const got = Object.keys(save.stickers).length, pk = perkKitchen();
-  const st = STICKERS.map(s => `<div class="fcard${save.stickers[s.id] ? ' sel' : ' locked'}" title="${s.info}"><span class="star">${save.stickers[s.id] ? '★' : '☆'}</span><span>${s.name}</span><span class="st">${save.stickers[s.id] ? 'behaald' : s.info}</span></div>`).join('');
+  const st = STICKERS.map(s => `<div class="fcard stk${save.stickers[s.id] ? ' sel' : ' locked'}" title="${s.info}"><span class="star">${save.stickers[s.id] ? '★' : '☆'}</span><span>${s.name}</span><span class="st">${save.stickers[s.id] ? 'behaald' : s.info}</span></div>`).join('');
   const perks = pk ? Array.from({ length: pk }, (_, i) => perkAt(i + 1)).map((p, i) => `<div class="small"><b>${p.name}</b> (keuken ${i + 2}): ${p.info}</div>`).join('') : '<div class="small">Nog geen. Elke nieuwe keuken (level 6, 11, 16, ...) geeft er een die je houdt.</div>';
   const nextPk = perkAt(pk + 1);
   const fruits = ORDER.map(k => { const f = FRUITS[k], own = owned(k), lv = xpLevel(k); return `<div class="mrow"><canvas class="al-ic" data-f="${k}" width="88" height="88" style="width:44px;height:44px;flex:0 0 44px"></canvas><div class="mt"><b>${f.name}</b> ${own ? `· niveau ${lv}${lv >= 10 ? ' (goud)' : ''}` : '· nog niet ontgrendeld'}<div class="small">${own ? `${save.stats.cutsBy[k] || 0}× gesneden · record ${fmtTime(save.bestBy[k] || 0)} · ${save.xp[k] || 0} s gespeeld` : f.trait}</div></div><canvas class="al-cs" data-f="${k}" width="96" height="96" style="width:48px;height:48px;flex:0 0 48px"></canvas></div>`; }).join('');

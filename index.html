@@ -90,6 +90,12 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .pickrow .pn b{font-family:var(--font-display);font-size:18px;font-weight:600}
 .pickrow .pn small{font-size:12px;color:var(--ink-dim)}
 .pickrow .chev{font-size:26px;color:var(--ink-dim);line-height:1}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{position:relative;display:flex;align-items:center;gap:9px;text-align:left;background:rgba(255,235,210,.07);border:1px solid var(--panel-edge);border-radius:14px;padding:9px 10px;color:var(--ink);cursor:pointer;font:inherit;min-width:0}
+.tile svg{width:24px;height:24px;flex:0 0 24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--sugar)}
+.tile .tt{display:flex;flex-direction:column;min-width:0;line-height:1.2}
+.tile .tt b{font-family:var(--font-display);font-size:15px;font-weight:600}
+.tile .tt small{font-size:11px;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .badge-n{position:absolute;top:-7px;right:-4px;background:var(--knife);color:#fff;border-radius:999px;font:800 11px var(--font-ui);padding:2px 7px;box-shadow:0 2px 0 rgba(0,0,0,.35)}
 .sec{display:flex;flex-direction:column;gap:8px;text-align:left;background:rgba(255,235,210,.06);border-radius:16px;padding:12px}
 .sec.focus{outline:2px solid var(--sugar);outline-offset:3px}
@@ -98,7 +104,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 #hub button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #hub button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #hub button.on{color:var(--sugar);border-color:rgba(255,213,74,.55);background:rgba(255,213,74,.1)}
-#hub .hb{position:absolute;top:-7px;right:5px;background:var(--knife);color:#fff;border-radius:999px;font:900 12px/18px var(--font-ui);font-style:normal;width:18px;height:18px;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.35);animation:hubpop 1.4s ease-in-out infinite}
+.hb{position:absolute;top:-7px;right:5px;background:var(--knife);color:#fff;border-radius:999px;font:900 12px/18px var(--font-ui);font-style:normal;width:18px;height:18px;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.35);animation:hubpop 1.4s ease-in-out infinite}
 @keyframes hubpop{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 #ui.hub .screen{padding-bottom:96px}
 .sec h3{margin:0;font:600 17px var(--font-display)}
@@ -134,7 +140,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .medal.brons{color:#d08a4a}.medal.zilver{color:#d8dde6}.medal.goud{color:#ffd54a}.medal.diamant{color:#9ae8ff}
 .snap{width:min(72%,250px);max-width:100%;aspect-ratio:1;object-fit:contain;align-self:center;border-radius:16px;background:radial-gradient(circle at 50% 45%,rgba(255,235,200,.14),rgba(255,235,200,0) 70%)}
 .snap.cardimg{width:min(100%,300px);aspect-ratio:4/5;background:none}
-@media (prefers-reduced-motion:reduce){.btn{transition:none}#hub .hb{animation:none}}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}.hb{animation:none}}
 </style>
 </head>
 <body>
@@ -149,10 +155,8 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <button class="btn primary big" id="btn-play">Spelen</button>
       <button class="pickrow" id="btn-fruit" type="button" title="Kies een ander fruit"><canvas id="pick-icon" width="80" height="80"></canvas><span class="pn"><small>Je speelt als</small><b id="pick-name">Appel</b><small id="pick-sub">Tik om van fruit te wisselen.</small></span><span class="chev">›</span><span class="badge-n" id="fruit-badge" hidden>!</span></button>
       <div class="lvpick" id="lvpick" hidden><span>Start bij level</span><button class="linkbtn" id="lv-minus" aria-label="Lager level">−</button><b id="lv-cur">1</b><button class="linkbtn" id="lv-plus" aria-label="Hoger level">+</button><button class="linkbtn" id="lv-max">hoogste</button><span class="lvhint">Lager starten is rustiger en levert stempels op de Fruitkaart op; je hoogste level blijft bewaard.</span></div>
-      <div class="navrow slim"><button class="btn ghost" id="btn-album" title="Stickers, keukenbonussen en de Fruitpedia">Album</button><button class="btn ghost" id="btn-pass" title="Seizoenstreden met beloningen">Fruitpas<span class="badge-n" id="pass-badge" hidden>!</span></button></div>
-      <p class="small">Album: stickers, keukenbonussen en de Fruitpedia · Fruitpas: seizoenstreden met beloningen · balk onderaan: fruit, Vandaag, rad, spellen, stempels en winkel.</p>
-      <p class="small">Raak het scherm aan: het fruit hangt boven je vinger. Op de computer: sleep met de muis of gebruik de pijltjes. Suikerklontjes zijn sap.</p>
-      <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><span id="ver">Prototype v0.8 · geen echte aankopen</span></div>
+      <div class="tiles" id="tiles"></div>
+      <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><span id="ver">Prototype v0.9 · geen echte aankopen</span></div>
     </div>
   </section>
 
@@ -166,6 +170,14 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       </div>
       <div class="grid" id="fruit-list"></div>
       <button class="btn ghost" id="btn-fruit-back">Terug naar het menu</button>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-help" hidden>
+    <div class="panel">
+      <h2>Hulp</h2>
+      <div class="stack" id="help-body"></div>
+      <button class="btn ghost" id="btn-help-back">Terug naar het menu</button>
     </div>
   </section>
 
@@ -313,20 +325,23 @@ const comboMult = c => c >= 10 ? 3 : c >= 6 ? 2 : c >= 3 ? 1.5 : 1;
 // Trait flags are read by the engine: magnet, sprint, cubeRate/cubeCap, cherries, armor (+armorWipe/armorInv/
 // armorEase), nearSap, rotates+layout, segments, pit, splits+splitEase, aimJitter, sapMult.
 const FRUITS = {
-  appel:        { name: 'Appel',        r: 18, ease: 16, price: 0,   eur: '',      trait: 'Evenwichtig. Suikerklontjes rollen een beetje naar je toe.', magnet: 60, juice: ['#ff6a4a', '#ffe3b0', '#c42a1c'], stain: 'rgba(255,90,60,.5)' },
-  druif:        { name: 'Druif',        r: 12, ease: 26, price: 40,  eur: '€0,99', trait: 'Klein en snel. Na elke "Net niet!" sprint je even extra hard.', sprint: true, juice: ['#8a4bd6', '#c89cff', '#5a2a9a'], stain: 'rgba(120,60,200,.5)' },
-  aardbei:      { name: 'Aardbei',      r: 16, ease: 18, price: 60,  eur: '€0,99', trait: 'Zoet. Lokt veel meer suikerklontjes.', cubeRate: .55, cubeCap: 5, juice: ['#ff3b5c', '#ffd6dc', '#b0102c'], stain: 'rgba(255,60,90,.5)' },
-  kersen:       { name: 'Kersen',       r: 10, ease: 20, price: 85,  eur: '€0,99', trait: 'Twee kersen aan één steel. Verlies er één en speel verder met de andere.', cherries: true, juice: ['#e8243c', '#ffd0d6', '#8f0f22'], stain: 'rgba(220,30,60,.5)' },
-  citroen:      { name: 'Citroen',      r: 17, ease: 17, price: 115, eur: '€1,49', trait: 'Zuur. Overleeft één snee en spuit dan alle messen van de plank.', armor: 1, armorWipe: true, armorInv: 1300, juice: ['#ffe94a', '#fffbd0', '#d9b800'], stain: 'rgba(255,230,80,.5)' },
-  kiwi:         { name: 'Kiwi',         r: 15, ease: 19, price: 150, eur: '€1,49', trait: 'Harig en brutaal. Elke "Net niet!" is 1 sap waard.', nearSap: 1, juice: ['#8cc63f', '#d8f0a0', '#5a7a1a'], stain: 'rgba(140,200,60,.5)' },
-  banaan:       { name: 'Banaan',       r: 26, ease: 15, price: 190, eur: '€1,49', trait: 'Lang en tolt rond. Je raakbare vorm draait mee.', rotates: true, layout: [[-.68, .08, .42], [0, -.22, .42], [.68, .08, .42]], juice: ['#ffd33d', '#fff4b0', '#c9a000'], stain: 'rgba(255,215,70,.5)' },
-  kokosnoot:    { name: 'Kokosnoot',    r: 20, ease: 12, price: 235, eur: '€1,99', trait: 'Overleeft één snee. Na de kraak ben je 2 s onkwetsbaar en lichter.', armor: 1, armorInv: 2000, armorEase: 5, juice: ['#fff8ee', '#e8d5bd', '#9a6a44'], stain: 'rgba(255,245,230,.45)' },
-  sinaasappel:  { name: 'Sinaasappel',  r: 20, ease: 14, price: 285, eur: '€1,99', trait: 'Drie partjes. Elke snee kost er één en maakt je kleiner en sneller.', segments: 3, juice: ['#ff9a1f', '#ffe0a8', '#d96a00'], stain: 'rgba(255,150,30,.5)' },
+  appel:        { name: 'Appel',        r: 18, ease: 16, price: 0,   eur: '',      trait: 'Evenwichtig. Klontjes rollen naar je toe. Na 15 klontjes mag je één hap missen: je overleeft een snee.', magnet: 60, bite: true, juice: ['#ff6a4a', '#ffe3b0', '#c42a1c'], stain: 'rgba(255,90,60,.5)' },
+  druif:        { name: 'Druif',        r: 12, ease: 26, price: 40,  eur: '€0,99', trait: 'Klein en snel. Na elke "Net niet!" sprint je weg en laat je een plakkerig spoor achter waar messen trager door gaan.', sprint: true, trailZone: true, juice: ['#8a4bd6', '#c89cff', '#5a2a9a'], stain: 'rgba(120,60,200,.5)' },
+  aardbei:      { name: 'Aardbei',      r: 16, ease: 18, price: 60,  eur: '€0,99', trait: 'Zoet. Lokt veel meer klontjes, en om de 10 klontjes plant hij een zaadje dat in 5 s een gouden klontje wordt.', cubeRate: .55, cubeCap: 5, seeds: true, juice: ['#ff3b5c', '#ffd6dc', '#b0102c'], stain: 'rgba(255,60,90,.5)' },
+  kersen:       { name: 'Kersen',       r: 10, ease: 20, price: 85,  eur: '€0,99', trait: 'Twee kersen aan één steel. Verlies er één en de andere schiet 2 s weg.', cherries: true, rageSprint: true, juice: ['#e8243c', '#ffd0d6', '#8f0f22'], stain: 'rgba(220,30,60,.5)' },
+  citroen:      { name: 'Citroen',      r: 17, ease: 17, price: 115, eur: '€1,49', trait: 'Zuur. Overleeft één snee, spuit dan alle messen weg en maakt alle klontjes op de plank goud.', armor: 1, armorWipe: true, armorInv: 1300, goldWipe: true, juice: ['#ffe94a', '#fffbd0', '#d9b800'], stain: 'rgba(255,230,80,.5)' },
+  kiwi:         { name: 'Kiwi',         r: 15, ease: 19, price: 150, eur: '€1,49', trait: 'Harig en brutaal. Elke "Net niet!" is 1 sap en laat haar achter op het mes: messen 15% trager, tot drie keer, tot het volgende level.', nearSap: 1, hairy: true, juice: ['#8cc63f', '#d8f0a0', '#5a7a1a'], stain: 'rgba(140,200,60,.5)' },
+  banaan:       { name: 'Banaan',       r: 26, ease: 15, price: 190, eur: '€1,49', trait: 'Lang en tolt rond. Om de 20 s laat hij een schil vallen waar messen 12 s lang over uitglijden.', rotates: true, peel: true, layout: [[-.68, .08, .42], [0, -.22, .42], [.68, .08, .42]], juice: ['#ffd33d', '#fff4b0', '#c9a000'], stain: 'rgba(255,215,70,.5)' },
+  kokosnoot:    { name: 'Kokosnoot',    r: 20, ease: 12, price: 235, eur: '€1,99', trait: 'Overleeft één snee. De kraak spuit kokosmelk: 4 s lang glijden alle klontjes naar je toe.', armor: 1, armorInv: 2000, armorEase: 5, milk: true, juice: ['#fff8ee', '#e8d5bd', '#9a6a44'], stain: 'rgba(255,245,230,.45)' },
+  sinaasappel:  { name: 'Sinaasappel',  r: 20, ease: 14, price: 285, eur: '€1,99', trait: 'Drie partjes. Elk verloren partje vliegt 3 s rond en pakt klontjes voor je; jij wordt kleiner en sneller.', segments: 3, segSeeker: true, juice: ['#ff9a1f', '#ffe0a8', '#d96a00'], stain: 'rgba(255,150,30,.5)' },
+  pruim:        { name: 'Pruim',        r: 17, ease: 18, price: 310, eur: '€1,99', trait: 'Krimpt elke 20 s een stukje. Na een minuut ben je een rozijn: piepklein, en het mes mikt grof naast je.', shrink: true, juice: ['#7a3fb0', '#e0c6ff', '#3a1a60'], stain: 'rgba(120,60,180,.5)' },
   avocado:      { name: 'Avocado',      r: 21, ease: 13, price: 340, eur: '€1,99', trait: 'Gesneden? Dan speel je verder als de pit: piepklein en razendsnel.', pit: true, juice: ['#9bc53d', '#f3ecc0', '#3b5b2a'], stain: 'rgba(150,190,60,.5)' },
-  watermeloen:  { name: 'Watermeloen',  r: 26, ease: 11, price: 400, eur: '€2,49', trait: 'Groot. Na één snee stuur je twee snellere helften tegelijk.', splits: true, splitEase: 16, juice: ['#ff4d5e', '#ffd0d0', '#2f8f3a'], stain: 'rgba(255,70,90,.5)' },
-  ananas:       { name: 'Ananas',       r: 27, ease: 9,  price: 465, eur: '€2,49', trait: 'Harde schil: overleeft twee sneden. Groot en traag.', armor: 2, armorInv: 1100, juice: ['#ffd95a', '#fff3c0', '#b08a1a'], stain: 'rgba(255,215,90,.5)' },
-  durian:       { name: 'Durian',       r: 24, ease: 11, price: 535, eur: '€2,99', trait: 'Stinkt zo erg dat het mes slecht mikt.', aimJitter: 34, juice: ['#f0e8a0', '#fff8d8', '#8a8a3a'], stain: 'rgba(230,225,150,.5)' },
-  drakenvrucht: { name: 'Drakenvrucht', r: 19, ease: 17, price: 610, eur: '€2,99', trait: 'Legendarisch. Alle sap telt dubbel, ook de tijdbonus.', sapMult: 2, juice: ['#ff3f8f', '#ffffff', '#2fae5a'], stain: 'rgba(255,70,140,.5)' },
+  watermeloen:  { name: 'Watermeloen',  r: 26, ease: 11, price: 400, eur: '€2,49', trait: 'Groot. Na één snee stuur je twee helften. Om de 15 s spuwt hij een pit die een aangekondigd mes 1 s ophoudt.', splits: true, spit: true, splitEase: 16, juice: ['#ff4d5e', '#ffd0d0', '#2f8f3a'], stain: 'rgba(255,70,90,.5)' },
+  ananas:       { name: 'Ananas',       r: 27, ease: 9,  price: 465, eur: '€2,49', trait: 'Harde schil: overleeft twee sneden, en de kroon groeit elke 30 s een schil terug. Groot en traag.', armor: 2, armorInv: 1100, regrow: true, juice: ['#ffd95a', '#fff3c0', '#b08a1a'], stain: 'rgba(255,215,90,.5)' },
+  mandarijn:    { name: 'Mandarijn',    r: 16, ease: 19, price: 500, eur: '€2,49', trait: 'Laat om de 20 s zijn schil vallen als lokaas: het mes mikt 3 s op de schil en niet op jou.', decoy: true, juice: ['#ff9a1f', '#ffe0a8', '#c85e00'], stain: 'rgba(255,150,30,.5)' },
+  durian:       { name: 'Durian',       r: 24, ease: 11, price: 535, eur: '€2,99', trait: 'Stinkt zo erg dat het mes slecht mikt. Elke "Net niet!" laat 6 s een stankwolk achter waar messen trager in zijn.', aimJitter: 34, stink: true, juice: ['#f0e8a0', '#fff8d8', '#8a8a3a'], stain: 'rgba(230,225,150,.5)' },
+  granaatappel: { name: 'Granaatappel', r: 19, ease: 16, price: 570, eur: '€2,99', trait: 'Gesneden? Dan spat hij uiteen in pitten die naar alle hoeken schieten en klontjes opslurpen; jij speelt kleiner verder.', armor: 1, armorInv: 2600, burst: true, juice: ['#c81e3c', '#ffb3c0', '#6e0b1e'], stain: 'rgba(200,30,60,.5)' },
+  drakenvrucht: { name: 'Drakenvrucht', r: 19, ease: 17, price: 610, eur: '€2,99', trait: 'Legendarisch. Alle sap telt dubbel, en om de 25 klontjes spuw je vuur dat de volgende twee messen verbrandt.', sapMult: 2, fire: true, juice: ['#ff3f8f', '#ffffff', '#2fae5a'], stain: 'rgba(255,70,140,.5)' },
 };
 const ORDER = Object.keys(FRUITS);
 // Where the face sits on each fruit (y offset and scale relative to r); the default is the centre.
@@ -378,6 +393,21 @@ const POWERS = {
 const POWER_KEYS = Object.keys(POWERS);
 // Chance that a level gets a bonus item: 10% at level 1, a quarter point more per level, capped at 35% (level 101+).
 const dropChance = n => Math.min(.35, .10 + .0025 * (n - 1));
+// Bonus items grow with the level: longer, stronger, bigger, brighter and slower-drifting (easier to catch).
+// powerScale runs from 1 at level 1 to 2 at level 81 and stays there.
+const powerScale = n => 1 + Math.min(1, Math.max(0, (n - 1) / 80));
+const slowFactor = n => 1.5 + .5 * (powerScale(n) - 1);          // Stroop: knives 50% -> 100% slower
+const dubbelMult = n => powerScale(n) >= 1.75 ? 3 : 2;             // Dubbel sap counts triple from level 61
+const regenCount = n => Math.round(8 * powerScale(n));              // Suikerregen: 8 -> 16 cubes, the extra ones gold
+const kleinFactor = n => .6 - .15 * (powerScale(n) - 1);            // Krimp: 40% -> 55% smaller
+const dropRadius = n => Math.round(16 + 6 * (powerScale(n) - 1));   // the floating badge: 16 -> 22
+function powerInfo(k, n) {
+  if (k === 'stroop') return `Alle messen zijn ${Math.round((slowFactor(n) - 1) * 100)}% trager.`;
+  if (k === 'dubbel') return `Elk klontje telt ${dubbelMult(n)}×.`;
+  if (k === 'regen') return `${regenCount(n)} klontjes vallen nu meteen.`;
+  if (k === 'klein') return `Je bent ${Math.round((1 - kleinFactor(n)) * 100)}% kleiner.`;
+  return POWERS[k].info;
+}
 // Lives: a run costs one heart; hearts grow back one per 20 minutes up to five. At zero the hearts screen
 // offers a rewarded ad (+1), a refill for sap or (simulated) money, or (simulated) unlimited hearts for a day.
 const MAX_HEARTS = 5, HEART_REGEN_MS = 20 * 60000, HEART_REFILL_SAP = 30;
@@ -391,7 +421,7 @@ const SAVE_DEFAULTS = {
   unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
   stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0, interDone: 0 },
   stamps: {}, families: {}, titles: [], boards: [], board: '', startLevel: 0, bounty: { day: '', n: 0, k: '', claimed: false }, wheel: { day: '', result: '', ad: false },
-  spins: 0, spinSalesOn: false, paidSpins: 0,
+  spins: 0, spinSalesOn: false, paidSpins: 0, seen: {}, fresh: {},
 };
 const save = JSON.parse(JSON.stringify(SAVE_DEFAULTS));
 function loadSave() {
@@ -583,7 +613,7 @@ const curTheme = () => THEMES[boardTheme < 0 ? 0 : boardTheme];
 const G = {
   state: 'menu', t: 0, fruit: 'appel', form: null, px: 180, py: 380, tx: 180, ty: 380, vx: 0, vy: 0, ang: 0, spin: 0, bodies: [], armor: 0, split: false,
   segLost: 0, lost: new Set(), inv: 0, sprint: 0, trail: [],
-  slashes: [], cubes: [], parts: [], texts: [], stains: [], scars: [], debris: [], nextSlash: 0, nextCube: 0, bossBanner: 0, bossText: '', inter: null, interPending: null,
+  slashes: [], cubes: [], parts: [], texts: [], stains: [], scars: [], debris: [], nextSlash: 0, nextCube: 0, bossBanner: 0, bossText: '', inter: null, interPending: null, dropExtra: 0, seekers: [], zones: [], decoy: null, decoyT: 8000, magnetT: 0, kiwiStack: 0, fireCharges: 0, spitT: 15000, peelT: 20000, regrowT: 30000, biteGiven: false, burstDone: false, shrinkStage: 0,
   timeScale: 1, shake: 0, zoom: 1, flash: 0, dyingT: 0, death: null, snapped: false, snapshot: null, snapshotUrl: '', card: null, cardFile: null,
   continueUsed: false, cubesRun: 0, sapRun: 0, bonusSap: 0, near: 0, slashCount: 0, scared: 0, lookX: 0, lookY: -1,
   level: 1, levelSap: 0, levelsGained: 0, levelBanner: 0, levelNote: '', levelT: 0, phase: 1, power: null, drop: null, dropAt: -1, slowmo: 0, themeFlash: 0,
@@ -592,31 +622,58 @@ const G = {
 };
 let contT = 0, adT = 0, adThen = null, heartTick = 0, menuT = 1200, shareText = '', menuSel = 'appel', verTaps = 0, pendingDaily = '';
 const pauseBtn = document.getElementById('btn-pause');
-const screens = ['scr-menu', 'scr-fruit', 'scr-pause', 'scr-continue', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-today', 'scr-album', 'scr-pass', 'scr-shop', 'scr-kaart'];
+const screens = ['scr-menu', 'scr-fruit', 'scr-help', 'scr-pause', 'scr-continue', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-today', 'scr-album', 'scr-pass', 'scr-shop', 'scr-kaart'];
 function showScreen(id) { for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); }
 // ---- Hub: a fixed bar under every menu screen (and the pause screen) so the rad, the daily knife, the weekend
 // game, the Fruitkaart and the shop are one tap away, with a "!" whenever something is waiting there.
-const hub = $('#hub'), HUB_SCREENS = { 'scr-menu': 'home', 'scr-fruit': 'fruit', 'scr-today': 'today', 'scr-kaart': 'kaart', 'scr-shop': 'shop', 'scr-album': '', 'scr-pass': '', 'scr-hearts': '', 'scr-over': '', 'scr-pause': '' };
+const hub = $('#hub'), HUB_SCREENS = { 'scr-fruit': 'fruit', 'scr-today': 'today', 'scr-kaart': 'kaart', 'scr-shop': 'shop', 'scr-album': '', 'scr-pass': '', 'scr-hearts': '', 'scr-over': '', 'scr-pause': '', 'scr-help': '' }; // the menu has its tiles instead
 let hubConfirm = '';
 function passClaimable() { ensurePass(); const t = passTier(); for (let i = 1; i <= t; i++) { if (!save.pass.claimedFree.includes(i) || (save.pass.premium && !save.pass.claimedPrem.includes(i))) return true; } return false; }
+// A "!" means: something waits there (a prize, a free spin, an affordable fruit), or you have never opened it
+// (undiscovered), or it changed since your last visit (a new sticker, perk, medal, row, skin, season, fruit level).
+function markSeen(k) { if (!save.seen[k] || save.fresh[k]) { save.seen[k] = true; save.fresh[k] = false; store(); } }
+function markFresh(k) { if (!save.fresh[k]) { save.fresh[k] = true; store(); } }
 function hubBadges() {
-  const spin = nextSpinKind(), b = ensureBounty();
-  return { home: false, fruit: unlockable(), today: todayBadge() > 0, wheel: spin === 'free' || spin === 'ad', games: !dailyPlayedToday() || (weekendOpen() && !weekendCleared()), kaart: !!(b && b.n && !b.claimed), shop: false, pass: passClaimable() };
+  const spin = nextSpinKind(), b = ensureBounty(), live = {
+    home: false, fruit: unlockable(), today: todayBadge() > 0, wheel: spin === 'free' || spin === 'ad', games: !dailyPlayedToday() || (weekendOpen() && !weekendCleared()),
+    kaart: !!(b && b.n && !b.claimed), album: false, pass: passClaimable(), shop: false, help: false };
+  for (const k of Object.keys(live)) if (k !== 'home' && (!save.seen[k] || save.fresh[k])) live[k] = true;
+  return live;
 }
 function updateHub(id) {
-  const show = !!id && id in HUB_SCREENS; hub.hidden = !show; $('#ui').classList.toggle('hub', show); if (!show) return;
   const b = hubBadges(), cur = HUB_SCREENS[id];
   hub.querySelectorAll('[data-hub]').forEach(btn => { const k = btn.dataset.hub; btn.classList.toggle('on', k === cur); btn.querySelector('.hb').hidden = !b[k]; });
-  for (const [sel, on] of [['#fruit-badge', b.fruit], ['#pass-badge', b.pass]]) { const el = $(sel); if (el) el.hidden = !on; }
+  $('#tiles').querySelectorAll('[data-go]').forEach(t => { t.querySelector('.hb').hidden = !b[t.dataset.go]; });
+  const fb = $('#fruit-badge'); if (fb) fb.hidden = !b.fruit;
+  const show = !!id && id in HUB_SCREENS; hub.hidden = !show; $('#ui').classList.toggle('hub', show);
 }
+const ICONS = {
+  today: '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.6" fill="currentColor" stroke="none"/>',
+  wheel: '<circle cx="12" cy="13" r="8.5"/><path d="M12 4.5v17M3.5 13h17M6 7l12 12M18 7 6 19"/><circle cx="12" cy="13" r="2" fill="currentColor" stroke="none"/><path d="M9.5 1.5h5L12 4.5z" fill="currentColor" stroke="none"/>',
+  games: '<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/><path d="M12 14v3M8.5 20h7M10 17h4v3"/>',
+  kaart: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" fill="currentColor"/>',
+  album: '<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.9l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.8z"/>',
+  pass: '<path d="M4 8.5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1.5a2 2 0 0 0 0 4V15.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V14a2 2 0 0 0 0-4z"/><path d="M9.5 6.5v11" stroke-dasharray="2 2"/>',
+  shop: '<path d="M5 8h14l-1 12H6z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/>',
+};
+const TILES = [
+  ['today', 'Vandaag', 'rad, dagreeks, opdrachten'], ['wheel', 'Rad van de dag', 'je inlogbonus'], ['games', 'Spellen', 'Mes van de dag, weekend'], ['kaart', 'Stempels', 'Fruitkaart per level'],
+  ['album', 'Album', 'stickers, bonussen, Fruitpedia'], ['pass', 'Fruitpas', '30 seizoenstreden'], ['shop', 'Winkel', 'hoedjes, skins, sap'], ['help', 'Hulp', 'zo speel je'],
+];
+$('#tiles').innerHTML = TILES.map(([k, name, sub]) => `<button class="tile" data-go="${k}" title="${name}: ${sub}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg><span class="tt"><b>${name}</b><small>${sub}</small></span><i class="hb" hidden>!</i></button>`).join('');
+function goTo(k) {
+  if (k === 'home') openMenu(); else if (k === 'fruit') openFruit(); else if (k === 'today') openToday(); else if (k === 'wheel') openToday('sec-rad'); else if (k === 'games') openToday('sec-mes');
+  else if (k === 'kaart') openKaart(); else if (k === 'album') openAlbum(); else if (k === 'pass') openPass(); else if (k === 'shop') openShop(); else if (k === 'help') openHelp();
+}
+$('#tiles').querySelectorAll('[data-go]').forEach(t => t.addEventListener('click', () => { SFX.click(); goTo(t.dataset.go); }));
 function hubGo(k) {
   if (['play', 'dying', 'continue', 'ad'].includes(G.state)) return;
   if (G.state === 'pause') { // leaving a paused run from the hub ends it, like Stoppen: ask for a second tap first
     if (hubConfirm !== k) { hubConfirm = k; SFX.click(); $('#pause-time').textContent = `Je poging (${fmtTime(G.t)}) stopt als je nogmaals op die knop tikt.`; return; }
     hubConfirm = ''; quitRun();
   }
-  SFX.click();
-  if (k === 'home') openMenu(); else if (k === 'fruit') openFruit(); else if (k === 'today') openToday(); else if (k === 'wheel') openToday('sec-rad'); else if (k === 'games') openToday('sec-mes'); else if (k === 'kaart') openKaart(); else if (k === 'shop') openShop();
+  SFX.click(); goTo(k);
 }
 hub.querySelectorAll('[data-hub]').forEach(btn => btn.addEventListener('click', () => hubGo(btn.dataset.hub)));
 const fruitDef = () => FRUITS[G.fruit];
@@ -631,7 +688,7 @@ function boost(kind) { return xpLevel(G.fruit) >= 5 ? (BOOSTS[kind] || 1) : 1; }
 const modeCubeRate = () => G.mode === 'rain' ? .3 : G.mode === 'daily' ? .5 : (G.mode === 'exam' || G.mode === 'knife') ? 1e9 : 1;
 const cubeCap = () => (fruitDef().cubeCap || 3) * (G.mode === 'daily' ? 2 : 1);
 
-function curR() { const f = fruitDef(); if (G.form === 'pit') return 8; return f.r - (f.segments ? 4 * G.segLost : 0); }
+function curR() { const f = fruitDef(); if (G.form === 'pit') return 8; let r = f.r - (f.segments ? 4 * G.segLost : 0); if (f.shrink) r *= shrinkFactor(); if (f.burst && G.burstDone) r *= .72; return r; }
 function curEase() {
   const f = fruitDef(); let e = f.ease;
   if (G.form === 'pit') e = 30;
@@ -649,7 +706,7 @@ function setBodies() {
   else if (f.cherries) G.bodies = [{ lx: -15, ly: 6, r, half: 0, id: 0 }, { lx: 15, ly: 6, r, half: 0, id: 1 }].filter(b => !G.lost.has(b.id)).map(b => Object.assign(b, { ox: b.lx, oy: b.ly }));
   else if (f.layout) G.bodies = f.layout.map(([lx, ly, rr], i) => ({ ox: lx * r, oy: ly * r, lx: lx * r, ly: ly * r, r: rr * r, half: 0, id: i }));
   else G.bodies = [{ ox: 0, oy: 0, lx: 0, ly: 0, r, half: 0, id: 0 }];
-  if (G.power && G.power.kind === 'klein') for (const b of G.bodies) { b.r *= .6; b.lx *= .6; b.ly *= .6; b.ox *= .6; b.oy *= .6; }
+  if (G.power && G.power.kind === 'klein') { const kf = kleinFactor(G.level); for (const b of G.bodies) { b.r *= kf; b.lx *= kf; b.ly *= kf; b.ox *= kf; b.oy *= kf; } }
 }
 // mode: 'normal' (costs a heart), 'daily' (Mes van de dag, seeded, free, one attempt), 'rain' / 'exam' / 'knife'
 // (weekend games, seeded, free). free skips the heart check (tests).
@@ -667,16 +724,17 @@ function startRun(type, free, mode) {
     if (save.firstRunDay !== today) { G.dayMult = 2; G.note = 'Eerste poging vandaag: dubbel sap!'; save.firstRunDay = today; store(); }
     else if (wed) { G.dayMult = 2; G.note = 'Woensdag: dubbel sap!'; }
     if (G.dayMult > 1) G.noteT = 4000;
+    if (save.runs < 3) { G.note = 'Het fruit hangt boven je vinger; onderaan komt het eronder.' + (G.dayMult > 1 ? ' Dubbel sap vandaag!' : ''); G.noteT = 5000; }
   }
   G.fruit = (type && FRUITS[type]) ? type : save.fruit; const f = fruitDef();
   G.state = 'play'; G.t = 0; G.form = null; G.px = G.tx = W / 2; G.py = G.ty = H * .6; G.vx = G.vy = 0; G.ang = 0; G.spin = 0; G.armor = f.armor || 0; G.split = false;
-  G.segLost = 0; G.lost = new Set(); G.inv = mode === 'normal' && hasPerk(1) ? 3000 : 1200; G.sprint = 0; G.trail = []; G.continues = 0; G.shellGiven = 0; G.perkBanner = 0;
+  G.segLost = 0; G.lost = new Set(); G.inv = mode === 'normal' && hasPerk(1) ? 3000 : 1200; G.sprint = 0; G.trail = []; G.continues = 0; G.shellGiven = 0; G.perkBanner = 0; G.seekers = []; G.zones = []; G.decoy = null; G.decoyT = 8000; G.magnetT = 0; G.kiwiStack = 0; G.fireCharges = 0; G.spitT = 15000; G.peelT = 20000; G.regrowT = 30000; G.biteGiven = false; G.burstDone = false; G.shrinkStage = 0;
   G.slashes = []; G.cubes = []; G.parts = []; G.texts = []; G.stains = []; G.scars = []; G.debris = []; G.nextSlash = 2000; G.nextCube = 1500; G.bossBanner = 0; G.bossText = ''; G.inter = null; G.interPending = null;
   G.levelT = 0; G.phase = 1; G.slowmo = 0; G.themeFlash = 0; G.levelNote = '';
   G.timeScale = 1; G.shake = 0; G.zoom = 1; G.flash = 0; G.death = null; G.snapped = false; G.snapshot = null; G.snapshotUrl = ''; G.card = null; G.cardFile = null;
   G.continueUsed = false; G.cubesRun = 0; G.sapRun = 0; G.bonusSap = 0; G.near = 0; G.slashCount = 0; G.scared = 0;
   G.level = mode === 'daily' ? 1 : mode === 'normal' ? clamp(save.startLevel || save.level, 1, save.level) : save.level; G.levelSap = 0; G.startLevel = G.level; G.levelsGained = 0; G.levelBanner = 0; G.power = null; G.drop = null; G.bannerTitle = ''; G.wi = 0; G.wt = 1500;
-  G.dropAt = (mode === 'normal' || mode === 'daily') && R() < dropChance(G.level) ? rndR(8000, 40000) : -1;
+  G.dropAt = (mode === 'normal' || mode === 'daily') && R() < dropChance(G.level) ? rndR(8000, 40000) : -1; G.dropExtra = 0;
   if (mode === 'exam') { G.levelBanner = 2200; G.bannerTitle = 'CHEFS EXAMEN'; G.levelNote = `Golf 1 van ${EXAM.length} · overleef ze allemaal`; }
   if (mode === 'knife') { G.bodies = []; G.ai = []; G.swipe = null; G.swipeCd = 0; for (let i = 0; i < 5; i++) spawnAI(true); G.note = 'Jij bent het mes: veeg om te snijden!'; G.noteT = 4000; G.inv = 0; }
   else G.ai = [];
@@ -693,13 +751,14 @@ function gainSap(v) {
   while (G.levelSap >= levelGoal(G.level)) {
     if (G.mode === 'normal') stamp(G.level, G.fruit); // level completed with this fruit: a stamp on the Fruitkaart
     G.levelSap -= levelGoal(G.level); G.level++; G.levelsGained++; G.levelBanner = 2600; G.bannerTitle = ''; G.inv = Math.max(G.inv, 1500); G.shake = 5;
-    G.levelT = 0; G.phase = 1; G.nextSlash = Math.max(G.nextSlash, 1500); // the new level starts calm again
+    G.levelT = 0; G.phase = 1; G.nextSlash = Math.max(G.nextSlash, 1500); G.kiwiStack = 0; // the new level starts calm again
     if (interDue(G.level)) G.interPending = interKindFor(G.level); // every fourth level opens with a minigame
     if (themeIndex(G.level) !== themeIndex(G.level - 1)) {
       G.themeFlash = 900; G.levelNote = 'Nieuwe keuken: ' + THEMES[themeIndex(G.level)].name;
-      const pk = perkAt(Math.floor((G.level - 1) / 5)); if (pk && G.mode === 'normal') { G.perkBanner = 5500; G.perkName = pk.name; G.perkInfo = pk.info; track('kitchen', Math.floor((G.level - 1) / 5)); }
+      const pk = perkAt(Math.floor((G.level - 1) / 5)); if (pk && G.mode === 'normal') { markFresh('album'); G.perkBanner = 5500; G.perkName = pk.name; G.perkInfo = pk.info; track('kitchen', Math.floor((G.level - 1) / 5)); }
     } else G.levelNote = '';
     if (G.dropAt < 0 && !G.drop && R() < dropChance(G.level)) G.dropAt = G.t + rndR(5000, 30000); // each level rolls for its own bonus
+    G.dropExtra = G.level >= 41 && R() < .5 ? 1 : 0; // from level 41 half the levels get a second one
     save.stats.kitchens[themeIndex(G.level)] = 1; track('levelup', G.level);
     save.sap += 5; G.sapRun += 5; addText(G.px, G.py - curR() - 26, `Level ${G.level}! +5 sap`, '#ffd54a'); SFX.go();
   }
@@ -707,19 +766,20 @@ function gainSap(v) {
 function activatePower(kind) {
   const p = POWERS[kind]; if (!p) return;
   if (G.power && G.power.kind === 'klein' && kind !== 'klein') { G.power = null; setBodies(); }
-  const dur = p.dur * (hasPerk(5) ? 1.5 : 1); G.power = { kind, t: dur, dur }; G.bonusRun++; track('bonus', kind);
+  const dur = Math.round(p.dur * powerScale(G.level) * (hasPerk(5) ? 1.5 : 1)); G.power = { kind, t: dur, dur }; G.bonusRun++; track('bonus', kind);
   if (kind === 'klein') setBodies();
   if (kind === 'rust') { G.slashes = []; G.nextSlash = Math.max(G.nextSlash, p.dur); }
-  if (kind === 'regen') for (let i = 0; i < 8; i++) G.cubes.push({ x: 30 + (W - 60) * (i + .5) / 8 + rnd(-10, 10), y: -24 - i * 34, vx: 0, vy: rnd(55, 75), ph: Math.random() * TAU, r: 11, gold: false, rot: rnd(-.3, .3), dead: false, t: -i * 400 });
+  if (kind === 'regen') { const n = regenCount(G.level); for (let i = 0; i < n; i++) G.cubes.push({ x: 30 + (W - 60) * ((i % 8) + .5) / 8 + rnd(-10, 10), y: -24 - i * 34, vx: 0, vy: rnd(55, 75), ph: Math.random() * TAU, r: i >= 8 ? 14 : 11, gold: i >= 8, rot: rnd(-.3, .3), dead: false, t: -i * 400 }); }
   G.slowmo = 3000; // three seconds of near standstill so the panel can be read
   burst(G.px, G.py, 30, [p.col, '#ffffff'], 300); addText(G.px, G.py - curR() - 22, p.name + '!', p.col); SFX.slow(); setTimeout(() => SFX.go(), 90); buzz(30);
 }
 function updatePowers(dt) {
-  if (G.dropAt >= 0 && G.t >= G.dropAt) { G.dropAt = -1; G.drop = Object.assign(edgeSpawn(28, 30), { kind: pickR(POWER_KEYS), t: 0, r: 16 }); }
+  if (!G.drop && G.dropAt < 0 && G.dropExtra > 0) { G.dropExtra--; G.dropAt = G.t + rndR(6000, 20000); }
+  if (G.dropAt >= 0 && G.t >= G.dropAt) { G.dropAt = -1; G.drop = Object.assign(edgeSpawn(28 / powerScale(G.level), 30), { kind: pickR(POWER_KEYS), t: 0, r: dropRadius(G.level) }); }
   const d = G.drop;
   if (d) {
     d.t += dt; const wob = Math.sin(d.t / 700) * 14 * dt / 1000; d.x += d.vx * dt / 1000 + (d.vx ? 0 : wob); d.y += d.vy * dt / 1000 + (d.vx ? wob : 0);
-    if (Math.random() < dt / 90) G.parts.push({ x: d.x + rnd(-14, 14), y: d.y + rnd(-14, 14), vx: rnd(-20, 20), vy: rnd(-40, 10), r: rnd(1, 2.5), col: POWERS[d.kind].col, t: 0, life: 600, g: 0 });
+    if (Math.random() < dt * powerScale(G.level) / 90) G.parts.push({ x: d.x + rnd(-14, 14), y: d.y + rnd(-14, 14), vx: rnd(-20, 20), vy: rnd(-40, 10), r: rnd(1, 2.5), col: POWERS[d.kind].col, t: 0, life: 600, g: 0 });
     if (d.t > 1500 && offBoard(d, 40)) G.drop = null;
     else for (const b of G.bodies) if (Math.hypot(G.px + b.ox - d.x, G.py + b.oy - d.y) < b.r + d.r + 6) { G.drop = null; activatePower(d.kind); break; }
   }
@@ -732,9 +792,9 @@ function updatePowers(dt) {
 function difficulty() {
   const n = G.level, k = clamp(G.levelT / 60000, 0, 1);
   const chefDelay = hasPerk(11) ? 10000 : 0;
-  const d = { interval: PACE.interval(n) * (1 - .2 * k), tele: PACE.tele(n) * (1 - .12 * k) * (hasPerk(2) ? 1.1 : 1), dur: PACE.dur(n), level: n, levelT: G.levelT,
+  const d = { interval: PACE.interval(n) * (1 - .2 * k), tele: PACE.tele(n) * (1 - .12 * k) * (hasPerk(2) ? 1.1 : 1) * (1 + .15 * (G.kiwiStack || 0)), dur: PACE.dur(n) * (1 + .15 * (G.kiwiStack || 0)), level: n, levelT: G.levelT,
     knives: G.levelT >= PACE.threeAt(n) + chefDelay ? 3 : G.levelT >= PACE.twoAt(n) + chefDelay ? 2 : 1 };
-  if (G.power && G.power.kind === 'stroop') { d.interval *= 1.5; d.tele *= 1.5; d.dur *= 1.6; }
+  if (G.power && G.power.kind === 'stroop') { const sf = slowFactor(G.level); d.interval *= sf; d.tele *= sf; d.dur *= sf * 1.07; }
   return d;
 }
 
@@ -756,7 +816,7 @@ function lineThrough(x, y, a, delay, opt) {
 // forced / tele: the Chef's exam spawns named patterns with its own warning time; Suikerregen only random ones.
 function spawnPattern(d, forced, tele) {
   const rnd = rndR, pick = pickR; // seeded in the daily / weekend modes
-  const px = G.px, py = G.py, J = (fruitDef().aimJitter || 7) * boost('jitter'), jit = () => rnd(-J, J), a = R() * Math.PI;
+  const px = G.decoy ? G.decoy.x : G.px, py = G.decoy ? G.decoy.y : G.py, J = fruitJitter() * boost('jitter'), jit = () => rnd(-J, J), a = R() * Math.PI;
   const opt = tele ? { tele, dur: 220 } : undefined, LT = (x, y, ang, delay) => lineThrough(x, y, ang, delay, opt);
   const pool = ['aim', 'aim', 'random'];
   if (d.knives >= 2) { const w = G.levelT - PACE.twoAt(G.level) > 20000 ? 2 : 1; for (let i = 0; i < w; i++) pool.push('cross', 'double'); }
@@ -785,7 +845,7 @@ function updateSlashes(dt) {
     if (s.phase === 'wait') s.phase = 'tele';
     if (s.phase === 'tele' && s.t >= s.tele) { s.phase = 'cut'; s.cutT = 0; s.pxp = s.ax; s.pyp = s.ay; SFX.swoosh(); }
     if (s.phase === 'cut') {
-      s.cutT += dt; s.prog = clamp(s.cutT / s.dur, 0, 1);
+      s.cutT += dt * (G.zones.length ? zoneSlow(s.pxp, s.pyp) : 1); s.prog = clamp(s.cutT / s.dur, 0, 1);
       const bx = s.ax + (s.bx - s.ax) * s.prog, by = s.ay + (s.by - s.ay) * s.prog;
       if (G.state === 'play') checkCuts(s, s.pxp, s.pyp, bx, by);
       s.pxp = bx; s.pyp = by; s.bladeX = bx; s.bladeY = by;
@@ -814,6 +874,7 @@ function checkCuts(s, x1, y1, x2, y2) {
       else if (ns) { gainSap(ns); addText(bx, by - b.r - 8, `Net niet! +${ns} sap`, '#ffd54a'); }
       else addText(bx, by - b.r - 8, 'Net niet!', '#ffd54a');
       if (f.sprint) G.sprint = 1200 * boost('sprint');
+      if (f.trailZone) addZone(bx, by, 40, 6000, 'druif'); if (f.hairy) G.kiwiStack = Math.min(3, (G.kiwiStack || 0) + 1); if (f.stink) addZone(bx, by, 70, 6000, 'durian');
     }
   }
 }
@@ -822,22 +883,24 @@ function onHit(s, b, bx, by) {
   const f = fruitDef(); G.combo = 0; G.nearStreak = 0; track('hit');
   if (G.armor > 0) {
     G.armor--; G.inv = f.armorInv || 1000; G.flash = .5; G.shake = 8; burst(bx, by, 18, f.juice, 260); buzz(40);
+    if (f.burst) { G.burstDone = true; setBodies(); spawnSeekers(bx, by, 8, 2500, f.juice[0]); addText(bx, by - b.r - 26, 'Pitten! Ze slurpen sap op', f.juice[0]); SFX.squirt(); }
+    if (f.milk) { G.magnetT = 4000; addText(bx, by - b.r - 26, 'Kokosmelk: klontjes glijden naar je toe', '#fff'); }
     if (f.armorWipe) {
       G.slashes = []; G.nextSlash = Math.max(G.nextSlash, 900); burst(bx, by, 50, f.juice, 520); SFX.squirt();
-      addText(bx, by - b.r - 10, 'Zuur! Alle messen weg', '#fff');
+      addText(bx, by - b.r - 10, 'Zuur! Alle messen weg', '#fff'); if (f.goldWipe) { for (const c of G.cubes) { c.gold = true; c.r = 14; } addText(bx, by - b.r - 26, 'Zure regen: alle klontjes goud', '#ffd54a'); }
     } else { SFX.crack(); addText(bx, by - b.r - 10, G.armor > 0 ? 'Gekraakt! Nog één' : 'Gekraakt!', '#fff'); }
     return;
   }
   if (f.segments && G.segLost < f.segments - 1) {
     G.segLost++; setBodies(); G.inv = 900; G.flash = .5; G.shake = 8; burst(bx, by, 24, f.juice, 300, s.nx, s.ny); stain(bx, by, 1); SFX.slice(); buzz(40);
-    addText(bx, by - b.r - 10, 'Partje kwijt!', '#fff'); return;
+    addText(bx, by - b.r - 10, 'Partje kwijt!', '#fff'); if (f.segSeeker) spawnSeekers(bx, by, 1, 3000, f.juice[0]); return;
   }
   if (f.pit && !G.form) {
     G.form = 'pit'; setBodies(); G.inv = 1000; G.flash = .5; G.shake = 10; burst(bx, by, 36, f.juice, 340, s.nx, s.ny); stain(bx, by, 1.4);
     deathDebris('avocado', bx, by, f.r, s.nx, s.ny, true); SFX.slice(); buzz(50); addText(bx, by - b.r - 12, 'De pit!', '#fff'); return;
   }
   if (f.cherries && G.bodies.length > 1) {
-    G.lost.add(b.id); setBodies(); G.inv = 900; G.flash = .5; G.shake = 8; burst(bx, by, 24, f.juice, 320, s.nx, s.ny); stain(bx, by, .8);
+    G.lost.add(b.id); setBodies(); G.inv = 900; if (f.rageSprint) G.sprint = 2000; G.flash = .5; G.shake = 8; burst(bx, by, 24, f.juice, 320, s.nx, s.ny); stain(bx, by, .8);
     deathDebris('kersen', bx, by, b.r, s.nx, s.ny, true); SFX.pop(); buzz(40); addText(bx, by - b.r - 12, 'Eén kers minder!', '#fff'); return;
   }
   if (f.splits && !G.split) {
@@ -863,9 +926,9 @@ function afterDeath() {
 }
 function recordRun() {
   const st = save.stats; st.bestCombo = Math.max(st.bestCombo, G.bestCombo); st.nearRun = Math.max(st.nearRun, G.near); st.chefRun = Math.max(st.chefRun, G.chefRun);
-  save.xp[G.fruit] = (save.xp[G.fruit] || 0) + Math.floor(G.t / 1000);
+  const lvBefore = xpLevel(G.fruit); save.xp[G.fruit] = (save.xp[G.fruit] || 0) + Math.floor(G.t / 1000); if ((lvBefore < 5 && xpLevel(G.fruit) >= 5) || (lvBefore < 10 && xpLevel(G.fruit) >= 10)) markFresh('fruit');
   if (G.mode !== 'normal') { track('run', { t: G.t, fruit: G.fruit, level: G.level, mode: G.mode, score: G.score, cleared: G.cleared }); checkStickers(); store(); return { nr: false, prevBest: save.best }; }
-  save.runs++; save.level = Math.max(save.level, G.level); const prevBest = save.best, nr = G.t > save.best; if (nr) save.best = G.t;
+  save.runs++; if (G.level > save.level) markFresh('kaart'); save.level = Math.max(save.level, G.level); const prevBest = save.best, nr = G.t > save.best; if (nr) save.best = G.t;
   if (G.t > (save.bestBy[G.fruit] || 0)) save.bestBy[G.fruit] = G.t;
   track('run', { t: G.t, fruit: G.fruit, level: G.level, mode: G.mode, levelsGained: G.levelsGained }); checkStickers(); store(); return { nr, prevBest };
 }
@@ -878,7 +941,7 @@ function finishRun() {
 function doContinue() {
   const f = fruitDef();
   G.continueUsed = true; G.continues++; G.state = 'play'; G.inv = 2000; G.px = G.tx = W / 2; G.py = G.ty = H * .6; G.vx = G.vy = 0; G.split = false; G.form = null;
-  G.segLost = 0; G.lost = new Set(); G.armor = f.armor || 0; setBodies(); G.slashes = []; G.hazards = []; G.debris = []; G.nextSlash = 1400; G.nextHazard = 12000; G.death = null; G.zoom = 1; G.flash = 0;
+  G.segLost = 0; G.lost = new Set(); G.armor = f.armor || 0; G.burstDone = false; G.seekers = []; G.zones = []; G.decoy = null; G.magnetT = 0; G.fireCharges = 0; setBodies(); G.slashes = []; G.hazards = []; G.debris = []; G.nextSlash = 1400; G.nextHazard = 12000; G.death = null; G.zoom = 1; G.flash = 0;
   showScreen(null); pauseBtn.hidden = false; SFX.go();
 }
 function openContinue() {
@@ -916,10 +979,13 @@ function quitRun() { recordRun(); openMenu(); }
 // ---- Player. On a touch screen the fruit hangs LIFT units above the finger, so the finger never hides it or
 // the warning lines around it. The offset eases in from wherever the fruit was when the finger landed.
 const keys = new Set(); let drag = null;
+// The fruit hangs LIFT above the finger so the finger never hides it; in the lower part of the board it swings
+// below the finger instead (smoothly, over 180 units), so cubes and bonuses near the bottom edge can be reached.
+const liftFor = fy => { const k = clamp((fy - (H - 360)) / 180, 0, 1); return -LIFT + 2 * LIFT * k * k * (3 - 2 * k); };
 function updatePlayer(dt) {
   const f = fruitDef(), ease = curEase(), sp = 360 * dt / 1000;
   if (drag) {
-    const k2 = 1 - Math.exp(-dt / 1000 * 9); drag.off.x = lerp(drag.off.x, 0, k2); drag.off.y = lerp(drag.off.y, -LIFT, k2);
+    const k2 = 1 - Math.exp(-dt / 1000 * 9); drag.off.x = lerp(drag.off.x, 0, k2); drag.off.y = lerp(drag.off.y, liftFor(drag.ly), k2);
     G.tx = mirrored() ? W - (drag.lx + drag.off.x) : drag.lx + drag.off.x; G.ty = drag.ly + drag.off.y;
   } else {
     let kx = 0, ky = 0;
@@ -952,7 +1018,7 @@ function edgeSpawn(speed, m) {
 const offBoard = (o, m) => o.x < -m || o.x > W + m || o.y < -m || o.y > H + m;
 // ---- Sugar cubes: drift in from any side, worth 1 sap (amber candy cubes: 5). The blade cuts them too.
 function updateCubes(dt) {
-  const f = fruitDef(), mult = f.sapMult || 1;
+  const f = fruitDef(), mult = f.sapMult || 1; let plant = null;
   G.nextCube -= dt;
   if (!G.inter && G.nextCube <= 0 && G.cubes.length < cubeCap()) {
     G.nextCube = rndR(2600, 4200) * (f.cubeRate || 1) * boost('cubes') * modeCubeRate() * Math.max(.45, 1 - .0055 * (G.level - 1));
@@ -961,9 +1027,10 @@ function updateCubes(dt) {
   }
   for (const c of G.cubes) {
     c.t += dt; if (c.dead) continue;
+    if (c.seed && c.t < 0) continue; if (c.seed && !c.grown) { c.grown = true; burst(c.x, c.y, 10, ['#4fa84a', '#ffd54a'], 160); }
     const wob = Math.sin(c.t / 600 + c.ph) * 12 * dt / 1000;
     c.x += c.vx * dt / 1000 + (c.vx ? 0 : wob); c.y += c.vy * dt / 1000 + (c.vx ? wob : 0); c.rot += dt * .0004;
-    const mag = G.power && G.power.kind === 'magneet' ? 2000 : f.magnet ? f.magnet * boost('magnet') : (hasPerk(7) ? 45 : 0);
+    const mag = (G.power && G.power.kind === 'magneet') || G.magnetT > 0 ? 2000 : f.magnet ? f.magnet * boost('magnet') : (hasPerk(7) ? 45 : 0);
     if (mag) {
       let best = null, bd = 1e9; for (const b of G.bodies) { const d = Math.hypot(G.px + b.ox - c.x, G.py + b.oy - c.y); if (d < bd) { bd = d; best = b; } }
       if (best && bd < mag + best.r && bd > 1) { const sp = mag > 1000 ? 260 : 120; c.x += (G.px + best.ox - c.x) / bd * sp * dt / 1000; c.y += (G.py + best.oy - c.y) / bd * sp * dt / 1000; }
@@ -971,11 +1038,15 @@ function updateCubes(dt) {
     if (c.t > 1500 && offBoard(c, 34)) { c.dead = true; continue; }
     for (const b of G.bodies) if (Math.hypot(G.px + b.ox - c.x, G.py + b.oy - c.y) < b.r + c.r + 4) {
       c.dead = true; G.combo++; G.bestCombo = Math.max(G.bestCombo, G.combo); if (G.combo === 3 || G.combo === 6 || G.combo === 10) { addText(G.px, G.py - curR() - 30, `Combo ×${comboMult(G.combo)}!`, '#ffd54a'); track('combo', comboMult(G.combo)); }
-      const v = Math.round((c.gold ? 5 : 1) * mult * boost('sapMult') * masterSap() * G.dayMult * comboMult(G.combo) * (G.power && G.power.kind === 'dubbel' ? 2 : 1)); gainSap(v); G.cubesRun++; track('cube', v);
+      const v = Math.round((c.gold ? 5 : 1) * mult * boost('sapMult') * masterSap() * G.dayMult * comboMult(G.combo) * (G.power && G.power.kind === 'dubbel' ? dubbelMult(G.level) : 1)); gainSap(v); G.cubesRun++; track('cube', v);
+      if (f.bite && !G.biteGiven && G.cubesRun >= 15) { G.biteGiven = true; G.armor++; addText(G.px, G.py - curR() - 44, 'Hap vrij: je overleeft één snee', '#ffd54a'); }
+      if (f.seeds && G.cubesRun % 10 === 0) plant = { x: G.px, y: Math.min(H - 30, G.py + 30) };
+      if (f.fire && G.cubesRun % 25 === 0) { G.fireCharges = 2; addText(G.px, G.py - curR() - 44, 'Vuur geladen: 2 messen', '#ff6a00'); }
       addText(c.x, c.y - 16, '+' + v + ' sap', c.gold ? '#ffd54a' : '#fff'); burst(c.x, c.y, c.gold ? 16 : 8, c.gold ? ['#ffd54a', '#fff2b0', '#e8a030'] : ['#ffffff', '#e8f4ff'], 180); SFX.collect(); break;
     }
   }
   G.cubes = G.cubes.filter(c => !c.dead);
+  if (plant) { G.cubes.push({ x: plant.x, y: plant.y, vx: 0, vy: 0, ph: 0, r: 14, gold: true, rot: 0, dead: false, t: -5000, seed: true }); addText(plant.x, plant.y + 20, 'Zaadje geplant', '#4fa84a'); }
 }
 function updateSpawner(dt) {
   const d = difficulty();
@@ -1215,6 +1286,9 @@ function deathDebris(type, x, y, r, nx, ny, eyesOnly, half) {
     case 'sinaasappel': for (let i = 0; i < 3; i++) P('wedge', x + J(), y + J(), r * .6, '#ff9a1f', '#ffe0a8', 'tumble'); for (let i = 0; i < 2; i++) P('shard', x + J(), y + J(), r * .7, '#ff8c1a', null, 'flutter'); break;
     case 'avocado': P('berry', x, y, r * .45, '#7a4a2a', '#b07a4a', 'tumble'); for (let i = 0; i < 2; i++) P('shard', x + J(), y + J(), r * .75, '#2f4a22', '#9bc53d', 'tumble'); break;
     case 'pit': for (let i = 0; i < 3; i++) P('chunk', x + J(), y + J(), r * .6, '#7a4a2a', null, 'tumble'); break;
+    case 'pruim': for (let i = 0; i < 3; i++) P('chunk', x + J(), y + J(), r * .5, '#7a3fb0', '#e0c6ff', 'tumble'); P('seed', x, y, r * .45, '#6a3a1a', null, 'spray'); break;
+    case 'mandarijn': for (let i = 0; i < 4; i++) P('wedge', x + J(), y + J(), r * .55, '#ff9f1c', '#ffe0a8', 'tumble'); P('leaf', x + r * .3, y - r, r * .4, '#3f8f3a', null, 'flutter'); break;
+    case 'granaatappel': for (let i = 0; i < 10; i++) P('seed', x + J(), y + J(), r * .16, '#e8203e', '#ffb3c0', 'spray'); for (let i = 0; i < 2; i++) P('shard', x + J(), y + J(), r * .7, '#c81e3c', '#ffb3c0', 'tumble'); break;
     case 'watermeloen': for (let i = 0; i < 6; i++) P('seed', x + J(), y + J(), r * .13, '#1a1a1a', null, 'spray'); P('shard', x, y, r * .75, '#2f8f3a', '#ff4d5e', 'tumble'); break;
     case 'ananas': for (let i = 0; i < 4; i++) P('spike', x + J() * .4, y - r, r * .6, i % 2 ? '#3f8f3a' : '#5cae4a', null, 'flutter'); for (let i = 0; i < 3; i++) P('chunk', x + J(), y + J(), r * .4, '#d9a441', null, 'tumble'); break;
     case 'durian': for (let i = 0; i < 6; i++) P('spike', x + J(), y + J(), r * .4, '#b8c25a', null, 'spray'); for (let i = 0; i < 2; i++) P('chunk', x + J(), y + J(), r * .45, '#f7f0b8', null, 'tumble'); for (let i = 0; i < 3; i++) P('puff', x + J(), y + J(), r * .4, 'rgba(150,200,80,.6)', null, 'flutter'); break;
@@ -1391,6 +1465,69 @@ function drawInterHud() {
   ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(bx + 6, by + 44, bw - 6, 4); ctx.fillStyle = d.col; ctx.fillRect(bx + 6, by + 44, (bw - 6) * frac, 4);
 }
 
+// ---- Fruit tricks: small helpers shared by several fruits. Seekers are loose pieces that fly off and collect
+// cubes for a moment (Granaatappel pits, Sinaasappel segments). Zones are patches where a blade moves slower
+// (Druif trail, Banaan peel, Durian cloud). A decoy is a peel the knives aim at (Mandarijn).
+function spawnSeekers(x, y, n, life, col) {
+  for (let i = 0; i < n; i++) { const a = i / n * TAU + rnd(-.2, .2), sp = rnd(220, 300); G.seekers.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: 0, life, col }); }
+}
+function updateSeekers(dt) {
+  for (const k of G.seekers) {
+    k.t += dt; k.x += k.vx * dt / 1000; k.y += k.vy * dt / 1000; k.vx *= .992; k.vy *= .992;
+    if (k.x < 10 || k.x > W - 10) k.vx *= -1; if (k.y < 50 || k.y > H - 10) k.vy *= -1; k.x = clamp(k.x, 10, W - 10); k.y = clamp(k.y, 50, H - 10);
+    for (const c of G.cubes) if (!c.dead && !(c.seed && c.t < 0) && Math.hypot(c.x - k.x, c.y - k.y) < c.r + 10) {
+      c.dead = true; const v = Math.round((c.gold ? 5 : 1) * (fruitDef().sapMult || 1) * masterSap() * G.dayMult); gainSap(v); G.cubesRun++; track('cube', v);
+      addText(c.x, c.y - 16, '+' + v, k.col); burst(c.x, c.y, 8, ['#ffffff', k.col], 160); SFX.collect();
+    }
+  }
+  G.seekers = G.seekers.filter(k => k.t < k.life);
+}
+function drawSeekers() {
+  for (const k of G.seekers) {
+    ctx.globalAlpha = clamp((k.life - k.t) / 400, 0, 1); ctx.fillStyle = k.col; ctx.beginPath(); ctx.ellipse(k.x, k.y, 6.5, 4.8, Math.atan2(k.vy, k.vx), 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.arc(k.x - 2, k.y - 1.5, 1.7, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+  }
+}
+function addZone(x, y, r, life, kind) { G.zones.push({ x, y, r, t: 0, life, kind }); if (G.zones.length > 6) G.zones.shift(); }
+const zoneSlow = (x, y) => G.zones.some(z => Math.hypot(z.x - x, z.y - y) < z.r) ? .55 : 1;
+function updateZones(dt) { for (const z of G.zones) z.t += dt; G.zones = G.zones.filter(z => z.t < z.life); }
+const ZONE_COL = { druif: '160,90,230', banaan: '255,211,61', durian: '150,170,60' };
+function drawZones() {
+  for (const z of G.zones) {
+    const a = Math.min(1, z.t / 300, (z.life - z.t) / 500), col = ZONE_COL[z.kind] || '255,255,255';
+    ctx.globalAlpha = .35 * a; ctx.fillStyle = `rgba(${col},.6)`; ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, TAU); ctx.fill();
+    ctx.strokeStyle = `rgba(${col},.9)`; ctx.lineWidth = 2; ctx.setLineDash([6, 6]); ctx.stroke(); ctx.setLineDash([]);
+    if (z.kind === 'banaan') { ctx.globalAlpha = a; ctx.strokeStyle = '#ffd33d'; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); for (let i = 0; i < 3; i++) { const q = i * 2.1 + .4; ctx.moveTo(z.x, z.y); ctx.lineTo(z.x + Math.cos(q) * z.r * .6, z.y + Math.sin(q) * z.r * .6); } ctx.stroke(); }
+    ctx.globalAlpha = 1;
+  }
+}
+function drawDecoy() {
+  const d = G.decoy; if (!d) return; ctx.save(); ctx.translate(d.x, d.y); ctx.strokeStyle = '#ff9f1c'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.beginPath();
+  for (let i = 0; i < 24; i++) { const a = i * .5, rr = 3 + i * .9; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = `800 10px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('lokaas', 0, 26); ctx.restore();
+}
+function drawSprout(c) {
+  const g = clamp(1 + c.t / 5000, 0, 1); ctx.strokeStyle = '#4fa84a'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(c.x, c.y + 8); ctx.lineTo(c.x, c.y + 8 - 18 * g); ctx.stroke();
+  ctx.fillStyle = '#6cc26a'; for (const sd of [-1, 1]) { ctx.beginPath(); ctx.ellipse(c.x + sd * 6 * g, c.y + 2 - 10 * g, 7 * g, 3.5 * g, sd * .6, 0, TAU); ctx.fill(); }
+}
+const shrinkStage = () => Math.min(3, Math.floor(G.t / 20000));
+const shrinkFactor = () => 1 - .18 * shrinkStage();
+const fruitJitter = () => { const f = fruitDef(); return f.aimJitter || (f.shrink && shrinkStage() >= 3 ? 40 : 7); };
+// Timers that fire on their own: the Mandarijn peel, the Banaan peel, the Ananas crown, the Watermeloen pit, the
+// Drakenvrucht fire, the Pruim's shrinking.
+function updateTricks(dt) {
+  const f = fruitDef();
+  if (G.magnetT > 0) G.magnetT -= dt;
+  if (G.decoy) { G.decoy.t -= dt; if (G.decoy.t <= 0) G.decoy = null; }
+  if (f.decoy) { G.decoyT -= dt; if (G.decoyT <= 0) { G.decoyT = 20000; G.decoy = { x: G.px, y: G.py, t: 3000 }; addText(G.px, G.py - curR() - 26, 'Schil gelost: lokaas!', '#ff9f1c'); SFX.pop(); } }
+  if (f.peel) { G.peelT -= dt; if (G.peelT <= 0) { G.peelT = 20000; addZone(G.px, G.py, 44, 12000, 'banaan'); addText(G.px, G.py - curR() - 26, 'Schil gelost!', '#ffd33d'); } }
+  if (f.regrow && G.armor < f.armor) { G.regrowT -= dt; if (G.regrowT <= 0) { G.regrowT = 30000; G.armor++; addText(G.px, G.py - curR() - 26, 'Kroon gegroeid: +1 schil', '#ffd54a'); SFX.collect(); } } else G.regrowT = 30000;
+  if (f.spit) { G.spitT -= dt; if (G.spitT <= 0) { const sl = G.slashes.find(x => x.phase === 'tele' && !x.spat); if (sl) { G.spitT = 15000; sl.spat = true; sl.tele += 1000; burst((sl.ax + sl.bx) / 2, (sl.ay + sl.by) / 2, 10, ['#1a1a1a', '#ffffff'], 200); addText(G.px, G.py - curR() - 26, 'Pit gespuwd: mes wacht 1 s', '#fff'); SFX.pop(); } } }
+  if (f.fire && G.fireCharges > 0) { const sl = G.slashes.find(x => x.phase === 'tele' && x.t > 0); if (sl) { G.fireCharges--; G.slashes = G.slashes.filter(x => x !== sl); burst((sl.ax + sl.bx) / 2, (sl.ay + sl.by) / 2, 30, ['#ff6a00', '#ffd54a', '#333333'], 320); addText(G.px, G.py - curR() - 26, 'Vuur! Mes verbrand', '#ff6a00'); SFX.squirt(); G.shake = 4; } }
+  if (f.shrink) { const st = shrinkStage(); if (st !== G.shrinkStage) { G.shrinkStage = st; setBodies(); addText(G.px, G.py - curR() - 26, st >= 3 ? 'Rozijn! Het mes mikt grof' : 'Gekrompen!', '#e0c6ff'); } }
+  updateSeekers(dt); updateZones(dt);
+}
+
 // ---- Update
 function update(real) {
   switch (G.state) {
@@ -1407,7 +1544,7 @@ function update(real) {
       if (G.inter) { updateInter(dt); updatePlayer(real); updateSlashes(dt); updateCubes(dt); updateFx(dt, real); break; } // the run's clock and level timer wait
       G.t += dt; G.levelT += dt;
       if (G.mode === 'normal' && hasPerk(8) && G.t >= (G.shellGiven + 1) * 60000) { G.shellGiven++; G.armor++; addText(G.px, G.py - curR() - 26, 'Taaie schil: +1', '#ffd54a'); SFX.collect(); }
-      updatePlayer(real); updatePowers(dt); updateSpawner(dt); updateHazards(dt); updateSlashes(dt); updateCubes(dt); updateMode(dt); updateFx(dt, real); break;
+      updatePlayer(real); updateTricks(dt); updatePowers(dt); updateSpawner(dt); updateHazards(dt); updateSlashes(dt); updateCubes(dt); updateMode(dt); updateFx(dt, real); break;
     }
     case 'hearts': { heartTick -= real; if (heartTick <= 0) { heartTick = 1000; $('#hearts-timer').textContent = heartsLine(); $('#hearts-row').innerHTML = heartsHTML(); } updateFx(real * .3, real); break; }
     case 'dying': {
@@ -1508,13 +1645,15 @@ function drawGlyph(kind, s) {
 function drawDrop() {
   const d = G.drop; if (!d) return; const p = POWERS[d.kind], pulse = 1 + Math.sin(d.t / 180) * .08;
   ctx.save(); ctx.translate(d.x, d.y);
-  ctx.fillStyle = p.col; ctx.globalAlpha = .22 + Math.sin(d.t / 180) * .08; ctx.beginPath(); ctx.arc(0, 0, d.r * 2.1 * pulse, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+  const sc = powerScale(G.level), ring = (d.t % 900) / 900; // higher levels: a wider, brighter glow and an expanding ring that calls attention
+  ctx.fillStyle = p.col; ctx.globalAlpha = .22 + .18 * (sc - 1) + Math.sin(d.t / 180) * .08; ctx.beginPath(); ctx.arc(0, 0, d.r * (2.1 + .6 * (sc - 1)) * pulse, 0, TAU); ctx.fill();
+  ctx.strokeStyle = p.col; ctx.lineWidth = 2.5; ctx.globalAlpha = .55 * (1 - ring) * sc; ctx.beginPath(); ctx.arc(0, 0, d.r + 8 + ring * 28 * sc, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
   ctx.rotate(Math.sin(d.t / 500) * .25); ctx.scale(pulse, pulse);
   ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(0, 0, d.r, 0, TAU); ctx.fill();
   ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(0, 0, d.r - 1, 0, TAU); ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.beginPath(); ctx.ellipse(-d.r * .3, -d.r * .4, d.r * .35, d.r * .2, -.6, 0, TAU); ctx.fill();
   drawGlyph(d.kind, d.r); ctx.restore();
-  ctx.font = `800 11px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.strokeText('bonus', d.x, d.y + d.r + 6); ctx.fillStyle = '#fff'; ctx.fillText('bonus', d.x, d.y + d.r + 6);
+  ctx.font = `800 ${Math.round(11 + 3 * (powerScale(G.level) - 1))}px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.strokeText('bonus', d.x, d.y + d.r + 6); ctx.fillStyle = '#fff'; ctx.fillText('bonus', d.x, d.y + d.r + 6);
 }
 function drawPowerAura() {
   const p = G.power; if (!p) return;
@@ -1525,7 +1664,7 @@ function drawPowerAura() {
     else if (p.kind === 'dubbel') { ctx.fillStyle = 'rgba(255,213,74,.5)'; for (let i = 0; i < 3; i++) { const a = performance.now() / 400 + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (b.r + 10), y + Math.sin(a) * (b.r + 10) * .5 - 4, 2.2, 0, TAU); ctx.fill(); } }
   }
 }
-function drawCubes() { for (const c of G.cubes) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x + 3, c.y + c.r + 5, c.r * 1.1, c.r * .35, 0, 0, TAU); ctx.fill(); drawSugar(c.x, c.y, c.r, c.gold, c.rot); } }
+function drawCubes() { for (const c of G.cubes) { if (c.seed && c.t < 0) { drawSprout(c); continue; } ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x + 3, c.y + c.r + 5, c.r * 1.1, c.r * .35, 0, 0, TAU); ctx.fill(); drawSugar(c.x, c.y, c.r, c.gold, c.rot); } }
 function drawParticles(f, cx, cy, minD) {
   for (const p of G.parts) {
     let x = p.x, y = p.y;
@@ -1688,6 +1827,30 @@ function drawFruit(type, x, y, r, ang, half, o) {
       ctx.strokeStyle = 'rgba(120,50,0,.5)'; ctx.lineWidth = 1; ctx.beginPath(); for (let i = 0; i < 5; i++) { const a = i / 5 * TAU; ctx.moveTo(0, r * .78); ctx.lineTo(Math.cos(a) * r * .07, r * .78 + Math.sin(a) * r * .07); } ctx.stroke();
       ctx.restore(); break;
     }
+    case 'pruim': {
+      ctx.save(); ctx.rotate(ang * .3); const dark = (o.stage || 0) >= 3;
+      ctx.fillStyle = radial(r, dark ? '#9a7a9a' : '#c6a3ff', dark ? '#5a3a6a' : '#7a3fb0', dark ? '#2a1830' : '#3a1a60'); ctx.beginPath(); ctx.ellipse(0, 0, r, r * 1.08, 0, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(30,10,50,.45)'; ctx.lineWidth = r * .1; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, -r * .95); ctx.quadraticCurveTo(-r * .25, 0, 0, r * 1.02); ctx.stroke();
+      if (dark) { ctx.strokeStyle = 'rgba(20,5,30,.5)'; ctx.lineWidth = r * .06; ctx.beginPath(); for (let i = -2; i <= 2; i++) { ctx.moveTo(i * r * .3, -r * .7); ctx.quadraticCurveTo(i * r * .3 + r * .12, 0, i * r * .3, r * .7); } ctx.stroke(); }
+      ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.beginPath(); ctx.ellipse(-r * .35, -r * .45, r * .25, r * .14, -.6, 0, TAU); ctx.fill();
+      if (!o.dead) { ctx.strokeStyle = '#5a3a1e'; ctx.lineWidth = r * .13; ctx.beginPath(); ctx.moveTo(0, -r * .95); ctx.lineTo(r * .12, -r * 1.3); ctx.stroke(); }
+      ctx.restore(); break;
+    }
+    case 'mandarijn': {
+      ctx.save(); ctx.rotate(ang * .25);
+      ctx.fillStyle = radial(r, '#ffd27a', '#ff9f1c', '#c45a00'); ctx.beginPath(); ctx.ellipse(0, r * .05, r, r * .9, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(120,50,0,.12)'; for (const [gx, gy] of GRAIN) { ctx.beginPath(); ctx.arc(gx * r * .75, gy * r * .65, r * .06, 0, TAU); ctx.fill(); }
+      if (!o.dead) { ctx.fillStyle = '#3f8f3a'; ctx.beginPath(); ctx.ellipse(r * .3, -r * .85, r * .34, r * .14, -.5, 0, TAU); ctx.fill(); ctx.fillStyle = '#5a3a1e'; ctx.beginPath(); ctx.arc(0, -r * .82, r * .1, 0, TAU); ctx.fill(); }
+      ctx.restore(); break;
+    }
+    case 'granaatappel': {
+      ctx.save(); ctx.rotate(ang * .3);
+      ctx.fillStyle = radial(r, '#ff8a9a', '#c81e3c', '#6e0b1e'); ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#6e0b1e'; ctx.beginPath(); ctx.moveTo(-r * .3, -r * .8); ctx.lineTo(-r * .32, -r * 1.2); ctx.lineTo(-r * .1, -r * 1.0); ctx.lineTo(0, -r * 1.3); ctx.lineTo(r * .1, -r * 1.0); ctx.lineTo(r * .32, -r * 1.2); ctx.lineTo(r * .3, -r * .8); ctx.closePath(); ctx.fill();
+      if (o.burst) { ctx.fillStyle = '#ffb3c0'; for (const [gx, gy] of GRAIN) { ctx.beginPath(); ctx.arc(gx * r * .6, gy * r * .6 + r * .3, r * .09, 0, TAU); ctx.fill(); } }
+      ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.ellipse(-r * .35, -r * .4, r * .25, r * .14, -.6, 0, TAU); ctx.fill();
+      ctx.restore(); break;
+    }
     case 'avocado': {
       ctx.save(); ctx.rotate(ang * .15);
       const g = ctx.createRadialGradient(-r * .3, -r * .2, r * .1, 0, r * .2, r * 1.15); g.addColorStop(0, '#5c7a3a'); g.addColorStop(.5, '#3b5b2a'); g.addColorStop(1, '#1f331a'); ctx.fillStyle = g;
@@ -1814,6 +1977,9 @@ function drawCrossSection(type, R, f) {
     case 'ananas': disc('#ffd95a'); spokes(16, 'rgba(255,255,255,.35)', R * .03, R * .25, R * .88); dot(0, 0, R * .22, '#e8c040'); ring('#b08a1a', R * .09); break;
     case 'durian': disc('#f7f0b8'); ctx.fillStyle = '#f0e39a'; for (let i = 0; i < 5; i++) { const a = i / 5 * TAU; ctx.save(); ctx.translate(Math.cos(a) * R * .5, Math.sin(a) * R * .5); ctx.rotate(a); ctx.beginPath(); ctx.ellipse(0, 0, R * .3, R * .2, 0, 0, TAU); ctx.fill(); ctx.restore(); } ring('#a3ad48', R * .12); break;
     case 'drakenvrucht': disc('#fafafa'); for (let i = 0; i < 34; i++) { const a = pr() * TAU, rad = Math.sqrt(pr()) * R * .82; dot(Math.cos(a) * rad, Math.sin(a) * rad, R * .035, '#1a1a1a'); } ring('#ef3f8f', R * .09); break;
+    case 'pruim': disc('#f2c66a'); dot(0, 0, R * .3, '#6a3a1a'); ring('#7a3fb0', R * .1); break;
+    case 'mandarijn': disc('#ffb04a'); spokes(10, 'rgba(255,255,255,.85)', R * .05, 0, R * .9); ring('#ffe9c8', R * .14); ring('#ff9f1c', R * .07); break;
+    case 'granaatappel': disc('#fff0f0'); for (let i = 0; i < 40; i++) { const a = pr() * TAU, rad = Math.sqrt(pr()) * R * .8; dot(Math.cos(a) * rad, Math.sin(a) * rad, R * .09, '#e8203e'); } ring('#ffe3e8', R * .1); ring('#c81e3c', R * .07); break;
     default: disc(f.juice[1]); ring(f.juice[0], R * .09);
   }
 }
@@ -1829,7 +1995,7 @@ function drawPlayer() {
     if (dying && G.death && G.death.body === b) { drawCutFruit(x, y, b, f, type); continue; }
     if (G.inv > 0 && G.state === 'play' && Math.floor(G.inv / 90) % 2 === 0) ctx.globalAlpha = .45;
     drawShadow(x, y, b.r);
-    drawFruit(type, x, y, b.r, f.rotates ? G.spin : G.ang, b.half, { look: [G.lookX, G.lookY], scared: dying ? 1 : G.scared, cracks: (f.armor || 0) - G.armor, segLost: G.segLost, hat: b.id === G.bodies[0].id ? save.hat : 'none', gold: isGold(G.fruit) });
+    drawFruit(type, x, y, b.r, f.rotates ? G.spin : G.ang, b.half, { look: [G.lookX, G.lookY], scared: dying ? 1 : G.scared, cracks: (f.armor || 0) - G.armor, segLost: G.segLost, stage: G.shrinkStage, burst: G.burstDone, hat: b.id === G.bodies[0].id ? save.hat : 'none', gold: isGold(G.fruit) });
     ctx.globalAlpha = 1;
   }
 }
@@ -1859,7 +2025,7 @@ function drawHud() {
     ctx.fillStyle = 'rgba(20,10,5,.8)'; ctx.fillRect(bx, by, bw, 48); ctx.fillStyle = p.col; ctx.fillRect(bx, by, 6, 48);
     ctx.textAlign = 'left'; ctx.font = `800 15px ${FU}`; ctx.fillStyle = p.col; ctx.fillText(p.name, bx + 16, by + 7);
     ctx.textAlign = 'right'; ctx.fillStyle = '#fff4e4'; ctx.fillText(`${Math.ceil(G.power.t / 1000)} s`, bx + bw - 10, by + 7);
-    ctx.textAlign = 'left'; ctx.font = `600 11.5px ${FU}`; ctx.fillStyle = '#fff4e4'; ctx.fillText(p.info, bx + 16, by + 27);
+    ctx.textAlign = 'left'; ctx.font = `600 11.5px ${FU}`; ctx.fillStyle = '#fff4e4'; ctx.fillText(powerInfo(G.power.kind, G.level), bx + 16, by + 27);
     ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(bx + 6, by + 44, bw - 6, 4); ctx.fillStyle = p.col; ctx.fillRect(bx + 6, by + 44, (bw - 6) * frac, 4);
   }
   if (G.perkBanner > 0) { // the kitchen perk you just earned
@@ -1893,7 +2059,7 @@ function render() {
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
   if (G.state === 'dying' && G.death) { ctx.translate(G.death.x, G.death.y); ctx.scale(G.zoom, G.zoom); ctx.translate(-G.death.x, -G.death.y); }
   ctx.drawImage(board, 0, 0, W, H);
-  drawStains(); drawScars(); drawHazards(); drawCubes(); if (G.inter && G.inter.kind === 'tik') drawTaps(); drawDrop(); drawSlashes(0);
+  drawStains(); drawScars(); drawZones(); drawHazards(); drawCubes(); drawSeekers(); drawDecoy(); if (G.inter && G.inter.kind === 'tik') drawTaps(); drawDrop(); drawSlashes(0);
   if (G.state !== 'menu') { if (G.mode === 'knife') drawAI(); else { drawPlayer(); if (G.state === 'play') drawPowerAura(); } }
   drawDebris(); drawParticles(); drawSlashes(1); drawTexts();
   if (G.flash > .02) { ctx.fillStyle = `rgba(255,60,40,${G.flash * .35})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
@@ -1916,7 +2082,7 @@ function renderSapIcon() { const c = $('#menu-sap-icon'); if (!c) return; const 
 function buildMenu() {
   $('#menu-best').textContent = fmtTime(save.best); $('#menu-sap').textContent = String(save.sap); $('#menu-runs').textContent = String(save.runs); $('#menu-level').textContent = String(save.level);
   $('#menu-hearts').innerHTML = heartsHTML(); $('#menu-heart-timer').textContent = heartsLine(); heartTick = 1000;
-  $('#btn-sound').textContent = save.sound ? 'Geluid: aan' : 'Geluid: uit'; $('#ver').textContent = HOOK.testAll ? 'Testmodus: alle fruit tijdelijk vrij' : 'Prototype v0.8 · geen echte aankopen';
+  $('#btn-sound').textContent = save.sound ? 'Geluid: aan' : 'Geluid: uit'; $('#ver').textContent = HOOK.testAll ? 'Testmodus: alle fruit tijdelijk vrij' : 'Prototype v0.9 · geen echte aankopen';
   renderSapIcon();
   updateLevelPick(); renderPick();
 }
@@ -1954,7 +2120,21 @@ function renderPick() {
   const f = FRUITS[save.fruit]; renderIcon($('#pick-icon').getContext('2d'), save.fruit, 40, false, { hat: save.hat, gold: isGold(save.fruit) });
   $('#pick-name').textContent = f.name; const u = unlockable(); $('#pick-sub').textContent = u ? 'Nieuw fruit te ontgrendelen! Tik om te kijken.' : 'Tik om van fruit te wisselen.'; $('#fruit-badge').hidden = !u;
 }
-function openFruit() { G.state = 'fruit'; menuSel = save.fruit; buildFruitGrid(); showScreen('scr-fruit'); pauseBtn.hidden = true; }
+function openHelp() {
+  G.state = 'help'; markSeen('help');
+  const perks = PERKS.map((p, i) => p ? `<div class="small"><b>Level ${i * 5 + 1}</b> · ${p.name}: ${p.info}</div>` : '').join('') + '<div class="small"><b>Level 61 en verder</b> · Keukenmeester: +5% sap per nieuwe keuken.</div>';
+  const powers = POWER_KEYS.map(k => `<div class="small"><b>${POWERS[k].name}</b>: ${powerInfo(k, 1)}</div>`).join('');
+  const inter = INTER_ORDER.map(k => `<div class="small"><b>${INTER[k].name}</b>: ${INTER[k].how.join(' ')}</div>`).join('');
+  $('#help-body').innerHTML =
+    `<div class="sec"><h3>Besturing</h3><div class="small">Raak het scherm aan: het fruit hangt boven je vinger, zodat je het altijd ziet. Zweef je onderaan het scherm, dan komt het fruit onder je vinger, zodat je ook daar klontjes en bonussen kunt pakken. Op de computer: sleep met de muis of gebruik de pijltjes; P of Esc pauzeert.</div></div>` +
+    `<div class="sec"><h3>Doel</h3><div class="small">Ontwijk de rode lijnen: daar komt het mes. Suikerklontjes zijn sap (goud = 5). Elk level vraagt wat meer sap; om de vijf levels krijg je een nieuwe keuken en een blijvend voordeel:</div>${perks}</div>` +
+    `<div class="sec"><h3>Bonusvoorwerpen</h3><div class="small">Vallen soms tijdens een level: 10% kans op level 1, oplopend tot 35%, en vanaf level 41 vaak een tweede. Hoe hoger je level, hoe groter en feller ze zijn, hoe trager ze drijven en hoe langer en sterker ze werken: op level 81 duren ze dubbel zo lang. Op level 1:</div>${powers}</div>` +
+    `<div class="sec"><h3>Tussenspel</h3><div class="small">Om de vier levels (5, 9, 13, ...) een spelletje van 12 seconden. Je kunt er niet in doodgaan; de score wordt sap (maximaal 40, plus 10 bonus bij het doel).</div>${inter}</div>` +
+    `<div class="sec"><h3>Hartjes en spelvormen</h3><div class="small">Een gewone poging kost een hartje; elke 20 minuten komt er een bij. Mes van de dag, de weekendspelen en doorgaan na een snee kosten geen hartje. Vandaag bundelt het rad, de dagreeks, de opdrachten, het mes van de dag en het weekendspel. Stempels is de Fruitkaart: elk level met elk fruit uitspelen geeft beloningen. De Fruitpas heeft 30 seizoenstreden; het Album toont stickers, keukenbonussen en de Fruitpedia. Een uitroepteken op een knop betekent: daar staat iets klaar, of je hebt het nog niet ontdekt, of er is iets nieuws sinds je laatste bezoek.</div></div>`;
+  showScreen('scr-help'); pauseBtn.hidden = true;
+}
+$('#btn-help-back').addEventListener('click', () => { SFX.click(); openMenu(); });
+function openFruit() { G.state = 'fruit'; markSeen('fruit'); menuSel = save.fruit; buildFruitGrid(); showScreen('scr-fruit'); pauseBtn.hidden = true; }
 $('#btn-fruit').addEventListener('click', () => { SFX.click(); openFruit(); });
 $('#btn-fruit-back').addEventListener('click', () => { SFX.click(); openMenu(); });
 $('#ver').addEventListener('click', () => { verTaps++; if (verTaps >= 5) { verTaps = 0; HOOK.testAll = !HOOK.testAll; if (!HOOK.testAll && !save.owned.includes(save.fruit)) save.fruit = 'appel'; buildMenu(); } });
@@ -2070,11 +2250,11 @@ function giveReward(r) {
   const txt = [];
   if (r.sap) { save.sap += r.sap; txt.push(`+${r.sap} sap`); }
   if (r.heart) { save.hearts = Math.min(maxHearts(), save.hearts + r.heart); txt.push(`+${r.heart} hartje`); }
-  if (r.hat) { if (!save.hats.includes(r.hat)) { save.hats.push(r.hat); txt.push('hoedje: ' + HATS[r.hat].name); } else { save.sap += 25; txt.push('+25 sap (hoedje had je al)'); } }
+  if (r.hat) { if (!save.hats.includes(r.hat)) { save.hats.push(r.hat); markFresh('shop'); txt.push('hoedje: ' + HATS[r.hat].name); } else { save.sap += 25; txt.push('+25 sap (hoedje had je al)'); } }
   if (r.shield) { save.shields += r.shield; txt.push(`+${r.shield} reeksschild`); }
   if (r.minutes) { save.unlimitedBank += r.minutes; txt.push(`+${r.minutes} min onbeperkt`); }
-  if (r.board) { if (!save.boards.includes(r.board)) { save.boards.push(r.board); save.board = r.board; txt.push('bordskin: ' + THEMES[skinIndex(r.board)].name); } else { save.sap += 50; txt.push('+50 sap (bordskin had je al)'); } }
-  if (r.title) { if (!save.titles.includes(r.title)) { save.titles.push(r.title); txt.push('titel: ' + r.title); } }
+  if (r.board) { if (!save.boards.includes(r.board)) { save.boards.push(r.board); markFresh('shop'); save.board = r.board; txt.push('bordskin: ' + THEMES[skinIndex(r.board)].name); } else { save.sap += 50; txt.push('+50 sap (bordskin had je al)'); } }
+  if (r.title) { if (!save.titles.includes(r.title)) { save.titles.push(r.title); markFresh('album'); txt.push('titel: ' + r.title); } }
   store(); return txt.join(' · ');
 }
 const rewardText = r => [r.sap ? `${r.sap} sap` : '', r.heart ? `${r.heart} hartje${r.heart > 1 ? 's' : ''}` : '', r.hat ? `hoedje ${HATS[r.hat] ? HATS[r.hat].name : r.hat}` : '', r.shield ? `${r.shield} reeksschild` : '', r.minutes ? `${r.minutes} min onbeperkt` : '', r.board ? `bordskin ${THEMES[skinIndex(r.board)] ? THEMES[skinIndex(r.board)].name : r.board}` : '', r.title ? `titel "${r.title}"` : ''].filter(Boolean).join(' + ');
@@ -2183,7 +2363,7 @@ function weekendStatus() {
   return save.weekend.week === weekKey() && save.weekend.best ? `Beste tot nu: ${save.weekend.best} ${w.unit}. Doel: ${w.goal}.` : `Doel: ${w.goal} ${w.unit}. Prijs: 30 min onbeperkte hartjes + 20 sap.`;
 }
 function openToday(focus) {
-  G.state = 'today'; ensureMissions(); touchStreak(); const today = dayKey(), claimedStreak = save.streakClaimed === today, sr = streakReward(save.streak);
+  G.state = 'today'; markSeen('today'); markSeen('wheel'); markSeen('games'); ensureMissions(); touchStreak(); const today = dayKey(), claimedStreak = save.streakClaimed === today, sr = streakReward(save.streak);
   const dots = Array.from({ length: 7 }, (_, i) => `<i class="${i < ((save.streak - 1) % 7) + 1 ? 'on' : ''}"></i>`).join('');
   const missions = save.missions.list.map((m, i) => `<div class="mrow"><div class="mt">${m.text}<div class="small">Beloning: ${rewardText(MISSION_REWARDS[i])}</div><div class="mbar"><i style="width:${Math.round(100 * m.prog / m.goal)}%"></i></div></div><button class="btn${m.done && !m.claimed ? ' primary' : ''}" data-mi="${i}" ${m.done && !m.claimed ? '' : 'disabled'}>${m.claimed ? 'Ontvangen' : m.done ? 'Ontvang' : `${m.prog}/${m.goal}`}</button></div>`).join('');
   const g = weekendGame(), w = WEEKEND[g], dailyLabel = pendingDaily && pendingDaily !== today ? `Uitdaging van ${pendingDaily}: speel het mes van die dag (telt niet als record).` : dailyPlayedToday() ? `Gespeeld: ${fmtTime(save.daily.best)}. Morgen om 7 uur een nieuw mes.` : 'Nog niet gespeeld vandaag.';
@@ -2215,7 +2395,7 @@ $('#btn-today-back').addEventListener('click', () => { SFX.click(); openMenu(); 
 
 // ---- Fruitkaart: a stamp for every (level, fruit) pair you complete. Rows (a level with all 14 fruits),
 // columns (a fruit's medal) and families pay out; the fruit of the week doubles stamp sap; one bounty cell a day.
-const FAMILIES = { Rood: ['appel', 'aardbei', 'kersen', 'watermeloen'], Tropisch: ['ananas', 'banaan', 'kokosnoot', 'drakenvrucht', 'durian', 'avocado'], Klein: ['druif', 'kersen', 'kiwi'], Zuur: ['citroen', 'sinaasappel', 'kiwi'] };
+const FAMILIES = { Rood: ['appel', 'aardbei', 'kersen', 'watermeloen', 'granaatappel'], Tropisch: ['ananas', 'banaan', 'kokosnoot', 'drakenvrucht', 'durian', 'avocado'], Klein: ['druif', 'kersen', 'kiwi', 'pruim'], Zuur: ['citroen', 'sinaasappel', 'kiwi', 'mandarijn'] };
 const MEDALS = [[100, 'diamant', 1500], [50, 'goud', 600], [25, 'zilver', 250], [10, 'brons', 100]];
 const stampsOf = n => save.stamps[n] || [];
 const hasStamp = (n, k) => stampsOf(n).includes(k);
@@ -2243,9 +2423,9 @@ function stamp(n, k) {
   const before = fruitLevels(k); (save.stamps[n] = save.stamps[n] || []).push(k);
   const fow = fruitOfWeek() === k, got = [], base = Math.max(2, n) * (fow ? 2 : 1); save.sap += base; got.push(`+${base} sap`);
   if (!save.bounty.claimed && save.bounty.n === n && save.bounty.k === k) { save.bounty.claimed = true; got.push('premie van de dag: ' + giveReward({ heart: 2, sap: 40 })); }
-  if (stampsOf(n).length >= ORDER.length) { const r = rowReward(n); if (fow) r.sap += 20; got.push(`Fruitmand van level ${n} vol: ` + giveReward(r)); G.levelBanner = Math.max(G.levelBanner, 3200); G.bannerTitle = 'FRUITMAND VOL'; G.levelNote = `Level ${n} met alle 14 fruitsoorten · ${rewardText(r)}`; SFX.go(); }
-  for (const fam of Object.keys(FAMILIES)) { const done = (save.families[n] = save.families[n] || []); if (!done.includes(fam) && FAMILIES[fam].every(f => hasStamp(n, f))) { done.push(fam); save.sap += 60; got.push(`familie ${fam} op level ${n}: +60 sap`); } }
-  const after = fruitLevels(k); for (const [c, m, sap] of MEDALS) if (before < c && after >= c) { save.sap += sap; got.push(`${FRUITS[k].name} ${m}: +${sap} sap`); G.note = `${FRUITS[k].name}: ${m}en medaille (${c} levels)`; G.noteT = 3500; }
+  if (stampsOf(n).length >= ORDER.length) { markFresh('kaart'); const r = rowReward(n); if (fow) r.sap += 20; got.push(`Fruitmand van level ${n} vol: ` + giveReward(r)); G.levelBanner = Math.max(G.levelBanner, 3200); G.bannerTitle = 'FRUITMAND VOL'; G.levelNote = `Level ${n} met alle 14 fruitsoorten · ${rewardText(r)}`; SFX.go(); }
+  for (const fam of Object.keys(FAMILIES)) { const done = (save.families[n] = save.families[n] || []); if (!done.includes(fam) && FAMILIES[fam].every(f => hasStamp(n, f))) { done.push(fam); markFresh('kaart'); save.sap += 60; got.push(`familie ${fam} op level ${n}: +60 sap`); } }
+  const after = fruitLevels(k); for (const [c, m, sap] of MEDALS) if (before < c && after >= c) { markFresh('album'); markFresh('fruit'); save.sap += sap; got.push(`${FRUITS[k].name} ${m}: +${sap} sap`); G.note = `${FRUITS[k].name}: ${m}en medaille (${c} levels)`; G.noteT = 3500; }
   addText(G.px, G.py - curR() - 42, `Stempel ${FRUITS[k].name} · level ${n} (+${base})`, '#ffd54a'); addPassXp(2); track('stamp', { n, k }); store();
   return got;
 }
@@ -2258,7 +2438,7 @@ let iconCache = {};
 function fruitIconUrl(k) { if (iconCache[k]) return iconCache[k]; const c = document.createElement('canvas'); c.width = c.height = 48; renderIcon(c.getContext('2d'), k, 24, false); try { iconCache[k] = c.toDataURL(); } catch (e) { iconCache[k] = ''; } return iconCache[k]; }
 let kaartFilter = false;
 function openKaart() {
-  G.state = 'kaart'; ensureBounty(); const fow = fruitOfWeek(), b = save.bounty, rows = [];
+  G.state = 'kaart'; markSeen('kaart'); ensureBounty(); const fow = fruitOfWeek(), b = save.bounty, rows = [];
   for (let n = save.level; n >= 1; n--) { const have = stampsOf(n); if (kaartFilter && have.length >= ORDER.length) continue; rows.push(n); }
   const cells = n => ORDER.map(k => `<img src="${fruitIconUrl(k)}" alt="${FRUITS[k].name}" title="${FRUITS[k].name}${hasStamp(n, k) ? ' · gestempeld' : ''}" class="${hasStamp(n, k) ? '' : 'no'}${k === fow ? ' fow' : ''}">`).join('');
   const fams = n => Object.keys(FAMILIES).filter(f => (save.families[n] || []).includes(f)).map(f => f[0]).join(' ');
@@ -2296,25 +2476,25 @@ const STICKERS = [
   { id: 'level25', name: 'Level 25', info: 'Level 25 bereikt.', test: s => s.level >= 25 },
   { id: 'level50', name: 'Level 50', info: 'Level 50 bereikt.', test: s => s.level >= 50 },
   { id: 'level100', name: 'Level 100', info: 'Level 100 bereikt.', test: s => s.level >= 100 },
-  { id: 'allfruit', name: 'Fruitmand', info: 'Alle 14 fruitsoorten ontgrendeld.', test: s => s.owned.length >= ORDER.length },
+  { id: 'allfruit', name: 'Fruitmand', info: `Alle ${ORDER.length} fruitsoorten ontgrendeld.`, test: s => s.owned.length >= ORDER.length },
   { id: 'weekend', name: 'Weekendwinnaar', info: 'Een weekendspel gewonnen.', test: s => s.stats.weekendWins >= 1 },
   { id: 'streak7', name: 'Week van sap', info: 'Zeven dagen op rij gespeeld.', test: s => (s.stats.bestStreak || 0) >= 7 },
   { id: 'daily10', name: 'Dagelijkse kost', info: 'Tien keer het Mes van de dag gespeeld.', test: s => s.stats.dailyPlayed >= 10 },
   { id: 'gold', name: 'Gouden fruit', info: 'Een fruit met een gouden medaille (50 levels).', test: s => ORDER.some(k => isGold(k)) },
   { id: 'missions20', name: 'Plichtsbewust', info: '20 dagopdrachten volbracht.', test: s => s.stats.missionsDone >= 20 },
   { id: 'stamps100', name: 'Stempelaar', info: '100 stempels op de Fruitkaart.', test: s => totalStamps() >= 100 },
-  { id: 'rows10', name: 'Tien manden', info: 'Tien levels met alle 14 fruitsoorten uitgespeeld.', test: s => fullRows() >= 10 },
+  { id: 'rows10', name: 'Tien manden', info: `Tien levels met alle ${ORDER.length} fruitsoorten uitgespeeld.`, test: s => fullRows() >= 10 },
   { id: 'families10', name: 'Familiemens', info: 'Tien familie-badges.', test: s => Object.keys(s.families).reduce((a, n) => a + s.families[n].length, 0) >= 10 },
   { id: 'medal', name: 'Eerste medaille', info: 'Een fruit met tien levels uitgespeeld.', test: s => ORDER.some(k => fruitMedal(k)) },
 ];
 function checkStickers() {
   const got = [];
   for (const s of STICKERS) { if (save.stickers[s.id]) continue; let ok = false; try { ok = !!s.test(save); } catch (e) {} if (ok) { save.stickers[s.id] = dayKey(); got.push(s.name); } }
-  if (got.length) { store(); G.note = 'Sticker: ' + got.join(', '); G.noteT = 3500; }
+  if (got.length) { markFresh('album'); store(); G.note = 'Sticker: ' + got.join(', '); G.noteT = 3500; }
   return got;
 }
 function openAlbum() {
-  G.state = 'album'; checkStickers(); const got = Object.keys(save.stickers).length, pk = perkKitchen();
+  G.state = 'album'; markSeen('album'); checkStickers(); const got = Object.keys(save.stickers).length, pk = perkKitchen();
   const st = STICKERS.map(s => `<div class="fcard stk${save.stickers[s.id] ? ' sel' : ' locked'}" title="${s.info}"><span class="star">${save.stickers[s.id] ? '★' : '☆'}</span><span>${s.name}</span><span class="st">${save.stickers[s.id] ? 'behaald' : s.info}</span></div>`).join('');
   const perks = pk ? Array.from({ length: pk }, (_, i) => perkAt(i + 1)).map((p, i) => `<div class="small"><b>${p.name}</b> (keuken ${i + 2}): ${p.info}</div>`).join('') : '<div class="small">Nog geen. Elke nieuwe keuken (level 6, 11, 16, ...) geeft er een die je houdt.</div>';
   const nextPk = perkAt(pk + 1);
@@ -2327,13 +2507,12 @@ function openAlbum() {
   $('#album-body').querySelectorAll('.al-cs').forEach(c => { const c2 = c.getContext('2d'), k = c.dataset.f, saved = ctx; ctx = c2; c2.setTransform(2, 0, 0, 2, 0, 0); c2.clearRect(0, 0, 48, 48); ctx.save(); ctx.translate(24, 24); if (owned(k)) drawCrossSection(k, 20, FRUITS[k]); else { ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.beginPath(); ctx.arc(0, 0, 20, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.font = `800 20px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('?', 0, 1); } ctx.restore(); ctx = saved; });
   showScreen('scr-album'); pauseBtn.hidden = true;
 }
-$('#btn-album').addEventListener('click', () => { SFX.click(); openAlbum(); });
 $('#btn-album-back').addEventListener('click', () => { SFX.click(); openMenu(); });
 
 // ---- Fruitpas: a monthly season of 30 tiers, 100 pass-XP each, with a free and a (simulated) paid track.
 const PASS_TIERS = 30, PASS_XP = 100;
 const seasonKey = () => { const d = new Date(nowMs()); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
-function ensurePass() { const s = seasonKey(); if (save.pass.season !== s) { save.pass = { season: s, xp: 0, premium: false, claimedFree: [], claimedPrem: [] }; store(); } }
+function ensurePass() { const s = seasonKey(); if (save.pass.season !== s) { if (save.pass.season) markFresh('pass'); save.pass = { season: s, xp: 0, premium: false, claimedFree: [], claimedPrem: [] }; store(); } }
 function passReward(t, prem) {
   if (prem) { if (t === 5) return { hat: 'pannenkoek' }; if (t === 15) return { hat: 'kroontje', sap: 50 }; if (t === 30) return { hat: 'hoed', sap: 200 }; if (t % 10 === 0) return { minutes: 30, sap: 40 }; if (t % 5 === 0) return { shield: 1, sap: 30 }; return { sap: 20 + t * 2 }; }
   if (t === 30) return { sap: 100, shield: 1 }; if (t % 10 === 0) return { shield: 1, sap: 20 }; if (t % 5 === 0) return { heart: 1 }; return { sap: 8 + t };
@@ -2342,7 +2521,7 @@ const passTier = () => Math.min(PASS_TIERS, Math.floor(save.pass.xp / PASS_XP));
 function addPassXp(n) { ensurePass(); if (n <= 0 || save.pass.xp >= PASS_TIERS * PASS_XP) return; const before = passTier(); save.pass.xp = Math.min(PASS_TIERS * PASS_XP, save.pass.xp + n); if (passTier() > before) { G.note = `Fruitpas: trede ${passTier()} bereikt`; G.noteT = 3000; } store(); }
 trackHooks.push((ev, v) => { if (ev === 'run') addPassXp(Math.floor((v.t || 0) / 5000) + (v.levelsGained || 0) * 10 + (v.mode === 'daily' ? 15 : 0)); else if (ev === 'claim' && v === 'mission') addPassXp(20); else if (ev === 'weekend') addPassXp(50); });
 function openPass() {
-  G.state = 'pass'; ensurePass(); const tier = passTier(), xp = save.pass.xp, now = new Date(nowMs()), end = new Date(now.getFullYear(), now.getMonth() + 1, 1), daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
+  G.state = 'pass'; markSeen('pass'); ensurePass(); const tier = passTier(), xp = save.pass.xp, now = new Date(nowMs()), end = new Date(now.getFullYear(), now.getMonth() + 1, 1), daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
   const btn = (t, prem) => { const claimed = (prem ? save.pass.claimedPrem : save.pass.claimedFree).includes(t), open = t <= tier && (!prem || save.pass.premium); return `<button class="btn${open && !claimed ? ' primary' : ''}${!open ? ' lk' : ''}" data-pt="${t}" data-pp="${prem ? 1 : 0}" ${open && !claimed ? '' : 'disabled'}>${claimed ? 'Ontvangen' : open ? 'Ontvang' : (prem && !save.pass.premium ? 'Pas' : `Trede ${t}`)}</button>`; };
   const rows = Array.from({ length: PASS_TIERS }, (_, i) => i + 1).map(t => `<div class="pr"><b>${t}</b><div>Gratis: ${rewardText(passReward(t, false))}</div>${btn(t, false)}<div></div><div style="color:var(--sugar)">Pas: ${rewardText(passReward(t, true))}</div>${btn(t, true)}</div>`).join('');
   $('#pass-body').innerHTML = `<div class="sec"><h3>Seizoen ${save.pass.season} · trede ${tier}/${PASS_TIERS}</h3><div class="mbar"><i style="width:${Math.round(100 * (xp % PASS_XP) / PASS_XP)}%"></i></div><div class="small">${xp} pas-xp · nog ${daysLeft} dag${daysLeft === 1 ? '' : 'en'} · xp per 5 s gespeeld, per level (+10), per opdracht (+20), per weekendprijs (+50)</div>${save.pass.premium ? '<div class="small" style="color:var(--sugar)">Betaald spoor actief.</div>' : '<div class="small">Zonder pas hou je het gratis spoor. De pas ontgrendelt voor dit seizoen ook de pasbeloning van elke trede, ook van de treden die je al haalde.</div><button class="btn primary" id="btn-pass-buy" style="align-self:flex-start">Koop de Fruitpas · €4,99</button><div class="small">Simulatie. Ontgrendelt het tweede spoor met hoedjes, reeksschilden en onbeperkte minuten, ook met terugwerkende kracht.</div>'}</div><div class="sec">${rows}</div>`;
@@ -2350,12 +2529,11 @@ function openPass() {
   $('#pass-body').querySelectorAll('[data-pt]').forEach(b => b.addEventListener('click', () => { const t = +b.dataset.pt, prem = b.dataset.pp === '1', list = prem ? save.pass.claimedPrem : save.pass.claimedFree; if (t > passTier() || list.includes(t) || (prem && !save.pass.premium)) return; SFX.collect(); list.push(t); giveReward(passReward(t, prem)); openPass(); }));
   showScreen('scr-pass'); pauseBtn.hidden = true;
 }
-$('#btn-pass').addEventListener('click', () => { SFX.click(); openPass(); });
 $('#btn-pass-back').addEventListener('click', () => { SFX.click(); openMenu(); });
 
 // ---- Shop: hats (wear / buy), helpers, sap packs, the pass and no-ads. Money is simulated and summed.
 function openShop() {
-  G.state = 'shop';
+  G.state = 'shop'; markSeen('shop');
   const hatRows = Object.keys(HATS).map(k => { const h = HATS[k], own = save.hats.includes(k), worn = save.hat === k; let b; if (worn) b = `<button class="btn" disabled>Gedragen</button>`; else if (own) b = `<button class="btn" data-wear="${k}">Draag</button>`; else if (h.price) b = `<button class="btn${save.sap >= h.price ? ' primary' : ''}" data-buyhat="${k}" ${save.sap >= h.price ? '' : 'disabled'}>Koop · ${h.price} sap</button>${h.eur ? `<button class="btn" data-buyhateur="${k}">${h.eur}</button>` : ''}`; else b = `<span class="small">${h.how}</span>`; return `<div class="mrow"><canvas data-hat="${k}" width="88" height="88" style="width:44px;height:44px;flex:0 0 44px"></canvas><div class="mt"><b>${h.name}</b></div><div class="row" style="gap:6px;justify-content:flex-end">${b}</div></div>`; }).join('');
   const item = (id, name, info, label, primary) => `<div class="mrow"><div class="mt"><b>${name}</b><div class="small">${info}</div></div><button class="btn${primary ? ' primary' : ''}" data-shop="${id}">${label}</button></div>`;
   const boardRows = [{ id: '', name: 'Volgt de keuken (standaard)' }].concat(THEMES.filter(t => t.id).map(t => ({ id: t.id, name: t.name }))).map(bd => { const own = !bd.id || save.boards.includes(bd.id), worn = (save.board || '') === bd.id; return `<div class="mrow"><div class="mt"><b>${bd.name}</b>${!own ? `<div class="small">Fruitkaart: level ${bd.id === 'ruitjes' ? 20 : 40} vol</div>` : ''}</div>${worn ? '<button class="btn" disabled>Actief</button>' : own ? `<button class="btn" data-board="${bd.id}">Gebruik</button>` : ''}</div>`; }).join('');
@@ -2390,10 +2568,11 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.8.0', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.9.0', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
-  openToday, openMenu, openFruit, unlockable, INTER, startInter, interTap, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
+  openToday, openMenu, openFruit, openHelp, markSeen, markFresh, powerScale, powerInfo, liftFor, unlockable, INTER, spawnSeekers, addZone, zoneSlow, shrinkStage, fruitJitter,
+  lineNear(off, tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; return lineThrough(G.px + b.ox + off, G.py + b.oy, Math.PI / 2, 0, { tele: tele || 60, dur: 160 }); }, startInter, interTap, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,
   WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, buySpins, nextSpinKind, modeCubeRate, cubeCap, pause, resume, hubGo, hubBadges, passClaimable,
@@ -2401,7 +2580,7 @@ const HOOK = window.fruitvlucht = {
   forceAim(tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; const s = lineThrough(G.px + b.ox, G.py + b.oy, Math.random() * Math.PI, 0, { tele: tele || 60, dur: 160 }); return { ax: s.ax, ay: s.ay, bx: s.bx, by: s.by }; },
   move(dx, dy) { G.tx += dx; G.ty += dy; },
   reset() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} },
-  dropNow(kind) { if (G.state !== 'play') return; G.dropAt = -1; G.drop = { kind: POWERS[kind] ? kind : pick(POWER_KEYS), x: G.px, y: G.py - LIFT - 80, vx: 0, vy: 160, t: 0, r: 16 }; },
+  dropNow(kind) { if (G.state !== 'play') return; G.dropAt = -1; G.drop = { kind: POWERS[kind] ? kind : pick(POWER_KEYS), x: G.px, y: G.py - LIFT - 80, vx: 0, vy: 160, t: 0, r: dropRadius(G.level) }; },
   gain: v => gainSap(v), diff: () => difficulty(), POWERS, levelGoal, dropChance,
 };
 let last = performance.now();

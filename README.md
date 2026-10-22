@@ -27,3 +27,11 @@ from there by hand, so the version label in the menu tells you which build you a
 - Balk onderaan met Home, Fruit, Vandaag, Rad, Spellen, Stempels en Winkel; een rood uitroepteken zegt dat daar iets voor je klaarstaat.
 - Tussenspel: om de vier levels (5, 9, 13, ...) een minigame van 12 seconden: Suikerstorm, Tik de klontjes, Spiegelkeuken en Net-niet-sprint. Je kunt er niet in doodgaan; de score wordt sap (maximaal 40, plus 10 bonus bij het doel).
 - Mes van de dag laat dubbel zoveel klontjes vallen. Het rad toont zijn prijzen als symbolen. Draaien kopen staat uit (kansspelwet). Elk onderdeel legt zichzelf uit voor je erop tikt.
+
+## Nieuw in v0.9 (22 oktober, nacht)
+
+- Beginmenu als overzicht: Spelen bovenaan, daaronder je fruit en acht tegels (Vandaag, Rad, Spellen, Stempels, Album, Fruitpas, Winkel, Hulp). Een uitroepteken betekent: er staat iets klaar, je hebt het nog niet ontdekt, of er is iets nieuws sinds je laatste bezoek.
+- Hulp-scherm met alle uitleg: besturing, keukenbonussen per level, bonusvoorwerpen, tussenspel, hartjes en spelvormen.
+- Zweef je onderaan het scherm, dan komt het fruit onder je vinger in plaats van erboven, zodat je ook daar klontjes en bonussen kunt pakken.
+- Bonusvoorwerpen worden per level groter, feller, trager drijvend en sterker (op level 81 duren ze dubbel zo lang; vanaf level 41 vaak twee per level).
+- Drie nieuwe fruitsoorten (Pruim, Mandarijn, Granaatappel) en een eigen truc voor elk bestaand fruit. Lees de uitleg op het Fruit-scherm.

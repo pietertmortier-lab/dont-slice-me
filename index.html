@@ -1317,7 +1317,7 @@ function stain(x, y, sc) {
   const drops = []; for (let i = 0; i < 4; i++) drops.push({ dx: rnd(-14, 14) * sc, dy: rnd(-10, 10) * sc, r: rnd(2, 5) * sc });
   G.stains.push({ x, y, sc, rot: Math.random() * TAU, col: fruitDef().stain, drops }); if (G.stains.length > 40) G.stains.shift();
 }
-function addText(x, y, txt, col) { G.texts.push({ x, y, txt, col, t: 0, life: 800 }); }
+function addText(x, y, txt, col) { for (const o of G.texts) if (o.t < 500 && Math.abs(o.x - x) < 90 && Math.abs(o.y - y) < 20) y = o.y - 22; G.texts.push({ x, y, txt, col, t: 0, life: 800 }); } // stack texts that land on the same spot
 function updateFx(dt, real) {
   for (const p of G.parts) { p.t += dt; p.vy += p.g * dt / 1000; p.x += p.vx * dt / 1000; p.y += p.vy * dt / 1000; p.vx *= Math.pow(.25, dt / 1000); }
   G.parts = G.parts.filter(p => p.t < p.life);

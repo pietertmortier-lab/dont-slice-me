@@ -1152,7 +1152,7 @@ function openOverMode(prize, bestDay, died) {
 
 // ---- Kitchen tools: new hazards from level 10 on, one at a time, between the knives.
 const HAZ = {
-  vork:    { from: 10, tele: 900,  dur: 350,  name: 'De vork!' },
+  vork:    { from: 10, tele: 1250, dur: 350,  name: 'De vork!' },
   deegrol: { from: 20, tele: 1300, dur: 900,  name: 'De deegrol!' },
   blender: { from: 30, tele: 1000, dur: 6000, name: 'De blender!' },
   pan:     { from: 40, tele: 1000, dur: 7000, name: 'De hete pan!' },
@@ -1195,6 +1195,20 @@ function updateHazards(dt) {
     if (z.t >= z.dur) z.phase = 'done';
   }
   G.hazards = G.hazards.filter(z => z.phase !== 'done' || z.fade > 0);
+}
+// The fork aims at the fruit itself, so its telegraph is drawn above the player: a pulsing red ring with an
+// exclamation mark, the three prong marks, and the fork sinking in from above as the time runs out.
+function drawForkWarning() {
+  for (const z of G.hazards) {
+    if (z.kind !== 'vork' || z.phase !== 'tele') continue; const p = clamp(z.t / z.tele, 0, 1), pulse = .5 + .5 * Math.sin(z.t / 90);
+    ctx.save(); ctx.translate(z.x, z.y);
+    ctx.strokeStyle = `rgba(255,70,55,${.55 + .4 * pulse})`; ctx.lineWidth = 3; ctx.setLineDash([7, 5]); ctx.beginPath(); ctx.arc(0, 0, 36 - 8 * p + 3 * pulse, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = `rgba(255,70,55,${.6 + .4 * pulse})`; for (const dx of [-10, 0, 10]) { ctx.beginPath(); ctx.arc(dx, 0, 5.5, 0, TAU); ctx.fill(); }
+    const lift = 150 * (1 - p); ctx.globalAlpha = .35 + .55 * p; ctx.fillStyle = '#d9dee4'; ctx.fillRect(-4, -170 - lift, 8, 110); ctx.fillRect(-16, -62 - lift, 32, 8); for (const dx of [-13, 0, 13]) ctx.fillRect(dx - 2, -58 - lift, 4, 58); ctx.fillStyle = '#3a2416'; ctx.fillRect(-5, -230 - lift, 10, 62); ctx.globalAlpha = 1;
+    ctx.font = `800 22px ${FD}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 5; ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.strokeText('!', 46, -10); ctx.fillStyle = '#ff4d3d'; ctx.fillText('!', 46, -10);
+    ctx.font = `800 11px ${FU}`; ctx.strokeText('WEG HIER', 0, 52); ctx.fillStyle = '#fff4e4'; ctx.fillText('WEG HIER', 0, 52);
+    ctx.restore();
+  }
 }
 const inRasp = () => G.hazards.some(z => z.kind === 'rasp' && z.phase === 'on' && Math.abs(G.py - z.y) < z.h / 2);
 function drawHazards() {
@@ -2068,6 +2082,7 @@ function render() {
   ctx.drawImage(board, 0, 0, W, H);
   drawStains(); drawScars(); drawZones(); drawHazards(); drawCubes(); drawSeekers(); drawDecoy(); if (G.inter && G.inter.kind === 'tik') drawTaps(); drawDrop(); drawSlashes(0);
   if (G.state !== 'menu') { if (G.mode === 'knife') drawAI(); else { drawPlayer(); if (G.state === 'play') drawPowerAura(); } }
+  drawForkWarning(); // on top of the fruit: the fork strikes where you are, so its warning must not hide under you
   drawDebris(); drawParticles(); drawSlashes(1); drawTexts();
   if (G.flash > .02) { ctx.fillStyle = `rgba(255,60,40,${G.flash * .35})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
   if (G.state === 'dying') { ctx.fillStyle = `rgba(20,0,0,${clamp(G.dyingT / DYING_MS, 0, 1) * .35})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
@@ -2134,7 +2149,7 @@ function openHelp() {
   const inter = INTER_ORDER.map(k => `<div class="small"><b>${INTER[k].name}</b>: ${INTER[k].how.join(' ')}</div>`).join('');
   $('#help-body').innerHTML =
     `<div class="sec"><h3>Besturing</h3><div class="small">Raak het scherm aan: het fruit hangt boven je vinger, zodat je het altijd ziet. Zweef je onderaan het scherm, dan komt het fruit onder je vinger, zodat je ook daar klontjes en bonussen kunt pakken. Op de computer: sleep met de muis of gebruik de pijltjes; P of Esc pauzeert.</div></div>` +
-    `<div class="sec"><h3>Doel</h3><div class="small">Ontwijk de rode lijnen: daar komt het mes. Suikerklontjes zijn sap (goud = 5). Elk level vraagt wat meer sap; om de vijf levels krijg je een nieuwe keuken en een blijvend voordeel:</div>${perks}</div>` +
+    `<div class="sec"><h3>Doel</h3><div class="small">Ontwijk de rode lijnen: daar komt het mes. Suikerklontjes zijn sap (goud = 5). Elk level vraagt wat meer sap; om de vijf levels krijg je een nieuwe keuken en een blijvend voordeel:</div>${perks}<div class="small">Vanaf level 10 komen er keukengevaren bij, elk met een waarschuwing vooraf: de vork (rode ring met uitroepteken op je plek: weg daar!), de deegrol (brede rode lijn), de blender (zuigt je aan), de hete pan (blijf er niet in) en de rasp (een strook over de plank).</div></div>` +
     `<div class="sec"><h3>Bonusvoorwerpen</h3><div class="small">Vallen soms tijdens een level: 10% kans op level 1, oplopend tot 35%, en vanaf level 41 vaak een tweede. Hoe hoger je level, hoe groter en feller ze zijn, hoe trager ze drijven en hoe langer en sterker ze werken: op level 81 duren ze dubbel zo lang. Op level 1:</div>${powers}</div>` +
     `<div class="sec"><h3>Tussenspel</h3><div class="small">Om de vier levels (5, 9, 13, ...) een spelletje van 15 seconden, met 3 seconden uitleg vooraf. Alles pak je gewoon door erover te zweven; je kunt er niet in doodgaan; de score wordt sap (maximaal 40, plus 10 bonus bij het doel).</div>${inter}</div>` +
     `<div class="sec"><h3>Hartjes en spelvormen</h3><div class="small">Een gewone poging kost een hartje; elke 20 minuten komt er een bij. Mes van de dag, de weekendspelen en doorgaan na een snee kosten geen hartje. Vandaag bundelt het rad, de dagreeks, de opdrachten, het mes van de dag en het weekendspel. Stempels is de Fruitkaart: elk level met elk fruit uitspelen geeft beloningen. De Fruitpas heeft 30 seizoenstreden; het Album toont stickers, keukenbonussen en de Fruitpedia. Een uitroepteken op een knop betekent: daar staat iets klaar, of je hebt het nog niet ontdekt, of er is iets nieuws sinds je laatste bezoek.</div></div>`;
@@ -2575,10 +2590,10 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.9.1', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.9.2', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
-  openToday, openMenu, openFruit, openHelp, markSeen, markFresh, powerScale, powerInfo, liftFor, unlockable, INTER, spawnSeekers, addZone, zoneSlow, shrinkStage, fruitJitter,
+  openToday, openMenu, openFruit, openHelp, markSeen, markFresh, powerScale, powerInfo, liftFor, unlockable, INTER, spawnSeekers, addZone, zoneSlow, shrinkStage, fruitJitter, drawForkWarning,
   lineNear(off, tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; return lineThrough(G.px + b.ox + off, G.py + b.oy, Math.PI / 2, 0, { tele: tele || 60, dur: 160 }); }, startInter, interTap, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,

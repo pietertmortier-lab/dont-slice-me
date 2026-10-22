@@ -85,6 +85,14 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .navrow .btn{flex:1 1 40%;font-size:15px;padding:9px 10px;position:relative}
 .badge-n{position:absolute;top:-7px;right:-4px;background:var(--knife);color:#fff;border-radius:999px;font:800 11px var(--font-ui);padding:2px 7px;box-shadow:0 2px 0 rgba(0,0,0,.35)}
 .sec{display:flex;flex-direction:column;gap:8px;text-align:left;background:rgba(255,235,210,.06);border-radius:16px;padding:12px}
+.sec.focus{outline:2px solid var(--sugar);outline-offset:3px}
+#hub{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:4px;padding:10px max(8px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(23,16,11,0),rgba(23,16,11,.94) 35%);pointer-events:auto;z-index:5}
+#hub button{position:relative;flex:1 1 0;max-width:72px;background:rgba(30,17,9,.94);border:1px solid var(--panel-edge);border-radius:14px;color:var(--ink-dim);font:800 10.5px/1 var(--font-ui);padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+#hub button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#hub button.on{color:var(--sugar);border-color:rgba(255,213,74,.55);background:rgba(255,213,74,.1)}
+#hub .hb{position:absolute;top:-7px;right:5px;background:var(--knife);color:#fff;border-radius:999px;font:900 12px/18px var(--font-ui);font-style:normal;width:18px;height:18px;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.35);animation:hubpop 1.4s ease-in-out infinite}
+@keyframes hubpop{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+#ui.hub .screen{padding-bottom:96px}
 .sec h3{margin:0;font:600 17px var(--font-display)}
 .mrow{display:flex;align-items:center;gap:10px}
 .mrow .mt{flex:1;min-width:0;font-size:13px;line-height:1.3}
@@ -118,7 +126,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .medal.brons{color:#d08a4a}.medal.zilver{color:#d8dde6}.medal.goud{color:#ffd54a}.medal.diamant{color:#9ae8ff}
 .snap{width:min(72%,250px);max-width:100%;aspect-ratio:1;object-fit:contain;align-self:center;border-radius:16px;background:radial-gradient(circle at 50% 45%,rgba(255,235,200,.14),rgba(255,235,200,0) 70%)}
 .snap.cardimg{width:min(100%,300px);aspect-ratio:4/5;background:none}
-@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}#hub .hb{animation:none}}
 </style>
 </head>
 <body>
@@ -137,7 +145,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <div class="grid" id="fruit-list"></div>
       <button class="btn primary big" id="btn-play">Spelen</button>
       <div class="lvpick" id="lvpick" hidden><span>Start bij level</span><button class="linkbtn" id="lv-minus" aria-label="Lager level">−</button><b id="lv-cur">1</b><button class="linkbtn" id="lv-plus" aria-label="Hoger level">+</button><button class="linkbtn" id="lv-max">hoogste</button><span class="lvhint">Lager starten is rustiger en levert stempels op de Fruitkaart op; je hoogste level blijft bewaard.</span></div>
-      <div class="navrow"><button class="btn" id="btn-today" title="Rad, dagreeks, opdrachten, Mes van de dag, weekendspel">Vandaag<span class="badge-n" id="today-badge" hidden>0</span></button><button class="btn" id="btn-kaart" title="Levels herspelen met ander fruit voor stempels en beloningen">Fruitkaart</button><button class="btn ghost" id="btn-album" title="Stickers, keukenbonussen en de Fruitpedia">Album</button><button class="btn ghost" id="btn-pass" title="Seizoenstreden met beloningen">Fruitpas</button><button class="btn ghost" id="btn-shop" title="Hoedjes, bordskins, hulpmiddelen">Winkel</button></div>
+      <div class="navrow"><button class="btn" id="btn-today" title="Rad, dagreeks, opdrachten, Mes van de dag, weekendspel">Vandaag<span class="badge-n" id="today-badge" hidden>!</span></button><button class="btn" id="btn-kaart" title="Levels herspelen met ander fruit voor stempels en beloningen">Fruitkaart<span class="badge-n" id="kaart-badge" hidden>!</span></button><button class="btn ghost" id="btn-album" title="Stickers, keukenbonussen en de Fruitpedia">Album</button><button class="btn ghost" id="btn-pass" title="Seizoenstreden met beloningen">Fruitpas<span class="badge-n" id="pass-badge" hidden>!</span></button><button class="btn ghost" id="btn-shop" title="Hoedjes, bordskins, hulpmiddelen">Winkel</button></div>
       <div class="rules" id="nav-legend"><b>Vandaag:</b> rad, dagreeks, opdrachten, Mes van de dag en weekendspel · <b>Fruitkaart:</b> levels herspelen met ander fruit voor stempels en beloningen · <b>Album:</b> stickers, keukenbonussen, Fruitpedia · <b>Fruitpas:</b> seizoenstreden met beloningen · <b>Winkel:</b> hoedjes, bordskins, hulpmiddelen</div>
       <p class="small">Raak het scherm aan: het fruit hangt boven je vinger. Op de computer: sleep met de muis of gebruik de pijltjes. Suikerklontjes zijn sap.</p>
       <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><span id="ver">Prototype v0.7 · geen echte aankopen</span></div>
@@ -244,6 +252,14 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <input class="copybox" id="copybox" readonly hidden aria-label="Tekst om te delen">
     </div>
   </section>
+  <nav id="hub" hidden aria-label="Hoofdmenu">
+    <button data-hub="home" title="Terug naar het hoofdmenu"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/><path d="M10 19v-5h4v5"/></svg><span>Home</span><i class="hb" hidden>!</i></button>
+    <button data-hub="today" title="Dagreeks, opdrachten en onbeperkte hartjes"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.6" fill="currentColor" stroke="none"/></svg><span>Vandaag</span><i class="hb" hidden>!</i></button>
+    <button data-hub="wheel" title="Rad van de dag"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8.5"/><path d="M12 4.5v17M3.5 13h17M6 7l12 12M18 7 6 19"/><circle cx="12" cy="13" r="2" fill="currentColor" stroke="none"/><path d="M9.5 1.5h5L12 4.5z" fill="currentColor" stroke="none"/></svg><span>Rad</span><i class="hb" hidden>!</i></button>
+    <button data-hub="games" title="Mes van de dag en het weekendspel"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/><path d="M12 14v3M8.5 20h7M10 17h4v3"/></svg><span>Spelletjes</span><i class="hb" hidden>!</i></button>
+    <button data-hub="kaart" title="Fruitkaart: stempels per level en fruit"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" fill="currentColor"/></svg><span>Fruitkaart</span><i class="hb" hidden>!</i></button>
+    <button data-hub="shop" title="Winkel"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></svg><span>Winkel</span><i class="hb" hidden>!</i></button>
+  </nav>
   <button id="btn-pause" hidden aria-label="Pauze">II</button>
 </div>
 
@@ -559,7 +575,32 @@ const G = {
 let contT = 0, adT = 0, adThen = null, heartTick = 0, menuT = 1200, shareText = '', menuSel = 'appel', verTaps = 0, pendingDaily = '';
 const pauseBtn = document.getElementById('btn-pause');
 const screens = ['scr-menu', 'scr-pause', 'scr-continue', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-today', 'scr-album', 'scr-pass', 'scr-shop', 'scr-kaart'];
-function showScreen(id) { for (const s of screens) $('#' + s).hidden = (s !== id); }
+function showScreen(id) { for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); }
+// ---- Hub: a fixed bar under every menu screen (and the pause screen) so the rad, the daily knife, the weekend
+// game, the Fruitkaart and the shop are one tap away, with a "!" whenever something is waiting there.
+const hub = $('#hub'), HUB_SCREENS = { 'scr-menu': 'home', 'scr-today': 'today', 'scr-kaart': 'kaart', 'scr-shop': 'shop', 'scr-album': '', 'scr-pass': '', 'scr-hearts': '', 'scr-over': '', 'scr-pause': '' };
+let hubConfirm = '';
+function passClaimable() { ensurePass(); const t = passTier(); for (let i = 1; i <= t; i++) { if (!save.pass.claimedFree.includes(i) || (save.pass.premium && !save.pass.claimedPrem.includes(i))) return true; } return false; }
+function hubBadges() {
+  const spin = nextSpinKind(), b = ensureBounty();
+  return { home: false, today: todayBadge() > 0, wheel: spin === 'free' || spin === 'ad', games: !dailyPlayedToday() || (weekendOpen() && !weekendCleared()), kaart: !!(b && b.n && !b.claimed), shop: false, pass: passClaimable() };
+}
+function updateHub(id) {
+  const show = !!id && id in HUB_SCREENS; hub.hidden = !show; $('#ui').classList.toggle('hub', show); if (!show) return;
+  const b = hubBadges(), cur = HUB_SCREENS[id];
+  hub.querySelectorAll('[data-hub]').forEach(btn => { const k = btn.dataset.hub; btn.classList.toggle('on', k === cur); btn.querySelector('.hb').hidden = !b[k]; });
+  for (const [sel, on] of [['#today-badge', b.today], ['#kaart-badge', b.kaart], ['#pass-badge', b.pass]]) { const el = $(sel); if (el) el.hidden = !on; }
+}
+function hubGo(k) {
+  if (['play', 'dying', 'continue', 'ad'].includes(G.state)) return;
+  if (G.state === 'pause') { // leaving a paused run from the hub ends it, like Stoppen: ask for a second tap first
+    if (hubConfirm !== k) { hubConfirm = k; SFX.click(); $('#pause-time').textContent = `Je poging (${fmtTime(G.t)}) stopt als je nogmaals op die knop tikt.`; return; }
+    hubConfirm = ''; quitRun();
+  }
+  SFX.click();
+  if (k === 'home') openMenu(); else if (k === 'today') openToday(); else if (k === 'wheel') openToday('sec-rad'); else if (k === 'games') openToday('sec-mes'); else if (k === 'kaart') openKaart(); else if (k === 'shop') openShop();
+}
+hub.querySelectorAll('[data-hub]').forEach(btn => btn.addEventListener('click', () => hubGo(btn.dataset.hub)));
 const fruitDef = () => FRUITS[G.fruit];
 const curType = () => G.form || G.fruit;
 const owned = k => save.owned.includes(k) || HOOK.testAll;
@@ -846,7 +887,7 @@ function openMenu() {
   G.state = 'menu'; G.slashes = []; G.debris = []; G.death = null; G.zoom = 1; G.timeScale = 1; menuT = 900; pauseBtn.hidden = true;
   menuSel = save.fruit; buildMenu(); showScreen('scr-menu');
 }
-function pause() { if (G.state !== 'play') return; G.state = 'pause'; drag = null; $('#pause-time').textContent = `Je zit op ${fmtTime(G.t)}.`; showScreen('scr-pause'); pauseBtn.hidden = true; }
+function pause() { if (G.state !== 'play') return; G.state = 'pause'; drag = null; hubConfirm = ''; $('#pause-time').textContent = `Je zit op ${fmtTime(G.t)}.`; showScreen('scr-pause'); pauseBtn.hidden = true; }
 function resume() { if (G.state !== 'pause') return; G.state = 'play'; G.inv = Math.max(G.inv, 600); showScreen(null); pauseBtn.hidden = false; }
 function quitRun() { recordRun(); openMenu(); }
 
@@ -1778,7 +1819,7 @@ function renderSapIcon() { const c = $('#menu-sap-icon'); if (!c) return; const 
 function buildMenu() {
   $('#menu-best').textContent = fmtTime(save.best); $('#menu-sap').textContent = String(save.sap); $('#menu-runs').textContent = String(save.runs); $('#menu-level').textContent = String(save.level);
   $('#menu-hearts').innerHTML = heartsHTML(); $('#menu-heart-timer').textContent = heartsLine(); heartTick = 1000;
-  const tb = todayBadge(); $('#today-badge').hidden = tb === 0; $('#today-badge').textContent = String(tb);
+  $('#today-badge').hidden = todayBadge() === 0;
   $('#btn-sound').textContent = save.sound ? 'Geluid: aan' : 'Geluid: uit'; $('#ver').textContent = HOOK.testAll ? 'Testmodus: alle fruit tijdelijk vrij' : 'Prototype v0.7 · geen echte aankopen';
   renderSapIcon();
   if (!FRUITS[menuSel]) menuSel = save.fruit;
@@ -2033,19 +2074,19 @@ function weekendStatus() {
   if (weekendCleared()) return `Prijs van dit weekend binnen. Beste: ${save.weekend.best} ${w.unit}.`;
   return save.weekend.week === weekKey() && save.weekend.best ? `Beste tot nu: ${save.weekend.best} ${w.unit}. Doel: ${w.goal}.` : `Doel: ${w.goal} ${w.unit}. Prijs: 30 min onbeperkte hartjes + 20 sap.`;
 }
-function openToday() {
+function openToday(focus) {
   G.state = 'today'; ensureMissions(); touchStreak(); const today = dayKey(), claimedStreak = save.streakClaimed === today, sr = streakReward(save.streak);
   const dots = Array.from({ length: 7 }, (_, i) => `<i class="${i < ((save.streak - 1) % 7) + 1 ? 'on' : ''}"></i>`).join('');
   const missions = save.missions.list.map((m, i) => `<div class="mrow"><div class="mt">${m.text}<div class="small">Beloning: ${rewardText(MISSION_REWARDS[i])}</div><div class="mbar"><i style="width:${Math.round(100 * m.prog / m.goal)}%"></i></div></div><button class="btn${m.done && !m.claimed ? ' primary' : ''}" data-mi="${i}" ${m.done && !m.claimed ? '' : 'disabled'}>${m.claimed ? 'Ontvangen' : m.done ? 'Ontvang' : `${m.prog}/${m.goal}`}</button></div>`).join('');
   const g = weekendGame(), w = WEEKEND[g], dailyLabel = pendingDaily && pendingDaily !== today ? `Uitdaging van ${pendingDaily}: speel het mes van die dag (telt niet als record).` : dailyPlayedToday() ? `Gespeeld: ${fmtTime(save.daily.best)}. Morgen om 7 uur een nieuw mes.` : 'Nog niet gespeeld vandaag.';
   $('#today-body').innerHTML =
-    `<div class="sec" style="align-items:center;text-align:center"><h3>Rad van de dag</h3><div class="rules" style="align-self:stretch;text-align:left">Inlogbonus: één gratis draai per dag, een tweede na een filmpje. Prijzen: 10 tot 50 sap, 1 of 2 hartjes, een reeksschild of 10 minuten onbeperkte hartjes.</div><canvas id="wheel" width="420" height="420" style="width:210px;height:210px"></canvas><div class="small" id="wheel-text">${save.wheel.day === today ? `Vandaag: <b>${save.wheel.result}</b>` : 'Draai voor je inlogbonus van vandaag.'}</div><button class="btn primary" id="btn-spin">Draai</button><div class="small" id="wheel-sub"></div>` +
+    `<div class="sec" id="sec-rad" style="align-items:center;text-align:center"><h3>Rad van de dag</h3><div class="rules" style="align-self:stretch;text-align:left">Inlogbonus: één gratis draai per dag, een tweede na een filmpje. Prijzen: 10 tot 50 sap, 1 of 2 hartjes, een reeksschild of 10 minuten onbeperkte hartjes.</div><canvas id="wheel" width="420" height="420" style="width:210px;height:210px"></canvas><div class="small" id="wheel-text">${save.wheel.day === today ? `Vandaag: <b>${save.wheel.result}</b>` : 'Draai voor je inlogbonus van vandaag.'}</div><button class="btn primary" id="btn-spin">Draai</button><div class="small" id="wheel-sub"></div>` +
     `<div id="spin-packs" style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="small">Extra draaien kopen:</div><div class="row" style="gap:6px">${SPIN_PACKS.map((p, i) => `<button class="btn" style="font-size:13px;padding:7px 10px;flex:0 1 auto" data-pack="${i}">${p.n} · ${fmtEur(p.eur)}</button>`).join('')}</div><div class="small" id="spin-own"></div><div class="small" style="opacity:.75">Simulatie. Alleen zichtbaar waar de verkoop aanstaat (schakelaar in de winkel); in België staat ze uit.</div></div></div>` +
-    `<div class="sec"><h3>Dagreeks</h3><div class="rules">Elke dag dat je speelt haal je hier de volgende beloning op; de reeks loopt per 7 dagen rond. Eén dag overslaan zet de reeks terug naar dag 1, tenzij een reeksschild die dag opvangt.</div><div class="mrow"><div class="mt"><b>Dag ${save.streak}</b> op rij${save.shieldUsed === today ? ' (reeksschild gebruikt)' : ''}<div class="dots">${dots}</div><div class="small">Vandaag: ${rewardText(sr)} · dag 7: feesthoedje · dag 30: gouden kroontje</div></div><button class="btn${claimedStreak ? '' : ' primary'}" id="btn-streak" ${claimedStreak ? 'disabled' : ''}>${claimedStreak ? 'Ontvangen' : 'Ontvang'}</button></div><div class="small">Reeksschild: ${save.shields} (vangt één gemiste dag op) · <button class="linkbtn" id="btn-shield" ${save.sap < 50 ? 'disabled' : ''}>Koop · 50 sap</button></div></div>` +
-    `<div class="sec"><h3>Opdrachten van vandaag</h3><div class="rules">Drie opdrachten per dag, nieuw om 7 uur. De voortgang telt tijdens het spelen; haal de beloning hier op zodra de balk vol is.</div>${missions}</div>` +
-    `<div class="sec"><h3>Mes van de dag</h3><div class="rules"><b>Hoe:</b> één gratis poging per dag, kost geen hartje. Iedereen krijgt vandaag exact hetzelfde mes, vanaf level 1, met het fruit dat je nu gekozen hebt.<br><b>Extra:</b> dubbel zoveel suikerklontjes als in een gewoon spel.<br><b>Je houdt:</b> alle sap die je pakt en 15 XP extra voor je Fruitpas. Geen stempels, keukenvoordelen of record; wel een tijd om vrienden mee uit te dagen.</div><div class="mrow"><div class="mt">${dailyLabel}</div><button class="btn primary" id="btn-daily" ${dailyPlayedToday() && !(pendingDaily && pendingDaily !== today) ? 'disabled' : ''}>Speel</button></div></div>` +
-    `<div class="sec"><h3>Weekendspel: ${w.name}</h3><div class="rules"><b>Hoe:</b> ${w.how}<br><b>Prijs:</b> één keer per weekend 30 min onbeperkte hartjes + 20 sap. Kost geen hartje; je mag blijven proberen.<br><b>Wanneer:</b> vrijdag 17 u tot zondag 23 u. Elke week een ander spel: Jij bent het mes, Suikerregen, Chefs examen.</div><div class="mrow"><div class="mt">${weekendStatus()}</div><button class="btn${weekendOpen() ? ' primary' : ''}" id="btn-weekend" ${weekendOpen() ? '' : 'disabled'}>Speel</button></div></div>` +
-    `<div class="sec"><h3>Onbeperkte hartjes</h3><div class="rules">Een half uur spelen zonder hartjes te verliezen. Minuten verdien je met de weekendprijs en op het rad. De tijd loopt door zodra je activeert, ook als je stopt.</div><div class="mrow"><div class="mt">Voorraad: <b>${save.unlimitedBank} min</b>. ${heartsUnlimited() ? 'Nu actief, ' + heartsLine().toLowerCase() + '.' : 'Activeer wanneer je tijd hebt om te spelen.'}</div><button class="btn${save.unlimitedBank >= 30 ? ' primary' : ''}" id="btn-unl-bank" ${save.unlimitedBank >= 30 ? '' : 'disabled'}>Activeer 30 min</button></div></div>`;
+    `<div class="sec" id="sec-reeks"><h3>Dagreeks</h3><div class="rules">Elke dag dat je speelt haal je hier de volgende beloning op; de reeks loopt per 7 dagen rond. Eén dag overslaan zet de reeks terug naar dag 1, tenzij een reeksschild die dag opvangt.</div><div class="mrow"><div class="mt"><b>Dag ${save.streak}</b> op rij${save.shieldUsed === today ? ' (reeksschild gebruikt)' : ''}<div class="dots">${dots}</div><div class="small">Vandaag: ${rewardText(sr)} · dag 7: feesthoedje · dag 30: gouden kroontje</div></div><button class="btn${claimedStreak ? '' : ' primary'}" id="btn-streak" ${claimedStreak ? 'disabled' : ''}>${claimedStreak ? 'Ontvangen' : 'Ontvang'}</button></div><div class="small">Reeksschild: ${save.shields} (vangt één gemiste dag op) · <button class="linkbtn" id="btn-shield" ${save.sap < 50 ? 'disabled' : ''}>Koop · 50 sap</button></div></div>` +
+    `<div class="sec" id="sec-opdr"><h3>Opdrachten van vandaag</h3><div class="rules">Drie opdrachten per dag, nieuw om 7 uur. De voortgang telt tijdens het spelen; haal de beloning hier op zodra de balk vol is.</div>${missions}</div>` +
+    `<div class="sec" id="sec-mes"><h3>Mes van de dag</h3><div class="rules"><b>Hoe:</b> één gratis poging per dag, kost geen hartje. Iedereen krijgt vandaag exact hetzelfde mes, vanaf level 1, met het fruit dat je nu gekozen hebt.<br><b>Extra:</b> dubbel zoveel suikerklontjes als in een gewoon spel.<br><b>Je houdt:</b> alle sap die je pakt en 15 XP extra voor je Fruitpas. Geen stempels, keukenvoordelen of record; wel een tijd om vrienden mee uit te dagen.</div><div class="mrow"><div class="mt">${dailyLabel}</div><button class="btn primary" id="btn-daily" ${dailyPlayedToday() && !(pendingDaily && pendingDaily !== today) ? 'disabled' : ''}>Speel</button></div></div>` +
+    `<div class="sec" id="sec-weekend"><h3>Weekendspel: ${w.name}</h3><div class="rules"><b>Hoe:</b> ${w.how}<br><b>Prijs:</b> één keer per weekend 30 min onbeperkte hartjes + 20 sap. Kost geen hartje; je mag blijven proberen.<br><b>Wanneer:</b> vrijdag 17 u tot zondag 23 u. Elke week een ander spel: Jij bent het mes, Suikerregen, Chefs examen.</div><div class="mrow"><div class="mt">${weekendStatus()}</div><button class="btn${weekendOpen() ? ' primary' : ''}" id="btn-weekend" ${weekendOpen() ? '' : 'disabled'}>Speel</button></div></div>` +
+    `<div class="sec" id="sec-onbeperkt"><h3>Onbeperkte hartjes</h3><div class="rules">Een half uur spelen zonder hartjes te verliezen. Minuten verdien je met de weekendprijs en op het rad. De tijd loopt door zodra je activeert, ook als je stopt.</div><div class="mrow"><div class="mt">Voorraad: <b>${save.unlimitedBank} min</b>. ${heartsUnlimited() ? 'Nu actief, ' + heartsLine().toLowerCase() + '.' : 'Activeer wanneer je tijd hebt om te spelen.'}</div><button class="btn${save.unlimitedBank >= 30 ? ' primary' : ''}" id="btn-unl-bank" ${save.unlimitedBank >= 30 ? '' : 'disabled'}>Activeer 30 min</button></div></div>`;
   drawWheel(); updateWheelUI();
   $('#btn-spin').addEventListener('click', () => {
     if (wheelSpin) return; const kind = nextSpinKind(); if (!kind) return; SFX.click();
@@ -2060,6 +2101,7 @@ function openToday() {
   $('#btn-weekend').addEventListener('click', () => { if (!weekendOpen()) return; SFX.click(); startRun(save.fruit, false, weekendGame()); });
   $('#btn-unl-bank').addEventListener('click', () => { if (save.unlimitedBank < 30) return; SFX.collect(); save.unlimitedBank -= 30; save.unlimitedUntil = Math.max(nowMs(), save.unlimitedUntil || 0) + 30 * 60000; store(); openToday(); });
   showScreen('scr-today'); pauseBtn.hidden = true;
+  if (typeof focus === 'string') { const el = $('#' + focus); if (el) { el.classList.add('focus'); setTimeout(() => el.classList.remove('focus'), 1800); requestAnimationFrame(() => el.scrollIntoView({ block: 'start', behavior: 'smooth' })); } }
 }
 $('#btn-today').addEventListener('click', () => { SFX.click(); openToday(); });
 $('#btn-today-back').addEventListener('click', () => { SFX.click(); openMenu(); });
@@ -2246,10 +2288,10 @@ const HOOK = window.fruitvlucht = {
   version: '0.7.1', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
-  openToday, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
+  openToday, openMenu, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,
-  WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, buySpins, nextSpinKind, modeCubeRate, cubeCap,
+  WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, buySpins, nextSpinKind, modeCubeRate, cubeCap, pause, resume, hubGo, hubBadges, passClaimable,
   step(ms) { let left = ms; while (left > 0) { const d = Math.min(16, left); update(d); left -= d; } render(); },
   forceAim(tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; const s = lineThrough(G.px + b.ox, G.py + b.oy, Math.random() * Math.PI, 0, { tele: tele || 60, dur: 160 }); return { ax: s.ax, ay: s.ay, bx: s.bx, by: s.by }; },
   move(dx, dy) { G.tx += dx; G.ty += dy; },

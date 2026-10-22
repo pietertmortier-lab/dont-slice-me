@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fruitvlucht</title>
+<meta name="theme-color" content="#17100b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fruitvlucht">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;800&display=swap">
@@ -296,6 +304,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <div class="bigtime" id="over-time">0,0 s</div>
       <p class="small" id="over-rec"></p>
       <p class="small" id="over-level"></p>
+      <p class="rules" id="over-tip" hidden></p>
       <div class="heartline"><span class="hearts" id="over-hearts"></span><span class="small" id="over-heart-timer"></span></div>
       <img class="snap" id="over-snap" alt="Jouw gesneden fruit" hidden>
       <p class="small" id="over-caption"></p>
@@ -1014,6 +1023,7 @@ function openOver(nr, prevBest) {
   $('#over-cubes').textContent = `${G.cubesRun} suikerklontjes (+${G.sapRun} sap) · tijdbonus +${G.bonusSap} sap · ${G.near}× net niet`;
   $('#over-level').textContent = (G.levelsGained > 0 ? `Level ${G.level} bereikt (+${G.levelsGained}, ${G.levelsGained} stempel${G.levelsGained === 1 ? '' : 's'} met ${f.name}). ` : `Level ${G.level} · nog ${levelGoal(G.level) - G.levelSap} sap tot level ${G.level + 1}. `) + rowHint();
   $('#over-hearts').innerHTML = heartsHTML(); $('#over-heart-timer').textContent = heartsLine();
+  const tip = $('#over-tip'); tip.hidden = save.runs > 3; tip.innerHTML = save.runs <= 1 ? '<b>Tip:</b> elk level dat je haalt geeft een stempel op je Fruitkaart. Open <b>Vandaag</b> voor het rad en je dagreeks.' : save.runs === 2 ? '<b>Tip:</b> met sap koop je nieuw fruit met eigen trucjes. Kijk bij <b>Fruit</b> wat je al kunt betalen.' : '<b>Tip:</b> om de vier levels komt een tussenspel; alles daarin pak je door erover te zweven.';
   shareText = `Ik overleefde ${fmtTime(G.t)} als ${f.name} in Fruitvlucht. Haal jij meer?`;
   const img = $('#over-snap'); img.className = 'snap'; img.hidden = !G.snapshotUrl; if (G.snapshotUrl) img.src = G.snapshotUrl;
   $('#over-caption').textContent = pick(CAPTIONS).replace('{n}', f.name);
@@ -2254,7 +2264,7 @@ function openHelp() {
   const inter = INTER_ORDER.map(k => `<div class="small"><b>${INTER[k].name}</b>: ${INTER[k].how.join(' ')}</div>`).join('');
   $('#help-body').innerHTML =
     `<button class="btn" id="btn-help-intro">Bekijk de uitleg met plaatjes</button>` +
-    `<div class="sec"><h3>Besturing</h3><div class="small">Raak het scherm aan: het fruit hangt boven je vinger, zodat je het altijd ziet. Zweef je onderaan het scherm, dan komt het fruit onder je vinger, zodat je ook daar klontjes en bonussen kunt pakken. Op de computer: sleep met de muis of gebruik de pijltjes; P of Esc pauzeert.</div></div>` +
+    `<div class="sec"><h3>Besturing</h3><div class="small">Raak het scherm aan: het fruit hangt boven je vinger, zodat je het altijd ziet. Zweef je onderaan het scherm, dan komt het fruit onder je vinger, zodat je ook daar klontjes en bonussen kunt pakken. Op de computer: sleep met de muis of gebruik de pijltjes; P of Esc pauzeert.</div><div class="small"><b>Als app op je telefoon:</b> open de testlink in Safari of Chrome, kies Delen en dan "Zet op beginscherm" (iPhone) of in het menu "App installeren" (Android). Dan start het spel op volledig scherm met eigen icoon, en werkt het ook zonder internet.</div></div>` +
     `<div class="sec"><h3>Doel</h3><div class="small">Ontwijk de rode lijnen: daar komt het mes. Suikerklontjes zijn sap (goud = 5). Elk level vraagt wat meer sap; om de vijf levels krijg je een nieuwe keuken en een blijvend voordeel:</div>${perks}<div class="small">Vanaf level 10 komen er keukengevaren bij, elk met een waarschuwing vooraf: de vork (rode ring met uitroepteken op je plek: weg daar!), de deegrol (brede rode lijn), de blender (zuigt je aan), de hete pan (blijf er niet in) en de rasp (een strook over de plank).</div></div>` +
     `<div class="sec"><h3>Bonusvoorwerpen</h3><div class="small">Vallen soms tijdens een level: 10% kans op level 1, oplopend tot 35%, en vanaf level 41 vaak een tweede. Hoe hoger je level, hoe groter en feller ze zijn, hoe trager ze drijven en hoe langer en sterker ze werken: op level 81 duren ze dubbel zo lang. Op level 1:</div>${powers}</div>` +
     `<div class="sec"><h3>Tussenspel</h3><div class="small">Om de vier levels (5, 9, 13, ...) een spelletje van 15 seconden, met 3 seconden uitleg vooraf. Alles pak je gewoon door erover te zweven; je kunt er niet in doodgaan; de score wordt sap (maximaal 40, plus 10 bonus bij het doel).</div>${inter}</div>` +
@@ -2574,7 +2584,7 @@ function openKaart() {
   for (let n = save.level; n >= 1; n--) { const have = stampsOf(n); if (kaartFilter && have.length >= ORDER.length) continue; rows.push(n); }
   const cells = n => ORDER.map(k => `<img src="${fruitIconUrl(k)}" alt="${FRUITS[k].name}" title="${FRUITS[k].name}${hasStamp(n, k) ? ' · gestempeld' : ''}" class="${hasStamp(n, k) ? '' : 'no'}${k === fow ? ' fow' : ''}">`).join('');
   const fams = n => Object.keys(FAMILIES).filter(f => (save.families[n] || []).includes(f)).map(f => f[0]).join(' ');
-  const rowHtml = rows.slice(0, 60).map(n => `<div class="krow"><b>${n}</b><div><div class="cells">${cells(n)}</div><div class="small">${stampsOf(n).length}/14${fams(n) ? ` · <span class="fam">familie ${fams(n)}</span>` : ''}${stampsOf(n).length >= ORDER.length ? ' · <span class="fam">vol</span>' : ` · rij vol: ${rewardText(rowReward(n))}`}${ORDER.length - stampsOf(n).length <= 2 && (save.boughtStamps[n] || 0) < 2 ? ORDER.filter(k => !hasStamp(n, k)).map(k => ` · <button class="linkbtn" data-bs="${n}:${k}">Laatste stempel ${FRUITS[k].name} · €0,49</button>`).join('') : ''}</div></div><button class="btn" data-kl="${n}">Speel</button></div>`).join('');
+  const rowHtml = rows.slice(0, 60).map(n => `<div class="krow"><b>${n}</b><div><div class="cells">${cells(n)}</div><div class="small">${stampsOf(n).length}/${ORDER.length}${fams(n) ? ` · <span class="fam">familie ${fams(n)}</span>` : ''}${stampsOf(n).length >= ORDER.length ? ' · <span class="fam">vol</span>' : ` · rij vol: ${rewardText(rowReward(n))}`}${ORDER.length - stampsOf(n).length <= 2 && (save.boughtStamps[n] || 0) < 2 ? ORDER.filter(k => !hasStamp(n, k)).map(k => ` · <button class="linkbtn" data-bs="${n}:${k}">Laatste stempel ${FRUITS[k].name} · €0,49</button>`).join('') : ''}</div></div><button class="btn" data-kl="${n}">Speel</button></div>`).join('');
   const medals = ORDER.filter(k => fruitMedal(k)).map(k => `<span class="medal ${fruitMedal(k)}">${FRUITS[k].name} ${fruitMedal(k)}</span>`).join(' · ');
   $('#kaart-body').innerHTML =
     `<div class="sec"><h3>${totalStamps()} / ${save.level * ORDER.length} stempels · ${fullRows()} volle rij${fullRows() === 1 ? '' : 'en'}</h3><div class="small">Een stempel = een level uitgespeeld met dat fruit. Kies hieronder een level om het met een ander fruit te herspelen (het gekozen fruit is ${FRUITS[save.fruit].name}).</div>` +
@@ -2729,9 +2739,10 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.11.0', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.11.1', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
+  appIcon(size, pad, bg) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); if (bg) { const g = x.createLinearGradient(0, 0, size, size); g.addColorStop(0, '#5a3a1e'); g.addColorStop(1, '#2a1708'); x.fillStyle = g; x.beginPath(); x.roundRect(0, 0, size, size, size * .22); x.fill(); } const f = document.createElement('canvas'); f.width = f.height = size; renderIcon(f.getContext('2d'), 'appel', size / 2, false, { look: [0, .2] }); const inner = size * (1 - 2 * pad); x.drawImage(f, size * pad, size * pad + size * .02, inner, inner); return c.toDataURL('image/png'); },
   openToday, openMenu, openFruit, openHelp, openIntro, dailyDeal, dealLeft, ensureCoins, startSolo, doubling, owned, plusActive, adFree, passPremium, heartRegenMs, fruitOfMonth, startPlus, markSeen, markFresh, powerScale, powerInfo, liftFor, unlockable, INTER, spawnSeekers, addZone, zoneSlow, shrinkStage, fruitJitter, drawForkWarning,
   lineNear(off, tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; return lineThrough(G.px + b.ox + off, G.py + b.oy, Math.PI / 2, 0, { tele: tele || 60, dur: 160 }); }, startInter, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
@@ -2752,6 +2763,7 @@ function boot(hot) {
   resize(); window.addEventListener('resize', resize);
   try { if (document.fonts && document.fonts.load) { document.fonts.load(`700 34px ${FD}`).then(() => { board = null; }).catch(() => {}); } } catch (e) {}
   const m = /^#dag(\d{4})(\d{2})(\d{2})$/.exec(location.hash || ''); if (m) pendingDaily = `${m[1]}-${m[2]}-${m[3]}`;
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {}); // offline play when served from a site
   G.px = G.tx = W / 2; G.py = G.ty = H * .6; if (!save.seen.intro && !save.runs && !pendingDaily) openIntro(); else openMenu(); if (pendingDaily) openToday(); requestAnimationFrame(frame);
 }
 // The artifact viewer can hot-swap a new version while someone is playing; keep their wallet across that.

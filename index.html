@@ -31,11 +31,19 @@ body{background:var(--counter);color:var(--ink);font-family:var(--font-ui);overf
 #game{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #ui{position:absolute;inset:0;pointer-events:none}
 .screen{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));pointer-events:auto;overflow-y:auto}
-.panel{background:var(--panel);border:1px solid var(--panel-edge);border-radius:24px;padding:20px 16px;width:min(100%,400px);box-shadow:0 20px 60px rgba(0,0,0,.5);backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:12px;text-align:center;margin:auto 0}
+.panel{background:linear-gradient(180deg,rgba(46,27,13,.93),rgba(26,15,8,.95));border:1px solid var(--panel-edge);border-radius:24px;padding:20px 16px;width:min(100%,400px);box-shadow:0 20px 60px rgba(0,0,0,.5);backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:12px;text-align:center;margin:auto 0}
 h1,h2{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.05}
 h2{font-size:34px;font-weight:600}
-.logo{font-size:42px;font-weight:700;color:var(--sugar);text-shadow:0 4px 0 #8a4a10,0 10px 24px rgba(0,0,0,.45);letter-spacing:.01em}
-.tag{margin:0;color:var(--ink-dim);font-size:15px}
+.logo{font-size:36px;font-weight:700;color:var(--sugar);text-shadow:0 4px 0 #8a4a10,0 10px 24px rgba(0,0,0,.45);letter-spacing:.01em}
+.tag{margin:0;color:var(--ink-dim);font-size:14px}
+.hero{display:flex;align-items:center;justify-content:center;gap:8px;text-align:left}
+.hero canvas{width:96px;height:96px;flex:0 0 96px;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-6px) rotate(3deg)}}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:grid;grid-template-columns:110px 1fr;grid-template-rows:auto auto;column-gap:12px;row-gap:2px;align-items:center;text-align:left;background:rgba(255,235,210,.07);border:1px solid var(--panel-edge);border-radius:16px;padding:8px 10px}
+.step canvas{grid-row:1/3;width:110px;height:75px;border-radius:10px;background:rgba(0,0,0,.28)}
+.step b{font-family:var(--font-display);font-size:17px;font-weight:600;align-self:end}
+.step span{font-size:12.5px;color:var(--ink-dim);line-height:1.35;align-self:start}
 .small{font-size:13px;color:var(--ink-dim);margin:0;line-height:1.45}
 .rules{font-size:12.5px;line-height:1.4;color:var(--ink-dim);background:rgba(0,0,0,.2);border-left:3px solid #ffd54a;padding:6px 9px;border-radius:0 8px 8px 0;margin:0}
 .rules b{color:#fff4e4}
@@ -46,9 +54,10 @@ h2{font-size:34px;font-weight:600}
 .badge{display:inline-block;background:var(--sugar);color:#2a1208;border-radius:999px;padding:4px 12px;font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;align-self:center}
 .btn{font-family:var(--font-display);font-weight:600;font-size:20px;padding:13px 24px;border-radius:999px;border:0;cursor:pointer;color:#2a1208;background:var(--sugar);box-shadow:0 4px 0 rgba(0,0,0,.35);transition:transform .08s,box-shadow .08s}
 .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
-.btn.primary{background:var(--knife);color:#fff}
+.btn.primary{background:linear-gradient(180deg,#ff7a5c,#ff3d2e);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.25)}
 .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--panel-edge);box-shadow:none}
-.btn.big{font-size:27px;padding:15px 40px}
+.btn.big{font-size:27px;padding:15px 40px;animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{filter:brightness(1);box-shadow:0 4px 0 rgba(0,0,0,.35)}50%{filter:brightness(1.14);box-shadow:0 4px 0 rgba(0,0,0,.35),0 0 22px rgba(255,120,90,.55)}}
 .btn:disabled{opacity:.45;cursor:default;transform:none}
 button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
@@ -97,7 +106,10 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .tile .tt b{font-family:var(--font-display);font-size:15px;font-weight:600}
 .tile .tt small{font-size:11px;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .badge-n{position:absolute;top:-7px;right:-4px;background:var(--knife);color:#fff;border-radius:999px;font:800 11px var(--font-ui);padding:2px 7px;box-shadow:0 2px 0 rgba(0,0,0,.35)}
-.sec{display:flex;flex-direction:column;gap:8px;text-align:left;background:rgba(255,235,210,.06);border-radius:16px;padding:12px}
+.sec{display:flex;flex-direction:column;gap:8px;text-align:left;background:rgba(255,235,210,.06);border:1px solid rgba(255,220,180,.08);border-radius:16px;padding:12px}
+.sec h3 svg{width:20px;height:20px;vertical-align:-4px;margin-right:6px;stroke:var(--sugar);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fcard.can{border-color:var(--sugar);box-shadow:0 0 0 2px rgba(255,213,74,.22)}
+.fcard.can .st{color:var(--sugar)}
 .sec.focus{outline:2px solid var(--sugar);outline-offset:3px}
 #hub{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:4px;padding:10px max(8px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(23,16,11,0),rgba(23,16,11,.94) 35%);pointer-events:auto;z-index:5}
 #hub button{position:relative;flex:1 1 0;max-width:64px;min-width:0;background:rgba(30,17,9,.94);border:1px solid var(--panel-edge);border-radius:14px;color:var(--ink-dim);font:800 10px/1 var(--font-ui);padding:7px 1px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
@@ -140,7 +152,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .medal.brons{color:#d08a4a}.medal.zilver{color:#d8dde6}.medal.goud{color:#ffd54a}.medal.diamant{color:#9ae8ff}
 .snap{width:min(72%,250px);max-width:100%;aspect-ratio:1;object-fit:contain;align-self:center;border-radius:16px;background:radial-gradient(circle at 50% 45%,rgba(255,235,200,.14),rgba(255,235,200,0) 70%)}
 .snap.cardimg{width:min(100%,300px);aspect-ratio:4/5;background:none}
-@media (prefers-reduced-motion:reduce){.btn{transition:none}.hb{animation:none}}
+@media (prefers-reduced-motion:reduce){.btn{transition:none;animation:none}.hb{animation:none}.hero canvas{animation:none}}
 </style>
 </head>
 <body>
@@ -148,15 +160,27 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 <div id="ui">
   <section class="screen" id="scr-menu">
     <div class="panel">
-      <h1 class="logo">Fruitvlucht</h1>
-      <p class="tag">Jij bent het fruit. Ontwijk het mes.</p>
+      <div class="hero"><canvas id="hero-icon" width="192" height="192"></canvas><div><h1 class="logo">Fruitvlucht</h1><p class="tag">Jij bent het fruit. Ontwijk het mes.</p></div></div>
       <div class="stats"><span>Level <b id="menu-level">1</b></span><span>Record <b id="menu-best">0,0 s</b></span><span><canvas id="menu-sap-icon" width="40" height="40"></canvas><b id="menu-sap">0</b> sap</span><span>Pogingen <b id="menu-runs">0</b></span></div>
       <div class="heartline"><span class="hearts" id="menu-hearts"></span><span class="small" id="menu-heart-timer"></span></div>
       <button class="btn primary big" id="btn-play">Spelen</button>
       <button class="pickrow" id="btn-fruit" type="button" title="Kies een ander fruit"><canvas id="pick-icon" width="80" height="80"></canvas><span class="pn"><small>Je speelt als</small><b id="pick-name">Appel</b><small id="pick-sub">Tik om van fruit te wisselen.</small></span><span class="chev">›</span><span class="badge-n" id="fruit-badge" hidden>!</span></button>
       <div class="lvpick" id="lvpick" hidden><span>Start bij level</span><button class="linkbtn" id="lv-minus" aria-label="Lager level">−</button><b id="lv-cur">1</b><button class="linkbtn" id="lv-plus" aria-label="Hoger level">+</button><button class="linkbtn" id="lv-max">hoogste</button><span class="lvhint">Lager starten is rustiger en levert stempels op de Fruitkaart op; je hoogste level blijft bewaard.</span></div>
       <div class="tiles" id="tiles"></div>
-      <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><span id="ver">Prototype v0.9 · geen echte aankopen</span></div>
+      <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><span id="ver">Prototype v0.10 · geen echte aankopen</span></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-intro" hidden>
+    <div class="panel">
+      <h2>Zo speel je</h2>
+      <div class="steps">
+        <div class="step"><canvas id="intro-1" width="220" height="150"></canvas><b>1. Sleep je vinger</b><span>Het fruit zweeft er vlak boven, zodat je het altijd ziet. Onderaan komt het eronder.</span></div>
+        <div class="step"><canvas id="intro-2" width="220" height="150"></canvas><b>2. Rode lijn? Weg!</b><span>Daar komt het mes. Ga opzij voor het slaat.</span></div>
+        <div class="step"><canvas id="intro-3" width="220" height="150"></canvas><b>3. Pak suikerklontjes</b><span>Klontjes zijn sap: voor nieuw fruit, levels en beloningen. Goud telt 5.</span></div>
+      </div>
+      <button class="btn primary big" id="btn-intro-play">Spelen</button>
+      <button class="btn ghost" id="btn-intro-menu">Eerst rondkijken</button>
     </div>
   </section>
 
@@ -422,6 +446,7 @@ const SAVE_DEFAULTS = {
   stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0, interDone: 0 },
   stamps: {}, families: {}, titles: [], boards: [], board: '', startLevel: 0, bounty: { day: '', n: 0, k: '', claimed: false }, wheel: { day: '', result: '', ad: false },
   spins: 0, spinSalesOn: false, paidSpins: 0, seen: {}, fresh: {},
+  perkKeys: 0, boostStock: { schild: 0, stroop: 0, magneet: 0 }, armBoost: '', doubleUntil: 0, boughtStamps: {}, dealDay: '', coins: 1, coinDay: '', lastSolo: -1,
 };
 const save = JSON.parse(JSON.stringify(SAVE_DEFAULTS));
 function loadSave() {
@@ -450,9 +475,11 @@ const nextHeartIn = () => save.hearts >= maxHearts() ? 0 : Math.max(0, save.hear
 const heartsUnlimited = () => nowMs() < (save.unlimitedUntil || 0);
 const fmtClock = ms => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 function heartsHTML() { let h = ''; for (let i = 0; i < maxHearts(); i++) h += `<span class="h${i < save.hearts || heartsUnlimited() ? ' on' : ''}">♥</span>`; return h; }
+const doubling = () => nowMs() < (save.doubleUntil || 0);
 function heartsLine() {
   refreshHearts(); if (heartsUnlimited()) return `Onbeperkt, nog ${fmtClock(save.unlimitedUntil - nowMs())}`;
-  return save.hearts >= maxHearts() ? 'Alle hartjes vol' : `Volgend hartje over ${fmtClock(nextHeartIn())}`;
+  const dbl = doubling() ? ` · ×2 sap nog ${fmtClock(save.doubleUntil - nowMs())}` : '';
+  return (save.hearts >= maxHearts() ? 'Alle hartjes vol' : `Volgend hartje over ${fmtClock(nextHeartIn())}`) + dbl;
 }
 function simBuy(eur) { save.simEur = Math.round(((save.simEur || 0) + eur) * 100) / 100; }
 function store() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
@@ -595,7 +622,7 @@ const perkAt = k => k <= 0 ? null : (PERKS[k] || { name: `Keukenmeester ${k - PE
 function perkKitchen() {
   const inRun = ['play', 'dying', 'continue', 'ad', 'pause'].includes(G.state);
   if (inRun && G.mode !== 'normal') return 0;
-  return Math.floor((Math.max(save.level, inRun ? G.level : 0) - 1) / 5);
+  return Math.floor((Math.max(save.level, inRun ? G.level : 0) - 1) / 5) + (save.perkKeys || 0); // + keys bought in the shop
 }
 const hasPerk = k => perkKitchen() >= k;
 const maxHearts = () => 5 + (hasPerk(6) ? 1 : 0) + (hasPerk(10) ? 1 : 0);
@@ -613,7 +640,7 @@ const curTheme = () => THEMES[boardTheme < 0 ? 0 : boardTheme];
 const G = {
   state: 'menu', t: 0, fruit: 'appel', form: null, px: 180, py: 380, tx: 180, ty: 380, vx: 0, vy: 0, ang: 0, spin: 0, bodies: [], armor: 0, split: false,
   segLost: 0, lost: new Set(), inv: 0, sprint: 0, trail: [],
-  slashes: [], cubes: [], parts: [], texts: [], stains: [], scars: [], debris: [], nextSlash: 0, nextCube: 0, bossBanner: 0, bossText: '', inter: null, interPending: null, dropExtra: 0, seekers: [], zones: [], decoy: null, decoyT: 8000, magnetT: 0, kiwiStack: 0, fireCharges: 0, spitT: 15000, peelT: 20000, regrowT: 30000, biteGiven: false, burstDone: false, shrinkStage: 0,
+  slashes: [], cubes: [], parts: [], texts: [], stains: [], scars: [], debris: [], nextSlash: 0, nextCube: 0, bossBanner: 0, bossText: '', inter: null, interPending: null, dropExtra: 0, coach: null, solo: false, startBoost: '', seekers: [], zones: [], decoy: null, decoyT: 8000, magnetT: 0, kiwiStack: 0, fireCharges: 0, spitT: 15000, peelT: 20000, regrowT: 30000, biteGiven: false, burstDone: false, shrinkStage: 0,
   timeScale: 1, shake: 0, zoom: 1, flash: 0, dyingT: 0, death: null, snapped: false, snapshot: null, snapshotUrl: '', card: null, cardFile: null,
   continueUsed: false, cubesRun: 0, sapRun: 0, bonusSap: 0, near: 0, slashCount: 0, scared: 0, lookX: 0, lookY: -1,
   level: 1, levelSap: 0, levelsGained: 0, levelBanner: 0, levelNote: '', levelT: 0, phase: 1, power: null, drop: null, dropAt: -1, slowmo: 0, themeFlash: 0,
@@ -622,7 +649,7 @@ const G = {
 };
 let contT = 0, adT = 0, adThen = null, heartTick = 0, menuT = 1200, shareText = '', menuSel = 'appel', verTaps = 0, pendingDaily = '';
 const pauseBtn = document.getElementById('btn-pause');
-const screens = ['scr-menu', 'scr-fruit', 'scr-help', 'scr-pause', 'scr-continue', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-today', 'scr-album', 'scr-pass', 'scr-shop', 'scr-kaart'];
+const screens = ['scr-menu', 'scr-intro', 'scr-fruit', 'scr-help', 'scr-pause', 'scr-continue', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-today', 'scr-album', 'scr-pass', 'scr-shop', 'scr-kaart'];
 function showScreen(id) { for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); }
 // ---- Hub: a fixed bar under every menu screen (and the pause screen) so the rad, the daily knife, the weekend
 // game, the Fruitkaart and the shop are one tap away, with a "!" whenever something is waiting there.
@@ -655,12 +682,14 @@ const ICONS = {
   album: '<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.9l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.8z"/>',
   pass: '<path d="M4 8.5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1.5a2 2 0 0 0 0 4V15.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V14a2 2 0 0 0 0-4z"/><path d="M9.5 6.5v11" stroke-dasharray="2 2"/>',
   shop: '<path d="M5 8h14l-1 12H6z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/>',
+  heart: '<path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"/>',
   help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/>',
 };
 const TILES = [
   ['today', 'Vandaag', 'rad, dagreeks, opdrachten'], ['wheel', 'Rad van de dag', 'je inlogbonus'], ['games', 'Spellen', 'Mes van de dag, weekend'], ['kaart', 'Stempels', 'Fruitkaart per level'],
   ['album', 'Album', 'stickers, bonussen, Fruitpedia'], ['pass', 'Fruitpas', '30 seizoenstreden'], ['shop', 'Winkel', 'hoedjes, skins, sap'], ['help', 'Hulp', 'zo speel je'],
 ];
+const ico = k => `<svg viewBox="0 0 24 24">${ICONS[k]}</svg>`;
 $('#tiles').innerHTML = TILES.map(([k, name, sub]) => `<button class="tile" data-go="${k}" title="${name}: ${sub}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg><span class="tt"><b>${name}</b><small>${sub}</small></span><i class="hb" hidden>!</i></button>`).join('');
 function goTo(k) {
   if (k === 'home') openMenu(); else if (k === 'fruit') openFruit(); else if (k === 'today') openToday(); else if (k === 'wheel') openToday('sec-rad'); else if (k === 'games') openToday('sec-mes');
@@ -725,6 +754,8 @@ function startRun(type, free, mode) {
     else if (wed) { G.dayMult = 2; G.note = 'Woensdag: dubbel sap!'; }
     if (G.dayMult > 1) G.noteT = 4000;
     if (save.runs < 3) { G.note = 'Het fruit hangt boven je vinger; onderaan komt het eronder.' + (G.dayMult > 1 ? ' Dubbel sap vandaag!' : ''); G.noteT = 5000; }
+    G.coach = coached() ? { step: 0, t: 0, x0: G.px, y0: G.py } : null; if (G.coach) { G.note = ''; G.noteT = 0; }
+    const ab = save.armBoost; if (ab && POWERS[ab] && (save.boostStock[ab] || 0) > 0) { save.boostStock[ab]--; store(); G.startBoost = ab; } else G.startBoost = '';
   }
   G.fruit = (type && FRUITS[type]) ? type : save.fruit; const f = fruitDef();
   G.state = 'play'; G.t = 0; G.form = null; G.px = G.tx = W / 2; G.py = G.ty = H * .6; G.vx = G.vy = 0; G.ang = 0; G.spin = 0; G.armor = f.armor || 0; G.split = false;
@@ -740,6 +771,7 @@ function startRun(type, free, mode) {
   else G.ai = [];
   if (mode === 'rain') { G.note = 'Suikerregen: verzamel 80 sap in 90 s'; G.noteT = 4000; }
   if (mode === 'daily') { G.note = 'Mes van de dag: één poging, dubbel zoveel klontjes'; G.noteT = 4000; }
+  if (G.startBoost) { activatePower(G.startBoost); G.slowmo = 0; G.startBoost = ''; }
   save.stats.kitchens[themeIndex(G.level)] = 1; track('start', { fruit: G.fruit, mode });
   setBodies(); if (mode === 'knife') G.bodies = []; showScreen(null); pauseBtn.hidden = false; SFX.go();
 }
@@ -755,7 +787,7 @@ function gainSap(v) {
     if (interDue(G.level)) G.interPending = interKindFor(G.level); // every fourth level opens with a minigame
     if (themeIndex(G.level) !== themeIndex(G.level - 1)) {
       G.themeFlash = 900; G.levelNote = 'Nieuwe keuken: ' + THEMES[themeIndex(G.level)].name;
-      const pk = perkAt(Math.floor((G.level - 1) / 5)); if (pk && G.mode === 'normal') { markFresh('album'); G.perkBanner = 5500; G.perkName = pk.name; G.perkInfo = pk.info; track('kitchen', Math.floor((G.level - 1) / 5)); }
+      const pk = perkAt(Math.floor((G.level - 1) / 5) + (save.perkKeys || 0)); if (pk && G.mode === 'normal') { markFresh('album'); G.perkBanner = 5500; G.perkName = pk.name; G.perkInfo = pk.info; track('kitchen', Math.floor((G.level - 1) / 5)); }
     } else G.levelNote = '';
     if (G.dropAt < 0 && !G.drop && R() < dropChance(G.level)) G.dropAt = G.t + rndR(5000, 30000); // each level rolls for its own bonus
     G.dropExtra = G.level >= 41 && R() < .5 ? 1 : 0; // from level 41 half the levels get a second one
@@ -791,8 +823,8 @@ function updatePowers(dt) {
 // knives = how many blades a pattern may use right now: 1 early in a level, 2 after twoAt, 3 after threeAt.
 function difficulty() {
   const n = G.level, k = clamp(G.levelT / 60000, 0, 1);
-  const chefDelay = hasPerk(11) ? 10000 : 0;
-  const d = { interval: PACE.interval(n) * (1 - .2 * k), tele: PACE.tele(n) * (1 - .12 * k) * (hasPerk(2) ? 1.1 : 1) * (1 + .15 * (G.kiwiStack || 0)), dur: PACE.dur(n) * (1 + .15 * (G.kiwiStack || 0)), level: n, levelT: G.levelT,
+  const chefDelay = hasPerk(11) ? 10000 : 0, ease = coached() ? 1.35 : 1; // the first two runs breathe slower
+  const d = { interval: PACE.interval(n) * ease * (1 - .2 * k), tele: PACE.tele(n) * ease * (1 - .12 * k) * (hasPerk(2) ? 1.1 : 1) * (1 + .15 * (G.kiwiStack || 0)), dur: PACE.dur(n) * (1 + .15 * (G.kiwiStack || 0)), level: n, levelT: G.levelT,
     knives: G.levelT >= PACE.threeAt(n) + chefDelay ? 3 : G.levelT >= PACE.twoAt(n) + chefDelay ? 2 : 1 };
   if (G.power && G.power.kind === 'stroop') { const sf = slowFactor(G.level); d.interval *= sf; d.tele *= sf; d.dur *= sf * 1.07; }
   return d;
@@ -1035,10 +1067,10 @@ function updateCubes(dt) {
       let best = null, bd = 1e9; for (const b of G.bodies) { const d = Math.hypot(G.px + b.ox - c.x, G.py + b.oy - c.y); if (d < bd) { bd = d; best = b; } }
       if (best && bd < mag + best.r && bd > 1) { const sp = mag > 1000 ? 260 : 120; c.x += (G.px + best.ox - c.x) / bd * sp * dt / 1000; c.y += (G.py + best.oy - c.y) / bd * sp * dt / 1000; }
     }
-    if (c.t > 1500 && offBoard(c, 34)) { c.dead = true; continue; }
+    if (c.t > 1500 && offBoard(c, 34) && !c.cherry) { c.dead = true; continue; }
     for (const b of G.bodies) if (Math.hypot(G.px + b.ox - c.x, G.py + b.oy - c.y) < b.r + c.r + 4) {
       c.dead = true; G.combo++; G.bestCombo = Math.max(G.bestCombo, G.combo); if (G.combo === 3 || G.combo === 6 || G.combo === 10) { addText(G.px, G.py - curR() - 30, `Combo ×${comboMult(G.combo)}!`, '#ffd54a'); track('combo', comboMult(G.combo)); }
-      const v = Math.round((c.gold ? 5 : 1) * mult * boost('sapMult') * masterSap() * G.dayMult * comboMult(G.combo) * (G.power && G.power.kind === 'dubbel' ? dubbelMult(G.level) : 1)); gainSap(v); G.cubesRun++; track('cube', v);
+      const v = Math.round((c.gold ? 5 : 1) * mult * boost('sapMult') * masterSap() * G.dayMult * (doubling() ? 2 : 1) * comboMult(G.combo) * (G.power && G.power.kind === 'dubbel' ? dubbelMult(G.level) : 1)); gainSap(v); G.cubesRun++; track('cube', v);
       if (f.bite && !G.biteGiven && G.cubesRun >= 15) { G.biteGiven = true; G.armor++; addText(G.px, G.py - curR() - 44, 'Hap vrij: je overleeft één snee', '#ffd54a'); }
       if (f.seeds && G.cubesRun % 10 === 0) plant = { x: G.px, y: Math.min(H - 30, G.py + 30) };
       if (f.fire && G.cubesRun % 25 === 0) { G.fireCharges = 2; addText(G.px, G.py - curR() - 44, 'Vuur geladen: 2 messen', '#ff6a00'); }
@@ -1413,10 +1445,12 @@ async function shareCard() {
 // and the run's clock and level timer wait.
 const INTER = {
   storm:   { name: 'Suikerstorm',     how: ['Klontjes van alle kanten!', 'Zweef erover met je fruit: 15 s lang.'], short: 'zweef over de klontjes', target: 12, col: '#8fd3ff' },
+  kersen:  { name: 'Kersen plukken',  how: ['Kersen hangen aan de bovenrand.', 'Zweef eronder om ze te plukken; ze groeien terug.'], short: 'pluk de kersen', target: 8, col: '#ff5a6e' },
+  goud:    { name: 'Goudkoorts',      how: ['Alleen gouden klontjes, en ze zijn snel!', 'Elk goudklontje is 5 sap.'], short: 'vang het goud', target: 25, col: '#ffd54a' },
   spiegel: { name: 'Spiegelkeuken',   how: ['Links is rechts en rechts is links!', 'Verzamel klontjes met omgekeerde besturing.'], short: 'links = rechts!', target: 6, col: '#b78cff' },
   sprint:  { name: 'Net-niet-sprint', how: ['Trage messen, geen gevaar.', 'Blijf er rakelings naast: elke "net niet" is 3.'], short: 'blijf rakelings naast het mes', target: 6, col: '#ff9a5a' },
 };
-const INTER_ORDER = ['storm', 'spiegel', 'sprint'], INTER_EVERY = 4, INTER_DUR = 15000, INTER_INTRO = 3000, INTER_OUTRO = 2000, INTER_CAP = 40; // sap per minigame, bonus aside
+const INTER_ORDER = ['storm', 'kersen', 'spiegel', 'goud', 'sprint'], INTER_EVERY = 4, INTER_DUR = 15000, INTER_INTRO = 3000, INTER_OUTRO = 2000, INTER_CAP = 40; // sap per minigame, bonus aside
 const interDue = level => G.mode === 'normal' && level > 1 && (level - 1) % INTER_EVERY === 0;
 const interKindFor = level => INTER_ORDER[(Math.floor((level - 1) / INTER_EVERY) - 1 + INTER_ORDER.length * 12) % INTER_ORDER.length];
 const mirrored = () => !!(G.inter && G.inter.kind === 'spiegel' && G.inter.phase === 'play');
@@ -1433,6 +1467,8 @@ function updateInter(dt) {
   const cube = (speed, goldChance) => { const gold = Math.random() < goldChance; G.cubes.push(Object.assign(edgeSpawn(speed, 24), { ph: Math.random() * TAU, r: gold ? 14 : 11, gold, rot: rnd(-.3, .3), dead: false, t: 0 })); };
   if (it.kind === 'storm') { if (it.spawn <= 0 && G.cubes.length < 12) { it.spawn = 360; cube(rndR(60, 95), .2); } }
   else if (it.kind === 'spiegel') { if (it.spawn <= 0 && G.cubes.length < 9) { it.spawn = 500; cube(rndR(35, 55), .2); } }
+  else if (it.kind === 'kersen') { if (it.spawn <= 0 && G.cubes.length < 6) { it.spawn = 700; const slots = [0, 1, 2, 3, 4, 5].filter(i => !G.cubes.some(c => c.slot === i)); if (slots.length) { const i = slots[Math.floor(Math.random() * slots.length)]; G.cubes.push({ x: 40 + i * (W - 80) / 5, y: 118, vx: 0, vy: 0, ph: 0, r: 11, gold: false, rot: 0, dead: false, t: 0, cherry: true, slot: i }); } } }
+  else if (it.kind === 'goud') { if (it.spawn <= 0 && G.cubes.length < 5) { it.spawn = 520; const dir = Math.random() < .5 ? 1 : -1; G.cubes.push({ x: dir > 0 ? -20 : W + 20, y: rndR(120, H - 60), vx: dir * rndR(150, 210), vy: 0, ph: Math.random() * TAU, r: 14, gold: true, rot: rnd(-.3, .3), dead: false, t: 0 }); } }
   else if (it.kind === 'sprint') { if (it.spawn <= 0) { it.spawn = 900; const a = Math.random() * Math.PI, off = rnd(26, 58) * (Math.random() < .5 ? -1 : 1); lineThrough(G.px + Math.cos(a + Math.PI / 2) * off, G.py + Math.sin(a + Math.PI / 2) * off, a, 0, { tele: 1100, dur: 260 }); } }
   if (it.left <= 0) finishInter(false);
 }
@@ -1444,7 +1480,9 @@ function finishInter(hit) {
   if (it.total) addText(G.px, G.py - curR() - 26, `+${it.total} sap`, d.col); SFX.go(); store();
 }
 // When a minigame ends its own cubes vanish with it, so nothing it spawned pays out twice.
-function endInter() { const it = G.inter; G.inter = null; G.nextCube = 1200; G.nextSlash = 1500; G.inv = Math.max(G.inv, 1200); if (it.perkLater) G.perkBanner = it.perkLater; }
+function endInter() { const it = G.inter; G.inter = null; G.nextCube = 1200; G.nextSlash = 1500; G.inv = Math.max(G.inv, 1200); if (it.perkLater) G.perkBanner = it.perkLater;
+  if (G.solo) { G.solo = false; save.lastSolo = it.total; store(); openToday('sec-mes'); } // a minigame on its own ends back on the Spellen section
+}
 function drawInterHud() {
   const it = G.inter, d = INTER[it.kind];
   if (it.phase === 'intro' || it.phase === 'done') {
@@ -1505,6 +1543,10 @@ function drawDecoy() {
   for (let i = 0; i < 24; i++) { const a = i * .5, rr = 3 + i * .9; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.stroke();
   ctx.fillStyle = '#fff'; ctx.font = `800 10px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('lokaas', 0, 26); ctx.restore();
 }
+function drawCherryPick(c) {
+  const sw = Math.sin(c.t / 400 + c.x) * 3; ctx.strokeStyle = '#4f8a3a'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(c.x, 100); ctx.quadraticCurveTo(c.x + sw, c.y - 10, c.x + sw, c.y); ctx.stroke();
+  for (const dx of [-6, 6]) { ctx.fillStyle = '#d81c38'; ctx.beginPath(); ctx.arc(c.x + sw + dx, c.y + 4, 7, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.beginPath(); ctx.arc(c.x + sw + dx - 2, c.y + 1, 2.2, 0, TAU); ctx.fill(); }
+}
 function drawSprout(c) {
   const g = clamp(1 + c.t / 5000, 0, 1); ctx.strokeStyle = '#4fa84a'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(c.x, c.y + 8); ctx.lineTo(c.x, c.y + 8 - 18 * g); ctx.stroke();
   ctx.fillStyle = '#6cc26a'; for (const sd of [-1, 1]) { ctx.beginPath(); ctx.ellipse(c.x + sd * 6 * g, c.y + 2 - 10 * g, 7 * g, 3.5 * g, sd * .6, 0, TAU); ctx.fill(); }
@@ -1543,7 +1585,7 @@ function update(real) {
       if (G.inter) { updateInter(dt); updatePlayer(real); updateSlashes(dt); updateCubes(dt); updateFx(dt, real); break; } // the run's clock and level timer wait
       G.t += dt; G.levelT += dt;
       if (G.mode === 'normal' && hasPerk(8) && G.t >= (G.shellGiven + 1) * 60000) { G.shellGiven++; G.armor++; addText(G.px, G.py - curR() - 26, 'Taaie schil: +1', '#ffd54a'); SFX.collect(); }
-      updatePlayer(real); updateTricks(dt); updatePowers(dt); updateSpawner(dt); updateHazards(dt); updateSlashes(dt); updateCubes(dt); updateMode(dt); updateFx(dt, real); break;
+      updatePlayer(real); updateTricks(dt); updateCoach(real); updatePowers(dt); updateSpawner(dt); updateHazards(dt); updateSlashes(dt); updateCubes(dt); updateMode(dt); updateFx(dt, real); break;
     }
     case 'hearts': { heartTick -= real; if (heartTick <= 0) { heartTick = 1000; $('#hearts-timer').textContent = heartsLine(); $('#hearts-row').innerHTML = heartsHTML(); } updateFx(real * .3, real); break; }
     case 'dying': {
@@ -1554,7 +1596,7 @@ function update(real) {
     }
     case 'continue': { contT -= real; $('#cont-bar').style.width = clamp(contT / 7000 * 100, 0, 100) + '%'; updateFx(real * .2, real); if (contT <= 0) finishRun(); break; }
     case 'ad': { adT -= real; if (!save.noAds) $('#ad-count').textContent = Math.max(1, Math.ceil(adT / 1000)); if (adT <= 0) { const then = adThen; adThen = null; if (then) then(); else doContinue(); } break; }
-    case 'over': case 'pause': case 'today': case 'album': case 'pass': case 'shop': case 'kaart': case 'fruit': updateFx(real * .3, real); break;
+    case 'over': case 'pause': case 'today': case 'album': case 'pass': case 'shop': case 'kaart': case 'fruit': case 'intro': updateFx(real * .3, real); break;
   }
 }
 
@@ -1663,7 +1705,7 @@ function drawPowerAura() {
     else if (p.kind === 'dubbel') { ctx.fillStyle = 'rgba(255,213,74,.5)'; for (let i = 0; i < 3; i++) { const a = performance.now() / 400 + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (b.r + 10), y + Math.sin(a) * (b.r + 10) * .5 - 4, 2.2, 0, TAU); ctx.fill(); } }
   }
 }
-function drawCubes() { for (const c of G.cubes) { if (c.seed && c.t < 0) { drawSprout(c); continue; } ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x + 3, c.y + c.r + 5, c.r * 1.1, c.r * .35, 0, 0, TAU); ctx.fill(); drawSugar(c.x, c.y, c.r, c.gold, c.rot); } }
+function drawCubes() { for (const c of G.cubes) { if (c.seed && c.t < 0) { drawSprout(c); continue; } if (c.cherry) { drawCherryPick(c); continue; } ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x + 3, c.y + c.r + 5, c.r * 1.1, c.r * .35, 0, 0, TAU); ctx.fill(); drawSugar(c.x, c.y, c.r, c.gold, c.rot); } }
 function drawParticles(f, cx, cy, minD) {
   for (const p of G.parts) {
     let x = p.x, y = p.y;
@@ -1999,7 +2041,8 @@ function drawPlayer() {
   }
 }
 function drawHud() {
-  ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = `700 34px ${FD}`; ctx.lineJoin = 'round';
+  ctx.save(); const shade = ctx.createLinearGradient(0, 0, 0, 96); shade.addColorStop(0, 'rgba(0,0,0,.42)'); shade.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = shade; ctx.fillRect(0, 0, W, 96);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = `700 34px ${FD}`; ctx.lineJoin = 'round';
   // outlined so it reads on light boards (marble, bamboo) as well as dark ones
   ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.strokeText(fmtTime(G.t), W / 2, 12); ctx.fillStyle = '#fff4e4'; ctx.fillText(fmtTime(G.t), W / 2, 12);
   ctx.textAlign = 'left'; ctx.font = `800 16px ${FU}`; drawSugar(22, 26, 10, false, -.15); ctx.lineWidth = 3; ctx.strokeText(String(save.sap), 40, 16); ctx.fillStyle = '#fff4e4'; ctx.fillText(String(save.sap), 40, 16);
@@ -2045,7 +2088,7 @@ function drawHud() {
     ctx.fillStyle = '#fff'; ctx.font = `700 36px ${FD}`; ctx.fillText('DE CHEF!', W / 2, H * .3 + 6);
     ctx.fillStyle = '#ffd54a'; ctx.font = `800 14px ${FU}`; ctx.fillText(G.bossText, W / 2, H * .3 + 44); ctx.globalAlpha = 1;
   }
-  if (G.inter) drawInterHud();
+  if (G.inter) drawInterHud(); drawCoach();
   ctx.restore();
 }
 function render() {
@@ -2082,7 +2125,7 @@ function renderSapIcon() { const c = $('#menu-sap-icon'); if (!c) return; const 
 function buildMenu() {
   $('#menu-best').textContent = fmtTime(save.best); $('#menu-sap').textContent = String(save.sap); $('#menu-runs').textContent = String(save.runs); $('#menu-level').textContent = String(save.level);
   $('#menu-hearts').innerHTML = heartsHTML(); $('#menu-heart-timer').textContent = heartsLine(); heartTick = 1000;
-  $('#btn-sound').textContent = save.sound ? 'Geluid: aan' : 'Geluid: uit'; $('#ver').textContent = HOOK.testAll ? 'Testmodus: alle fruit tijdelijk vrij' : 'Prototype v0.9 · geen echte aankopen';
+  $('#btn-sound').textContent = save.sound ? 'Geluid: aan' : 'Geluid: uit'; $('#ver').textContent = HOOK.testAll ? 'Testmodus: alle fruit tijdelijk vrij' : 'Prototype v0.10 · geen echte aankopen';
   renderSapIcon();
   updateLevelPick(); renderPick();
 }
@@ -2091,10 +2134,10 @@ function buildFruitGrid() {
   const list = $('#fruit-list'); list.innerHTML = '';
   for (const key of ORDER) {
     const f = FRUITS[key], own = owned(key);
-    const card = document.createElement('button'); card.type = 'button'; card.className = 'fcard' + (save.fruit === key ? ' sel' : '') + (menuSel === key ? ' view' : '') + (own ? '' : ' locked'); card.dataset.fruit = key;
+    const card = document.createElement('button'); card.type = 'button'; card.className = 'fcard' + (save.fruit === key ? ' sel' : '') + (menuSel === key ? ' view' : '') + (own ? '' : ' locked') + (!own && save.sap >= f.price ? ' can' : ''); card.dataset.fruit = key;
     const c = document.createElement('canvas'); c.width = c.height = 88; renderIcon(c.getContext('2d'), key, 44, !own); card.append(c);
     const nm = document.createElement('span'); nm.textContent = f.name; card.append(nm);
-    const st = document.createElement('span'); st.className = 'st' + (own && fruitMedal(key) ? ' medal ' + fruitMedal(key) : ''); st.textContent = own ? (fruitMedal(key) || (save.fruit === key ? 'gekozen' : 'vrij')) : `${f.price} sap`; card.append(st);
+    const st = document.createElement('span'); st.className = 'st' + (own && fruitMedal(key) ? ' medal ' + fruitMedal(key) : ''); st.textContent = own ? (fruitMedal(key) || (save.fruit === key ? 'gekozen' : 'vrij')) : (save.sap >= f.price ? `Koop! ${f.price}` : `${f.price} sap`); card.append(st);
     card.addEventListener('click', () => { SFX.click(); menuSel = key; buildFruitGrid(); });
     list.append(card);
   }
@@ -2118,7 +2161,67 @@ $('#btn-choose').addEventListener('click', () => {
 function unlockable() { return ORDER.some(k => !owned(k) && save.sap >= FRUITS[k].price); }
 function renderPick() {
   const f = FRUITS[save.fruit]; renderIcon($('#pick-icon').getContext('2d'), save.fruit, 40, false, { hat: save.hat, gold: isGold(save.fruit) });
-  $('#pick-name').textContent = f.name; const u = unlockable(); $('#pick-sub').textContent = u ? 'Nieuw fruit te ontgrendelen! Tik om te kijken.' : 'Tik om van fruit te wisselen.'; $('#fruit-badge').hidden = !u;
+  const hero = $('#hero-icon'); if (hero) renderIcon(hero.getContext('2d'), save.fruit, 96, false, { hat: save.hat, gold: isGold(save.fruit) });
+  $('#pick-name').textContent = f.name; const u = unlockable(); $('#pick-sub').textContent = (u ? 'Nieuw fruit te ontgrendelen! Tik om te kijken.' : 'Tik om van fruit te wisselen.') + (save.armBoost && (save.boostStock[save.armBoost] || 0) > 0 ? ` Startboost klaar: ${POWERS[save.armBoost].name}.` : ''); $('#fruit-badge').hidden = !u;
+}
+// ---- New players: a three-card intro on the first launch, a gentler pace in the first two runs, and a coach
+// that holds the first knife until the player has moved, slows the world at the first red line and points out
+// the first sugar cube.
+function drawIntroCards() {
+  const saved = ctx;
+  const on = (id, fn) => { const c = $('#' + id); if (!c) return; ctx = c.getContext('2d'); ctx.setTransform(2, 0, 0, 2, 0, 0); ctx.clearRect(0, 0, 110, 75); fn(); };
+  on('intro-1', () => {
+    ctx.fillStyle = '#f1c7a6'; ctx.beginPath(); ctx.ellipse(55, 68, 11, 16, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.ellipse(52, 62, 3, 6, -.3, 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(55, 52); ctx.lineTo(55, 34); ctx.stroke(); ctx.setLineDash([]);
+    drawShadow(55, 26, 12); drawFruit('appel', 55, 24, 12, 0, 0, { look: [0, .3] });
+    ctx.strokeStyle = '#ffd54a'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(22, 66); ctx.lineTo(36, 66); ctx.moveTo(26, 62); ctx.lineTo(22, 66); ctx.lineTo(26, 70); ctx.moveTo(74, 66); ctx.lineTo(88, 66); ctx.moveTo(84, 62); ctx.lineTo(88, 66); ctx.lineTo(84, 70); ctx.stroke();
+  });
+  on('intro-2', () => {
+    ctx.strokeStyle = 'rgba(255,77,61,.9)'; ctx.lineWidth = 3; ctx.setLineDash([7, 5]); ctx.beginPath(); ctx.moveTo(6, 64); ctx.lineTo(104, 14); ctx.stroke(); ctx.setLineDash([]);
+    drawKnife(30, 52, .89, -.45, 1); drawShadow(78, 56, 12); drawFruit('appel', 78, 54, 12, 0, 0, { look: [-.5, -.3], scared: 1 });
+    ctx.strokeStyle = '#ffd54a'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(84, 36); ctx.lineTo(98, 48); ctx.moveTo(98, 40); ctx.lineTo(98, 48); ctx.lineTo(90, 48); ctx.stroke();
+  });
+  on('intro-3', () => {
+    drawSugar(26, 40, 9, false, -.2); drawSugar(50, 46, 9, false, .3); drawSugar(80, 38, 12, true, 0);
+    ctx.fillStyle = '#fff4e4'; ctx.font = `800 11px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('+1', 26, 56); ctx.fillText('+1', 50, 60); ctx.fillStyle = '#ffd54a'; ctx.fillText('+5', 80, 56);
+  });
+  ctx = saved;
+}
+function openIntro() { G.state = 'intro'; drawIntroCards(); showScreen('scr-intro'); pauseBtn.hidden = true; }
+$('#btn-intro-play').addEventListener('click', () => { SFX.click(); save.seen.intro = true; store(); startRun(save.fruit); });
+$('#btn-intro-menu').addEventListener('click', () => { SFX.click(); save.seen.intro = true; store(); openMenu(); });
+const COACH = ['Sleep met je vinger: het fruit volgt je', 'Goed zo! Een rode lijn betekent: het mes komt', 'Rode lijn! Ga opzij voor het mes slaat', 'Zo meteen valt een suikerklontje', 'Pak het klontje: suikerklontjes zijn sap', 'Top! Verzamel sap en haal het level'];
+const coached = () => save.runs < 2 && G.mode === 'normal';
+function updateCoach(real) {
+  const c = G.coach; if (!c) return; c.t += real;
+  if (c.step === 0) { G.nextSlash = Math.max(G.nextSlash, 800); if (Math.hypot(G.px - c.x0, G.py - c.y0) > 50 || c.t > 12000) { c.step = 1; c.t = 0; } return; }
+  if (c.step === 1) { if (G.slashes.some(x => x.phase === 'tele')) { c.step = 2; c.t = 0; G.slowmo = Math.max(G.slowmo, 2200); } return; }
+  if (c.step === 2) { if (c.t > 2600) { c.step = 3; c.t = 0; } return; }
+  if (c.step === 3) { if (G.cubes.some(x => !x.dead && x.t > 0)) { c.step = 4; c.t = 0; } else if (c.t > 1500 && G.nextCube > 300) G.nextCube = 300; return; }
+  if (c.step === 4) { if (G.cubesRun > 0 || c.t > 7000) { c.step = 5; c.t = 0; } return; }
+  if (c.t > 2800) G.coach = null;
+}
+function drawCoach() {
+  const c = G.coach; if (!c) return; const txt = COACH[c.step] || '', a = clamp(c.t / 250, 0, 1), y = H * .2, bw = W - 32;
+  ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = 'rgba(20,10,5,.88)'; roundBox(16, y, bw, 58, 14); ctx.fill(); ctx.strokeStyle = '#ffd54a'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = '#ffd54a'; ctx.font = `800 10px ${FU}`; ctx.fillText('COACH · STAP ' + Math.min(5, c.step + 1) + ' VAN 5', W / 2, y + 8);
+  ctx.fillStyle = '#fff4e4'; ctx.font = `800 14px ${FU}`; ctx.fillText(txt, W / 2, y + 26); ctx.restore();
+}
+// ---- Dagdeal: one discounted item a day, seeded by the date. Spelletjesmunten: one a day, more in the shop,
+// each buys a minigame on its own from the Spellen section.
+const DEAL_FRUITS = () => ORDER.filter(k => !save.owned.includes(k));
+function dailyDeal() {
+  const today = dayKey(), pool = DEAL_FRUITS();
+  if (save.dealDay !== today) { save.dealDay = today; markFresh('shop'); store(); }
+  if (!pool.length) return { id: 'dbl', name: 'Sapverdubbelaar 1 uur', info: 'Vandaag voor de helft.', sap: 100 };
+  const k = pool[hashStr(today + ':deal') % pool.length], f = FRUITS[k];
+  return { id: 'fruit:' + k, name: f.name, info: `Vandaag voor de helft: ${f.price} wordt ${Math.ceil(f.price / 2)} sap.`, sap: Math.ceil(f.price / 2), fruit: k };
+}
+function dealLeft() { const d = new Date(nowMs()); const next = new Date(d); next.setHours(7, 0, 0, 0); if (next <= d) next.setDate(next.getDate() + 1); return next - d; }
+function ensureCoins() { const today = dayKey(); if (save.coinDay !== today) { save.coinDay = today; if ((save.coins || 0) < 3) save.coins = (save.coins || 0) + 1; store(); } } // the daily coin tops up to three; bought coins are never taken away
+function startSolo() {
+  ensureCoins(); if (save.coins <= 0) return false; save.coins--; store();
+  startRun(save.fruit, true, 'normal'); G.solo = true; startInter(INTER_ORDER[Math.floor(Math.random() * INTER_ORDER.length)]); return true;
 }
 function openHelp() {
   G.state = 'help'; markSeen('help');
@@ -2126,11 +2229,14 @@ function openHelp() {
   const powers = POWER_KEYS.map(k => `<div class="small"><b>${POWERS[k].name}</b>: ${powerInfo(k, 1)}</div>`).join('');
   const inter = INTER_ORDER.map(k => `<div class="small"><b>${INTER[k].name}</b>: ${INTER[k].how.join(' ')}</div>`).join('');
   $('#help-body').innerHTML =
+    `<button class="btn" id="btn-help-intro">Bekijk de uitleg met plaatjes</button>` +
     `<div class="sec"><h3>Besturing</h3><div class="small">Raak het scherm aan: het fruit hangt boven je vinger, zodat je het altijd ziet. Zweef je onderaan het scherm, dan komt het fruit onder je vinger, zodat je ook daar klontjes en bonussen kunt pakken. Op de computer: sleep met de muis of gebruik de pijltjes; P of Esc pauzeert.</div></div>` +
     `<div class="sec"><h3>Doel</h3><div class="small">Ontwijk de rode lijnen: daar komt het mes. Suikerklontjes zijn sap (goud = 5). Elk level vraagt wat meer sap; om de vijf levels krijg je een nieuwe keuken en een blijvend voordeel:</div>${perks}<div class="small">Vanaf level 10 komen er keukengevaren bij, elk met een waarschuwing vooraf: de vork (rode ring met uitroepteken op je plek: weg daar!), de deegrol (brede rode lijn), de blender (zuigt je aan), de hete pan (blijf er niet in) en de rasp (een strook over de plank).</div></div>` +
     `<div class="sec"><h3>Bonusvoorwerpen</h3><div class="small">Vallen soms tijdens een level: 10% kans op level 1, oplopend tot 35%, en vanaf level 41 vaak een tweede. Hoe hoger je level, hoe groter en feller ze zijn, hoe trager ze drijven en hoe langer en sterker ze werken: op level 81 duren ze dubbel zo lang. Op level 1:</div>${powers}</div>` +
     `<div class="sec"><h3>Tussenspel</h3><div class="small">Om de vier levels (5, 9, 13, ...) een spelletje van 15 seconden, met 3 seconden uitleg vooraf. Alles pak je gewoon door erover te zweven; je kunt er niet in doodgaan; de score wordt sap (maximaal 40, plus 10 bonus bij het doel).</div>${inter}</div>` +
-    `<div class="sec"><h3>Hartjes en spelvormen</h3><div class="small">Een gewone poging kost een hartje; elke 20 minuten komt er een bij. Mes van de dag, de weekendspelen en doorgaan na een snee kosten geen hartje. Vandaag bundelt het rad, de dagreeks, de opdrachten, het mes van de dag en het weekendspel. Stempels is de Fruitkaart: elk level met elk fruit uitspelen geeft beloningen. De Fruitpas heeft 30 seizoenstreden; het Album toont stickers, keukenbonussen en de Fruitpedia. Een uitroepteken op een knop betekent: daar staat iets klaar, of je hebt het nog niet ontdekt, of er is iets nieuws sinds je laatste bezoek.</div></div>`;
+    `<div class="sec"><h3>Hartjes en spelvormen</h3><div class="small">Een gewone poging kost een hartje; elke 20 minuten komt er een bij. Mes van de dag, de weekendspelen en doorgaan na een snee kosten geen hartje. Vandaag bundelt het rad, de dagreeks, de opdrachten, het mes van de dag en het weekendspel. Stempels is de Fruitkaart: elk level met elk fruit uitspelen geeft beloningen. De Fruitpas heeft 30 seizoenstreden; het Album toont stickers, keukenbonussen en de Fruitpedia. Een uitroepteken op een knop betekent: daar staat iets klaar, of je hebt het nog niet ontdekt, of er is iets nieuws sinds je laatste bezoek.</div></div>` +
+    `<div class="sec"><h3>Winkel</h3><div class="small">Alles is met sap te verdienen; geld maakt het alleen sneller en er zit nooit toeval in. Dagdeal: elke dag één item voor de helft. Keukensleutel: je volgende keukenbonus nu al. Startboost: begin een poging met een bonusvoorwerp. Sapverdubbelaar: een uur dubbel sap. Fruitmanden: een hele familie in één keer. Laatste stempel: de laatste één of twee vakjes van een rij op de Fruitkaart. Spelletjesmunten: een los tussenspel vanuit Vandaag.</div></div>`;
+  $('#btn-help-intro').addEventListener('click', () => { SFX.click(); openIntro(); });
   showScreen('scr-help'); pauseBtn.hidden = true;
 }
 $('#btn-help-back').addEventListener('click', () => { SFX.click(); openMenu(); });
@@ -2363,18 +2469,18 @@ function weekendStatus() {
   return save.weekend.week === weekKey() && save.weekend.best ? `Beste tot nu: ${save.weekend.best} ${w.unit}. Doel: ${w.goal}.` : `Doel: ${w.goal} ${w.unit}. Prijs: 30 min onbeperkte hartjes + 20 sap.`;
 }
 function openToday(focus) {
-  G.state = 'today'; markSeen('today'); markSeen('wheel'); markSeen('games'); ensureMissions(); touchStreak(); const today = dayKey(), claimedStreak = save.streakClaimed === today, sr = streakReward(save.streak);
+  G.state = 'today'; markSeen('today'); markSeen('wheel'); markSeen('games'); ensureCoins(); ensureMissions(); touchStreak(); const today = dayKey(), claimedStreak = save.streakClaimed === today, sr = streakReward(save.streak);
   const dots = Array.from({ length: 7 }, (_, i) => `<i class="${i < ((save.streak - 1) % 7) + 1 ? 'on' : ''}"></i>`).join('');
   const missions = save.missions.list.map((m, i) => `<div class="mrow"><div class="mt">${m.text}<div class="small">Beloning: ${rewardText(MISSION_REWARDS[i])}</div><div class="mbar"><i style="width:${Math.round(100 * m.prog / m.goal)}%"></i></div></div><button class="btn${m.done && !m.claimed ? ' primary' : ''}" data-mi="${i}" ${m.done && !m.claimed ? '' : 'disabled'}>${m.claimed ? 'Ontvangen' : m.done ? 'Ontvang' : `${m.prog}/${m.goal}`}</button></div>`).join('');
   const g = weekendGame(), w = WEEKEND[g], dailyLabel = pendingDaily && pendingDaily !== today ? `Uitdaging van ${pendingDaily}: speel het mes van die dag (telt niet als record).` : dailyPlayedToday() ? `Gespeeld: ${fmtTime(save.daily.best)}. Morgen om 7 uur een nieuw mes.` : 'Nog niet gespeeld vandaag.';
   $('#today-body').innerHTML =
-    `<div class="sec" id="sec-rad" style="align-items:center;text-align:center"><h3>Rad van de dag</h3><div class="rules" style="align-self:stretch;text-align:left">Inlogbonus: één gratis draai per dag, een tweede na een filmpje. Prijzen: 10 tot 50 sap, 1 of 2 hartjes, een reeksschild of 10 minuten onbeperkte hartjes.</div><canvas id="wheel" width="420" height="420" style="width:210px;height:210px"></canvas><div class="small" id="wheel-text">${save.wheel.day === today ? `Vandaag: <b>${save.wheel.result}</b>` : 'Draai voor je inlogbonus van vandaag.'}</div><button class="btn primary" id="btn-spin">Draai</button><div class="small" id="wheel-sub"></div>` +
+    `<div class="sec" id="sec-rad" style="align-items:center;text-align:center"><h3>${ico('wheel')}Rad van de dag</h3><div class="rules" style="align-self:stretch;text-align:left">Inlogbonus: één gratis draai per dag, een tweede na een filmpje. Prijzen: 10 tot 50 sap, 1 of 2 hartjes, een reeksschild of 10 minuten onbeperkte hartjes.</div><canvas id="wheel" width="420" height="420" style="width:210px;height:210px"></canvas><div class="small" id="wheel-text">${save.wheel.day === today ? `Vandaag: <b>${save.wheel.result}</b>` : 'Draai voor je inlogbonus van vandaag.'}</div><button class="btn primary" id="btn-spin">Draai</button><div class="small" id="wheel-sub"></div>` +
     `<div id="spin-packs" style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="small">Extra draaien kopen:</div><div class="row" style="gap:6px">${SPIN_PACKS.map((p, i) => `<button class="btn" style="font-size:13px;padding:7px 10px;flex:0 1 auto" data-pack="${i}">${p.n} · ${fmtEur(p.eur)}</button>`).join('')}</div><div class="small" id="spin-own"></div><div class="small" style="opacity:.75">Simulatie. Alleen zichtbaar waar de verkoop aanstaat (schakelaar in de winkel); in België staat ze uit.</div></div></div>` +
-    `<div class="sec" id="sec-reeks"><h3>Dagreeks</h3><div class="rules">Elke dag dat je speelt haal je hier de volgende beloning op; de reeks loopt per 7 dagen rond. Eén dag overslaan zet de reeks terug naar dag 1, tenzij een reeksschild die dag opvangt.</div><div class="mrow"><div class="mt"><b>Dag ${save.streak}</b> op rij${save.shieldUsed === today ? ' (reeksschild gebruikt)' : ''}<div class="dots">${dots}</div><div class="small">Vandaag: ${rewardText(sr)} · dag 7: feesthoedje · dag 30: gouden kroontje</div></div><button class="btn${claimedStreak ? '' : ' primary'}" id="btn-streak" ${claimedStreak ? 'disabled' : ''}>${claimedStreak ? 'Ontvangen' : 'Ontvang'}</button></div><div class="small">Reeksschild: ${save.shields} (vangt één gemiste dag op) · <button class="linkbtn" id="btn-shield" ${save.sap < 50 ? 'disabled' : ''}>Koop · 50 sap</button></div></div>` +
-    `<div class="sec" id="sec-opdr"><h3>Opdrachten van vandaag</h3><div class="rules">Drie opdrachten per dag, nieuw om 7 uur. De voortgang telt tijdens het spelen; haal de beloning hier op zodra de balk vol is.</div>${missions}</div>` +
-    `<div class="sec" id="sec-mes"><h3>Mes van de dag</h3><div class="rules"><b>Hoe:</b> één gratis poging per dag, kost geen hartje. Iedereen krijgt vandaag exact hetzelfde mes, vanaf level 1, met het fruit dat je nu gekozen hebt.<br><b>Extra:</b> dubbel zoveel suikerklontjes als in een gewoon spel.<br><b>Je houdt:</b> alle sap die je pakt en 15 XP extra voor je Fruitpas. Geen stempels, keukenvoordelen of record; wel een tijd om vrienden mee uit te dagen.</div><div class="mrow"><div class="mt">${dailyLabel}</div><button class="btn primary" id="btn-daily" ${dailyPlayedToday() && !(pendingDaily && pendingDaily !== today) ? 'disabled' : ''}>Speel</button></div></div>` +
-    `<div class="sec" id="sec-weekend"><h3>Weekendspel: ${w.name}</h3><div class="rules"><b>Hoe:</b> ${w.how}<br><b>Prijs:</b> één keer per weekend 30 min onbeperkte hartjes + 20 sap. Kost geen hartje; je mag blijven proberen.<br><b>Wanneer:</b> vrijdag 17 u tot zondag 23 u. Elke week een ander spel: Jij bent het mes, Suikerregen, Chefs examen.</div><div class="mrow"><div class="mt">${weekendStatus()}</div><button class="btn${weekendOpen() ? ' primary' : ''}" id="btn-weekend" ${weekendOpen() ? '' : 'disabled'}>Speel</button></div></div>` +
-    `<div class="sec" id="sec-onbeperkt"><h3>Onbeperkte hartjes</h3><div class="rules">Een half uur spelen zonder hartjes te verliezen. Minuten verdien je met de weekendprijs en op het rad. De tijd loopt door zodra je activeert, ook als je stopt.</div><div class="mrow"><div class="mt">Voorraad: <b>${save.unlimitedBank} min</b>. ${heartsUnlimited() ? 'Nu actief, ' + heartsLine().toLowerCase() + '.' : 'Activeer wanneer je tijd hebt om te spelen.'}</div><button class="btn${save.unlimitedBank >= 30 ? ' primary' : ''}" id="btn-unl-bank" ${save.unlimitedBank >= 30 ? '' : 'disabled'}>Activeer 30 min</button></div></div>`;
+    `<div class="sec" id="sec-reeks"><h3>${ico('today')}Dagreeks</h3><div class="rules">Elke dag dat je speelt haal je hier de volgende beloning op; de reeks loopt per 7 dagen rond. Eén dag overslaan zet de reeks terug naar dag 1, tenzij een reeksschild die dag opvangt.</div><div class="mrow"><div class="mt"><b>Dag ${save.streak}</b> op rij${save.shieldUsed === today ? ' (reeksschild gebruikt)' : ''}<div class="dots">${dots}</div><div class="small">Vandaag: ${rewardText(sr)} · dag 7: feesthoedje · dag 30: gouden kroontje</div></div><button class="btn${claimedStreak ? '' : ' primary'}" id="btn-streak" ${claimedStreak ? 'disabled' : ''}>${claimedStreak ? 'Ontvangen' : 'Ontvang'}</button></div><div class="small">Reeksschild: ${save.shields} (vangt één gemiste dag op) · <button class="linkbtn" id="btn-shield" ${save.sap < 50 ? 'disabled' : ''}>Koop · 50 sap</button></div></div>` +
+    `<div class="sec" id="sec-opdr"><h3>${ico('album')}Opdrachten van vandaag</h3><div class="rules">Drie opdrachten per dag, nieuw om 7 uur. De voortgang telt tijdens het spelen; haal de beloning hier op zodra de balk vol is.</div>${missions}</div>` +
+    `<div class="sec" id="sec-mes"><h3>${ico('games')}Mes van de dag</h3><div class="rules"><b>Hoe:</b> één gratis poging per dag, kost geen hartje. Iedereen krijgt vandaag exact hetzelfde mes, vanaf level 1, met het fruit dat je nu gekozen hebt.<br><b>Extra:</b> dubbel zoveel suikerklontjes als in een gewoon spel.<br><b>Je houdt:</b> alle sap die je pakt en 15 XP extra voor je Fruitpas. Geen stempels, keukenvoordelen of record; wel een tijd om vrienden mee uit te dagen.</div><div class="mrow"><div class="mt">${dailyLabel}</div><button class="btn primary" id="btn-daily" ${dailyPlayedToday() && !(pendingDaily && pendingDaily !== today) ? 'disabled' : ''}>Speel</button></div><div class="mrow"><div class="mt"><b>Los spelletje</b> · munten: ${save.coins}<div class="small">Speel een tussenspel buiten een poging, voor sap. Eén munt per dag erbij (max 3), meer in de winkel.${save.lastSolo >= 0 ? ` Laatste: +${save.lastSolo} sap.` : ''}</div></div><button class="btn${save.coins > 0 ? ' primary' : ''}" id="btn-solo" ${save.coins > 0 ? '' : 'disabled'}>Speel · 1 munt</button></div></div>` +
+    `<div class="sec" id="sec-weekend"><h3>${ico('games')}Weekendspel: ${w.name}</h3><div class="rules"><b>Hoe:</b> ${w.how}<br><b>Prijs:</b> één keer per weekend 30 min onbeperkte hartjes + 20 sap. Kost geen hartje; je mag blijven proberen.<br><b>Wanneer:</b> vrijdag 17 u tot zondag 23 u. Elke week een ander spel: Jij bent het mes, Suikerregen, Chefs examen.</div><div class="mrow"><div class="mt">${weekendStatus()}</div><button class="btn${weekendOpen() ? ' primary' : ''}" id="btn-weekend" ${weekendOpen() ? '' : 'disabled'}>Speel</button></div></div>` +
+    `<div class="sec" id="sec-onbeperkt"><h3>${ico('heart')}Onbeperkte hartjes</h3><div class="rules">Een half uur spelen zonder hartjes te verliezen. Minuten verdien je met de weekendprijs en op het rad. De tijd loopt door zodra je activeert, ook als je stopt.</div><div class="mrow"><div class="mt">Voorraad: <b>${save.unlimitedBank} min</b>. ${heartsUnlimited() ? 'Nu actief, ' + heartsLine().toLowerCase() + '.' : 'Activeer wanneer je tijd hebt om te spelen.'}</div><button class="btn${save.unlimitedBank >= 30 ? ' primary' : ''}" id="btn-unl-bank" ${save.unlimitedBank >= 30 ? '' : 'disabled'}>Activeer 30 min</button></div></div>`;
   drawWheel(); updateWheelUI();
   $('#btn-spin').addEventListener('click', () => {
     if (wheelSpin) return; const kind = nextSpinKind(); if (!kind) return; SFX.click();
@@ -2386,6 +2492,7 @@ function openToday(focus) {
   $('#btn-shield').addEventListener('click', () => { if (save.sap < 50) return; SFX.click(); save.sap -= 50; save.shields++; store(); openToday(); });
   $('#today-body').querySelectorAll('[data-mi]').forEach(b => b.addEventListener('click', () => { const m = save.missions.list[+b.dataset.mi]; if (!m || !m.done || m.claimed) return; SFX.collect(); m.claimed = true; giveReward(MISSION_REWARDS[+b.dataset.mi]); track('claim', 'mission'); openToday(); }));
   $('#btn-daily').addEventListener('click', () => { SFX.click(); startRun(save.fruit, false, 'daily'); });
+  $('#btn-solo').addEventListener('click', () => { SFX.click(); startSolo(); });
   $('#btn-weekend').addEventListener('click', () => { if (!weekendOpen()) return; SFX.click(); startRun(save.fruit, false, weekendGame()); });
   $('#btn-unl-bank').addEventListener('click', () => { if (save.unlimitedBank < 30) return; SFX.collect(); save.unlimitedBank -= 30; save.unlimitedUntil = Math.max(nowMs(), save.unlimitedUntil || 0) + 30 * 60000; store(); openToday(); });
   showScreen('scr-today'); pauseBtn.hidden = true;
@@ -2442,7 +2549,7 @@ function openKaart() {
   for (let n = save.level; n >= 1; n--) { const have = stampsOf(n); if (kaartFilter && have.length >= ORDER.length) continue; rows.push(n); }
   const cells = n => ORDER.map(k => `<img src="${fruitIconUrl(k)}" alt="${FRUITS[k].name}" title="${FRUITS[k].name}${hasStamp(n, k) ? ' · gestempeld' : ''}" class="${hasStamp(n, k) ? '' : 'no'}${k === fow ? ' fow' : ''}">`).join('');
   const fams = n => Object.keys(FAMILIES).filter(f => (save.families[n] || []).includes(f)).map(f => f[0]).join(' ');
-  const rowHtml = rows.slice(0, 60).map(n => `<div class="krow"><b>${n}</b><div><div class="cells">${cells(n)}</div><div class="small">${stampsOf(n).length}/14${fams(n) ? ` · <span class="fam">familie ${fams(n)}</span>` : ''}${stampsOf(n).length >= ORDER.length ? ' · <span class="fam">vol</span>' : ` · rij vol: ${rewardText(rowReward(n))}`}</div></div><button class="btn" data-kl="${n}">Speel</button></div>`).join('');
+  const rowHtml = rows.slice(0, 60).map(n => `<div class="krow"><b>${n}</b><div><div class="cells">${cells(n)}</div><div class="small">${stampsOf(n).length}/14${fams(n) ? ` · <span class="fam">familie ${fams(n)}</span>` : ''}${stampsOf(n).length >= ORDER.length ? ' · <span class="fam">vol</span>' : ` · rij vol: ${rewardText(rowReward(n))}`}${ORDER.length - stampsOf(n).length <= 2 && (save.boughtStamps[n] || 0) < 2 ? ORDER.filter(k => !hasStamp(n, k)).map(k => ` · <button class="linkbtn" data-bs="${n}:${k}">Laatste stempel ${FRUITS[k].name} · €0,49</button>`).join('') : ''}</div></div><button class="btn" data-kl="${n}">Speel</button></div>`).join('');
   const medals = ORDER.filter(k => fruitMedal(k)).map(k => `<span class="medal ${fruitMedal(k)}">${FRUITS[k].name} ${fruitMedal(k)}</span>`).join(' · ');
   $('#kaart-body').innerHTML =
     `<div class="sec"><h3>${totalStamps()} / ${save.level * ORDER.length} stempels · ${fullRows()} volle rij${fullRows() === 1 ? '' : 'en'}</h3><div class="small">Een stempel = een level uitgespeeld met dat fruit. Kies hieronder een level om het met een ander fruit te herspelen (het gekozen fruit is ${FRUITS[save.fruit].name}).</div>` +
@@ -2453,6 +2560,7 @@ function openKaart() {
     `<div class="sec">${rowHtml || '<div class="small">Geen rijen om te tonen.</div>'}${rows.length > 60 ? `<div class="small">… en nog ${rows.length - 60} rijen lager.</div>` : ''}</div>`;
   $('#kaart-filter').addEventListener('change', e => { kaartFilter = e.target.checked; openKaart(); });
   $('#kaart-body').querySelectorAll('[data-kl]').forEach(btn => btn.addEventListener('click', () => { SFX.click(); save.startLevel = +btn.dataset.kl; if (btn.dataset.kf && owned(btn.dataset.kf)) save.fruit = btn.dataset.kf; store(); startRun(save.fruit); }));
+  $('#kaart-body').querySelectorAll('[data-bs]').forEach(btn => btn.addEventListener('click', () => { const [n, k] = btn.dataset.bs.split(':'); if ((save.boughtStamps[n] || 0) >= 2 || hasStamp(+n, k)) return; SFX.collect(); simBuy(.49); save.boughtStamps[n] = (save.boughtStamps[n] || 0) + 1; stamp(+n, k); store(); openKaart(); }));
   showScreen('scr-kaart'); pauseBtn.hidden = true;
 }
 $('#btn-kaart-back').addEventListener('click', () => { SFX.click(); openMenu(); });
@@ -2496,7 +2604,7 @@ function checkStickers() {
 function openAlbum() {
   G.state = 'album'; markSeen('album'); checkStickers(); const got = Object.keys(save.stickers).length, pk = perkKitchen();
   const st = STICKERS.map(s => `<div class="fcard stk${save.stickers[s.id] ? ' sel' : ' locked'}" title="${s.info}"><span class="star">${save.stickers[s.id] ? '★' : '☆'}</span><span>${s.name}</span><span class="st">${save.stickers[s.id] ? 'behaald' : s.info}</span></div>`).join('');
-  const perks = pk ? Array.from({ length: pk }, (_, i) => perkAt(i + 1)).map((p, i) => `<div class="small"><b>${p.name}</b> (keuken ${i + 2}): ${p.info}</div>`).join('') : '<div class="small">Nog geen. Elke nieuwe keuken (level 6, 11, 16, ...) geeft er een die je houdt.</div>';
+  const perks = pk ? Array.from({ length: pk }, (_, i) => perkAt(i + 1)).map((p, i) => `<div class="small"><b>${p.name}</b> (keuken ${i + 2}${i + 1 > Math.floor((save.level - 1) / 5) ? ', via sleutel' : ''}): ${p.info}</div>`).join('') : '<div class="small">Nog geen. Elke nieuwe keuken (level 6, 11, 16, ...) geeft er een die je houdt; een Keukensleutel uit de winkel geeft de volgende nu al.</div>';
   const nextPk = perkAt(pk + 1);
   const fruits = ORDER.map(k => { const f = FRUITS[k], own = owned(k), lv = xpLevel(k), md = fruitMedal(k); return `<div class="mrow"><canvas class="al-ic" data-f="${k}" width="88" height="88" style="width:44px;height:44px;flex:0 0 44px"></canvas><div class="mt"><b>${f.name}</b> ${own ? `· niveau ${lv}${md ? ` · <span class="medal ${md}">${md}</span>` : ''}` : '· nog niet ontgrendeld'}<div class="small">${own ? `${fruitLevels(k)} levels uitgespeeld · ${save.stats.cutsBy[k] || 0}× gesneden · record ${fmtTime(save.bestBy[k] || 0)} · ${save.xp[k] || 0} s gespeeld` : f.trait}</div></div><canvas class="al-cs" data-f="${k}" width="96" height="96" style="width:48px;height:48px;flex:0 0 48px"></canvas></div>`; }).join('');
   const titles = save.titles.length ? `<div class="sec"><h3>Titels</h3><div class="small">${save.titles.join(' · ')}</div></div>` : '';
@@ -2537,7 +2645,16 @@ function openShop() {
   const hatRows = Object.keys(HATS).map(k => { const h = HATS[k], own = save.hats.includes(k), worn = save.hat === k; let b; if (worn) b = `<button class="btn" disabled>Gedragen</button>`; else if (own) b = `<button class="btn" data-wear="${k}">Draag</button>`; else if (h.price) b = `<button class="btn${save.sap >= h.price ? ' primary' : ''}" data-buyhat="${k}" ${save.sap >= h.price ? '' : 'disabled'}>Koop · ${h.price} sap</button>${h.eur ? `<button class="btn" data-buyhateur="${k}">${h.eur}</button>` : ''}`; else b = `<span class="small">${h.how}</span>`; return `<div class="mrow"><canvas data-hat="${k}" width="88" height="88" style="width:44px;height:44px;flex:0 0 44px"></canvas><div class="mt"><b>${h.name}</b></div><div class="row" style="gap:6px;justify-content:flex-end">${b}</div></div>`; }).join('');
   const item = (id, name, info, label, primary) => `<div class="mrow"><div class="mt"><b>${name}</b><div class="small">${info}</div></div><button class="btn${primary ? ' primary' : ''}" data-shop="${id}">${label}</button></div>`;
   const boardRows = [{ id: '', name: 'Volgt de keuken (standaard)' }].concat(THEMES.filter(t => t.id).map(t => ({ id: t.id, name: t.name }))).map(bd => { const own = !bd.id || save.boards.includes(bd.id), worn = (save.board || '') === bd.id; return `<div class="mrow"><div class="mt"><b>${bd.name}</b>${!own ? `<div class="small">Fruitkaart: level ${bd.id === 'ruitjes' ? 20 : 40} vol</div>` : ''}</div>${worn ? '<button class="btn" disabled>Actief</button>' : own ? `<button class="btn" data-board="${bd.id}">Gebruik</button>` : ''}</div>`; }).join('');
-  $('#shop-body').innerHTML = `<div class="sec"><h3>Hoedjes</h3><div class="small">Puur voor de sier: geen invloed op het spel. Het hoedje vliegt mee weg als je gesneden wordt.</div>${hatRows}</div>` +
+  const deal = dailyDeal(), dealMs = dealLeft(), dealH = Math.floor(dealMs / 3600000), dealM = Math.floor(dealMs % 3600000 / 60000);
+  const bundles = Object.keys(FAMILIES).map(fam => { const miss = FAMILIES[fam].filter(k => !save.owned.includes(k)); if (!miss.length) return ''; const eur = Math.max(.99, Math.round(miss.reduce((a, k) => a + parseFloat((FRUITS[k].eur || '€0,99').replace('€', '').replace(',', '.')), 0) * .7) - .01); return item('bundle:' + fam, `Fruitmand ${fam}`, `${miss.map(k => FRUITS[k].name).join(', ')} in één keer, 30% goedkoper.`, fmtEur(eur)); }).join('');
+  const allMiss = ORDER.filter(k => !save.owned.includes(k));
+  const boostRows = ['schild', 'stroop', 'magneet'].map(k => { const n = save.boostStock[k] || 0, armed = save.armBoost === k; return `<div class="mrow"><div class="mt"><b>${POWERS[k].name}</b> ×${n}${armed ? ' · <span class="fam">klaar voor je volgende poging</span>' : ''}<div class="small">${powerInfo(k, 1)} Je begint je poging ermee.</div></div><button class="btn" data-shop="boost-sap:${k}" ${save.sap >= 25 ? '' : 'disabled'}>25 sap</button><button class="btn" data-shop="boost-eur:${k}">5 · €0,49</button><button class="btn${armed ? ' primary' : ''}" data-shop="boost-arm:${k}" ${n > 0 || armed ? '' : 'disabled'}>${armed ? 'Klaar' : 'Zet klaar'}</button></div>`; }).join('');
+  $('#shop-body').innerHTML = `<div class="sec"><h3>${ico('wheel')}Dagdeal · nog ${dealH} u ${dealM} min</h3>${item('deal', deal.name, deal.info, `${deal.sap} sap`, save.sap >= deal.sap)}</div>` +
+    `<div class="sec"><h3>Sneller vooruit</h3><div class="small">Alles is ook met sap te verdienen; geld maakt het alleen sneller. Geen toeval: je weet altijd wat je koopt.</div>${item('key-sap', 'Keukensleutel', `Je volgende keukenbonus nu al, tot twee keukens vooruit. Je hebt er ${save.perkKeys}.`, '150 sap', save.sap >= 150 && save.perkKeys < 2)}${item('key-eur', 'Keukensleutel', 'Dezelfde sleutel, met geld.', '€0,99')}${item('dbl-sap', 'Sapverdubbelaar 1 uur', doubling() ? `Actief, nog ${fmtClock(save.doubleUntil - nowMs())}. Koop je er nog een, dan komt er een uur bij.` : 'Elk klontje telt een uur lang dubbel.', '200 sap', save.sap >= 200)}${item('dbl-eur', 'Sapverdubbelaar 1 uur', 'Hetzelfde uur, met geld.', '€0,99')}</div>` +
+    `<div class="sec"><h3>Startboost</h3><div class="small">Kies een bonusvoorwerp waarmee je volgende poging begint. Koop er één voor sap of vijf voor geld en zet er een klaar.</div>${boostRows}</div>` +
+    `<div class="sec"><h3>Spelletjesmunten</h3>${item('coins', '5 munten', `Elke munt is een los tussenspel op het Vandaag-scherm, goed voor tot 50 sap. Je hebt er ${save.coins}.`, '€0,99', true)}</div>` +
+    (allMiss.length ? `<div class="sec"><h3>Fruitmanden</h3>${bundles}${item('bundle:all', 'Alles-in-één', `Alle ${allMiss.length} overige fruitsoorten in één keer.`, '€9,99', true)}</div>` : '') +
+    `<div class="sec"><h3>Hoedjes</h3><div class="small">Puur voor de sier: geen invloed op het spel. Het hoedje vliegt mee weg als je gesneden wordt.</div>${hatRows}</div>` +
     `<div class="sec"><h3>Bordskins</h3><div class="small">Een vaste tafel in plaats van de keuken van je level. Alleen uiterlijk: keukenbonussen blijven gelden. Je verdient ze met volle rijen op de Fruitkaart (level 20 en 40).</div>${boardRows}</div>` +
     `<div class="sec"><h3>Draaien aan het rad</h3><div class="small">Gekochte draaien gebruik je wanneer je wilt, bovenop de gratis draai van de dag. Je hebt er ${save.spins}.</div>${save.spinSalesOn ? SPIN_PACKS.map((p, i) => item('spin' + i, `${p.n} draai${p.n > 1 ? 'en' : ''}`, `${(p.eur / p.n * 100).toFixed(0)} cent per draai`, fmtEur(p.eur), i === 0)).join('') : '<div class="small">Verkoop staat uit.</div>'}${item('spinsales', 'Verkoop van draaien', save.spinSalesOn ? 'Aan. In België is betalen voor een toevalsprijs een kansspel; zet dit daar uit (in de echte app per land).' : 'Uit (standaard, België). Alleen elders aanzetten; dan verschijnen de pakketten hier en op het Vandaag-scherm.', save.spinSalesOn ? 'Zet uit' : 'Zet aan')}</div>` +
     `<div class="sec"><h3>Hulpmiddelen</h3>${item('shield-sap', 'Reeksschild', `Vangt één gemiste dag van je dagreeks op. Je hebt er ${save.shields}.`, '50 sap', save.sap >= 50)}${item('shield-eur', 'Reeksschild', 'Hetzelfde schild, met geld.', '€0,99')}${item('unl30', 'Onbeperkte hartjes · 30 min', 'Komt in je voorraad; activeer wanneer je tijd hebt.', '€0,49')}</div>` +
@@ -2551,7 +2668,17 @@ function openShop() {
   $('#shop-body').querySelectorAll('[data-buyhateur]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.buyhateur; SFX.collect(); simBuy(parseFloat(HATS[k].eur.replace('€', '').replace(',', '.'))); save.hats.push(k); save.hat = k; store(); openShop(); }));
   $('#shop-body').querySelectorAll('[data-shop]').forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.shop; SFX.collect();
-    if (id === 'shield-sap') { if (save.sap < 50) return; save.sap -= 50; save.shields++; }
+    if (id === 'deal') { const d = dailyDeal(); if (save.sap < d.sap) return; save.sap -= d.sap; if (d.fruit) { save.owned.push(d.fruit); save.fruit = d.fruit; } else save.doubleUntil = Math.max(nowMs(), save.doubleUntil || 0) + 3600000; }
+    else if (id === 'key-sap') { if (save.sap < 150 || save.perkKeys >= 2) return; save.sap -= 150; save.perkKeys++; markFresh('album'); }
+    else if (id === 'key-eur') { if (save.perkKeys >= 2) return; simBuy(.99); save.perkKeys++; markFresh('album'); }
+    else if (id === 'dbl-sap') { if (save.sap < 200) return; save.sap -= 200; save.doubleUntil = Math.max(nowMs(), save.doubleUntil || 0) + 3600000; }
+    else if (id === 'dbl-eur') { simBuy(.99); save.doubleUntil = Math.max(nowMs(), save.doubleUntil || 0) + 3600000; }
+    else if (id === 'coins') { simBuy(.99); save.coins = (save.coins || 0) + 5; }
+    else if (id.startsWith('boost-sap:')) { const k = id.slice(10); if (save.sap < 25) return; save.sap -= 25; save.boostStock[k] = (save.boostStock[k] || 0) + 1; if (!save.armBoost) save.armBoost = k; }
+    else if (id.startsWith('boost-eur:')) { const k = id.slice(10); simBuy(.49); save.boostStock[k] = (save.boostStock[k] || 0) + 5; if (!save.armBoost) save.armBoost = k; }
+    else if (id.startsWith('boost-arm:')) { const k = id.slice(10); save.armBoost = save.armBoost === k ? '' : k; }
+    else if (id.startsWith('bundle:')) { const fam = id.slice(7), list = fam === 'all' ? ORDER : FAMILIES[fam]; const miss = list.filter(k => !save.owned.includes(k)); if (!miss.length) return; simBuy(fam === 'all' ? 9.99 : Math.max(.99, Math.round(miss.reduce((a, k) => a + parseFloat((FRUITS[k].eur || '€0,99').replace('€', '').replace(',', '.')), 0) * .7) - .01)); for (const k of miss) save.owned.push(k); }
+    else if (id === 'shield-sap') { if (save.sap < 50) return; save.sap -= 50; save.shields++; }
     else if (id === 'shield-eur') { simBuy(.99); save.shields++; }
     else if (id === 'unl30') { simBuy(.49); save.unlimitedBank += 30; }
     else if (id === 'sap300') { simBuy(.99); save.sap += 300; }
@@ -2568,10 +2695,10 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.9.4', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.10.0', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
-  openToday, openMenu, openFruit, openHelp, markSeen, markFresh, powerScale, powerInfo, liftFor, unlockable, INTER, spawnSeekers, addZone, zoneSlow, shrinkStage, fruitJitter, drawForkWarning,
+  openToday, openMenu, openFruit, openHelp, openIntro, dailyDeal, dealLeft, ensureCoins, startSolo, doubling, markSeen, markFresh, powerScale, powerInfo, liftFor, unlockable, INTER, spawnSeekers, addZone, zoneSlow, shrinkStage, fruitJitter, drawForkWarning,
   lineNear(off, tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; return lineThrough(G.px + b.ox + off, G.py + b.oy, Math.PI / 2, 0, { tele: tele || 60, dur: 160 }); }, startInter, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,
@@ -2591,7 +2718,7 @@ function boot(hot) {
   resize(); window.addEventListener('resize', resize);
   try { if (document.fonts && document.fonts.load) { document.fonts.load(`700 34px ${FD}`).then(() => { board = null; }).catch(() => {}); } } catch (e) {}
   const m = /^#dag(\d{4})(\d{2})(\d{2})$/.exec(location.hash || ''); if (m) pendingDaily = `${m[1]}-${m[2]}-${m[3]}`;
-  G.px = G.tx = W / 2; G.py = G.ty = H * .6; openMenu(); if (pendingDaily) openToday(); requestAnimationFrame(frame);
+  G.px = G.tx = W / 2; G.py = G.ty = H * .6; if (!save.seen.intro && !save.runs && !pendingDaily) openIntro(); else openMenu(); if (pendingDaily) openToday(); requestAnimationFrame(frame);
 }
 // The artifact viewer can hot-swap a new version while someone is playing; keep their wallet across that.
 let hot = null; try { hot = (window.claude && window.claude.hot) || null; } catch (e) {}

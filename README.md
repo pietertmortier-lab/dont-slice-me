@@ -35,3 +35,11 @@ from there by hand, so the version label in the menu tells you which build you a
 - Zweef je onderaan het scherm, dan komt het fruit onder je vinger in plaats van erboven, zodat je ook daar klontjes en bonussen kunt pakken.
 - Bonusvoorwerpen worden per level groter, feller, trager drijvend en sterker (op level 81 duren ze dubbel zo lang; vanaf level 41 vaak twee per level).
 - Drie nieuwe fruitsoorten (Pruim, Mandarijn, Granaatappel) en een eigen truc voor elk bestaand fruit. Lees de uitleg op het Fruit-scherm.
+
+## Nieuw in v0.10 (23 oktober)
+
+- Nieuwe spelers: bij de eerste start een uitleg in drie plaatjes, en de eerste twee potjes worden begeleid (het mes wacht tot je beweegt, de eerste rode lijn gaat in slow motion, het eerste klontje wordt aangewezen). Het tempo is dan ook rustiger.
+- Mooier menu: je fruit als held naast het logo, warmere knoppen en panelen, iconen bij de onderdelen, "Koop!" op fruit dat je kunt betalen.
+- Winkel: Dagdeal (elke dag één fruit voor de helft), Keukensleutel (je volgende keukenbonus nu al), Startboost (begin een poging met een bonusvoorwerp), Sapverdubbelaar (een uur dubbel sap), Fruitmanden (een hele familie in één keer), Spelletjesmunten. Alles blijft simulatie en is ook met sap te verdienen.
+- Los spelletje: op Vandaag speel je met een munt een tussenspel buiten een poging. Twee nieuwe tussenspelletjes: Kersen plukken en Goudkoorts.
+- Fruitkaart: de laatste één of twee stempels van een rij zijn te koop (simulatie).

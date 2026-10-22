@@ -37,6 +37,8 @@ h2{font-size:34px;font-weight:600}
 .logo{font-size:48px;font-weight:700;color:var(--sugar);text-shadow:0 4px 0 #8a4a10,0 10px 24px rgba(0,0,0,.45);letter-spacing:.01em}
 .tag{margin:0;color:var(--ink-dim);font-size:15px}
 .small{font-size:13px;color:var(--ink-dim);margin:0;line-height:1.45}
+.rules{font-size:12.5px;line-height:1.4;color:var(--ink-dim);background:rgba(0,0,0,.2);border-left:3px solid #ffd54a;padding:6px 9px;border-radius:0 8px 8px 0;margin:0}
+.rules b{color:#fff4e4}
 .stats{display:flex;justify-content:center;align-items:center;gap:16px;font-size:14px;color:var(--ink-dim);flex-wrap:wrap}
 .stats b{color:var(--ink);font-variant-numeric:tabular-nums;font-size:16px}
 .stats canvas{width:20px;height:20px;vertical-align:-4px;margin-right:2px}
@@ -353,7 +355,7 @@ const SAVE_DEFAULTS = {
   unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
   stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0 },
   stamps: {}, families: {}, titles: [], boards: [], board: '', startLevel: 0, bounty: { day: '', n: 0, k: '', claimed: false }, wheel: { day: '', result: '', ad: false },
-  spins: 0, spinSales: true, paidSpins: 0,
+  spins: 0, spinSalesOn: false, paidSpins: 0,
 };
 const save = JSON.parse(JSON.stringify(SAVE_DEFAULTS));
 function loadSave() {
@@ -564,7 +566,9 @@ const xpLevel = f => Math.min(10, Math.floor(Math.sqrt((save.xp[f] || 0) / 30)) 
 const xpForLevel = l => 30 * (l - 1) * (l - 1);
 const BOOSTS = { magnet: 1.5, sprint: 1.5, cubes: .8, nearSap: 2, armorInv: 1.5, jitter: 1.4, splitEase: 1.2, sapMult: 1.25, pit: 1.2 };
 function boost(kind) { return xpLevel(G.fruit) >= 5 ? (BOOSTS[kind] || 1) : 1; }
-const modeCubeRate = () => G.mode === 'rain' ? .3 : (G.mode === 'exam' || G.mode === 'knife') ? 1e9 : 1;
+// The daily knife drops twice as many cubes as a normal run: half the interval and double the cap.
+const modeCubeRate = () => G.mode === 'rain' ? .3 : G.mode === 'daily' ? .5 : (G.mode === 'exam' || G.mode === 'knife') ? 1e9 : 1;
+const cubeCap = () => (fruitDef().cubeCap || 3) * (G.mode === 'daily' ? 2 : 1);
 
 function curR() { const f = fruitDef(); if (G.form === 'pit') return 8; return f.r - (f.segments ? 4 * G.segLost : 0); }
 function curEase() {
@@ -616,7 +620,7 @@ function startRun(type, free, mode) {
   if (mode === 'knife') { G.bodies = []; G.ai = []; G.swipe = null; G.swipeCd = 0; for (let i = 0; i < 5; i++) spawnAI(true); G.note = 'Jij bent het mes: veeg om te snijden!'; G.noteT = 4000; G.inv = 0; }
   else G.ai = [];
   if (mode === 'rain') { G.note = 'Suikerregen: verzamel 80 sap in 90 s'; G.noteT = 4000; }
-  if (mode === 'daily') { G.note = 'Mes van de dag: één poging, iedereen hetzelfde mes'; G.noteT = 4000; }
+  if (mode === 'daily') { G.note = 'Mes van de dag: één poging, dubbel zoveel klontjes'; G.noteT = 4000; }
   save.stats.kitchens[themeIndex(G.level)] = 1; track('start', { fruit: G.fruit, mode });
   setBodies(); if (mode === 'knife') G.bodies = []; showScreen(null); pauseBtn.hidden = false; SFX.go();
 }
@@ -884,7 +888,7 @@ const offBoard = (o, m) => o.x < -m || o.x > W + m || o.y < -m || o.y > H + m;
 function updateCubes(dt) {
   const f = fruitDef(), mult = f.sapMult || 1;
   G.nextCube -= dt;
-  if (G.nextCube <= 0 && G.cubes.length < (f.cubeCap || 3)) {
+  if (G.nextCube <= 0 && G.cubes.length < cubeCap()) {
     G.nextCube = rndR(2600, 4200) * (f.cubeRate || 1) * boost('cubes') * modeCubeRate() * Math.max(.45, 1 - .0055 * (G.level - 1));
     const gold = R() < Math.min(.3, .15 + .0015 * (G.level - 1)) + (G.mode === 'rain' ? .15 : 0) + (hasPerk(4) ? .15 : 0);
     G.cubes.push(Object.assign(edgeSpawn(rndR(34, 46), 24), { ph: Math.random() * TAU, r: gold ? 14 : 11, gold, rot: rnd(-.3, .3), dead: false, t: 0 }));
@@ -1332,21 +1336,21 @@ function drawStains() {
 }
 // A sugar cube in three-quarter view: top, left and right faces, grain, a sparkle. Amber = candy sugar (5 sap).
 const GRAIN = [[-.5, -.2], [.3, -.6], [-.1, .4], [.55, .25], [-.65, .5], [.15, -.15], [.7, -.35], [-.3, .75], [.4, .7]];
-function drawSugar(x, y, s, gold, rot) {
-  ctx.save(); ctx.translate(x, y); ctx.rotate(rot || 0); const h = s * .5;
-  if (gold) { ctx.fillStyle = 'rgba(255,190,70,.28)'; ctx.beginPath(); ctx.arc(0, 0, s * 2.1, 0, TAU); ctx.fill(); }
+function drawSugar(x, y, s, gold, rot, c = ctx) {
+  c.save(); c.translate(x, y); c.rotate(rot || 0); const h = s * .5;
+  if (gold) { c.fillStyle = 'rgba(255,190,70,.28)'; c.beginPath(); c.arc(0, 0, s * 2.1, 0, TAU); c.fill(); }
   const top = gold ? '#f6c25a' : '#ffffff', left = gold ? '#cf8f2e' : '#e4e6f0', right = gold ? '#a86a18' : '#c6c9d8', edge = gold ? 'rgba(90,50,10,.55)' : 'rgba(150,155,180,.6)';
-  ctx.fillStyle = left; ctx.beginPath(); ctx.moveTo(-s, -h); ctx.lineTo(0, 0); ctx.lineTo(0, s); ctx.lineTo(-s, s - h); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = right; ctx.beginPath(); ctx.moveTo(s, -h); ctx.lineTo(0, 0); ctx.lineTo(0, s); ctx.lineTo(s, s - h); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = top; ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(s, -h); ctx.lineTo(0, 0); ctx.lineTo(-s, -h); ctx.closePath(); ctx.fill();
-  if (gold) { const g = ctx.createLinearGradient(-s, -s, s, s); g.addColorStop(0, 'rgba(255,240,200,.35)'); g.addColorStop(1, 'rgba(120,60,0,.25)'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(s, -h); ctx.lineTo(s, s - h); ctx.lineTo(0, s); ctx.lineTo(-s, s - h); ctx.lineTo(-s, -h); ctx.closePath(); ctx.fill(); }
-  ctx.fillStyle = gold ? 'rgba(255,245,210,.5)' : 'rgba(140,150,190,.35)';
-  for (const [gx, gy] of GRAIN) { ctx.beginPath(); ctx.arc(gx * s * .8, gy * s * .55 + s * .1, s * .07, 0, TAU); ctx.fill(); }
-  ctx.strokeStyle = edge; ctx.lineWidth = Math.max(.8, s * .07); ctx.lineJoin = 'round';
-  ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(s, -h); ctx.lineTo(s, s - h); ctx.lineTo(0, s); ctx.lineTo(-s, s - h); ctx.lineTo(-s, -h); ctx.closePath(); ctx.moveTo(-s, -h); ctx.lineTo(0, 0); ctx.lineTo(s, -h); ctx.moveTo(0, 0); ctx.lineTo(0, s); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.beginPath(); const k = s * .22, sx = -s * .35, sy = -s * .55;
-  ctx.moveTo(sx, sy - k); ctx.quadraticCurveTo(sx, sy, sx + k, sy); ctx.quadraticCurveTo(sx, sy, sx, sy + k); ctx.quadraticCurveTo(sx, sy, sx - k, sy); ctx.quadraticCurveTo(sx, sy, sx, sy - k); ctx.fill();
-  ctx.restore();
+  c.fillStyle = left; c.beginPath(); c.moveTo(-s, -h); c.lineTo(0, 0); c.lineTo(0, s); c.lineTo(-s, s - h); c.closePath(); c.fill();
+  c.fillStyle = right; c.beginPath(); c.moveTo(s, -h); c.lineTo(0, 0); c.lineTo(0, s); c.lineTo(s, s - h); c.closePath(); c.fill();
+  c.fillStyle = top; c.beginPath(); c.moveTo(0, -s); c.lineTo(s, -h); c.lineTo(0, 0); c.lineTo(-s, -h); c.closePath(); c.fill();
+  if (gold) { const g = c.createLinearGradient(-s, -s, s, s); g.addColorStop(0, 'rgba(255,240,200,.35)'); g.addColorStop(1, 'rgba(120,60,0,.25)'); c.fillStyle = g; c.beginPath(); c.moveTo(0, -s); c.lineTo(s, -h); c.lineTo(s, s - h); c.lineTo(0, s); c.lineTo(-s, s - h); c.lineTo(-s, -h); c.closePath(); c.fill(); }
+  c.fillStyle = gold ? 'rgba(255,245,210,.5)' : 'rgba(140,150,190,.35)';
+  for (const [gx, gy] of GRAIN) { c.beginPath(); c.arc(gx * s * .8, gy * s * .55 + s * .1, s * .07, 0, TAU); c.fill(); }
+  c.strokeStyle = edge; c.lineWidth = Math.max(.8, s * .07); c.lineJoin = 'round';
+  c.beginPath(); c.moveTo(0, -s); c.lineTo(s, -h); c.lineTo(s, s - h); c.lineTo(0, s); c.lineTo(-s, s - h); c.lineTo(-s, -h); c.closePath(); c.moveTo(-s, -h); c.lineTo(0, 0); c.lineTo(s, -h); c.moveTo(0, 0); c.lineTo(0, s); c.stroke();
+  c.fillStyle = 'rgba(255,255,255,.95)'; c.beginPath(); const k = s * .22, sx = -s * .35, sy = -s * .55;
+  c.moveTo(sx, sy - k); c.quadraticCurveTo(sx, sy, sx + k, sy); c.quadraticCurveTo(sx, sy, sx, sy + k); c.quadraticCurveTo(sx, sy, sx - k, sy); c.quadraticCurveTo(sx, sy, sx, sy - k); c.fill();
+  c.restore();
 }
 // The bonus item: a glowing badge with a glyph for what it does, drifting down with sparkles.
 function drawGlyph(kind, s) {
@@ -1923,7 +1927,8 @@ function giveReward(r) {
 const rewardText = r => [r.sap ? `${r.sap} sap` : '', r.heart ? `${r.heart} hartje${r.heart > 1 ? 's' : ''}` : '', r.hat ? `hoedje ${HATS[r.hat] ? HATS[r.hat].name : r.hat}` : '', r.shield ? `${r.shield} reeksschild` : '', r.minutes ? `${r.minutes} min onbeperkt` : '', r.board ? `bordskin ${THEMES[skinIndex(r.board)] ? THEMES[skinIndex(r.board)].name : r.board}` : '', r.title ? `titel "${r.title}"` : ''].filter(Boolean).join(' + ');
 const dailyPlayedToday = () => save.daily.day === dayKey() && save.daily.played;
 const weekendCleared = () => save.weekend.week === weekKey() && save.weekend.cleared;
-// ---- Rad van de dag: one free spin a day (a second one after a simulated video, never for money), modest prizes.
+// ---- Rad van de dag: one free spin a day (a second one after a simulated video), modest prizes. Bought spins exist
+// only behind spinSalesOn, which is off by default.
 const WHEEL = [
   { label: '10 sap', r: { sap: 10 }, w: 24, col: '#ffd54a' },
   { label: '1 hartje', r: { heart: 1 }, w: 14, col: '#ff5a6e' },
@@ -1936,26 +1941,48 @@ const WHEEL = [
 ];
 let wheelAngle = -Math.PI / 2 - TAU / WHEEL.length / 2, wheelSpin = null;
 function wheelPick() { const tot = WHEEL.reduce((a, s) => a + s.w, 0); let x = Math.random() * tot; for (let i = 0; i < WHEEL.length; i++) { x -= WHEEL[i].w; if (x < 0) return i; } return 0; }
+// Icons for the wheel: a prize is drawn, not written, so a slice can never read like a date ("30 sap" looked like 30 sep).
+function drawHeartIcon(c, x, y, s) {
+  c.save(); c.translate(x, y); c.beginPath(); c.moveTo(0, s); c.bezierCurveTo(-s * 1.5, -s * .1, -s * .6, -s * 1.15, 0, -s * .4); c.bezierCurveTo(s * .6, -s * 1.15, s * 1.5, -s * .1, 0, s); c.closePath();
+  c.fillStyle = '#e8203e'; c.fill(); c.strokeStyle = '#fff4e4'; c.lineWidth = 3; c.lineJoin = 'round'; c.stroke(); c.fillStyle = 'rgba(255,255,255,.55)'; c.beginPath(); c.ellipse(-s * .45, -s * .45, s * .28, s * .16, -.6, 0, TAU); c.fill(); c.restore();
+}
+function drawShieldIcon(c, x, y, s) {
+  c.save(); c.translate(x, y); c.lineJoin = 'round'; c.beginPath(); c.moveTo(0, -s * .55); c.lineTo(s * .45, -s * .35); c.lineTo(s * .35, s * .2); c.lineTo(0, s * .55); c.lineTo(-s * .35, s * .2); c.lineTo(-s * .45, -s * .35); c.closePath();
+  c.fillStyle = '#fff4e4'; c.fill(); c.strokeStyle = '#15486b'; c.lineWidth = 3; c.stroke(); c.strokeStyle = '#5ac8ff'; c.lineWidth = 2.5; c.lineCap = 'round'; c.beginPath(); c.moveTo(0, -s * .3); c.lineTo(0, s * .3); c.moveTo(-s * .22, -s * .05); c.lineTo(s * .22, -s * .05); c.stroke(); c.restore();
+}
+function drawClockIcon(c, x, y, s) {
+  c.save(); c.translate(x, y); c.fillStyle = '#fff4e4'; c.beginPath(); c.arc(0, 0, s, 0, TAU); c.fill(); c.strokeStyle = '#3a2560'; c.lineWidth = 3; c.stroke();
+  c.lineCap = 'round'; c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -s * .62); c.moveTo(0, 0); c.lineTo(s * .45, s * .1); c.stroke(); c.restore();
+}
+function drawWheelPrize(c, r) {
+  c.fillStyle = '#2a1208'; c.textBaseline = 'middle';
+  const num = (t, iconW) => { c.font = `800 30px ${FU}`; c.textAlign = 'left'; const tw = c.measureText(t).width, tot = tw + 8 + iconW; c.fillText(t, -tot / 2, 2); return -tot / 2 + tw + 8 + iconW / 2; };
+  const cap = (t, y) => { c.font = `800 14px ${FU}`; c.textAlign = 'center'; c.fillStyle = '#2a1208'; c.fillText(t, 0, y); };
+  if (r.sap) drawSugar(num(String(r.sap), 28), 1, 14, false, 0, c);
+  else if (r.heart) drawHeartIcon(c, num(String(r.heart), 28), 1, 12);
+  else if (r.shield) { drawShieldIcon(c, 0, -8, 26); cap('schild', 20); }
+  else if (r.minutes) { drawClockIcon(c, 0, -9, 13); cap(`${r.minutes} min ∞`, 20); }
+}
 function drawWheel() {
-  const c = $('#wheel'); if (!c) return; const c2 = c.getContext('2d'), n = WHEEL.length, seg = TAU / n, R0 = 150;
-  c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, 340, 340); c2.translate(170, 176);
+  const c = $('#wheel'); if (!c) return; const c2 = c.getContext('2d'), n = WHEEL.length, seg = TAU / n, S = c.width, R0 = S / 2 - 25;
+  c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, S, S); c2.translate(S / 2, S / 2 + 6);
   c2.fillStyle = 'rgba(0,0,0,.35)'; c2.beginPath(); c2.arc(4, 6, R0 + 6, 0, TAU); c2.fill();
   c2.save(); c2.rotate(wheelAngle);
   for (let i = 0; i < n; i++) {
     c2.fillStyle = WHEEL[i].col; c2.beginPath(); c2.moveTo(0, 0); c2.arc(0, 0, R0, i * seg, (i + 1) * seg); c2.closePath(); c2.fill(); c2.strokeStyle = 'rgba(60,30,0,.55)'; c2.lineWidth = 3; c2.stroke();
-    c2.save(); c2.rotate(i * seg + seg / 2); const abs = ((wheelAngle + i * seg + seg / 2) % TAU + TAU) % TAU, flip = abs > Math.PI / 2 && abs < Math.PI * 1.5;
-    c2.translate(R0 * .6, 0); if (flip) c2.rotate(Math.PI); c2.fillStyle = '#2a1208'; c2.font = `800 19px ${FU}`; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.fillText(WHEEL[i].label, 0, 0); c2.restore();
+    // the prize stands upright in its slice whatever the wheel's angle: a number next to the thing it stands for
+    const a = i * seg + seg / 2; c2.save(); c2.rotate(a); c2.translate(R0 * .66, 0); c2.rotate(-(wheelAngle + a)); drawWheelPrize(c2, WHEEL[i].r); c2.restore();
   }
   c2.restore();
   c2.strokeStyle = '#5a3a1e'; c2.lineWidth = 8; c2.beginPath(); c2.arc(0, 0, R0 + 2, 0, TAU); c2.stroke();
   c2.fillStyle = '#5a3a1e'; c2.beginPath(); c2.arc(0, 0, 24, 0, TAU); c2.fill(); c2.fillStyle = '#ffd54a'; c2.beginPath(); c2.arc(0, 0, 14, 0, TAU); c2.fill();
   c2.fillStyle = '#fff4e4'; c2.strokeStyle = '#2a1208'; c2.lineWidth = 3; c2.beginPath(); c2.moveTo(-16, -R0 - 14); c2.lineTo(16, -R0 - 14); c2.lineTo(0, -R0 + 16); c2.closePath(); c2.fill(); c2.stroke();
 }
-// Spin packs (simulated money). Selling spins is a game of chance under Belgian law, so spinSales is a switch
-// meant to follow the store country: off in Belgium, on elsewhere.
+// Spin packs (simulated money). Selling spins is a game of chance under Belgian law, so spinSalesOn is a switch
+// that is off by default (Belgium) and meant to follow the store country.
 const SPIN_PACKS = [{ n: 5, eur: .99 }, { n: 12, eur: 1.99 }, { n: 20, eur: 2.99 }];
 const fmtEur = e => '€' + e.toFixed(2).replace('.', ',');
-function buySpins(pack) { if (!save.spinSales) return false; simBuy(pack.eur); save.spins += pack.n; store(); updateWheelUI(); return true; }
+function buySpins(pack) { if (!save.spinSalesOn) return false; simBuy(pack.eur); save.spins += pack.n; store(); updateWheelUI(); return true; }
 // Which spin comes next: the free one of the day, the one after the video, or a bought one.
 function nextSpinKind() { const today = dayKey(); if (save.wheel.day !== today) return 'free'; if (!save.wheel.ad) return 'ad'; if (save.spins > 0) return 'paid'; return ''; }
 function spinWheel(instant) {
@@ -1984,7 +2011,7 @@ function updateWheelUI() {
   else if (kind === 'paid') { b.textContent = `Draai (nog ${save.spins} gekocht)`; sub.textContent = `Vandaag: ${save.wheel.result}. Gekochte draaien kun je altijd gebruiken.`; }
   else { b.textContent = 'Morgen weer'; sub.textContent = `Vandaag: ${save.wheel.result}. Morgen om 7 uur draait het rad opnieuw.`; }
   b.disabled = !!wheelSpin || !kind;
-  if (packs) { packs.hidden = !save.spinSales; packs.querySelectorAll('[data-pack]').forEach((pb, i) => { pb.disabled = !!wheelSpin; }); const own = $('#spin-own'); if (own) own.textContent = save.spins ? `Je hebt ${save.spins} gekochte draai${save.spins === 1 ? '' : 'en'}.` : ''; }
+  if (packs) { packs.hidden = !save.spinSalesOn; packs.querySelectorAll('[data-pack]').forEach((pb, i) => { pb.disabled = !!wheelSpin; }); const own = $('#spin-own'); if (own) own.textContent = save.spins ? `Je hebt ${save.spins} gekochte draai${save.spins === 1 ? '' : 'en'}.` : ''; }
 }
 function todayBadge() {
   ensureMissions(); touchStreak(); let n = 0;
@@ -2006,15 +2033,15 @@ function openToday() {
   G.state = 'today'; ensureMissions(); touchStreak(); const today = dayKey(), claimedStreak = save.streakClaimed === today, sr = streakReward(save.streak);
   const dots = Array.from({ length: 7 }, (_, i) => `<i class="${i < ((save.streak - 1) % 7) + 1 ? 'on' : ''}"></i>`).join('');
   const missions = save.missions.list.map((m, i) => `<div class="mrow"><div class="mt">${m.text}<div class="small">Beloning: ${rewardText(MISSION_REWARDS[i])}</div><div class="mbar"><i style="width:${Math.round(100 * m.prog / m.goal)}%"></i></div></div><button class="btn${m.done && !m.claimed ? ' primary' : ''}" data-mi="${i}" ${m.done && !m.claimed ? '' : 'disabled'}>${m.claimed ? 'Ontvangen' : m.done ? 'Ontvang' : `${m.prog}/${m.goal}`}</button></div>`).join('');
-  const g = weekendGame(), w = WEEKEND[g], dailyLabel = pendingDaily && pendingDaily !== today ? `Uitdaging van ${pendingDaily}: speel het mes van die dag (telt niet als record).` : dailyPlayedToday() ? `Gespeeld: ${fmtTime(save.daily.best)}. Morgen om 7 uur een nieuw mes.` : 'Eén gratis poging. Iedereen krijgt vandaag exact dezelfde messen, vanaf level 1.';
+  const g = weekendGame(), w = WEEKEND[g], dailyLabel = pendingDaily && pendingDaily !== today ? `Uitdaging van ${pendingDaily}: speel het mes van die dag (telt niet als record).` : dailyPlayedToday() ? `Gespeeld: ${fmtTime(save.daily.best)}. Morgen om 7 uur een nieuw mes.` : 'Nog niet gespeeld vandaag.';
   $('#today-body').innerHTML =
-    `<div class="sec" style="align-items:center;text-align:center"><h3>Rad van de dag</h3><canvas id="wheel" width="340" height="340" style="width:170px;height:170px"></canvas><div class="small" id="wheel-text">${save.wheel.day === today ? `Vandaag: <b>${save.wheel.result}</b>` : 'Draai voor je inlogbonus van vandaag.'}</div><button class="btn primary" id="btn-spin">Draai</button><div class="small" id="wheel-sub"></div>` +
-    `<div id="spin-packs" style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="small">Extra draaien kopen:</div><div class="row" style="gap:6px">${SPIN_PACKS.map((p, i) => `<button class="btn" style="font-size:13px;padding:7px 10px;flex:0 1 auto" data-pack="${i}">${p.n} · ${fmtEur(p.eur)}</button>`).join('')}</div><div class="small" id="spin-own"></div><div class="small" style="opacity:.75">Simulatie. Dit is in België een kansspel; daar staat de verkoop uit (schakelaar in de winkel).</div></div></div>` +
-    `<div class="sec"><h3>Dagreeks</h3><div class="mrow"><div class="mt"><b>Dag ${save.streak}</b> op rij${save.shieldUsed === today ? ' (reeksschild gebruikt)' : ''}<div class="dots">${dots}</div><div class="small">Vandaag: ${rewardText(sr)} · dag 7: feesthoedje · dag 30: gouden kroontje</div></div><button class="btn${claimedStreak ? '' : ' primary'}" id="btn-streak" ${claimedStreak ? 'disabled' : ''}>${claimedStreak ? 'Ontvangen' : 'Ontvang'}</button></div><div class="small">Reeksschild: ${save.shields} (vangt één gemiste dag op) · <button class="linkbtn" id="btn-shield" ${save.sap < 50 ? 'disabled' : ''}>Koop · 50 sap</button></div></div>` +
-    `<div class="sec"><h3>Opdrachten van vandaag</h3>${missions}</div>` +
-    `<div class="sec"><h3>Mes van de dag</h3><div class="mrow"><div class="mt">${dailyLabel}</div><button class="btn primary" id="btn-daily" ${dailyPlayedToday() && !(pendingDaily && pendingDaily !== today) ? 'disabled' : ''}>Speel</button></div></div>` +
-    `<div class="sec"><h3>Weekendspel: ${w.name}</h3><div class="small">${w.how}</div><div class="mrow"><div class="mt">${weekendStatus()}</div><button class="btn${weekendOpen() ? ' primary' : ''}" id="btn-weekend" ${weekendOpen() ? '' : 'disabled'}>Speel</button></div><div class="small">Elke week een ander spel: Jij bent het mes, Suikerregen, Chefs examen. Vrijdag 17 u tot zondag 23 u.</div></div>` +
-    `<div class="sec"><h3>Onbeperkte hartjes</h3><div class="mrow"><div class="mt">Voorraad: <b>${save.unlimitedBank} min</b>. ${heartsUnlimited() ? 'Nu actief, ' + heartsLine().toLowerCase() + '.' : 'Activeer wanneer je tijd hebt om te spelen.'}</div><button class="btn${save.unlimitedBank >= 30 ? ' primary' : ''}" id="btn-unl-bank" ${save.unlimitedBank >= 30 ? '' : 'disabled'}>Activeer 30 min</button></div></div>`;
+    `<div class="sec" style="align-items:center;text-align:center"><h3>Rad van de dag</h3><div class="rules" style="align-self:stretch;text-align:left">Inlogbonus: één gratis draai per dag, een tweede na een filmpje. Prijzen: 10 tot 50 sap, 1 of 2 hartjes, een reeksschild of 10 minuten onbeperkte hartjes.</div><canvas id="wheel" width="420" height="420" style="width:210px;height:210px"></canvas><div class="small" id="wheel-text">${save.wheel.day === today ? `Vandaag: <b>${save.wheel.result}</b>` : 'Draai voor je inlogbonus van vandaag.'}</div><button class="btn primary" id="btn-spin">Draai</button><div class="small" id="wheel-sub"></div>` +
+    `<div id="spin-packs" style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="small">Extra draaien kopen:</div><div class="row" style="gap:6px">${SPIN_PACKS.map((p, i) => `<button class="btn" style="font-size:13px;padding:7px 10px;flex:0 1 auto" data-pack="${i}">${p.n} · ${fmtEur(p.eur)}</button>`).join('')}</div><div class="small" id="spin-own"></div><div class="small" style="opacity:.75">Simulatie. Alleen zichtbaar waar de verkoop aanstaat (schakelaar in de winkel); in België staat ze uit.</div></div></div>` +
+    `<div class="sec"><h3>Dagreeks</h3><div class="rules">Elke dag dat je speelt haal je hier de volgende beloning op; de reeks loopt per 7 dagen rond. Eén dag overslaan zet de reeks terug naar dag 1, tenzij een reeksschild die dag opvangt.</div><div class="mrow"><div class="mt"><b>Dag ${save.streak}</b> op rij${save.shieldUsed === today ? ' (reeksschild gebruikt)' : ''}<div class="dots">${dots}</div><div class="small">Vandaag: ${rewardText(sr)} · dag 7: feesthoedje · dag 30: gouden kroontje</div></div><button class="btn${claimedStreak ? '' : ' primary'}" id="btn-streak" ${claimedStreak ? 'disabled' : ''}>${claimedStreak ? 'Ontvangen' : 'Ontvang'}</button></div><div class="small">Reeksschild: ${save.shields} (vangt één gemiste dag op) · <button class="linkbtn" id="btn-shield" ${save.sap < 50 ? 'disabled' : ''}>Koop · 50 sap</button></div></div>` +
+    `<div class="sec"><h3>Opdrachten van vandaag</h3><div class="rules">Drie opdrachten per dag, nieuw om 7 uur. De voortgang telt tijdens het spelen; haal de beloning hier op zodra de balk vol is.</div>${missions}</div>` +
+    `<div class="sec"><h3>Mes van de dag</h3><div class="rules"><b>Hoe:</b> één gratis poging per dag, kost geen hartje. Iedereen krijgt vandaag exact hetzelfde mes, vanaf level 1, met het fruit dat je nu gekozen hebt.<br><b>Extra:</b> dubbel zoveel suikerklontjes als in een gewoon spel.<br><b>Je houdt:</b> alle sap die je pakt en 15 XP extra voor je Fruitpas. Geen stempels, keukenvoordelen of record; wel een tijd om vrienden mee uit te dagen.</div><div class="mrow"><div class="mt">${dailyLabel}</div><button class="btn primary" id="btn-daily" ${dailyPlayedToday() && !(pendingDaily && pendingDaily !== today) ? 'disabled' : ''}>Speel</button></div></div>` +
+    `<div class="sec"><h3>Weekendspel: ${w.name}</h3><div class="rules"><b>Hoe:</b> ${w.how}<br><b>Prijs:</b> één keer per weekend 30 min onbeperkte hartjes + 20 sap. Kost geen hartje; je mag blijven proberen.<br><b>Wanneer:</b> vrijdag 17 u tot zondag 23 u. Elke week een ander spel: Jij bent het mes, Suikerregen, Chefs examen.</div><div class="mrow"><div class="mt">${weekendStatus()}</div><button class="btn${weekendOpen() ? ' primary' : ''}" id="btn-weekend" ${weekendOpen() ? '' : 'disabled'}>Speel</button></div></div>` +
+    `<div class="sec"><h3>Onbeperkte hartjes</h3><div class="rules">Een half uur spelen zonder hartjes te verliezen. Minuten verdien je met de weekendprijs en op het rad. De tijd loopt door zodra je activeert, ook als je stopt.</div><div class="mrow"><div class="mt">Voorraad: <b>${save.unlimitedBank} min</b>. ${heartsUnlimited() ? 'Nu actief, ' + heartsLine().toLowerCase() + '.' : 'Activeer wanneer je tijd hebt om te spelen.'}</div><button class="btn${save.unlimitedBank >= 30 ? ' primary' : ''}" id="btn-unl-bank" ${save.unlimitedBank >= 30 ? '' : 'disabled'}>Activeer 30 min</button></div></div>`;
   drawWheel(); updateWheelUI();
   $('#btn-spin').addEventListener('click', () => {
     if (wheelSpin) return; const kind = nextSpinKind(); if (!kind) return; SFX.click();
@@ -2182,7 +2209,7 @@ function openShop() {
   const boardRows = [{ id: '', name: 'Volgt de keuken (standaard)' }].concat(THEMES.filter(t => t.id).map(t => ({ id: t.id, name: t.name }))).map(bd => { const own = !bd.id || save.boards.includes(bd.id), worn = (save.board || '') === bd.id; return `<div class="mrow"><div class="mt"><b>${bd.name}</b>${!own ? `<div class="small">Fruitkaart: level ${bd.id === 'ruitjes' ? 20 : 40} vol</div>` : ''}</div>${worn ? '<button class="btn" disabled>Actief</button>' : own ? `<button class="btn" data-board="${bd.id}">Gebruik</button>` : ''}</div>`; }).join('');
   $('#shop-body').innerHTML = `<div class="sec"><h3>Hoedjes</h3><div class="small">Puur voor de sier: geen invloed op het spel. Het hoedje vliegt mee weg als je gesneden wordt.</div>${hatRows}</div>` +
     `<div class="sec"><h3>Bordskins</h3>${boardRows}</div>` +
-    `<div class="sec"><h3>Draaien aan het rad</h3><div class="small">Gekochte draaien gebruik je wanneer je wilt, bovenop de gratis draai van de dag. Je hebt er ${save.spins}.</div>${save.spinSales ? SPIN_PACKS.map((p, i) => item('spin' + i, `${p.n} draai${p.n > 1 ? 'en' : ''}`, `${(p.eur / p.n * 100).toFixed(0)} cent per draai`, fmtEur(p.eur), i === 0)).join('') : '<div class="small">Verkoop staat uit.</div>'}${item('spinsales', 'Verkoop van draaien', save.spinSales ? 'Aan. In België is betalen voor een toevalsprijs een kansspel; zet dit daar uit (in de echte app per land).' : 'Uit (België). Elders aanzetten.', save.spinSales ? 'Zet uit' : 'Zet aan')}</div>` +
+    `<div class="sec"><h3>Draaien aan het rad</h3><div class="small">Gekochte draaien gebruik je wanneer je wilt, bovenop de gratis draai van de dag. Je hebt er ${save.spins}.</div>${save.spinSalesOn ? SPIN_PACKS.map((p, i) => item('spin' + i, `${p.n} draai${p.n > 1 ? 'en' : ''}`, `${(p.eur / p.n * 100).toFixed(0)} cent per draai`, fmtEur(p.eur), i === 0)).join('') : '<div class="small">Verkoop staat uit.</div>'}${item('spinsales', 'Verkoop van draaien', save.spinSalesOn ? 'Aan. In België is betalen voor een toevalsprijs een kansspel; zet dit daar uit (in de echte app per land).' : 'Uit (standaard, België). Alleen elders aanzetten; dan verschijnen de pakketten hier en op het Vandaag-scherm.', save.spinSalesOn ? 'Zet uit' : 'Zet aan')}</div>` +
     `<div class="sec"><h3>Hulpmiddelen</h3>${item('shield-sap', 'Reeksschild', `Vangt één gemiste dag van je dagreeks op. Je hebt er ${save.shields}.`, '50 sap', save.sap >= 50)}${item('shield-eur', 'Reeksschild', 'Hetzelfde schild, met geld.', '€0,99')}${item('unl30', 'Onbeperkte hartjes · 30 min', 'Komt in je voorraad; activeer wanneer je tijd hebt.', '€0,49')}</div>` +
     `<div class="sec"><h3>Sap</h3>${item('sap300', '300 sap', 'Voor fruit, hoedjes en doorgaan.', '€0,99')}${item('sap1000', '1000 sap', 'De voordelige pot.', '€2,49', true)}</div>` +
     `<div class="sec"><h3>Pas en reclame</h3>${save.pass.premium ? '<div class="small">Fruitpas: betaald spoor actief.</div>' : item('pass', 'Fruitpas', 'Het tweede spoor van dit seizoen: hoedjes, schilden, onbeperkte minuten.', '€4,99', true)}${save.noAds ? '<div class="small">Reclamevrij: actief. Filmpjes worden overgeslagen.</div>' : item('noads', 'Reclamevrij', 'Geen filmpjes meer bij doorgaan en hartjes; je krijgt de beloning meteen.', '€3,99')}</div>` +
@@ -2201,7 +2228,7 @@ function openShop() {
     else if (id === 'sap1000') { simBuy(2.49); save.sap += 1000; }
     else if (id === 'pass') { simBuy(4.99); ensurePass(); save.pass.premium = true; }
     else if (id === 'noads') { simBuy(3.99); save.noAds = true; }
-    else if (id === 'spinsales') save.spinSales = !save.spinSales;
+    else if (id === 'spinsales') save.spinSalesOn = !save.spinSalesOn;
     else if (id.startsWith('spin')) { const p = SPIN_PACKS[+id.slice(4)]; if (p) buySpins(p); }
     store(); openShop();
   }));
@@ -2212,13 +2239,13 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.7.0', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.7.1', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
   openToday, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,
-  WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, buySpins, nextSpinKind,
+  WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, buySpins, nextSpinKind, modeCubeRate, cubeCap,
   step(ms) { let left = ms; while (left > 0) { const d = Math.min(16, left); update(d); left -= d; } render(); },
   forceAim(tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; const s = lineThrough(G.px + b.ox, G.py + b.oy, Math.random() * Math.PI, 0, { tele: tele || 60, dur: 160 }); return { ax: s.ax, ay: s.ay, bx: s.bx, by: s.by }; },
   move(dx, dy) { G.tx += dx; G.ty += dy; },

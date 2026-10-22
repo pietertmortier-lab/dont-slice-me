@@ -105,6 +105,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .navrow .btn{flex:1 1 30%}
 .lvpick{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--ink-dim);flex-wrap:wrap}
 .lvpick b{font-family:var(--font-display);font-size:22px;color:var(--ink);min-width:36px;text-align:center}
+.lvpick .lvhint{flex:1 1 100%;text-align:center;font-size:12px;opacity:.85;line-height:1.35}
 .krow{display:grid;grid-template-columns:34px 1fr auto;gap:4px 8px;align-items:center;padding:6px 0;border-top:1px solid rgba(255,220,180,.08)}
 .krow b{font-family:var(--font-display);font-size:17px}
 .cells{display:flex;gap:2px;flex-wrap:wrap}
@@ -135,8 +136,9 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       </div>
       <div class="grid" id="fruit-list"></div>
       <button class="btn primary big" id="btn-play">Spelen</button>
-      <div class="lvpick" id="lvpick" hidden><span>Start bij level</span><button class="linkbtn" id="lv-minus" aria-label="Lager level">−</button><b id="lv-cur">1</b><button class="linkbtn" id="lv-plus" aria-label="Hoger level">+</button><button class="linkbtn" id="lv-max">hoogste</button></div>
-      <div class="navrow"><button class="btn" id="btn-today">Vandaag<span class="badge-n" id="today-badge" hidden>0</span></button><button class="btn" id="btn-kaart">Fruitkaart</button><button class="btn ghost" id="btn-album">Album</button><button class="btn ghost" id="btn-pass">Fruitpas</button><button class="btn ghost" id="btn-shop">Winkel</button></div>
+      <div class="lvpick" id="lvpick" hidden><span>Start bij level</span><button class="linkbtn" id="lv-minus" aria-label="Lager level">−</button><b id="lv-cur">1</b><button class="linkbtn" id="lv-plus" aria-label="Hoger level">+</button><button class="linkbtn" id="lv-max">hoogste</button><span class="lvhint">Lager starten is rustiger en levert stempels op de Fruitkaart op; je hoogste level blijft bewaard.</span></div>
+      <div class="navrow"><button class="btn" id="btn-today" title="Rad, dagreeks, opdrachten, Mes van de dag, weekendspel">Vandaag<span class="badge-n" id="today-badge" hidden>0</span></button><button class="btn" id="btn-kaart" title="Levels herspelen met ander fruit voor stempels en beloningen">Fruitkaart</button><button class="btn ghost" id="btn-album" title="Stickers, keukenbonussen en de Fruitpedia">Album</button><button class="btn ghost" id="btn-pass" title="Seizoenstreden met beloningen">Fruitpas</button><button class="btn ghost" id="btn-shop" title="Hoedjes, bordskins, hulpmiddelen">Winkel</button></div>
+      <div class="rules" id="nav-legend"><b>Vandaag:</b> rad, dagreeks, opdrachten, Mes van de dag en weekendspel · <b>Fruitkaart:</b> levels herspelen met ander fruit voor stempels en beloningen · <b>Album:</b> stickers, keukenbonussen, Fruitpedia · <b>Fruitpas:</b> seizoenstreden met beloningen · <b>Winkel:</b> hoedjes, bordskins, hulpmiddelen</div>
       <p class="small">Raak het scherm aan: het fruit hangt boven je vinger. Op de computer: sleep met de muis of gebruik de pijltjes. Suikerklontjes zijn sap.</p>
       <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><span id="ver">Prototype v0.7 · geen echte aankopen</span></div>
     </div>
@@ -156,7 +158,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <div class="bigtime" id="cont-time">0,0 s</div>
       <p class="small" id="cont-text"></p>
       <div class="bar"><i id="cont-bar"></i></div>
-      <p class="small">Doorgaan waar je was?</p>
+      <p class="small" id="cont-info">Doorgaan waar je was?</p>
       <div class="row"><button class="btn primary" id="btn-cont-ad">Filmpje (gratis)</button><button class="btn" id="btn-cont-sap">20 sap</button></div>
       <p class="small" id="cont-sap-have"></p>
       <button class="btn ghost" id="btn-cont-no">Nee, stop hier</button>
@@ -208,7 +210,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <h2>Geen hartjes meer</h2>
       <div class="hearts big" id="hearts-row"></div>
       <p class="small" id="hearts-timer"></p>
-      <p class="small">Elke poging kost één hartje. Elke 20 minuten komt er eentje bij, tot vijf. Doorgaan na een snede kost geen hartje.</p>
+      <p class="small" id="hearts-rules"></p>
       <div class="row"><button class="btn primary" id="btn-heart-ad">Filmpje: +1 hartje (gratis)</button></div>
       <div class="row"><button class="btn" id="btn-heart-sap">5 hartjes · 30 sap</button><button class="btn" id="btn-heart-eur">5 hartjes · €0,99</button></div>
       <button class="btn ghost" id="btn-heart-unl">Onbeperkt 24 uur · €1,99</button>
@@ -821,6 +823,7 @@ function openContinue() {
   $('#cont-time').textContent = fmtTime(G.t);
   $('#cont-text').textContent = G.t > save.best ? `Nieuw record: ${fmtTime(G.t)}! Hoe ver kom je nog?` : `Je record is ${fmtTime(save.best)}. Je zat op ${fmtTime(G.t)}.`;
   const sapBtn = $('#btn-cont-sap'); sapBtn.disabled = save.sap < CONTINUE_COST; sapBtn.textContent = `${CONTINUE_COST} sap`;
+  $('#cont-info').textContent = `Doorgaan kost geen hartje: je tijd, level en sap blijven staan en je begint 2 s beschermd in het midden. ${hasPerk(3) ? 'Met Tweede kans mag dit twee keer per poging' : 'Dit mag één keer per poging'}; dit is keer ${G.continues + 1}.`;
   $('#cont-sap-have').textContent = save.sap < CONTINUE_COST ? `Je hebt ${save.sap} sap. Verzamel suikerklontjes voor meer.` : `Je hebt ${save.sap} sap.`;
   $('#cont-bar').style.width = '100%'; showScreen('scr-continue');
 }
@@ -1850,6 +1853,7 @@ $('#btn-share').addEventListener('click', shareCard);
 function openHearts() {
   G.state = 'hearts'; refreshHearts(); heartTick = 1000;
   $('#hearts-row').innerHTML = heartsHTML(); $('#hearts-timer').textContent = heartsLine();
+  $('#hearts-rules').textContent = `Elke gewone poging kost één hartje. Elke 20 minuten komt er eentje bij, tot ${maxHearts()}. Doorgaan na een snede, Mes van de dag en de weekendspelen kosten geen hartje.`;
   const sb = $('#btn-heart-sap'); sb.disabled = save.sap < HEART_REFILL_SAP; sb.textContent = `5 hartjes · ${HEART_REFILL_SAP} sap`;
   $('#hearts-sim').textContent = `Aankopen zijn hier een simulatie. Gesimuleerd uitgegeven tot nu: €${save.simEur.toFixed(2).replace('.', ',')}.`;
   showScreen('scr-hearts'); pauseBtn.hidden = true;
@@ -2193,7 +2197,7 @@ function openPass() {
   G.state = 'pass'; ensurePass(); const tier = passTier(), xp = save.pass.xp, now = new Date(nowMs()), end = new Date(now.getFullYear(), now.getMonth() + 1, 1), daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
   const btn = (t, prem) => { const claimed = (prem ? save.pass.claimedPrem : save.pass.claimedFree).includes(t), open = t <= tier && (!prem || save.pass.premium); return `<button class="btn${open && !claimed ? ' primary' : ''}${!open ? ' lk' : ''}" data-pt="${t}" data-pp="${prem ? 1 : 0}" ${open && !claimed ? '' : 'disabled'}>${claimed ? 'Ontvangen' : open ? 'Ontvang' : (prem && !save.pass.premium ? 'Pas' : `Trede ${t}`)}</button>`; };
   const rows = Array.from({ length: PASS_TIERS }, (_, i) => i + 1).map(t => `<div class="pr"><b>${t}</b><div>Gratis: ${rewardText(passReward(t, false))}</div>${btn(t, false)}<div></div><div style="color:var(--sugar)">Pas: ${rewardText(passReward(t, true))}</div>${btn(t, true)}</div>`).join('');
-  $('#pass-body').innerHTML = `<div class="sec"><h3>Seizoen ${save.pass.season} · trede ${tier}/${PASS_TIERS}</h3><div class="mbar"><i style="width:${Math.round(100 * (xp % PASS_XP) / PASS_XP)}%"></i></div><div class="small">${xp} pas-xp · nog ${daysLeft} dag${daysLeft === 1 ? '' : 'en'} · xp per 5 s gespeeld, per level (+10), per opdracht (+20), per weekendprijs (+50)</div>${save.pass.premium ? '<div class="small" style="color:var(--sugar)">Betaald spoor actief.</div>' : '<button class="btn primary" id="btn-pass-buy" style="align-self:flex-start">Koop de Fruitpas · €4,99</button><div class="small">Simulatie. Ontgrendelt het tweede spoor met hoedjes, reeksschilden en onbeperkte minuten, ook met terugwerkende kracht.</div>'}</div><div class="sec">${rows}</div>`;
+  $('#pass-body').innerHTML = `<div class="sec"><h3>Seizoen ${save.pass.season} · trede ${tier}/${PASS_TIERS}</h3><div class="mbar"><i style="width:${Math.round(100 * (xp % PASS_XP) / PASS_XP)}%"></i></div><div class="small">${xp} pas-xp · nog ${daysLeft} dag${daysLeft === 1 ? '' : 'en'} · xp per 5 s gespeeld, per level (+10), per opdracht (+20), per weekendprijs (+50)</div>${save.pass.premium ? '<div class="small" style="color:var(--sugar)">Betaald spoor actief.</div>' : '<div class="small">Zonder pas hou je het gratis spoor. De pas ontgrendelt voor dit seizoen ook de pasbeloning van elke trede, ook van de treden die je al haalde.</div><button class="btn primary" id="btn-pass-buy" style="align-self:flex-start">Koop de Fruitpas · €4,99</button><div class="small">Simulatie. Ontgrendelt het tweede spoor met hoedjes, reeksschilden en onbeperkte minuten, ook met terugwerkende kracht.</div>'}</div><div class="sec">${rows}</div>`;
   const buy = $('#btn-pass-buy'); if (buy) buy.addEventListener('click', () => { SFX.collect(); simBuy(4.99); save.pass.premium = true; store(); openPass(); });
   $('#pass-body').querySelectorAll('[data-pt]').forEach(b => b.addEventListener('click', () => { const t = +b.dataset.pt, prem = b.dataset.pp === '1', list = prem ? save.pass.claimedPrem : save.pass.claimedFree; if (t > passTier() || list.includes(t) || (prem && !save.pass.premium)) return; SFX.collect(); list.push(t); giveReward(passReward(t, prem)); openPass(); }));
   showScreen('scr-pass'); pauseBtn.hidden = true;
@@ -2208,7 +2212,7 @@ function openShop() {
   const item = (id, name, info, label, primary) => `<div class="mrow"><div class="mt"><b>${name}</b><div class="small">${info}</div></div><button class="btn${primary ? ' primary' : ''}" data-shop="${id}">${label}</button></div>`;
   const boardRows = [{ id: '', name: 'Volgt de keuken (standaard)' }].concat(THEMES.filter(t => t.id).map(t => ({ id: t.id, name: t.name }))).map(bd => { const own = !bd.id || save.boards.includes(bd.id), worn = (save.board || '') === bd.id; return `<div class="mrow"><div class="mt"><b>${bd.name}</b>${!own ? `<div class="small">Fruitkaart: level ${bd.id === 'ruitjes' ? 20 : 40} vol</div>` : ''}</div>${worn ? '<button class="btn" disabled>Actief</button>' : own ? `<button class="btn" data-board="${bd.id}">Gebruik</button>` : ''}</div>`; }).join('');
   $('#shop-body').innerHTML = `<div class="sec"><h3>Hoedjes</h3><div class="small">Puur voor de sier: geen invloed op het spel. Het hoedje vliegt mee weg als je gesneden wordt.</div>${hatRows}</div>` +
-    `<div class="sec"><h3>Bordskins</h3>${boardRows}</div>` +
+    `<div class="sec"><h3>Bordskins</h3><div class="small">Een vaste tafel in plaats van de keuken van je level. Alleen uiterlijk: keukenbonussen blijven gelden. Je verdient ze met volle rijen op de Fruitkaart (level 20 en 40).</div>${boardRows}</div>` +
     `<div class="sec"><h3>Draaien aan het rad</h3><div class="small">Gekochte draaien gebruik je wanneer je wilt, bovenop de gratis draai van de dag. Je hebt er ${save.spins}.</div>${save.spinSalesOn ? SPIN_PACKS.map((p, i) => item('spin' + i, `${p.n} draai${p.n > 1 ? 'en' : ''}`, `${(p.eur / p.n * 100).toFixed(0)} cent per draai`, fmtEur(p.eur), i === 0)).join('') : '<div class="small">Verkoop staat uit.</div>'}${item('spinsales', 'Verkoop van draaien', save.spinSalesOn ? 'Aan. In België is betalen voor een toevalsprijs een kansspel; zet dit daar uit (in de echte app per land).' : 'Uit (standaard, België). Alleen elders aanzetten; dan verschijnen de pakketten hier en op het Vandaag-scherm.', save.spinSalesOn ? 'Zet uit' : 'Zet aan')}</div>` +
     `<div class="sec"><h3>Hulpmiddelen</h3>${item('shield-sap', 'Reeksschild', `Vangt één gemiste dag van je dagreeks op. Je hebt er ${save.shields}.`, '50 sap', save.sap >= 50)}${item('shield-eur', 'Reeksschild', 'Hetzelfde schild, met geld.', '€0,99')}${item('unl30', 'Onbeperkte hartjes · 30 min', 'Komt in je voorraad; activeer wanneer je tijd hebt.', '€0,49')}</div>` +
     `<div class="sec"><h3>Sap</h3>${item('sap300', '300 sap', 'Voor fruit, hoedjes en doorgaan.', '€0,99')}${item('sap1000', '1000 sap', 'De voordelige pot.', '€2,49', true)}</div>` +

@@ -1445,7 +1445,7 @@ async function shareCard() {
 // and the run's clock and level timer wait.
 const INTER = {
   storm:   { name: 'Suikerstorm',     how: ['Klontjes van alle kanten!', 'Zweef erover met je fruit: 15 s lang.'], short: 'zweef over de klontjes', target: 12, col: '#8fd3ff' },
-  kersen:  { name: 'Kersen plukken',  how: ['Kersen hangen aan de bovenrand.', 'Zweef eronder om ze te plukken; ze groeien terug.'], short: 'pluk de kersen', target: 8, col: '#ff5a6e' },
+  kersen:  { name: 'Kersen plukken',  how: ['Kersen hangen aan het latje.', 'Zweef erover om ze te plukken; ze groeien terug.'], short: 'pluk de kersen', target: 8, col: '#ff5a6e' },
   goud:    { name: 'Goudkoorts',      how: ['Alleen gouden klontjes, en ze zijn snel!', 'Elk goudklontje is 5 sap.'], short: 'vang het goud', target: 25, col: '#ffd54a' },
   spiegel: { name: 'Spiegelkeuken',   how: ['Links is rechts en rechts is links!', 'Verzamel klontjes met omgekeerde besturing.'], short: 'links = rechts!', target: 6, col: '#b78cff' },
   sprint:  { name: 'Net-niet-sprint', how: ['Trage messen, geen gevaar.', 'Blijf er rakelings naast: elke "net niet" is 3.'], short: 'blijf rakelings naast het mes', target: 6, col: '#ff9a5a' },
@@ -1467,7 +1467,7 @@ function updateInter(dt) {
   const cube = (speed, goldChance) => { const gold = Math.random() < goldChance; G.cubes.push(Object.assign(edgeSpawn(speed, 24), { ph: Math.random() * TAU, r: gold ? 14 : 11, gold, rot: rnd(-.3, .3), dead: false, t: 0 })); };
   if (it.kind === 'storm') { if (it.spawn <= 0 && G.cubes.length < 12) { it.spawn = 360; cube(rndR(60, 95), .2); } }
   else if (it.kind === 'spiegel') { if (it.spawn <= 0 && G.cubes.length < 9) { it.spawn = 500; cube(rndR(35, 55), .2); } }
-  else if (it.kind === 'kersen') { if (it.spawn <= 0 && G.cubes.length < 6) { it.spawn = 700; const slots = [0, 1, 2, 3, 4, 5].filter(i => !G.cubes.some(c => c.slot === i)); if (slots.length) { const i = slots[Math.floor(Math.random() * slots.length)]; G.cubes.push({ x: 40 + i * (W - 80) / 5, y: 118, vx: 0, vy: 0, ph: 0, r: 11, gold: false, rot: 0, dead: false, t: 0, cherry: true, slot: i }); } } }
+  else if (it.kind === 'kersen') { if (it.spawn <= 0 && G.cubes.length < 6) { it.spawn = 700; const slots = [0, 1, 2, 3, 4, 5].filter(i => !G.cubes.some(c => c.slot === i)); if (slots.length) { const i = slots[Math.floor(Math.random() * slots.length)]; G.cubes.push({ x: 40 + i * (W - 80) / 5, y: 204, vx: 0, vy: 0, ph: 0, r: 11, gold: false, rot: 0, dead: false, t: 0, cherry: true, slot: i }); } } }
   else if (it.kind === 'goud') { if (it.spawn <= 0 && G.cubes.length < 5) { it.spawn = 520; const dir = Math.random() < .5 ? 1 : -1; G.cubes.push({ x: dir > 0 ? -20 : W + 20, y: rndR(120, H - 60), vx: dir * rndR(150, 210), vy: 0, ph: Math.random() * TAU, r: 14, gold: true, rot: rnd(-.3, .3), dead: false, t: 0 }); } }
   else if (it.kind === 'sprint') { if (it.spawn <= 0) { it.spawn = 900; const a = Math.random() * Math.PI, off = rnd(26, 58) * (Math.random() < .5 ? -1 : 1); lineThrough(G.px + Math.cos(a + Math.PI / 2) * off, G.py + Math.sin(a + Math.PI / 2) * off, a, 0, { tele: 1100, dur: 260 }); } }
   if (it.left <= 0) finishInter(false);
@@ -1543,8 +1543,10 @@ function drawDecoy() {
   for (let i = 0; i < 24; i++) { const a = i * .5, rr = 3 + i * .9; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.stroke();
   ctx.fillStyle = '#fff'; ctx.font = `800 10px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('lokaas', 0, 26); ctx.restore();
 }
+// The cherries hang from a wooden rail below the minigame panel, so the text never covers them.
+function drawCherryRail() { if (!G.inter || G.inter.kind !== 'kersen') return; ctx.strokeStyle = '#5a3a1e'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(18, 160); ctx.lineTo(W - 18, 160); ctx.stroke(); ctx.strokeStyle = '#8a5a2e'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(18, 158); ctx.lineTo(W - 18, 158); ctx.stroke(); }
 function drawCherryPick(c) {
-  const sw = Math.sin(c.t / 400 + c.x) * 3; ctx.strokeStyle = '#4f8a3a'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(c.x, 100); ctx.quadraticCurveTo(c.x + sw, c.y - 10, c.x + sw, c.y); ctx.stroke();
+  const sw = Math.sin(c.t / 400 + c.x) * 3; ctx.strokeStyle = '#4f8a3a'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(c.x, 160); ctx.quadraticCurveTo(c.x + sw, c.y - 10, c.x + sw, c.y); ctx.stroke();
   for (const dx of [-6, 6]) { ctx.fillStyle = '#d81c38'; ctx.beginPath(); ctx.arc(c.x + sw + dx, c.y + 4, 7, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.beginPath(); ctx.arc(c.x + sw + dx - 2, c.y + 1, 2.2, 0, TAU); ctx.fill(); }
 }
 function drawSprout(c) {
@@ -2101,7 +2103,7 @@ function render() {
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
   if (G.state === 'dying' && G.death) { ctx.translate(G.death.x, G.death.y); ctx.scale(G.zoom, G.zoom); ctx.translate(-G.death.x, -G.death.y); }
   ctx.drawImage(board, 0, 0, W, H);
-  drawStains(); drawScars(); drawZones(); drawHazards(); drawCubes(); drawSeekers(); drawDecoy(); drawDrop(); drawSlashes(0);
+  drawStains(); drawScars(); drawZones(); drawHazards(); drawCherryRail(); drawCubes(); drawSeekers(); drawDecoy(); drawDrop(); drawSlashes(0);
   if (G.state !== 'menu') { if (G.mode === 'knife') drawAI(); else { drawPlayer(); if (G.state === 'play') drawPowerAura(); } }
   drawForkWarning(); // on top of the fruit: the fork strikes where you are, so its warning must not hide under you
   drawDebris(); drawParticles(); drawSlashes(1); drawTexts();

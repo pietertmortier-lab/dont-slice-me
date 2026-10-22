@@ -679,7 +679,7 @@ const G = {
 let contT = 0, adT = 0, adThen = null, heartTick = 0, menuT = 1200, shareText = '', menuSel = 'appel', verTaps = 0, pendingDaily = '';
 const pauseBtn = document.getElementById('btn-pause');
 const screens = ['scr-menu', 'scr-intro', 'scr-fruit', 'scr-help', 'scr-pause', 'scr-continue', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-today', 'scr-album', 'scr-pass', 'scr-shop', 'scr-kaart'];
-function showScreen(id) { for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); }
+function showScreen(id) { for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); try { if (id && id !== 'scr-menu' && !(history.state && history.state.s === id)) history.pushState({ s: id }, ''); } catch (e) {} }
 // ---- Hub: a fixed bar under every menu screen (and the pause screen) so the rad, the daily knife, the weekend
 // game, the Fruitkaart and the shop are one tap away, with a "!" whenever something is waiting there.
 const hub = $('#hub'), HUB_SCREENS = { 'scr-fruit': 'fruit', 'scr-today': 'today', 'scr-kaart': 'kaart', 'scr-shop': 'shop', 'scr-album': '', 'scr-pass': '', 'scr-hearts': '', 'scr-over': '', 'scr-pause': '', 'scr-help': '' }; // the menu has its tiles instead
@@ -2309,6 +2309,8 @@ canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointerc
 document.addEventListener('touchmove', e => { if (G.state === 'play') e.preventDefault(); }, { passive: false });
 document.addEventListener('pointerdown', () => AU.init(), { capture: true });
 document.addEventListener('visibilitychange', () => { if (document.hidden && G.state === 'play') pause(); });
+// The system back button (Android, installed app) closes a screen or pauses a run instead of leaving the game.
+window.addEventListener('popstate', () => { if (G.state === 'play') pause(); else if (G.state !== 'menu' && G.state !== 'intro') openMenu(); });
 
 $('#btn-play').addEventListener('click', () => { SFX.click(); startRun(save.fruit); });
 $('#btn-sound').addEventListener('click', () => { save.sound = !save.sound; store(); buildMenu(); SFX.click(); });

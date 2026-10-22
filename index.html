@@ -1152,7 +1152,7 @@ function openOverMode(prize, bestDay, died) {
 
 // ---- Kitchen tools: new hazards from level 10 on, one at a time, between the knives.
 const HAZ = {
-  vork:    { from: 10, tele: 1250, dur: 350,  name: 'De vork!' },
+  vork:    { from: 10, tele: 1250, dur: 350,  name: 'De vork! Weg van de rode ring' },
   deegrol: { from: 20, tele: 1300, dur: 900,  name: 'De deegrol!' },
   blender: { from: 30, tele: 1000, dur: 6000, name: 'De blender!' },
   pan:     { from: 40, tele: 1000, dur: 7000, name: 'De hete pan!' },
@@ -1164,7 +1164,7 @@ function spawnHazard() {
   const kind = pickR(pool), h = HAZ[kind]; G.note = h.name; G.noteT = 1800;
   if (kind === 'deegrol') { const s = lineThrough(G.px + rndR(-10, 10), G.py + rndR(-10, 10), R() * Math.PI, 0, { tele: h.tele, dur: h.dur }); s.wide = 30; return; }
   const z = { kind, t: 0, phase: 'tele', tele: h.tele, dur: h.dur, x: G.px, y: G.py, heat: 0, hit: false, fade: 500, r: 0 };
-  if (kind === 'vork') { z.x += rndR(-6, 6); z.y += rndR(-6, 6); z.r = 12; }
+  if (kind === 'vork') { z.x += rndR(-6, 6); z.y += rndR(-6, 6); z.r = 12; z.tele = Math.round(Math.max(1200, 1800 - 15 * (G.level - 10))); G.noteT = 2600; SFX.near(); }
   if (kind === 'blender') { z.x = rndR(80, W - 80); z.y = rndR(130, H - 90); z.r = 64; }
   if (kind === 'pan') { z.x = rndR(70, W - 70); z.y = rndR(130, H - 90); z.r = 58; }
   if (kind === 'rasp') { z.y = rndR(150, H - 100); z.h = 70; }
@@ -1412,10 +1412,10 @@ async function shareCard() {
 // one each time, so the rhythm keeps changing. Nothing can kill you here; the score is paid out in sap at the end
 // and the run's clock and level timer wait.
 const INTER = {
-  storm:   { name: 'Suikerstorm',     how: ['Klontjes van alle kanten!', 'Pak er zoveel je kunt in 15 s.'], short: 'pak de klontjes', target: 20, col: '#8fd3ff' },
-  tik:     { name: 'Tik de klontjes', how: ['Klontjes floepen op en verdwijnen weer.', 'Raak ze aan met je fruit of tik erop.'], short: 'raak ze aan of tik erop', target: 14, col: '#ffd54a' },
-  spiegel: { name: 'Spiegelkeuken',   how: ['Links is rechts en rechts is links!', 'Verzamel klontjes met omgekeerde besturing.'], short: 'links = rechts!', target: 10, col: '#b78cff' },
-  sprint:  { name: 'Net-niet-sprint', how: ['Trage, brede messen, geen gevaar.', 'Scheer er rakelings langs: elke "net niet" is 3.'], short: 'scheer langs het mes', target: 12, col: '#ff9a5a' },
+  storm:   { name: 'Suikerstorm',     how: ['Klontjes van alle kanten!', 'Zweef erover met je fruit: 15 s lang.'], short: 'zweef over de klontjes', target: 12, col: '#8fd3ff' },
+  tik:     { name: 'Tik de klontjes', how: ['Klontjes floepen op en verdwijnen weer.', 'Raak ze aan met je fruit of tik erop.'], short: 'raak ze aan of tik erop', target: 8, col: '#ffd54a' },
+  spiegel: { name: 'Spiegelkeuken',   how: ['Links is rechts en rechts is links!', 'Verzamel klontjes met omgekeerde besturing.'], short: 'links = rechts!', target: 6, col: '#b78cff' },
+  sprint:  { name: 'Net-niet-sprint', how: ['Trage messen, geen gevaar.', 'Blijf er rakelings naast: elke "net niet" is 3.'], short: 'blijf rakelings naast het mes', target: 6, col: '#ff9a5a' },
 };
 const INTER_ORDER = ['storm', 'tik', 'spiegel', 'sprint'], INTER_EVERY = 4, INTER_DUR = 15000, INTER_INTRO = 3000, INTER_OUTRO = 2000, INTER_CAP = 40; // sap per minigame, bonus aside
 const interDue = level => G.mode === 'normal' && level > 1 && (level - 1) % INTER_EVERY === 0;
@@ -1432,11 +1432,11 @@ function updateInter(dt) {
   if (it.phase === 'done') { if (it.t >= INTER_OUTRO) endInter(); return; }
   it.left -= dt; it.spawn -= dt;
   const cube = (speed, goldChance) => { const gold = Math.random() < goldChance; G.cubes.push(Object.assign(edgeSpawn(speed, 24), { ph: Math.random() * TAU, r: gold ? 14 : 11, gold, rot: rnd(-.3, .3), dead: false, t: 0 })); };
-  if (it.kind === 'storm') { if (it.spawn <= 0 && G.cubes.length < 10) { it.spawn = 420; cube(rndR(70, 110), .2); } }
-  else if (it.kind === 'spiegel') { if (it.spawn <= 0 && G.cubes.length < 8) { it.spawn = 600; cube(rndR(40, 60), .2); } }
+  if (it.kind === 'storm') { if (it.spawn <= 0 && G.cubes.length < 12) { it.spawn = 360; cube(rndR(60, 95), .2); } }
+  else if (it.kind === 'spiegel') { if (it.spawn <= 0 && G.cubes.length < 9) { it.spawn = 500; cube(rndR(35, 55), .2); } }
   else if (it.kind === 'sprint') { if (it.spawn <= 0) { it.spawn = 900; const a = Math.random() * Math.PI, off = rnd(26, 58) * (Math.random() < .5 ? -1 : 1); lineThrough(G.px + Math.cos(a + Math.PI / 2) * off, G.py + Math.sin(a + Math.PI / 2) * off, a, 0, { tele: 1100, dur: 260 }); } }
   else if (it.kind === 'tik') {
-    if (it.spawn <= 0 && it.taps.length < 5) { it.spawn = 650; it.taps.push({ x: rnd(40, W - 40), y: rnd(110, H - 50), gold: Math.random() < .2, t: 0, life: 2400 }); }
+    if (it.spawn <= 0 && it.taps.length < 5) { it.spawn = 650; it.taps.push({ x: rnd(40, W - 40), y: rnd(110, H - 50), gold: Math.random() < .2, t: 0, life: 3000 }); }
     for (const c of it.taps) { c.t += dt; for (const b of G.bodies) if (Math.hypot(G.px + b.ox - c.x, G.py + b.oy - c.y) < b.r + 16) c.hit = true; }
     for (const c of it.taps.filter(c => c.hit)) collectTap(c); it.taps = it.taps.filter(c => c.t < c.life);
   }
@@ -1454,7 +1454,7 @@ function interTap(x, y) {
 function finishInter(hit) {
   const it = G.inter, d = INTER[it.kind]; if (it.phase !== 'play') return; const bonus = !hit && it.score >= d.target ? 10 : 0, capped = it.score > INTER_CAP; it.total = Math.min(it.score, INTER_CAP) + bonus; it.phase = 'done'; it.t = 0; it.taps = []; G.slashes = [];
   for (const c of G.cubes) if (!c.dead) burst(c.x, c.y, 4, ['#ffffff', '#ffe9a8'], 120); G.cubes = []; // the game's cubes vanish with its end signal
-  it.result = hit ? ['Au! Geraakt, maar niets verloren.', `${it.score} sap, geen bonus.`] : [`${it.score} sap${bonus ? ' · doel gehaald!' : ''}${capped ? ` (max ${INTER_CAP})` : ''}`, bonus ? '+10 bonus-sap erbij.' : `Het doel was ${d.target}. Volgende keer!`];
+  it.result = hit ? ['Geraakt, maar niets verloren: je houdt alles.', `${it.score} sap verdiend; bij ${d.target} zit er 10 bonus bij.`] : [`${it.score} sap verdiend${bonus ? ' · doel gehaald!' : ''}${capped ? ` (max ${INTER_CAP})` : ''}`, bonus ? '+10 bonus-sap erbij.' : `Vanaf ${d.target} zit er 10 bonus bij. Alles is van jou.`];
   save.sap += it.total; G.sapRun += it.total; save.stats.interDone = (save.stats.interDone || 0) + 1; track('inter', { kind: it.kind, score: it.score, hit });
   if (it.total) addText(G.px, G.py - curR() - 26, `+${it.total} sap`, d.col); SFX.go(); store();
 }
@@ -2590,7 +2590,7 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.9.2', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.9.3', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
   openToday, openMenu, openFruit, openHelp, markSeen, markFresh, powerScale, powerInfo, liftFor, unlockable, INTER, spawnSeekers, addZone, zoneSlow, shrinkStage, fruitJitter, drawForkWarning,

@@ -199,7 +199,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <p class="small">Elk fruit heeft een eigen eigenschap. Tik een kaartje voor de uitleg en dan op Kies. Vergrendeld fruit koop je met sap; speeltijd maakt een fruit sterker (niveau 5) en goud (niveau 10).</p>
       <div class="detail">
         <canvas id="detail-icon" width="152" height="152"></canvas>
-        <div class="detail-txt"><div class="nm" id="detail-name"></div><div class="tr" id="detail-trait"></div><div class="eur" id="detail-xp"></div><div class="eur" id="detail-price"></div><button class="btn" id="btn-choose">Kies</button></div>
+        <div class="detail-txt"><div class="nm" id="detail-name"></div><div class="tr" id="detail-trait"></div><div class="eur" id="detail-xp"></div><div class="eur" id="detail-price"></div><button class="btn" id="btn-choose">Kies</button><button class="btn" id="btn-keep" hidden>Houden</button></div>
       </div>
       <div class="grid" id="fruit-list"></div>
       <button class="btn ghost" id="btn-fruit-back">Terug naar het menu</button>
@@ -2183,7 +2183,9 @@ function buildFruitGrid() {
   $('#detail-price').textContent = own && !save.owned.includes(menuSel) && !HOOK.testAll ? `Fruit van de maand: gratis te spelen zolang je Plus hebt (nog tot ${fmtDate(save.plus.until)}).` : own ? (f.price ? `Ontgrendeld (${f.price} sap).` : 'Gratis startfruit.') : (save.sap < f.price ? `Kost ${f.price} sap, je hebt er ${save.sap}. Later ook ${f.eur}.` : `Kost ${f.price} sap. Later ook ${f.eur}.`);
   const b = $('#btn-choose'); b.className = 'btn' + (own && save.fruit === menuSel ? ' primary' : '');
   b.textContent = own ? (save.fruit === menuSel ? 'Gekozen' : 'Kies') : `Koop · ${f.price} sap`; b.disabled = !own && save.sap < f.price;
+  const keep = $('#btn-keep'), loan = own && !save.owned.includes(menuSel) && !HOOK.testAll; keep.hidden = !loan; keep.textContent = `Houden · ${f.price} sap`; keep.disabled = save.sap < f.price; // the Plus month fruit can be bought to keep
 }
+$('#btn-keep').addEventListener('click', () => { const f = FRUITS[menuSel]; if (save.sap < f.price || save.owned.includes(menuSel)) return; SFX.collect(); save.sap -= f.price; save.owned.push(menuSel); store(); buildFruitGrid(); });
 $('#btn-choose').addEventListener('click', () => {
   const f = FRUITS[menuSel]; SFX.click(); let ok = false;
   if (owned(menuSel)) { save.fruit = menuSel; ok = true; }
@@ -2739,7 +2741,7 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.11.1', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.11.2', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
   appIcon(size, pad, bg) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); if (bg) { const g = x.createLinearGradient(0, 0, size, size); g.addColorStop(0, '#5a3a1e'); g.addColorStop(1, '#2a1708'); x.fillStyle = g; x.beginPath(); x.roundRect(0, 0, size, size, size * .22); x.fill(); } const f = document.createElement('canvas'); f.width = f.height = size; renderIcon(f.getContext('2d'), 'appel', size / 2, false, { look: [0, .2] }); const inner = size * (1 - 2 * pad); x.drawImage(f, size * pad, size * pad + size * .02, inner, inner); return c.toDataURL('image/png'); },

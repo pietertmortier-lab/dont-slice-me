@@ -47,3 +47,8 @@ from there by hand, so the version label in the menu tells you which build you a
 ## Nieuw in v0.11
 
 - Fruitvlucht Plus als simulatie: 7 dagen gratis proberen, daarna maand of jaar. Geen reclame, hartjes groeien dubbel zo snel en één extra, Fruitpas premium elk seizoen, elke dag 2 munten en een Startboost, Dagdeal voor een derde, elke maand een fruit gratis te spelen, gouden koksmuts en de bordskin Plus-marmer. Opzeggen kan altijd; je houdt het hoedje en de skin.
+
+## Nieuw in v0.11.1 en v0.11.2
+
+- Installeerbaar als app: zet de link op je beginscherm (iPhone: Delen, Zet op beginscherm · Android: menu, App installeren). Eigen icoon, volledig scherm, speelt ook offline.
+- Tips op het eindscherm voor je eerste potjes; zwevende tekstjes stapelen in plaats van over elkaar te vallen; het fruit van de maand (Plus) heeft een knop "Houden" om het definitief te kopen.

@@ -7,7 +7,7 @@ wat vastloopt.
 
 ## Eenmalig op de PC
 
-1. Installeer Node 20+, Android Studio (met SDK 35) en Java 17.
+1. Installeer de LTS-versie van Node (24 of nieuwer), Android Studio (met SDK 35) en Java 17.
 2. In deze map: `npm install`.
 3. `npm run www` kopieert `../index.html`, `../sw.js`, `../manifest.webmanifest`, `../icons` en `../music` naar
    `www/` en voegt `bridge.js` toe (dat is de brug naar AdMob en RevenueCat).

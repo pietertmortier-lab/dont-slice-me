@@ -86,7 +86,8 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 
 ## 3. Op je pc: de Android-app bouwen (een middag)
 
-1. Installeer Android Studio (https://developer.android.com/studio), Java 17 en Node 20 (https://nodejs.org).
+1. Installeer Android Studio (https://developer.android.com/studio), Java 17 en de LTS-versie van Node (24 of nieuwer;
+   https://nodejs.org, de knop "LTS"). De 20-reeks is sinds april 2026 niet meer onderhouden.
 2. Haal de repository binnen (`git clone https://github.com/pietertmortier-lab/dont-slice-me`) en open de map
    `native` in een terminal.
 3. `npm install`, dan `npm run www`, dan `npx cap add android`, dan `npx cap open android`. De pakketnaam
@@ -155,7 +156,8 @@ ladders komt er een kleine server. De code staat klaar in `native/tourney/` (Clo
 1. Firebase-project "dont-slice-me" met de web-app uit fase 2 punt 4; de `firebaseConfig` staat in `native/bridge.js`.
 2. *Build > Authentication > Get started > Sign-in method*: zet **Anoniem** aan.
 3. *Build > Firestore Database > Create database*: locatie **europe-west1**, **productiemodus**.
-4. Installeer op je pc Node 20 en de Firebase CLI (`npm install -g firebase-tools`), log in met `firebase login`.
+4. Installeer op je pc de LTS-versie van Node (24 of nieuwer) en de Firebase CLI (`npm install -g firebase-tools`), log in
+   met `firebase login`. De server zelf draait op de Node 22-runtime van Firebase (staat in `native/tourney/package.json`).
 5. In de map `native/tourney`: `npm install`, dan `firebase use --add` (kies je project) en
    `firebase deploy --only functions,firestore:rules`.
 6. Kopieer de URL van de functie `tourney` uit de uitvoer en zet ze in `native/bridge.js` bij `FV_TOURNEY_URL`. Vanaf

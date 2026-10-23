@@ -57,6 +57,16 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.19: ronde 4 (levels 100 tot 140) en het fruit springt over je vinger
+
+- Het fruit glijdt niet meer door je vinger heen: het springt in één keer van boven naar onder je vinger (en terug), met een kleine marge zodat het niet flappert.
+- Nieuwe lagen over de keukens: Kaarslicht (vanaf level 91) en Feestkeuken (vanaf 121).
+- Nieuwe bonusvoorwerpen: Houten lepel (105), Schaduwfruit (115), Goudvork (125).
+- Nieuwe gevaren: de knallende kurk (110), het lekkende vergiet (120), de handmixer (130) en de spatpan (140).
+- Nieuw fruit: Stervrucht (vanaf 110) en Passievrucht (vanaf 130).
+- Nieuwe keukenvoordelen: Honingvingers en Feestneus. Nieuw tussenspel: Confettiregen (vanaf 140).
+- Testparcours ronde 4 in Hulp: start op level 100 en spring door naar elk nieuw onderdeel.
+
 ## Nieuw in v0.18.2: muziek volgt weer de keuken, knoppen bovenaan, grotere beloningen
 
 - De muziek wisselt weer mee met de keuken, ook in het testparcours (de sprong 80 > 85 hield de Bamboe-track vast). Een track wordt niet meer definitief opgegeven na een onderbroken start.

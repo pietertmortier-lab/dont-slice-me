@@ -57,6 +57,10 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.26.1: een gehaald level staat meteen vast
+
+- Tot nu toe werd je hoogste level pas weggeschreven als een poging afgelopen was. Wie het spel midden in een poging sloot, viel terug op het laatste afgeronde level. Nu wordt elk nieuw level in een gewone poging meteen bewaard, ook als je het spel daarna wegveegt. Mes van de dag en het testparcours tellen zoals voorheen niet mee.
+
 ## Nieuw in v0.26: je voortgang hoort bij jou
 
 - **Nooit meer terugvallen**: elke opslag krijgt een volgnummer. Een browsertabblad dat achterloopt voegt eerst de nieuwere voortgang samen (hoogste level, record, ontgrendeld fruit, stempels) en overschrijft ze niet meer.

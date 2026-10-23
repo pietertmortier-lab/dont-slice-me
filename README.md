@@ -57,6 +57,15 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.18.2: muziek volgt weer de keuken, knoppen bovenaan, grotere beloningen
+
+- De muziek wisselt weer mee met de keuken, ook in het testparcours (de sprong 80 > 85 hield de Bamboe-track vast). Een track wordt niet meer definitief opgegeven na een onderbroken start.
+- Home-knop en vlagje staan nu bovenaan naast je sap. Het vlagje toont de huidige taal; in het taalmenu houdt Nederlands de Nederlandse vlag.
+- Het bord vult het scherm weer volledig, ook als de browser zijn adresbalk verbergt.
+- Beloningen zijn tien keer groter: rad 100/200/300/500, opdrachten 100 en 200, dagreeks 100 tot 500, dagdoelen 250 per stuk + 500, weekendprijs +200, Fruitkaart-rijen 200 + 20 per level.
+- Citroen: na de zure treffer is elk nieuw klontje 12 seconden lang goud.
+- Mes van de dag: meer dan dubbel zoveel klontjes, zes op het bord, messen komen 20% sneller.
+
 ## Nieuw in v0.18: Engels en Nederlands, home-knop en vlagje
 
 - Het spel start in het Engels, behalve op een toestel in het Nederlands of in België of Nederland: dan in het Nederlands. Met het vlagje (in het spel en onderaan het menu) wissel je altijd. De lange teksten in winkel, Vandaag en Hulp zijn in de Engelse versie nog deels Nederlands; dat groeit per versie.

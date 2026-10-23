@@ -57,6 +57,12 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.27: alle fruit kijkt stoned
+
+- Elk fruit heeft nu een subtiele "stoned"-blik: lichte roze oogleden over de bovenste helft van de ogen (links iets lager), roze doorbloed oogwit met vier fijne adertjes en een lichte wal eronder, een blik die licht naar buiten drijft, een lichte blos, iets ongelijke wenkbrauwen en een licht scheve grijns. Geen tong (alleen de aardbei houdt de hare) en geen kwijl. De eigen kenmerken blijven: snor, zonnebril, monocle, kroon.
+- Bang (als het mes nadert) en gesneden blijven zoals ze waren. Geen rook of andere drugsverwijzingen, dus de leeftijdsclassificatie verandert niet.
+- De winkelbeelden en promovideo's zijn opnieuw gemaakt met de nieuwe gezichten.
+
 ## Nieuw in v0.26.1: een gehaald level staat meteen vast
 
 - Tot nu toe werd je hoogste level pas weggeschreven als een poging afgelopen was. Wie het spel midden in een poging sloot, viel terug op het laatste afgeronde level. Nu wordt elk nieuw level in een gewone poging meteen bewaard, ook als je het spel daarna wegveegt. Mes van de dag en het testparcours tellen zoals voorheen niet mee.

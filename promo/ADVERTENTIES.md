@@ -2,7 +2,7 @@
 
 ## Promovideo (30 s, staand 1080 x 1920, NL en EN)
 
-Laatst gerenderd met v0.24.0 (23 oktober 2026, nieuwe naam); de schermafbeeldingen in `screens/` en de feature graphics zijn van dezelfde versie.
+Laatst gerenderd met v0.27.0 (23 oktober 2026, nieuwe gezichten); de schermafbeeldingen in `screens/` en de feature graphics zijn van dezelfde versie.
 
 Bestanden: `dont-slice-me-promo-30s-nl.mp4` en `dont-slice-me-promo-30s-en.mp4`, gerenderd uit het spel zelf
 (beeld voor beeld, 30 per seconde) met de menumuziek eronder. Gebruik per winkelvermelding de taalversie:

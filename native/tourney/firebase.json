@@ -1,4 +1,4 @@
 {
-  "functions": [{ "source": ".", "codebase": "tourney", "runtime": "nodejs20" }],
+  "functions": [{ "source": ".", "codebase": "tourney", "runtime": "nodejs22" }],
   "firestore": { "rules": "firestore.rules" }
 }

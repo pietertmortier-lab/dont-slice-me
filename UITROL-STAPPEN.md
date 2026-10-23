@@ -27,7 +27,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 |--------|--------|-------------|
 | Google Play Console | account aangevraagd, identiteitsverificatie loopt (23 oktober) | app aanmaken, winkelvermelding, producten, interne test |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus` / `noads` / `pass`, producten `noads` en `pass` | credentials JSON uit de Play Console, *Import products*, `plus_month` en `plus_year` aan `plus` koppelen |
-| Firebase | project `dont-slice-me`, web-app (config in `bridge.js`), Authentication Anonymous, Firestore europe-west1, Firebase CLI ingelogd op de pc, Firestore-regels uitgerold (23 oktober) | Blaze-plan, `firebase deploy --only functions` in `native/tourney`, URL in `FV_TOURNEY_URL` |
+| Firebase | project `dont-slice-me`, web-app (config in `bridge.js`), Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels en functies uitgerold (23 oktober), URL in `FV_TOURNEY_URL` | eenmalig opnieuw deployen op de Node 22-runtime (`git pull`, dan `firebase deploy --only functions`), voor 30 oktober 2026 |
 | AdMob | nog niets | app en twee advertentieblokken aanmaken, ID's in manifest en `bridge.js` |
 
 ## 1. Vandaag: de webversie openzetten voor je testpubliek
@@ -160,8 +160,10 @@ ladders komt er een kleine server. De code staat klaar in `native/tourney/` (Clo
    met `firebase login`. De server zelf draait op de Node 22-runtime van Firebase (staat in `native/tourney/package.json`).
 5. In de map `native/tourney`: `npm install`, dan `firebase use --add` (kies je project) en
    `firebase deploy --only functions,firestore:rules`.
-6. Kopieer de URL van de functie `tourney` uit de uitvoer en zet ze in `native/bridge.js` bij `FV_TOURNEY_URL`. Vanaf
-   dan praat de app met de server; de webversie blijft op de simulatie. Cloud Functions vragen het Blaze-plan (betalen
+6. De URL van de functie `tourney` staat sinds 23 oktober 2026 in `native/bridge.js` bij `FV_TOURNEY_URL`. Vanaf de
+   eerstvolgende app-build praat de app met de server; de webversie blijft op de simulatie. Werkt de server? Open de URL
+   in een browser: het antwoord `{"error":"auth"}` betekent dat ze draait (zonder aanmelding weigert ze, zoals het hoort).
+7. Bij elke latere wijziging aan `native/tourney`: in die map `git pull` en opnieuw `firebase deploy --only functions`. Cloud Functions vragen het Blaze-plan (betalen
    naar gebruik, met een gratis maandelijkse marge); zonder dat plan weigert `firebase deploy` de functies.
 
 Kosten: bij 10.000 spelers een paar euro per maand (Spark/Blaze-plan). De server controleert elke score op
@@ -193,7 +195,7 @@ plausibiliteit en rekent zondag 23 u de week af.
 | Firebase web-config (`firebaseConfig`) | Firebase-console > Project settings > Your apps > web-app | **Ingevuld op 23 oktober 2026** in `native/bridge.js` (`FIREBASE_CONFIG`). Publieke client-configuratie; de gegevens worden beschermd door de Firestore-regels. |
 | Keystore (handtekening van de app) | maak je in Android Studio (fase 3 punt 7) | **Niet in de repository.** Bewaar het `.jks`-bestand en de twee wachtwoorden op twee plaatsen buiten GitHub (bijvoorbeeld je NAS en een wachtwoordmanager). |
 | Product-ID's en prijzen | `index.html` onder `PRODUCTS`; de lijst in fase 4 punt 4 | Play Console > *Monetisatie* > *Producten* > *In-app-producten* (eenmalige producten) en > *Abonnementen* (`plus_month`, `plus_year`). Daarna dezelfde ID's in RevenueCat > *Products* en *Entitlements*. |
-| Toernooiserver-URL | fase 6 geeft ze; `native/bridge.js`, regel `const FV_TOURNEY_URL = ''` | Vul de URL van de functie `tourney` in. |
+| Toernooiserver-URL | `native/bridge.js`, `FV_TOURNEY_URL` | **Ingevuld op 23 oktober 2026**: https://europe-west1-dont-slice-me.cloudfunctions.net/tourney |
 | Play Store-link van de app | bestaat pas na de eerste release | Stuur ze naar mij: ik zet ze in `index.html` bij `STORE_URL` (deelknop) en in `README.md`. Zet ze ook in de beschrijving van je YouTube-video's en je socialemediaprofielen. |
 | Testers | fase 1: je WhatsApp-groep of formulier | Play Console > *Testen* > *Interne test* > *Testers*: een lijst e-mailadressen (Google-accounts). Voor de gesloten test: dezelfde lijst, minstens 20 adressen. |
 | Webtestlink | https://pietertmortier-lab.github.io/dont-slice-me/ | Rechtstreeks delen; staat ook bovenaan `README.md`. |

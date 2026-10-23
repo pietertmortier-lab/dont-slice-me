@@ -34,7 +34,7 @@
 // ---- Keukentoernooi: the game calls window.FV_TOURNEY.submit({ week, ev, score, division }) after every round and
 // FV_TOURNEY.fork({ n }) in the hunt. Without FV_TOURNEY_URL (or without Firebase in this shell) the game keeps its
 // simulated division. Set FV_TOURNEY_URL to the URL of the deployed "tourney" function (native/tourney/README.md).
-const FV_TOURNEY_URL = '';
+const FV_TOURNEY_URL = 'https://europe-west1-dont-slice-me.cloudfunctions.net/tourney';
 // Paste the "firebaseConfig" object of the Firebase *web* app here (Firebase console > Project settings > Your apps >
 // Web app). It is public client configuration; the data is protected by the Firestore rules, not by this object.
 const FIREBASE_CONFIG = { apiKey: 'AIzaSyD-cpn_f2Jj_XCch_pBpnHTqxRfbLjQZTM', authDomain: 'dont-slice-me.firebaseapp.com', projectId: 'dont-slice-me', storageBucket: 'dont-slice-me.firebasestorage.app', messagingSenderId: '599236386226', appId: '1:599236386226:web:94239b28b31cb18ed218ab' };

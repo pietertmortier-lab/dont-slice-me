@@ -57,6 +57,14 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.14
+
+- Sap heeft weer nut. Beter fruit kost veel meer (van 60 sap voor de druif tot 14.000 voor de drakenvrucht), hoedjes en hulpmiddelen ook. Een extra leven kost overal 3.000 sap: doorgaan na een snee, of een hartje bijkopen; 5 hartjes 12.000. Nieuw: een extra hartjesplek voor altijd (10.000, een tweede voor 25.000).
+- Zonder hartjes kun je niet verder: wachten (20 minuten per hartje), een filmpje kijken of bijkopen met sap of geld. Kopen toont de pop-up en je kiest zelf wanneer je speelt.
+- De blender zuigt nu echt: binnen de golven word je aangetrokken, dicht bij de messen hard; met een flinke veeg naar buiten ontsnap je aan de rand.
+- Beter fruit loont: elke trede hoger op de fruitladder geeft +10% sap aan het einde van elke poging (kiwi +50%, drakenvrucht +160%) en 1,5% rustigere messen, bovenop de eigen eigenschap. Het staat op de fruitkaart en op het eindscherm.
+- Nieuwe keukengevaren: pepermolen vanaf level 60 (in de wolk nies je alle kanten op), garde vanaf 70 (twee draaiende armen) en ijsblokjes vanaf 80 (glad, je glijdt door).
+
 ## Nieuw in v0.13.1
 
 - De zeven muzieknummers van Pieter staan erin en spelen per keukenblad; muziek staat nu standaard aan (uitzetten kan onderaan het menu). Het volgende nummer laadt alvast op de achtergrond, zodat een nieuwe keuken zonder stilte overvloeit.

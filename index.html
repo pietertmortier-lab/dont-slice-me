@@ -190,7 +190,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <button class="pickrow" id="btn-fruit" type="button" title="Kies een ander fruit"><canvas id="pick-icon" width="80" height="80"></canvas><span class="pn"><small>Je speelt als</small><b id="pick-name">Appel</b><small id="pick-sub">Tik om van fruit te wisselen.</small></span><span class="chev">›</span><span class="badge-n" id="fruit-badge" hidden>!</span></button>
       <div class="lvpick" id="lvpick" hidden><span>Volgende poging vanaf level</span><button class="linkbtn" id="lv-minus" aria-label="Lager level">−</button><b id="lv-cur">1</b><button class="linkbtn" id="lv-plus" aria-label="Hoger level">+</button><button class="linkbtn" id="lv-max">hoogste</button><span class="lvhint">Geldt voor één poging: lager starten is rustiger en levert stempels op de Fruitkaart op. Daarna ga je weer verder vanaf je hoogste level, met elk fruit.</span></div>
       <div class="tiles" id="tiles"></div>
-      <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><button class="linkbtn" id="btn-music">Muziek: aan</button><span id="ver">Prototype v0.13 · geen echte aankopen</span></div>
+      <div class="menu-foot"><button class="linkbtn" id="btn-sound">Geluid: aan</button><button class="linkbtn" id="btn-music">Muziek: aan</button><span id="ver">Prototype v0.14 · geen echte aankopen</span></div>
     </div>
   </section>
 
@@ -243,7 +243,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <p class="small" id="cont-text"></p>
       <div class="bar"><i id="cont-bar"></i></div>
       <p class="small" id="cont-info">Doorgaan waar je was?</p>
-      <div class="row"><button class="btn primary" id="btn-cont-ad">Filmpje (gratis)</button><button class="btn" id="btn-cont-sap">20 sap</button></div>
+      <div class="row"><button class="btn primary" id="btn-cont-ad">Filmpje (gratis)</button><button class="btn" id="btn-cont-sap">Extra leven · 3.000 sap</button></div>
       <p class="small" id="cont-sap-have"></p>
       <button class="btn ghost" id="btn-cont-no">Nee, stop hier</button>
     </div>
@@ -295,9 +295,11 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
       <div class="hearts big" id="hearts-row"></div>
       <p class="small" id="hearts-timer"></p>
       <p class="small" id="hearts-rules"></p>
-      <div class="row"><button class="btn primary" id="btn-heart-ad">Filmpje: +1 hartje (gratis)</button></div>
-      <div class="row"><button class="btn" id="btn-heart-sap">5 hartjes · 30 sap</button><button class="btn" id="btn-heart-eur">5 hartjes · €0,99</button></div>
-      <button class="btn ghost" id="btn-heart-unl">Onbeperkt 24 uur · €1,99</button>
+      <div class="row"><button class="btn primary" id="btn-heart-play" hidden>Spelen</button><button class="btn primary" id="btn-heart-ad">Filmpje: +1 hartje (gratis)</button></div>
+      <div class="row"><button class="btn" id="btn-heart-one">+1 hartje · 3.000 sap</button><button class="btn" id="btn-heart-sap">5 hartjes · 12.000 sap</button></div>
+      <div class="row"><button class="btn" id="btn-heart-eur">5 hartjes · €0,99</button><button class="btn ghost" id="btn-heart-unl">Onbeperkt 24 uur · €1,99</button></div>
+      <button class="btn ghost" id="btn-heart-slot">Extra hartjesplek · 10.000 sap</button>
+      <p class="small" id="hearts-slot-info"></p>
       <p class="small" id="hearts-sim"></p>
       <button class="btn ghost" id="btn-heart-back">Terug naar het menu</button>
     </div>
@@ -375,22 +377,22 @@ const comboMult = c => c >= 10 ? 3 : c >= 6 ? 2 : c >= 3 ? 1.5 : 1;
 // armorEase), nearSap, rotates+layout, segments, pit, splits+splitEase, aimJitter, sapMult.
 const FRUITS = {
   appel:        { name: 'Appel',        r: 18, ease: 16, price: 0,   eur: '',      trait: 'Evenwichtig. Klontjes rollen naar je toe. Na 15 klontjes mag je één hap missen: je overleeft een snee.', magnet: 60, bite: true, juice: ['#ff6a4a', '#ffe3b0', '#c42a1c'], stain: 'rgba(255,90,60,.5)' },
-  druif:        { name: 'Druif',        r: 12, ease: 26, price: 40,  eur: '€0,99', trait: 'Klein en snel. Na elke "Net niet!" sprint je weg en laat je een plakkerig spoor achter waar messen trager door gaan.', sprint: true, trailZone: true, juice: ['#8a4bd6', '#c89cff', '#5a2a9a'], stain: 'rgba(120,60,200,.5)' },
-  aardbei:      { name: 'Aardbei',      r: 16, ease: 18, price: 60,  eur: '€0,99', trait: 'Zoet. Lokt veel meer klontjes, en om de 10 klontjes plant hij een zaadje dat in 5 s een gouden klontje wordt.', cubeRate: .55, cubeCap: 5, seeds: true, juice: ['#ff3b5c', '#ffd6dc', '#b0102c'], stain: 'rgba(255,60,90,.5)' },
-  kersen:       { name: 'Kersen',       r: 10, ease: 20, price: 85,  eur: '€0,99', trait: 'Twee kersen aan één steel. Verlies er één en de andere schiet 2 s weg.', cherries: true, rageSprint: true, juice: ['#e8243c', '#ffd0d6', '#8f0f22'], stain: 'rgba(220,30,60,.5)' },
-  citroen:      { name: 'Citroen',      r: 17, ease: 17, price: 115, eur: '€1,49', trait: 'Zuur. Overleeft één snee, spuit dan alle messen weg en maakt alle klontjes op de plank goud.', armor: 1, armorWipe: true, armorInv: 1300, goldWipe: true, juice: ['#ffe94a', '#fffbd0', '#d9b800'], stain: 'rgba(255,230,80,.5)' },
-  kiwi:         { name: 'Kiwi',         r: 15, ease: 19, price: 150, eur: '€1,49', trait: 'Harig en brutaal. Elke "Net niet!" is 1 sap en laat haar achter op het mes: messen 15% trager, tot drie keer, tot het volgende level.', nearSap: 1, hairy: true, juice: ['#8cc63f', '#d8f0a0', '#5a7a1a'], stain: 'rgba(140,200,60,.5)' },
-  banaan:       { name: 'Banaan',       r: 26, ease: 15, price: 190, eur: '€1,49', trait: 'Lang en tolt rond. Om de 20 s laat hij een schil vallen waar messen 12 s lang over uitglijden.', rotates: true, peel: true, layout: [[-.68, .08, .42], [0, -.22, .42], [.68, .08, .42]], juice: ['#ffd33d', '#fff4b0', '#c9a000'], stain: 'rgba(255,215,70,.5)' },
-  kokosnoot:    { name: 'Kokosnoot',    r: 20, ease: 12, price: 235, eur: '€1,99', trait: 'Overleeft één snee. De kraak spuit kokosmelk: 4 s lang glijden alle klontjes naar je toe.', armor: 1, armorInv: 2000, armorEase: 5, milk: true, juice: ['#fff8ee', '#e8d5bd', '#9a6a44'], stain: 'rgba(255,245,230,.45)' },
-  sinaasappel:  { name: 'Sinaasappel',  r: 20, ease: 14, price: 285, eur: '€1,99', trait: 'Drie partjes. Elk verloren partje vliegt 3 s rond en pakt klontjes voor je; jij wordt kleiner en sneller.', segments: 3, segSeeker: true, juice: ['#ff9a1f', '#ffe0a8', '#d96a00'], stain: 'rgba(255,150,30,.5)' },
-  pruim:        { name: 'Pruim',        r: 17, ease: 18, price: 310, eur: '€1,99', trait: 'Krimpt elke 20 s een stukje. Na een minuut ben je een rozijn: piepklein, en het mes mikt grof naast je.', shrink: true, juice: ['#7a3fb0', '#e0c6ff', '#3a1a60'], stain: 'rgba(120,60,180,.5)' },
-  avocado:      { name: 'Avocado',      r: 21, ease: 13, price: 340, eur: '€1,99', trait: 'Gesneden? Dan speel je verder als de pit: piepklein en razendsnel.', pit: true, juice: ['#9bc53d', '#f3ecc0', '#3b5b2a'], stain: 'rgba(150,190,60,.5)' },
-  watermeloen:  { name: 'Watermeloen',  r: 26, ease: 11, price: 400, eur: '€2,49', trait: 'Groot. Na één snee stuur je twee helften. Om de 15 s spuwt hij een pit die een aangekondigd mes 1 s ophoudt.', splits: true, spit: true, splitEase: 16, juice: ['#ff4d5e', '#ffd0d0', '#2f8f3a'], stain: 'rgba(255,70,90,.5)' },
-  ananas:       { name: 'Ananas',       r: 27, ease: 9,  price: 465, eur: '€2,49', trait: 'Harde schil: overleeft twee sneden, en de kroon groeit elke 30 s een schil terug. Groot en traag.', armor: 2, armorInv: 1100, regrow: true, juice: ['#ffd95a', '#fff3c0', '#b08a1a'], stain: 'rgba(255,215,90,.5)' },
-  mandarijn:    { name: 'Mandarijn',    r: 16, ease: 19, price: 500, eur: '€2,49', trait: 'Laat om de 20 s zijn schil vallen als lokaas: het mes mikt 3 s op de schil en niet op jou.', decoy: true, juice: ['#ff9a1f', '#ffe0a8', '#c85e00'], stain: 'rgba(255,150,30,.5)' },
-  durian:       { name: 'Durian',       r: 24, ease: 11, price: 535, eur: '€2,99', trait: 'Stinkt zo erg dat het mes slecht mikt. Elke "Net niet!" laat 6 s een stankwolk achter waar messen trager in zijn.', aimJitter: 34, stink: true, juice: ['#f0e8a0', '#fff8d8', '#8a8a3a'], stain: 'rgba(230,225,150,.5)' },
-  granaatappel: { name: 'Granaatappel', r: 19, ease: 16, price: 570, eur: '€2,99', trait: 'Gesneden? Dan spat hij uiteen in pitten die naar alle hoeken schieten en klontjes opslurpen; jij speelt kleiner verder.', armor: 1, armorInv: 2600, burst: true, juice: ['#c81e3c', '#ffb3c0', '#6e0b1e'], stain: 'rgba(200,30,60,.5)' },
-  drakenvrucht: { name: 'Drakenvrucht', r: 19, ease: 17, price: 610, eur: '€2,99', trait: 'Legendarisch. Alle sap telt dubbel, en om de 25 klontjes spuw je vuur dat de volgende twee messen verbrandt.', sapMult: 2, fire: true, juice: ['#ff3f8f', '#ffffff', '#2fae5a'], stain: 'rgba(255,70,140,.5)' },
+  druif:        { name: 'Druif',        r: 12, ease: 26, price: 60,  eur: '€0,99', trait: 'Klein en snel. Na elke "Net niet!" sprint je weg en laat je een plakkerig spoor achter waar messen trager door gaan.', sprint: true, trailZone: true, juice: ['#8a4bd6', '#c89cff', '#5a2a9a'], stain: 'rgba(120,60,200,.5)' },
+  aardbei:      { name: 'Aardbei',      r: 16, ease: 18, price: 150,  eur: '€0,99', trait: 'Zoet. Lokt veel meer klontjes, en om de 10 klontjes plant hij een zaadje dat in 5 s een gouden klontje wordt.', cubeRate: .55, cubeCap: 5, seeds: true, juice: ['#ff3b5c', '#ffd6dc', '#b0102c'], stain: 'rgba(255,60,90,.5)' },
+  kersen:       { name: 'Kersen',       r: 10, ease: 20, price: 300,  eur: '€0,99', trait: 'Twee kersen aan één steel. Verlies er één en de andere schiet 2 s weg.', cherries: true, rageSprint: true, juice: ['#e8243c', '#ffd0d6', '#8f0f22'], stain: 'rgba(220,30,60,.5)' },
+  citroen:      { name: 'Citroen',      r: 17, ease: 17, price: 500, eur: '€1,49', trait: 'Zuur. Overleeft één snee, spuit dan alle messen weg en maakt alle klontjes op de plank goud.', armor: 1, armorWipe: true, armorInv: 1300, goldWipe: true, juice: ['#ffe94a', '#fffbd0', '#d9b800'], stain: 'rgba(255,230,80,.5)' },
+  kiwi:         { name: 'Kiwi',         r: 15, ease: 19, price: 800, eur: '€1,49', trait: 'Harig en brutaal. Elke "Net niet!" is 1 sap en laat haar achter op het mes: messen 15% trager, tot drie keer, tot het volgende level.', nearSap: 1, hairy: true, juice: ['#8cc63f', '#d8f0a0', '#5a7a1a'], stain: 'rgba(140,200,60,.5)' },
+  banaan:       { name: 'Banaan',       r: 26, ease: 15, price: 1200, eur: '€1,49', trait: 'Lang en tolt rond. Om de 20 s laat hij een schil vallen waar messen 12 s lang over uitglijden.', rotates: true, peel: true, layout: [[-.68, .08, .42], [0, -.22, .42], [.68, .08, .42]], juice: ['#ffd33d', '#fff4b0', '#c9a000'], stain: 'rgba(255,215,70,.5)' },
+  kokosnoot:    { name: 'Kokosnoot',    r: 20, ease: 12, price: 1700, eur: '€1,99', trait: 'Overleeft één snee. De kraak spuit kokosmelk: 4 s lang glijden alle klontjes naar je toe.', armor: 1, armorInv: 2000, armorEase: 5, milk: true, juice: ['#fff8ee', '#e8d5bd', '#9a6a44'], stain: 'rgba(255,245,230,.45)' },
+  sinaasappel:  { name: 'Sinaasappel',  r: 20, ease: 14, price: 2300, eur: '€1,99', trait: 'Drie partjes. Elk verloren partje vliegt 3 s rond en pakt klontjes voor je; jij wordt kleiner en sneller.', segments: 3, segSeeker: true, juice: ['#ff9a1f', '#ffe0a8', '#d96a00'], stain: 'rgba(255,150,30,.5)' },
+  pruim:        { name: 'Pruim',        r: 17, ease: 18, price: 3000, eur: '€1,99', trait: 'Krimpt elke 20 s een stukje. Na een minuut ben je een rozijn: piepklein, en het mes mikt grof naast je.', shrink: true, juice: ['#7a3fb0', '#e0c6ff', '#3a1a60'], stain: 'rgba(120,60,180,.5)' },
+  avocado:      { name: 'Avocado',      r: 21, ease: 13, price: 3800, eur: '€1,99', trait: 'Gesneden? Dan speel je verder als de pit: piepklein en razendsnel.', pit: true, juice: ['#9bc53d', '#f3ecc0', '#3b5b2a'], stain: 'rgba(150,190,60,.5)' },
+  watermeloen:  { name: 'Watermeloen',  r: 26, ease: 11, price: 4800, eur: '€2,49', trait: 'Groot. Na één snee stuur je twee helften. Om de 15 s spuwt hij een pit die een aangekondigd mes 1 s ophoudt.', splits: true, spit: true, splitEase: 16, juice: ['#ff4d5e', '#ffd0d0', '#2f8f3a'], stain: 'rgba(255,70,90,.5)' },
+  ananas:       { name: 'Ananas',       r: 27, ease: 9,  price: 6000, eur: '€2,49', trait: 'Harde schil: overleeft twee sneden, en de kroon groeit elke 30 s een schil terug. Groot en traag.', armor: 2, armorInv: 1100, regrow: true, juice: ['#ffd95a', '#fff3c0', '#b08a1a'], stain: 'rgba(255,215,90,.5)' },
+  mandarijn:    { name: 'Mandarijn',    r: 16, ease: 19, price: 7500, eur: '€2,49', trait: 'Laat om de 20 s zijn schil vallen als lokaas: het mes mikt 3 s op de schil en niet op jou.', decoy: true, juice: ['#ff9a1f', '#ffe0a8', '#c85e00'], stain: 'rgba(255,150,30,.5)' },
+  durian:       { name: 'Durian',       r: 24, ease: 11, price: 9000, eur: '€2,99', trait: 'Stinkt zo erg dat het mes slecht mikt. Elke "Net niet!" laat 6 s een stankwolk achter waar messen trager in zijn.', aimJitter: 34, stink: true, juice: ['#f0e8a0', '#fff8d8', '#8a8a3a'], stain: 'rgba(230,225,150,.5)' },
+  granaatappel: { name: 'Granaatappel', r: 19, ease: 16, price: 11000, eur: '€2,99', trait: 'Gesneden? Dan spat hij uiteen in pitten die naar alle hoeken schieten en klontjes opslurpen; jij speelt kleiner verder.', armor: 1, armorInv: 2600, burst: true, juice: ['#c81e3c', '#ffb3c0', '#6e0b1e'], stain: 'rgba(200,30,60,.5)' },
+  drakenvrucht: { name: 'Drakenvrucht', r: 19, ease: 17, price: 14000, eur: '€2,99', trait: 'Legendarisch. Alle sap telt dubbel, en om de 25 klontjes spuw je vuur dat de volgende twee messen verbrandt.', sapMult: 2, fire: true, juice: ['#ff3f8f', '#ffffff', '#2fae5a'], stain: 'rgba(255,70,140,.5)' },
 };
 const ORDER = Object.keys(FRUITS);
 // Where the face sits on each fruit (y offset and scale relative to r); the default is the centre.
@@ -413,7 +415,8 @@ const QUIRK = {
   durian: { brows: 'angry', teeth: true },
   drakenvrucht: { crown: true, eyes: 'wink' },
 };
-const CONTINUE_COST = 20, DYING_MS = 1150, SNAP_AT = 320, LIFT = 100;
+const CONTINUE_COST = 3000, // doorgaan after a cut is an extra life: a video or 3000 sap
+   DYING_MS = 1150, SNAP_AT = 320, LIFT = 100;
 // Levels: each level asks for a little more sap than the last (10, 15, 21, 28, 36, ...) and makes the knives
 // a little faster. The level you reach is kept, so the next run starts there.
 const levelGoal = n => 10 + 2 * (n - 1);
@@ -459,12 +462,13 @@ function powerInfo(k, n) {
 }
 // Lives: a run costs one heart; hearts grow back one per 20 minutes up to five. At zero the hearts screen
 // offers a rewarded ad (+1), a refill for sap or (simulated) money, or (simulated) unlimited hearts for a day.
-const MAX_HEARTS = 5, HEART_REGEN_MS = 20 * 60000, HEART_REFILL_SAP = 30;
+const MAX_HEARTS = 5, HEART_REGEN_MS = 20 * 60000, HEART_ONE_SAP = 3000, HEART_REFILL_SAP = 12000, HEART_SLOT_SAP = [10000, 25000]; // a heart is an extra life (3000 sap), five come with a discount; two permanent extra slots
+const fmtSap = n => n.toLocaleString('nl-BE');
 
 // ---- Save (per browser). Everything has a default so an older save keeps loading.
 const SAVE_KEY = 'fruitvlucht-save-v1';
 const SAVE_DEFAULTS = {
-  sap: 0, best: 0, bestBy: {}, owned: ['appel'], fruit: 'appel', sound: true, music3: true, runs: 0, cubes: 0, level: 1, hearts: 5, heartsAt: 0, unlimitedUntil: 0, simEur: 0,
+  sap: 0, best: 0, bestBy: {}, owned: ['appel'], fruit: 'appel', sound: true, music3: true, runs: 0, cubes: 0, level: 1, hearts: 5, heartsAt: 0, heartSlots: 0, unlimitedUntil: 0, simEur: 0,
   streak: 0, streakLast: '', streakClaimed: '', shields: 0, firstRunDay: '',
   missions: { day: '', list: [] }, daily: { day: '', played: false, best: 0 }, weekend: { week: '', cleared: false, best: 0, game: '' },
   unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
@@ -719,7 +723,7 @@ function perkKitchen() {
   return Math.floor((Math.max(save.level, inRun ? G.level : 0) - 1) / 5) + (save.perkKeys || 0); // + keys bought in the shop
 }
 const hasPerk = k => perkKitchen() >= k;
-const maxHearts = () => 5 + (hasPerk(6) ? 1 : 0) + (hasPerk(10) ? 1 : 0) + (plusActive() ? 1 : 0);
+const maxHearts = () => 5 + (save.heartSlots || 0) + (hasPerk(6) ? 1 : 0) + (hasPerk(10) ? 1 : 0) + (plusActive() ? 1 : 0);
 // ---- Fruitvlucht Plus (simulated subscription): one switch, many small advantages, nothing a free player
 // cannot also earn. 7-day trial once, then month or year; cancelling keeps the hat and the skin.
 const plusActive = () => nowMs() < (save.plus && save.plus.until || 0);
@@ -749,7 +753,7 @@ const G = {
   segLost: 0, lost: new Set(), inv: 0, sprint: 0, trail: [],
   slashes: [], cubes: [], parts: [], texts: [], stains: [], scars: [], debris: [], nextSlash: 0, nextCube: 0, bossBanner: 0, bossText: '', inter: null, interPending: null, dropExtra: 0, coach: null, solo: false, startBoost: '', seekers: [], zones: [], decoy: null, decoyT: 8000, magnetT: 0, kiwiStack: 0, fireCharges: 0, spitT: 15000, peelT: 20000, regrowT: 30000, biteGiven: false, burstDone: false, shrinkStage: 0,
   timeScale: 1, shake: 0, zoom: 1, flash: 0, dyingT: 0, death: null, snapped: false, snapshot: null, snapshotUrl: '', card: null, cardFile: null,
-  continueUsed: false, cubesRun: 0, sapRun: 0, bonusSap: 0, near: 0, slashCount: 0, scared: 0, lookX: 0, lookY: -1,
+  continueUsed: false, cubesRun: 0, sapRun: 0, bonusSap: 0, fruitBonus: 0, near: 0, slashCount: 0, scared: 0, lookX: 0, lookY: -1,
   level: 1, levelSap: 0, levelsGained: 0, levelBanner: 0, levelNote: '', levelT: 0, phase: 1, power: null, drop: null, dropAt: -1, slowmo: 0, themeFlash: 0,
   combo: 0, bestCombo: 0, nearStreak: 0, dayMult: 1, note: '', noteT: 0, mode: 'normal', seed: 0, hazards: [], nextHazard: 0, chefRun: 0, bonusRun: 0, modeT: 0, score: 0, wave: 0, wi: 0, wt: 0, cleared: false, bannerTitle: '',
   continues: 0, shellGiven: 0, perkBanner: 0, perkName: '', perkInfo: '',
@@ -833,6 +837,7 @@ function curEase() {
   if (G.split && f.splitEase) e = f.splitEase;
   if (G.sprint > 0) e *= 1.7;
   if (inRasp()) e *= .4;
+  if (onIce()) e *= .22; // on the ice the fruit barely answers the finger: it keeps sliding
   return e;
 }
 function setBodies() {
@@ -928,10 +933,15 @@ function updatePowers(dt) {
 
 // ---- Difficulty comes from the level and the time spent in it (PACE above), not from the run as a whole.
 // knives = how many blades a pattern may use right now: 1 early in a level, 2 after twoAt, 3 after threeAt.
+// Fruit tier bonus: the ladder itself is an upgrade. Each rank above the apple adds 10% sap at the end of a run and
+// makes the knives 1.5% calmer (longer warning, slower blade), on top of the fruit's own trait.
+const tierOf = k => Math.max(0, ORDER.indexOf(k));
+const fruitSapBonus = k => tierOf(k) * 10; // percent
+const fruitCalm = k => 1 + .015 * tierOf(k);
 function difficulty() {
-  const n = G.level, k = clamp(G.levelT / 60000, 0, 1);
+  const n = G.level, k = clamp(G.levelT / 60000, 0, 1), calm = fruitCalm(G.fruit);
   const chefDelay = hasPerk(11) ? 10000 : 0, ease = coached() ? 1.35 : 1; // the first two runs breathe slower
-  const d = { interval: PACE.interval(n) * ease * (1 - .2 * k), tele: PACE.tele(n) * ease * (1 - .12 * k) * (hasPerk(2) ? 1.1 : 1) * (1 + .15 * (G.kiwiStack || 0)), dur: PACE.dur(n) * (1 + .15 * (G.kiwiStack || 0)), level: n, levelT: G.levelT,
+  const d = { interval: PACE.interval(n) * ease * (1 - .2 * k), tele: PACE.tele(n) * ease * calm * (1 - .12 * k) * (hasPerk(2) ? 1.1 : 1) * (1 + .15 * (G.kiwiStack || 0)), dur: PACE.dur(n) * calm * (1 + .15 * (G.kiwiStack || 0)), level: n, levelT: G.levelT,
     knives: G.levelT >= PACE.threeAt(n) + chefDelay ? 3 : G.levelT >= PACE.twoAt(n) + chefDelay ? 2 : 1 };
   if (G.power && G.power.kind === 'stroop') { const sf = slowFactor(G.level); d.interval *= sf; d.tele *= sf; d.dur *= sf * 1.07; }
   return d;
@@ -1077,6 +1087,7 @@ function finishRun() {
   if (G.mode !== 'normal') { finishMode(false); return; }
   G.state = 'over';
   G.bonusSap = Math.floor(G.t / 10000) * Math.round((fruitDef().sapMult || 1) * boost('sapMult')) * (hasPerk(9) ? 2 : 1); save.sap += G.bonusSap;
+  G.fruitBonus = G.mode === 'normal' ? Math.floor(G.sapRun * fruitSapBonus(G.fruit) / 100) : 0; save.sap += G.fruitBonus; // the fruit's tier bonus, paid at the end so every cube still counts whole
   const r = recordRun(); openOver(r.nr, r.prevBest);
 }
 function doContinue() {
@@ -1089,9 +1100,9 @@ function openContinue() {
   G.state = 'continue'; contT = 7000;
   $('#cont-time').textContent = fmtTime(G.t);
   $('#cont-text').textContent = G.t > save.best ? `Nieuw record: ${fmtTime(G.t)}! Hoe ver kom je nog?` : `Je record is ${fmtTime(save.best)}. Je zat op ${fmtTime(G.t)}.`;
-  const sapBtn = $('#btn-cont-sap'); sapBtn.disabled = save.sap < CONTINUE_COST; sapBtn.textContent = `${CONTINUE_COST} sap`;
-  $('#cont-info').textContent = `Doorgaan kost geen hartje: je tijd, level en sap blijven staan en je begint 2 s beschermd in het midden. ${hasPerk(3) ? 'Met Tweede kans mag dit twee keer per poging' : 'Dit mag één keer per poging'}; dit is keer ${G.continues + 1}.`;
-  $('#cont-sap-have').textContent = save.sap < CONTINUE_COST ? `Je hebt ${save.sap} sap. Verzamel suikerklontjes voor meer.` : `Je hebt ${save.sap} sap.`;
+  const sapBtn = $('#btn-cont-sap'); sapBtn.disabled = save.sap < CONTINUE_COST; sapBtn.textContent = `Extra leven · ${fmtSap(CONTINUE_COST)} sap`;
+  $('#cont-info').textContent = `Doorgaan is een extra leven: een filmpje of ${fmtSap(CONTINUE_COST)} sap. Het kost geen hartje: je tijd, level en sap blijven staan en je begint 2 s beschermd in het midden. ${hasPerk(3) ? 'Met Tweede kans mag dit twee keer per poging' : 'Dit mag één keer per poging'}; dit is keer ${G.continues + 1}.`;
+  $('#cont-sap-have').textContent = save.sap < CONTINUE_COST ? `Je hebt ${fmtSap(save.sap)} sap, te weinig voor een extra leven. Het filmpje is gratis.` : `Je hebt ${fmtSap(save.sap)} sap.`;
   $('#cont-bar').style.width = '100%'; showScreen('scr-continue');
 }
 const CAPTIONS = ['Rust zacht, {n}.', 'Dat was {n}. Het mes won.', '{n} is nu fruitsalade.', 'Au. {n} zag het aankomen.', 'Een stukje {n}, iemand?'];
@@ -1101,7 +1112,7 @@ function openOver(nr, prevBest) {
   $('#over-title').textContent = 'Gesneden!'; $('#btn-retry').hidden = false; $('#btn-retry').textContent = 'Opnieuw'; $('#over-badge').textContent = 'Nieuw record';
   $('#over-time').textContent = fmtTime(G.t); $('#over-badge').hidden = !nr;
   $('#over-rec').textContent = nr ? (prevBest > 0 ? `Vorig record: ${fmtTime(prevBest)}` : 'Je eerste record!') : `Record: ${fmtTime(save.best)}. Je zat er ${fmtTime(save.best - G.t)} naast.`;
-  $('#over-cubes').textContent = `${G.cubesRun} suikerklontjes (+${G.sapRun} sap) · tijdbonus +${G.bonusSap} sap · ${G.near}× net niet`;
+  $('#over-cubes').textContent = `${G.cubesRun} suikerklontjes (+${G.sapRun} sap) · tijdbonus +${G.bonusSap} sap${G.fruitBonus ? ` · fruitbonus ${fruitDef().name} +${fruitSapBonus(G.fruit)}%: +${G.fruitBonus} sap` : ''} · ${G.near}× net niet`;
   $('#over-level').textContent = (G.levelsGained > 0 ? `Level ${G.level} bereikt (+${G.levelsGained}, ${G.levelsGained} stempel${G.levelsGained === 1 ? '' : 's'} met ${f.name}). ` : `Level ${G.level} · nog ${levelGoal(G.level) - G.levelSap} sap tot level ${G.level + 1}. `) + rowHint();
   $('#over-hearts').innerHTML = heartsHTML(); $('#over-heart-timer').textContent = heartsLine();
   const tip = $('#over-tip'); tip.hidden = save.runs > 3; tip.innerHTML = save.runs <= 1 ? '<b>Tip:</b> elk level dat je haalt geeft een stempel op je Fruitkaart. Open <b>Vandaag</b> voor het rad en je dagreeks.' : save.runs === 2 ? '<b>Tip:</b> met sap koop je nieuw fruit met eigen trucjes. Kijk bij <b>Fruit</b> wat je al kunt betalen.' : '<b>Tip:</b> om de vier levels komt een tussenspel; alles daarin pak je door erover te zweven.';
@@ -1298,9 +1309,12 @@ function openOverMode(prize, bestDay, died) {
 const HAZ = {
   vork:    { from: 10, tele: 1250, dur: 350,  name: 'De vork! Weg van de rode ring' },
   deegrol: { from: 20, tele: 1300, dur: 900,  name: 'De deegrol!' },
-  blender: { from: 30, tele: 1000, dur: 6000, name: 'De blender!' },
+  blender: { from: 30, tele: 1000, dur: 7000, name: 'De blender zuigt! Blijf uit de golven' },
   pan:     { from: 40, tele: 1000, dur: 7000, name: 'De hete pan!' },
   rasp:    { from: 50, tele: 800,  dur: 8000, name: 'De rasp!' },
+  peper:   { from: 60, tele: 1000, dur: 7000, name: 'De pepermolen! In de wolk moet je niezen' },
+  garde:   { from: 70, tele: 1200, dur: 7000, name: 'De garde! Blijf uit de draaicirkel' },
+  ijs:     { from: 80, tele: 900,  dur: 8000, name: 'IJsblokjes! Glad: je glijdt door' },
 };
 const noHit = () => G.state !== 'play' || G.inv > 0 || HOOK.god || (G.power && G.power.kind === 'schild');
 function spawnHazard() {
@@ -1309,9 +1323,10 @@ function spawnHazard() {
   if (kind === 'deegrol') { const s = lineThrough(G.px + rndR(-10, 10), G.py + rndR(-10, 10), R() * Math.PI, 0, { tele: h.tele, dur: h.dur }); s.wide = 30; return; }
   const z = { kind, t: 0, phase: 'tele', tele: h.tele, dur: h.dur, x: G.px, y: G.py, heat: 0, hit: false, fade: 500, r: 0 };
   if (kind === 'vork') { z.x += rndR(-6, 6); z.y += rndR(-6, 6); z.r = 12; z.tele = Math.round(Math.max(1200, 1800 - 15 * (G.level - 10))); G.noteT = 2600; SFX.alarm(); }
-  if (kind === 'blender') { z.x = rndR(80, W - 80); z.y = rndR(130, H - 90); z.r = 64; }
+  if (kind === 'blender') { z.r = 64; z.pull = 0; for (let i = 0; i < 12; i++) { z.x = rndR(80, W - 80); z.y = rndR(130, H - 90); if (Math.hypot(z.x - G.px, z.y - G.py) > 150) break; } } // lands outside the fruit; the waves do the rest
   if (kind === 'pan') { z.x = rndR(70, W - 70); z.y = rndR(130, H - 90); z.r = 58; }
   if (kind === 'rasp') { z.y = rndR(150, H - 100); z.h = 70; }
+  if (kind === 'peper' || kind === 'garde' || kind === 'ijs') { z.r = kind === 'ijs' ? 80 : 70; z.L = 115; z.a = R() * TAU; z.sneeze = 350; for (let i = 0; i < 12; i++) { z.x = rndR(90, W - 90); z.y = rndR(150, H - 100); if (Math.hypot(z.x - G.px, z.y - G.py) > (kind === 'garde' ? 170 : 130)) break; } }
   G.hazards.push(z);
 }
 const fakeSlash = (x, y) => ({ ux: 1, uy: 0, nx: 0, ny: 1, ax: x, ay: y });
@@ -1327,7 +1342,10 @@ function updateHazards(dt) {
     }
     if (z.kind === 'blender') {
       const dx = z.x - G.px, dy = z.y - G.py, d = Math.hypot(dx, dy) || 1;
-      if (d < z.r * 2.4) { const pull = 200 * (1 - d / (z.r * 2.4)); G.tx += dx / d * pull * dt / 1000; G.ty += dy / d * pull * dt / 1000; }
+      // Suction on the fruit itself (the finger resets the target every frame, so pulling only the target did nothing):
+      // weak at the rim of the waves, strong near the blades. A decisive swipe away still wins at the rim.
+      const R = z.r * 2.4; if (d < R) { const n = 1 - d / R, pull = Math.min(d, (40 + 440 * n * n) * dt / 1000); G.px += dx / d * pull; G.py += dy / d * pull; G.tx += dx / d * pull * .5; G.ty += dy / d * pull * .5; z.pull = n;
+        if (n > .25 && Math.random() < dt / 60) G.parts.push({ x: G.px + rnd(-12, 12), y: G.py + rnd(-12, 12), vx: dx / d * 140 + rnd(-30, 30), vy: dy / d * 140 + rnd(-30, 30), r: rnd(1.5, 3), col: 'rgba(200,220,255,.7)', t: 0, life: 400, g: 0 }); } else z.pull = 0;
       if (!noHit()) for (const b of G.bodies) if (Math.hypot(G.px + b.ox - z.x, G.py + b.oy - z.y) < 14 + b.r * .4) { onHit(fakeSlash(z.x, z.y), b, G.px + b.ox, G.py + b.oy); break; }
     }
     if (z.kind === 'pan') {
@@ -1335,6 +1353,15 @@ function updateHazards(dt) {
       z.heat = inside ? z.heat + dt : Math.max(0, z.heat - dt * 2);
       if (inside && Math.random() < dt / 50) G.parts.push({ x: G.px + rnd(-10, 10), y: G.py + rnd(-10, 10), vx: rnd(-20, 20), vy: -rnd(40, 90), r: rnd(1.5, 3), col: 'rgba(255,255,255,.7)', t: 0, life: 500, g: 0 });
       if (z.heat > 1000 && !noHit()) { z.heat = 0; const b = G.bodies[0]; onHit(fakeSlash(z.x, z.y), b, G.px + b.ox, G.py + b.oy); }
+    }
+    if (z.kind === 'peper') { // in the cloud the fruit sneezes every 0.9 s: a jump in a random direction, finger or not
+      const inside = G.bodies.some(b => Math.hypot(G.px + b.ox - z.x, G.py + b.oy - z.y) < z.r);
+      if (inside) { z.sneeze -= dt; if (z.sneeze <= 0) { z.sneeze = 900; const a = R() * TAU, j = 70; G.px = clamp(G.px + Math.cos(a) * j, 24, W - 24); G.py = clamp(G.py + Math.sin(a) * j, 70, H - 24); G.tx = G.px; G.ty = G.py; G.shake = 6; G.flash = .15; SFX.pop(); for (let i = 0; i < 10; i++) G.parts.push({ x: G.px, y: G.py, vx: rnd(-160, 160), vy: rnd(-160, 160), r: rnd(1.5, 3), col: 'rgba(80,70,60,.8)', t: 0, life: 350, g: 0 }); } }
+      else z.sneeze = Math.min(z.sneeze, 350);
+    }
+    if (z.kind === 'garde') { // two beater arms sweep round; touching one is a cut
+      z.a += dt * TAU / 2200;
+      if (!noHit()) for (const b of G.bodies) { const bx = G.px + b.ox - z.x, by = G.py + b.oy - z.y; let hit = false; for (const k of [0, Math.PI]) { const ux = Math.cos(z.a + k), uy = Math.sin(z.a + k), t = clamp(bx * ux + by * uy, 0, z.L), d = Math.hypot(bx - ux * t, by - uy * t); if (d < b.r + 7) hit = true; } if (hit) { onHit(fakeSlash(z.x, z.y), b, G.px + b.ox, G.py + b.oy); break; } }
     }
     if (z.t >= z.dur) z.phase = 'done';
   }
@@ -1355,6 +1382,7 @@ function drawForkWarning() {
   }
 }
 const inRasp = () => G.hazards.some(z => z.kind === 'rasp' && z.phase === 'on' && Math.abs(G.py - z.y) < z.h / 2);
+const onIce = () => G.hazards.some(z => z.kind === 'ijs' && z.phase === 'on' && Math.hypot(G.px - z.x, G.py - z.y) < z.r);
 function drawHazards() {
   for (const z of G.hazards) {
     const tele = z.phase === 'tele', p = tele ? clamp(z.t / z.tele, 0, 1) : 1, a = z.phase === 'done' ? clamp(z.fade / 500, 0, 1) : 1;
@@ -1366,7 +1394,7 @@ function drawHazards() {
       if (tele) { ctx.strokeStyle = `rgba(255,70,55,${.3 + .5 * p})`; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.beginPath(); ctx.arc(0, 0, z.r, 0, TAU); ctx.stroke(); }
       else {
         const g = ctx.createRadialGradient(0, 0, 4, 0, 0, z.r * 2.2); g.addColorStop(0, 'rgba(20,20,30,.55)'); g.addColorStop(1, 'rgba(20,20,30,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, z.r * 2.2, 0, TAU); ctx.fill();
-        ctx.strokeStyle = 'rgba(200,220,255,.25)'; ctx.lineWidth = 1.5; for (let i = 0; i < 3; i++) { ctx.beginPath(); for (let s = 0; s < 40; s++) { const ang = performance.now() / 300 + i * 2.1 + s * .25, rr = z.r * 2 * (1 - s / 40); ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr); } ctx.stroke(); }
+        ctx.strokeStyle = `rgba(200,220,255,${.25 + .4 * (z.pull || 0)})`; ctx.lineWidth = 1.5 + 1.5 * (z.pull || 0); for (let i = 0; i < 3; i++) { ctx.beginPath(); for (let s = 0; s < 40; s++) { const ang = performance.now() / 300 + i * 2.1 + s * .25, rr = z.r * 2 * (1 - s / 40); ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr); } ctx.stroke(); }
         ctx.save(); ctx.rotate(performance.now() / 40); ctx.fillStyle = '#cfd6dd'; for (let i = 0; i < 4; i++) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(24, -6); ctx.lineTo(26, 4); ctx.closePath(); ctx.fill(); } ctx.restore();
         ctx.fillStyle = '#2a2a33'; ctx.beginPath(); ctx.arc(0, 0, 6, 0, TAU); ctx.fill();
       }
@@ -1376,6 +1404,26 @@ function drawHazards() {
         const g = ctx.createRadialGradient(0, 0, 4, 0, 0, z.r); g.addColorStop(0, 'rgba(255,90,30,.55)'); g.addColorStop(.7, 'rgba(255,60,20,.35)'); g.addColorStop(1, 'rgba(255,60,20,.05)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, z.r, 0, TAU); ctx.fill();
         ctx.strokeStyle = '#2a1a10'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, z.r, 0, TAU); ctx.stroke(); ctx.lineCap = 'round'; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(z.r, 0); ctx.lineTo(z.r + 46, 0); ctx.stroke();
         if (z.heat > 0) { ctx.strokeStyle = '#ffd54a'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, z.r - 8, -Math.PI / 2, -Math.PI / 2 + TAU * clamp(z.heat / 1000, 0, 1)); ctx.stroke(); }
+      }
+    } else if (z.kind === 'peper') {
+      if (tele) { ctx.strokeStyle = `rgba(120,110,100,${.3 + .5 * p})`; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.beginPath(); ctx.arc(0, 0, z.r, 0, TAU); ctx.stroke(); }
+      else {
+        const g = ctx.createRadialGradient(0, 0, 6, 0, 0, z.r); g.addColorStop(0, 'rgba(110,100,90,.5)'); g.addColorStop(1, 'rgba(110,100,90,.06)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, z.r, 0, TAU); ctx.fill();
+        ctx.fillStyle = 'rgba(40,30,25,.7)'; for (let i = 0; i < 26; i++) { const a = i * 2.4 + performance.now() / 900, rr = z.r * (.15 + ((i * 37) % 80) / 100); ctx.beginPath(); ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, 1.6, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = '#5a3a1e'; ctx.beginPath(); roundBox(-10, -26, 20, 40, 6); ctx.fill(); ctx.fillStyle = '#7a4e26'; ctx.beginPath(); roundBox(-7, -22, 6, 30, 3); ctx.fill(); ctx.fillStyle = '#3e2612'; ctx.beginPath(); roundBox(-12, -8, 24, 5, 2); ctx.fill(); ctx.fillStyle = '#cfd6dd'; ctx.beginPath(); ctx.arc(0, -31, 7, 0, TAU); ctx.fill(); ctx.fillStyle = '#2a2a33'; ctx.beginPath(); ctx.arc(0, -31, 2.5, 0, TAU); ctx.fill();
+      }
+    } else if (z.kind === 'garde') {
+      if (tele) { ctx.strokeStyle = `rgba(255,70,55,${.3 + .5 * p})`; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.beginPath(); ctx.arc(0, 0, z.L, 0, TAU); ctx.stroke(); }
+      else {
+        ctx.save(); ctx.rotate(z.a); ctx.strokeStyle = 'rgba(220,225,235,.22)'; ctx.lineWidth = 14; ctx.beginPath(); ctx.arc(0, 0, z.L - 8, -.6, 0); ctx.moveTo(0, 0); ctx.arc(0, 0, z.L - 8, Math.PI - .6, Math.PI); ctx.stroke();
+        ctx.strokeStyle = '#d9dee4'; ctx.lineWidth = 5; ctx.lineCap = 'round'; for (const k of [0, Math.PI]) { ctx.save(); ctx.rotate(k); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(z.L, 0); ctx.stroke(); ctx.lineWidth = 3; for (const w of [-10, 0, 10]) { ctx.beginPath(); ctx.ellipse(z.L - 30, w * .4, 30, 10 + Math.abs(w), 0, 0, TAU); ctx.stroke(); } ctx.restore(); }
+        ctx.restore(); ctx.fillStyle = '#2a2a33'; ctx.beginPath(); ctx.arc(0, 0, 9, 0, TAU); ctx.fill();
+      }
+    } else if (z.kind === 'ijs') {
+      if (tele) { ctx.strokeStyle = `rgba(150,220,255,${.3 + .5 * p})`; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.beginPath(); ctx.arc(0, 0, z.r, 0, TAU); ctx.stroke(); }
+      else {
+        const g = ctx.createRadialGradient(0, 0, 10, 0, 0, z.r); g.addColorStop(0, 'rgba(190,230,255,.34)'); g.addColorStop(1, 'rgba(150,205,245,.16)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 0, z.r, z.r * .92, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(220,245,255,.7)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(0, 0, z.r - 3, z.r * .92 - 3, 0, 0, TAU); ctx.stroke();
+        for (const [cx, cy, r] of [[-26, -14, 13], [20, -6, 15], [-4, 24, 12]]) { ctx.fillStyle = 'rgba(150,205,245,.95)'; ctx.beginPath(); roundBox(cx - r, cy - r, r * 2, r * 2, 4); ctx.fill(); ctx.strokeStyle = 'rgba(50,100,150,.75)'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); roundBox(cx - r + 3, cy - r + 3, r * .8, r * .5, 2); ctx.fill(); }
       }
     } else if (z.kind === 'rasp') {
       ctx.translate(-z.x, 0);
@@ -2241,7 +2289,7 @@ function buildMenu() {
   ensurePlusDaily(); if (!owned(save.fruit)) save.fruit = 'appel'; const pill = $('#plus-pill'); if (pill) pill.hidden = !plusActive();
   $('#menu-best').textContent = fmtTime(save.best); $('#menu-sap').textContent = String(save.sap); $('#menu-runs').textContent = String(save.runs); $('#menu-level').textContent = String(save.level);
   $('#menu-hearts').innerHTML = heartsHTML(); $('#menu-heart-timer').textContent = heartsLine(); heartTick = 1000;
-  $('#btn-sound').textContent = save.sound ? 'Geluid: aan' : 'Geluid: uit'; $('#btn-music').textContent = save.music3 ? 'Muziek: aan' : 'Muziek: uit'; $('#ver').textContent = HOOK.testAll ? 'Testmodus: alle fruit tijdelijk vrij' : 'Prototype v0.13 · geen echte aankopen';
+  $('#btn-sound').textContent = save.sound ? 'Geluid: aan' : 'Geluid: uit'; $('#btn-music').textContent = save.music3 ? 'Muziek: aan' : 'Muziek: uit'; $('#ver').textContent = HOOK.testAll ? 'Testmodus: alle fruit tijdelijk vrij' : 'Prototype v0.14 · geen echte aankopen';
   renderSapIcon();
   updateLevelPick(); renderPick();
 }
@@ -2253,19 +2301,19 @@ function buildFruitGrid() {
     const card = document.createElement('button'); card.type = 'button'; card.className = 'fcard' + (save.fruit === key ? ' sel' : '') + (menuSel === key ? ' view' : '') + (own ? '' : ' locked') + (!own && save.sap >= f.price ? ' can' : ''); card.dataset.fruit = key;
     const c = document.createElement('canvas'); c.width = c.height = 88; renderIcon(c.getContext('2d'), key, 44, !own); card.append(c);
     const nm = document.createElement('span'); nm.textContent = f.name; card.append(nm);
-    const st = document.createElement('span'); st.className = 'st' + (own && fruitMedal(key) ? ' medal ' + fruitMedal(key) : ''); st.textContent = own ? (!save.owned.includes(key) && !HOOK.testAll ? 'Plus · deze maand' : (fruitMedal(key) || (save.fruit === key ? 'gekozen' : 'vrij'))) : (save.sap >= f.price ? `Koop! ${f.price}` : `${f.price} sap`); card.append(st);
+    const st = document.createElement('span'); st.className = 'st' + (own && fruitMedal(key) ? ' medal ' + fruitMedal(key) : ''); st.textContent = own ? (!save.owned.includes(key) && !HOOK.testAll ? 'Plus · deze maand' : (fruitMedal(key) || (save.fruit === key ? 'gekozen' : 'vrij'))) : (save.sap >= f.price ? `Koop! ${f.price}` : `${fmtSap(f.price)} sap`); card.append(st);
     card.addEventListener('click', () => { SFX.click(); menuSel = key; buildFruitGrid(); });
     list.append(card);
   }
   const f = FRUITS[menuSel], own = owned(menuSel);
   renderIcon($('#detail-icon').getContext('2d'), menuSel, 76, !own, { hat: save.hat, gold: isGold(menuSel) });
   const lv = xpLevel(menuSel), xp = save.xp[menuSel] || 0, fl = fruitLevels(menuSel), md = fruitMedal(menuSel);
-  $('#detail-name').textContent = f.name; $('#detail-trait').textContent = f.trait;
+  $('#detail-name').textContent = f.name; const tb = fruitSapBonus(menuSel); $('#detail-trait').textContent = (tb ? `Fruitbonus: +${tb}% sap na elke poging en messen ${Math.round((fruitCalm(menuSel) - 1) * 100)}% rustiger. ` : '') + f.trait;
   $('#detail-xp').textContent = own ? `Niveau ${lv}${lv >= 5 ? ' (eigenschap versterkt)' : ` · ${xp}/${xpForLevel(lv + 1)} s tot sterker`} · ${fl} level${fl === 1 ? '' : 's'} uitgespeeld${md ? ` · ${md}` : ' · brons bij 10'}` : 'Speeltijd versterkt de eigenschap (niveau 5); uitgespeelde levels geven medailles, goud bij 50.';
-  $('#detail-price').textContent = own && !save.owned.includes(menuSel) && !HOOK.testAll ? `Fruit van de maand: gratis te spelen zolang je Plus hebt (nog tot ${fmtDate(save.plus.until)}).` : own ? (f.price ? `Ontgrendeld (${f.price} sap).` : 'Gratis startfruit.') : (save.sap < f.price ? `Kost ${f.price} sap, je hebt er ${save.sap}. Later ook ${f.eur}.` : `Kost ${f.price} sap. Later ook ${f.eur}.`);
+  $('#detail-price').textContent = own && !save.owned.includes(menuSel) && !HOOK.testAll ? `Fruit van de maand: gratis te spelen zolang je Plus hebt (nog tot ${fmtDate(save.plus.until)}).` : own ? (f.price ? `Ontgrendeld (${fmtSap(f.price)} sap).` : 'Gratis startfruit.') : (save.sap < f.price ? `Kost ${fmtSap(f.price)} sap, je hebt er ${fmtSap(save.sap)}. Later ook ${f.eur}.` : `Kost ${fmtSap(f.price)} sap. Later ook ${f.eur}.`);
   const b = $('#btn-choose'); b.className = 'btn' + (own && save.fruit === menuSel ? ' primary' : '');
-  b.textContent = own ? (save.fruit === menuSel ? 'Gekozen' : 'Kies') : `Koop · ${f.price} sap`; b.disabled = !own && save.sap < f.price;
-  const keep = $('#btn-keep'), loan = own && !save.owned.includes(menuSel) && !HOOK.testAll; keep.hidden = !loan; keep.textContent = `Houden · ${f.price} sap`; keep.disabled = save.sap < f.price; // the Plus month fruit can be bought to keep
+  b.textContent = own ? (save.fruit === menuSel ? 'Gekozen' : 'Kies') : `Koop · ${fmtSap(f.price)} sap`; b.disabled = !own && save.sap < f.price;
+  const keep = $('#btn-keep'), loan = own && !save.owned.includes(menuSel) && !HOOK.testAll; keep.hidden = !loan; keep.textContent = `Houden · ${fmtSap(f.price)} sap`; keep.disabled = save.sap < f.price; // the Plus month fruit can be bought to keep
 }
 $('#btn-keep').addEventListener('click', () => { const f = FRUITS[menuSel]; if (save.sap < f.price || save.owned.includes(menuSel)) return; SFX.collect(); save.sap -= f.price; save.owned.push(menuSel); store(); buildFruitGrid(); showReward({ fruit: menuSel }, 'Voorgoed van jou'); });
 $('#btn-choose').addEventListener('click', () => {
@@ -2331,7 +2379,7 @@ const DEAL_FRUITS = () => ORDER.filter(k => !save.owned.includes(k));
 function dailyDeal() {
   const today = dayKey(), pool = DEAL_FRUITS();
   if (save.dealDay !== today) { save.dealDay = today; markFresh('shop'); store(); }
-  if (!pool.length) return { id: 'dbl', name: 'Sapverdubbelaar 1 uur', info: 'Vandaag voor de helft.', sap: 100 };
+  if (!pool.length) return { id: 'dbl', name: 'Sapverdubbelaar 1 uur', info: 'Vandaag voor de helft.', sap: 300 };
   const k = pool[hashStr(today + ':deal') % pool.length], f = FRUITS[k], div = plusActive() ? 3 : 2;
   return { id: 'fruit:' + k, name: f.name, info: `Vandaag voor ${div === 3 ? 'een derde (Plus)' : 'de helft'}: ${f.price} wordt ${Math.ceil(f.price / div)} sap.`, sap: Math.ceil(f.price / div), fruit: k };
 }
@@ -2349,10 +2397,10 @@ function openHelp() {
   $('#help-body').innerHTML =
     `<button class="btn" id="btn-help-intro">Bekijk de uitleg met plaatjes</button>` +
     `<div class="sec"><h3>Besturing</h3><div class="small">Raak het scherm aan: het fruit hangt boven je vinger, zodat je het altijd ziet. Zweef je onderaan het scherm, dan komt het fruit onder je vinger, zodat je ook daar klontjes en bonussen kunt pakken. Op de computer: sleep met de muis of gebruik de pijltjes; P of Esc pauzeert. Geluid en muziek zet je onderaan het menu apart aan of uit.</div><div class="small"><b>Als app op je telefoon:</b> open de testlink in Safari of Chrome, kies Delen en dan "Zet op beginscherm" (iPhone) of in het menu "App installeren" (Android). Dan start het spel op volledig scherm met eigen icoon, en werkt het ook zonder internet.</div></div>` +
-    `<div class="sec"><h3>Doel</h3><div class="small">Ontwijk de rode lijnen: daar komt het mes. Suikerklontjes zijn sap (goud = 5). Elk level vraagt wat meer sap; om de vijf levels krijg je een nieuwe keuken en een blijvend voordeel:</div>${perks}<div class="small">Vanaf level 10 komen er keukengevaren bij, elk met een waarschuwing vooraf: de vork (rode ring met uitroepteken op je plek: weg daar!), de deegrol (brede rode lijn), de blender (zuigt je aan), de hete pan (blijf er niet in) en de rasp (een strook over de plank).</div></div>` +
+    `<div class="sec"><h3>Doel</h3><div class="small">Ontwijk de rode lijnen: daar komt het mes. Suikerklontjes zijn sap (goud = 5). Elk level vraagt wat meer sap; om de vijf levels krijg je een nieuwe keuken en een blijvend voordeel:</div>${perks}<div class="small">Vanaf level 10 komen er keukengevaren bij, elk met een waarschuwing vooraf: de vork (rode ring met uitroepteken op je plek: weg daar!), de deegrol (brede rode lijn), de blender (zuigt je aan), de hete pan (blijf er niet in), de rasp (een strook over de plank), vanaf 60 de pepermolen (in de wolk nies je alle kanten op), vanaf 70 de garde (twee draaiende armen) en vanaf 80 ijsblokjes (glad: je glijdt door).</div></div>` +
     `<div class="sec"><h3>Bonusvoorwerpen</h3><div class="small">Vallen soms tijdens een level: 10% kans op level 1, oplopend tot 35%, en vanaf level 41 vaak een tweede. Hoe hoger je level, hoe groter en feller ze zijn, hoe trager ze drijven en hoe langer en sterker ze werken: op level 81 duren ze dubbel zo lang. Op level 1:</div>${powers}</div>` +
     `<div class="sec"><h3>Tussenspel</h3><div class="small">Om de vier levels (5, 9, 13, ...) een spelletje van 15 seconden, met 3 seconden uitleg vooraf. Alles pak je gewoon door erover te zweven; je kunt er niet in doodgaan; de score wordt sap (maximaal 40, plus 10 bonus bij het doel).</div>${inter}</div>` +
-    `<div class="sec"><h3>Hartjes en spelvormen</h3><div class="small">Een gewone poging kost een hartje; elke 20 minuten komt er een bij. Mes van de dag, de weekendspelen en doorgaan na een snee kosten geen hartje. Vandaag bundelt het rad, de dagreeks, de opdrachten, het mes van de dag en het weekendspel. Stempels is de Fruitkaart: elk level met elk fruit uitspelen geeft beloningen. De Fruitpas heeft 30 seizoenstreden; het Album toont stickers, keukenbonussen en de Fruitpedia. Een uitroepteken op een knop betekent: daar staat iets klaar, of je hebt het nog niet ontdekt, of er is iets nieuws sinds je laatste bezoek.</div></div>` +
+    `<div class="sec"><h3>Hartjes en spelvormen</h3><div class="small">Een gewone poging kost een hartje; elke 20 minuten komt er een bij. Zonder hartjes kun je niet verder: wachten, een filmpje kijken of bijkopen (een extra leven kost 3.000 sap, of met geld). Doorgaan na een snee is ook een extra leven: een filmpje of 3.000 sap. Mes van de dag en de weekendspelen kosten geen hartje. Vandaag bundelt het rad, de dagreeks, de opdrachten, het mes van de dag en het weekendspel. Stempels is de Fruitkaart: elk level met elk fruit uitspelen geeft beloningen. De Fruitpas heeft 30 seizoenstreden; het Album toont stickers, keukenbonussen en de Fruitpedia. Een uitroepteken op een knop betekent: daar staat iets klaar, of je hebt het nog niet ontdekt, of er is iets nieuws sinds je laatste bezoek.</div></div>` +
     `<div class="sec"><h3>Winkel</h3><div class="small">Alles is met sap te verdienen; geld maakt het alleen sneller en er zit nooit toeval in. Dagdeal: elke dag één item voor de helft. Keukensleutel: je volgende keukenbonus nu al. Startboost: begin een poging met een bonusvoorwerp. Sapverdubbelaar: een uur dubbel sap. Fruitmanden: een hele familie in één keer. Laatste stempel: de laatste één of twee vakjes van een rij op de Fruitkaart. Spelletjesmunten: een los tussenspel vanuit Vandaag. Fruitvlucht Plus: een abonnement (hier een simulatie) zonder reclame, met snellere hartjes, Fruitpas premium, dagelijkse munten en Startboost, een goedkopere Dagdeal, elke maand een fruit gratis te spelen en een gouden koksmuts. Opzeggen kan altijd.</div></div>` +
     `<div class="sec"><h3>Je voortgang meenemen</h3><div class="small">Je voortgang staat alleen in deze browser. Kopieer een opslagcode om ze te bewaren of op een andere telefoon te plakken.</div><div class="row" style="justify-content:flex-start;gap:6px"><button class="btn" id="btn-save-copy">Kopieer opslagcode</button><button class="btn ghost" id="btn-save-paste">Plak opslagcode</button></div><div class="small" id="save-msg" style="word-break:break-all"></div></div>`;
   $('#btn-help-intro').addEventListener('click', () => { SFX.click(); openIntro(); });
@@ -2412,26 +2460,43 @@ $('#btn-share').addEventListener('click', shareCard);
 function openHearts() {
   G.state = 'hearts'; refreshHearts(); heartTick = 1000;
   $('#hearts-row').innerHTML = heartsHTML(); $('#hearts-timer').textContent = heartsLine();
-  $('#hearts-rules').textContent = `Elke gewone poging kost één hartje. Elke 20 minuten komt er eentje bij, tot ${maxHearts()}. Doorgaan na een snede, Mes van de dag en de weekendspelen kosten geen hartje.`;
-  const sb = $('#btn-heart-sap'); sb.disabled = save.sap < HEART_REFILL_SAP; sb.textContent = `5 hartjes · ${HEART_REFILL_SAP} sap`;
+  $('#scr-hearts h2').textContent = save.hearts > 0 ? 'Hartjes' : 'Geen hartjes meer';
+  $('#hearts-rules').textContent = `Zonder hartjes kun je niet verder. Elke 20 minuten komt er eentje bij, tot ${maxHearts()}; of kijk een filmpje, of koop er bij: een extra leven kost ${fmtSap(HEART_ONE_SAP)} sap. Je hebt ${fmtSap(save.sap)} sap.`;
+  $('#btn-heart-play').hidden = save.hearts <= 0; $('#btn-heart-ad').hidden = save.hearts > 0;
+  const ob = $('#btn-heart-one'); ob.disabled = save.sap < HEART_ONE_SAP || save.hearts >= maxHearts(); ob.textContent = `+1 hartje · ${fmtSap(HEART_ONE_SAP)} sap`;
+  const sb = $('#btn-heart-sap'); sb.disabled = save.sap < HEART_REFILL_SAP || save.hearts >= maxHearts(); sb.textContent = `5 hartjes · ${fmtSap(HEART_REFILL_SAP)} sap`;
+  const slot = save.heartSlots || 0, sl = $('#btn-heart-slot'); sl.hidden = slot >= HEART_SLOT_SAP.length; if (!sl.hidden) { sl.disabled = save.sap < HEART_SLOT_SAP[slot]; sl.textContent = `Extra hartjesplek · ${fmtSap(HEART_SLOT_SAP[slot])} sap`; }
+  $('#hearts-slot-info').textContent = slot >= HEART_SLOT_SAP.length ? 'Je hebt beide extra hartjesplekken.' : `Extra hartjesplek: voorgoed één hartje meer (nu maximaal ${maxHearts()}), en het komt meteen gevuld. ${slot ? 'Tweede en laatste plek.' : 'Twee plekken te koop.'}`;
   $('#hearts-sim').textContent = `Aankopen zijn hier een simulatie. Gesimuleerd uitgegeven tot nu: €${save.simEur.toFixed(2).replace('.', ',')}.`;
   showScreen('scr-hearts'); pauseBtn.hidden = true;
 }
 $('#btn-heart-ad').addEventListener('click', () => { SFX.click(); adThen = () => { save.hearts = Math.min(maxHearts(), save.hearts + 1); store(); startRun(save.fruit); }; G.state = 'ad'; adT = adFree() ? 400 : 3000; $('#ad-count').textContent = adFree() ? 'reclamevrij' : '3'; showScreen('scr-ad'); });
-$('#btn-heart-sap').addEventListener('click', () => { if (save.sap < HEART_REFILL_SAP) return; SFX.click(); save.sap -= HEART_REFILL_SAP; save.hearts = maxHearts(); store(); startRun(save.fruit); });
-$('#btn-heart-eur').addEventListener('click', () => { SFX.click(); simBuy(.99); save.hearts = maxHearts(); store(); startRun(save.fruit); });
+// Buying hearts: the pop-up shows what came in and the screen stays, with Spelen ready; nothing starts by itself.
+function buyHearts(n, sap, eur) {
+  if ((sap && save.sap < sap) || save.hearts >= maxHearts()) return false; SFX.collect();
+  if (sap) save.sap -= sap; if (eur) simBuy(eur); const before = save.hearts; save.hearts = Math.min(maxHearts(), save.hearts + n); store(); showReward({ heart: save.hearts - before }, 'Gekocht'); if (G.state === 'hearts') openHearts(); return true;
+}
+function buyHeartSlot() {
+  const slot = save.heartSlots || 0; if (slot >= HEART_SLOT_SAP.length || save.sap < HEART_SLOT_SAP[slot]) return false; SFX.fanfare();
+  save.sap -= HEART_SLOT_SAP[slot]; save.heartSlots = slot + 1; save.hearts = Math.min(maxHearts(), save.hearts + 1); store(); showReward({ slot: 1 }, 'Gekocht', `Je hebt nu plaats voor ${maxHearts()} hartjes.`); if (G.state === 'hearts') openHearts(); return true;
+}
+$('#btn-heart-play').addEventListener('click', () => { SFX.click(); startRun(save.fruit); });
+$('#btn-heart-one').addEventListener('click', () => buyHearts(1, HEART_ONE_SAP, 0));
+$('#btn-heart-sap').addEventListener('click', () => buyHearts(5, HEART_REFILL_SAP, 0));
+$('#btn-heart-eur').addEventListener('click', () => buyHearts(5, 0, .99));
+$('#btn-heart-slot').addEventListener('click', () => buyHeartSlot());
 $('#btn-heart-unl').addEventListener('click', () => { SFX.click(); simBuy(1.99); save.unlimitedUntil = nowMs() + 24 * 3600000; store(); startRun(save.fruit); });
 $('#btn-heart-back').addEventListener('click', () => { SFX.click(); openMenu(); });
 
 // ---- Hats (cosmetic; bought with sap, earned from the streak or the pass). Drawn on the fruit, fly off when cut.
 const HATS = {
   none: { name: 'Geen hoedje', price: 0 },
-  koksmuts: { name: 'Koksmuts', price: 80 },
+  koksmuts: { name: 'Koksmuts', price: 500 },
   goudmuts: { name: 'Gouden koksmuts', price: 0, how: 'Fruitvlucht Plus' },
-  muts: { name: 'Wintermuts', price: 60 },
-  strik: { name: 'Strik', price: 60 },
+  muts: { name: 'Wintermuts', price: 350 },
+  strik: { name: 'Strik', price: 350 },
   feest: { name: 'Feesthoedje', price: 0, how: 'dag 7 van je dagreeks' },
-  hoed: { name: 'Hoge hoed', price: 200, eur: '€1,49' },
+  hoed: { name: 'Hoge hoed', price: 2000, eur: '€1,49' },
   kroontje: { name: 'Gouden kroontje', price: 0, how: 'dag 30 van je dagreeks of de Fruitpas' },
   pannenkoek: { name: 'Pannenkoek', price: 0, how: 'Fruitpas (betaald spoor)' },
   fruitmand: { name: 'Fruitmandje', price: 0, how: 'Fruitkaart: level 10 vol' },
@@ -2506,6 +2571,7 @@ function rewardItems(r) {
   if (r.sap) add(`+${r.sap} sap`, (c, css) => { rwCenter(c, css); drawSugar(0, 0, 19, false, -.25, c); });
   if (r.coins) add(`+${r.coins} munt${r.coins > 1 ? 'en' : ''}`, (c, css) => { rwCenter(c, css); drawCoinIcon(c, 0, 0, 22); });
   if (r.heart) add(`+${r.heart} hartje${r.heart > 1 ? 's' : ''}`, (c, css) => { rwCenter(c, css); drawHeartIcon(c, 0, 0, 22); });
+  if (r.slot) add('extra hartjesplek', (c, css) => { rwCenter(c, css); drawHeartIcon(c, 0, 0, 22); c.fillStyle = '#fff'; c.font = `900 22px ${FU}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('+', 0, 1); });
   if (r.shield) add(`+${r.shield} reeksschild`, (c, css) => { rwCenter(c, css); drawShieldIcon(c, 0, 0, 46); });
   if (r.minutes) add(`+${r.minutes} min onbeperkt`, (c, css) => { rwCenter(c, css); drawClockIcon(c, 0, 0, 24); });
   if (r.hours) add(`Sapverdubbelaar ${r.hours} uur`, (c, css) => disc(c, css, POWERS.dubbel.col, 'dubbel'));
@@ -2658,7 +2724,7 @@ function openToday(focus) {
   $('#today-body').innerHTML =
     `<div class="sec" id="sec-rad" style="align-items:center;text-align:center"><h3>${ico('wheel')}Rad van de dag</h3><div class="rules" style="align-self:stretch;text-align:left">Inlogbonus: één gratis draai per dag, een tweede na een filmpje. Prijzen: 10 tot 50 sap, 1 of 2 hartjes, een reeksschild of 10 minuten onbeperkte hartjes.</div><canvas id="wheel" width="420" height="420" style="width:210px;height:210px"></canvas><div class="small" id="wheel-text">${save.wheel.day === today ? `Vandaag: <b>${save.wheel.result}</b>` : 'Draai voor je inlogbonus van vandaag.'}</div><button class="btn primary" id="btn-spin">Draai</button><div class="small" id="wheel-sub"></div>` +
     `<div id="spin-packs" style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="small">Extra draaien kopen:</div><div class="row" style="gap:6px">${SPIN_PACKS.map((p, i) => `<button class="btn" style="font-size:13px;padding:7px 10px;flex:0 1 auto" data-pack="${i}">${p.n} · ${fmtEur(p.eur)}</button>`).join('')}</div><div class="small" id="spin-own"></div><div class="small" style="opacity:.75">Simulatie. Alleen zichtbaar waar de verkoop aanstaat (schakelaar in de winkel); in België staat ze uit.</div></div></div>` +
-    `<div class="sec" id="sec-reeks"><h3>${ico('today')}Dagreeks</h3><div class="rules">Elke dag dat je speelt haal je hier de volgende beloning op; de reeks loopt per 7 dagen rond. Eén dag overslaan zet de reeks terug naar dag 1, tenzij een reeksschild die dag opvangt.</div><div class="mrow"><div class="mt"><b>Dag ${save.streak}</b> op rij${save.shieldUsed === today ? ' (reeksschild gebruikt)' : ''}<div class="dots">${dots}</div><div class="small">Vandaag: ${rewardText(sr)} · dag 7: feesthoedje · dag 30: gouden kroontje</div></div><button class="btn${claimedStreak ? '' : ' primary'}" id="btn-streak" ${claimedStreak ? 'disabled' : ''}>${claimedStreak ? 'Ontvangen' : 'Ontvang'}</button></div><div class="small">Reeksschild: ${save.shields} (vangt één gemiste dag op) · <button class="linkbtn" id="btn-shield" ${save.sap < 50 ? 'disabled' : ''}>Koop · 50 sap</button></div></div>` +
+    `<div class="sec" id="sec-reeks"><h3>${ico('today')}Dagreeks</h3><div class="rules">Elke dag dat je speelt haal je hier de volgende beloning op; de reeks loopt per 7 dagen rond. Eén dag overslaan zet de reeks terug naar dag 1, tenzij een reeksschild die dag opvangt.</div><div class="mrow"><div class="mt"><b>Dag ${save.streak}</b> op rij${save.shieldUsed === today ? ' (reeksschild gebruikt)' : ''}<div class="dots">${dots}</div><div class="small">Vandaag: ${rewardText(sr)} · dag 7: feesthoedje · dag 30: gouden kroontje</div></div><button class="btn${claimedStreak ? '' : ' primary'}" id="btn-streak" ${claimedStreak ? 'disabled' : ''}>${claimedStreak ? 'Ontvangen' : 'Ontvang'}</button></div><div class="small">Reeksschild: ${save.shields} (vangt één gemiste dag op) · <button class="linkbtn" id="btn-shield" ${save.sap < 50 ? 'disabled' : ''}>Koop · 300 sap</button></div></div>` +
     `<div class="sec" id="sec-opdr"><h3>${ico('album')}Opdrachten van vandaag</h3><div class="rules">Drie opdrachten per dag, nieuw om 7 uur. De voortgang telt tijdens het spelen; haal de beloning hier op zodra de balk vol is.</div>${missions}</div>` +
     `<div class="sec" id="sec-mes"><h3>${ico('games')}Mes van de dag</h3><div class="rules"><b>Hoe:</b> één gratis poging per dag, kost geen hartje. Iedereen krijgt vandaag exact hetzelfde mes, vanaf level 1, met het fruit dat je nu gekozen hebt.<br><b>Extra:</b> dubbel zoveel suikerklontjes als in een gewoon spel.<br><b>Je houdt:</b> alle sap die je pakt en 15 XP extra voor je Fruitpas. Geen stempels, keukenvoordelen of record; wel een tijd om vrienden mee uit te dagen.</div><div class="mrow"><div class="mt">${dailyLabel}</div><button class="btn primary" id="btn-daily" ${dailyPlayedToday() && !(pendingDaily && pendingDaily !== today) ? 'disabled' : ''}>Speel</button></div><div class="mrow"><div class="mt"><b>Los spelletje</b> · munten: ${save.coins}<div class="small">Speel een tussenspel buiten een poging, voor sap. Eén munt per dag erbij (max 3), meer in de winkel.${save.lastSolo >= 0 ? ` Laatste: +${save.lastSolo} sap.` : ''}</div></div><button class="btn${save.coins > 0 ? ' primary' : ''}" id="btn-solo" ${save.coins > 0 ? '' : 'disabled'}>Speel · 1 munt</button></div></div>` +
     `<div class="sec" id="sec-weekend"><h3>${ico('games')}Weekendspel: ${w.name}</h3><div class="rules"><b>Hoe:</b> ${w.how}<br><b>Prijs:</b> één keer per weekend 30 min onbeperkte hartjes + 20 sap. Kost geen hartje; je mag blijven proberen.<br><b>Wanneer:</b> vrijdag 17 u tot zondag 23 u. Elke week een ander spel: Jij bent het mes, Suikerregen, Chefs examen.</div><div class="mrow"><div class="mt">${weekendStatus()}</div><button class="btn${weekendOpen() ? ' primary' : ''}" id="btn-weekend" ${weekendOpen() ? '' : 'disabled'}>Speel</button></div></div>` +
@@ -2671,7 +2737,7 @@ function openToday(focus) {
   });
   $('#today-body').querySelectorAll('[data-pack]').forEach(pb => pb.addEventListener('click', () => { SFX.collect(); buySpins(SPIN_PACKS[+pb.dataset.pack]); }));
   $('#btn-streak').addEventListener('click', () => { if (save.streakClaimed === today) return; SFX.collect(); save.streakClaimed = today; giveReward(sr, 'Inlogreeks'); track('claim', 'streak'); openToday(); });
-  $('#btn-shield').addEventListener('click', () => { if (save.sap < 50) return; SFX.click(); save.sap -= 50; save.shields++; store(); openToday(); });
+  $('#btn-shield').addEventListener('click', () => { if (save.sap < 300) return; SFX.click(); save.sap -= 300; save.shields++; store(); showReward({ shield: 1 }, 'Gekocht'); openToday(); });
   $('#today-body').querySelectorAll('[data-mi]').forEach(b => b.addEventListener('click', () => { const m = save.missions.list[+b.dataset.mi]; if (!m || !m.done || m.claimed) return; SFX.collect(); m.claimed = true; giveReward(MISSION_REWARDS[+b.dataset.mi], 'Opdracht volbracht'); track('claim', 'mission'); openToday(); }));
   $('#btn-daily').addEventListener('click', () => { SFX.click(); startRun(save.fruit, false, 'daily'); });
   $('#btn-solo').addEventListener('click', () => { SFX.click(); startSolo(); });
@@ -2833,22 +2899,23 @@ function openShop() {
   const deal = dailyDeal(), dealMs = dealLeft(), dealH = Math.floor(dealMs / 3600000), dealM = Math.floor(dealMs % 3600000 / 60000);
   const bundles = Object.keys(FAMILIES).map(fam => { const miss = FAMILIES[fam].filter(k => !save.owned.includes(k)); if (!miss.length) return ''; const eur = Math.max(.99, Math.round(miss.reduce((a, k) => a + parseFloat((FRUITS[k].eur || '€0,99').replace('€', '').replace(',', '.')), 0) * .7) - .01); return item('bundle:' + fam, `Fruitmand ${fam}`, `${miss.map(k => FRUITS[k].name).join(', ')} in één keer, 30% goedkoper.`, fmtEur(eur)); }).join('');
   const allMiss = ORDER.filter(k => !save.owned.includes(k));
-  const boostRows = ['schild', 'stroop', 'magneet'].map(k => { const n = save.boostStock[k] || 0, armed = save.armBoost === k; return `<div class="mrow" style="flex-wrap:wrap"><div class="mt" style="flex:1 1 100%"><b>${POWERS[k].name}</b> ×${n}${armed ? ' · <span class="fam">klaar voor je volgende poging</span>' : ''}<div class="small">${powerInfo(k, 1)} Je begint je poging ermee.</div></div><div class="row" style="flex:1 1 100%;gap:6px;justify-content:flex-end"><button class="btn" data-shop="boost-sap:${k}" ${save.sap >= 25 ? '' : 'disabled'}>25 sap</button><button class="btn" data-shop="boost-eur:${k}">5 · €0,49</button><button class="btn${armed ? ' primary' : ''}" data-shop="boost-arm:${k}" ${n > 0 || armed ? '' : 'disabled'}>${armed ? 'Klaar' : 'Zet klaar'}</button></div></div>`; }).join('');
+  const boostRows = ['schild', 'stroop', 'magneet'].map(k => { const n = save.boostStock[k] || 0, armed = save.armBoost === k; return `<div class="mrow" style="flex-wrap:wrap"><div class="mt" style="flex:1 1 100%"><b>${POWERS[k].name}</b> ×${n}${armed ? ' · <span class="fam">klaar voor je volgende poging</span>' : ''}<div class="small">${powerInfo(k, 1)} Je begint je poging ermee.</div></div><div class="row" style="flex:1 1 100%;gap:6px;justify-content:flex-end"><button class="btn" data-shop="boost-sap:${k}" ${save.sap >= 150 ? '' : 'disabled'}>150 sap</button><button class="btn" data-shop="boost-eur:${k}">5 · €0,49</button><button class="btn${armed ? ' primary' : ''}" data-shop="boost-arm:${k}" ${n > 0 || armed ? '' : 'disabled'}>${armed ? 'Klaar' : 'Zet klaar'}</button></div></div>`; }).join('');
   const pl = save.plus, plusOn = plusActive();
   const plusSec = `<div class="sec" style="border-color:rgba(246,194,90,.45)"><h3>${ico('pass')}Fruitvlucht Plus${plusOn ? ` · actief tot ${fmtDate(pl.until)}${pl.trial ? ' (proef)' : ''}` : ''}</h3>` +
     `<div class="small">Geen reclame · hartjes groeien dubbel zo snel en één hartje extra · Fruitpas premium elk seizoen · elke dag 2 munten en 1 Startboost · Dagdeal voor een derde · elke maand een fruit gratis te spelen (nu: <b>${FRUITS[fruitOfMonth()].name}</b>) · gouden koksmuts en de bordskin Plus-marmer. Niets hiervan is nodig om te winnen; het maakt het sneller en gemakkelijker.</div>` +
     (plusOn ? `<div class="row" style="justify-content:flex-start;gap:6px"><button class="btn" data-shop="plus-month">+1 maand · €2,99</button><button class="btn" data-shop="plus-year">+1 jaar · €19,99</button><button class="btn ghost" data-shop="plus-cancel">Opzeggen</button></div><div class="small">Opzeggen kan altijd; je houdt het hoedje en de skin.</div>`
       : `<div class="row" style="justify-content:flex-start;gap:6px">${pl.used ? '' : '<button class="btn primary" data-shop="plus-trial">7 dagen gratis</button>'}<button class="btn${pl.used ? ' primary' : ''}" data-shop="plus-month">Maand · €2,99</button><button class="btn" data-shop="plus-year">Jaar · €19,99</button></div><div class="small">Simulatie. In de echte app loopt dit via de App Store of Google Play, met duidelijke verlenging en één tik om op te zeggen.</div>`) + `</div>`;
-  $('#shop-body').innerHTML = plusSec + `<div class="sec"><h3>${ico('wheel')}Dagdeal · nog ${dealH} u ${dealM} min</h3>${item('deal', deal.name, deal.info, `${deal.sap} sap`, save.sap >= deal.sap)}</div>` +
-    `<div class="sec"><h3>Sneller vooruit</h3><div class="small">Alles is ook met sap te verdienen; geld maakt het alleen sneller. Geen toeval: je weet altijd wat je koopt.</div>${item('key-sap', 'Keukensleutel', `Je volgende keukenbonus nu al, tot twee keukens vooruit. Je hebt er ${save.perkKeys}.`, '150 sap', save.sap >= 150 && save.perkKeys < 2)}${item('key-eur', 'Keukensleutel', 'Dezelfde sleutel, met geld.', '€0,99')}${item('dbl-sap', 'Sapverdubbelaar 1 uur', doubling() ? `Actief, nog ${fmtClock(save.doubleUntil - nowMs())}. Koop je er nog een, dan komt er een uur bij.` : 'Elk klontje telt een uur lang dubbel.', '200 sap', save.sap >= 200)}${item('dbl-eur', 'Sapverdubbelaar 1 uur', 'Hetzelfde uur, met geld.', '€0,99')}</div>` +
+  $('#shop-body').innerHTML = plusSec + `<div class="sec"><h3>${ico('wheel')}Dagdeal · nog ${dealH} u ${dealM} min</h3>${item('deal', deal.name, deal.info, `${fmtSap(deal.sap)} sap`, save.sap >= deal.sap)}</div>` +
+    `<div class="sec"><h3>Sneller vooruit</h3><div class="small">Alles is ook met sap te verdienen; geld maakt het alleen sneller. Geen toeval: je weet altijd wat je koopt.</div>${item('key-sap', 'Keukensleutel', `Je volgende keukenbonus nu al, tot twee keukens vooruit. Je hebt er ${save.perkKeys}.`, '800 sap', save.sap >= 800 && save.perkKeys < 2)}${item('key-eur', 'Keukensleutel', 'Dezelfde sleutel, met geld.', '€0,99')}${item('dbl-sap', 'Sapverdubbelaar 1 uur', doubling() ? `Actief, nog ${fmtClock(save.doubleUntil - nowMs())}. Koop je er nog een, dan komt er een uur bij.` : 'Elk klontje telt een uur lang dubbel.', '600 sap', save.sap >= 600)}${item('dbl-eur', 'Sapverdubbelaar 1 uur', 'Hetzelfde uur, met geld.', '€0,99')}</div>` +
     `<div class="sec"><h3>Startboost</h3><div class="small">Kies een bonusvoorwerp waarmee je volgende poging begint. Koop er één voor sap of vijf voor geld en zet er een klaar.</div>${boostRows}</div>` +
     `<div class="sec"><h3>Spelletjesmunten</h3>${item('coins', '5 munten', `Elke munt is een los tussenspel op het Vandaag-scherm, goed voor tot 50 sap. Je hebt er ${save.coins}.`, '€0,99', true)}</div>` +
     (allMiss.length ? `<div class="sec"><h3>Fruitmanden</h3>${bundles}${item('bundle:all', 'Alles-in-één', `Alle ${allMiss.length} overige fruitsoorten in één keer.`, '€9,99', true)}</div>` : '') +
     `<div class="sec"><h3>Hoedjes</h3><div class="small">Puur voor de sier: geen invloed op het spel. Het hoedje vliegt mee weg als je gesneden wordt.</div>${hatRows}</div>` +
     `<div class="sec"><h3>Bordskins</h3><div class="small">Een vaste tafel in plaats van de keuken van je level. Alleen uiterlijk: keukenbonussen blijven gelden. Je verdient ze met volle rijen op de Fruitkaart (level 20 en 40).</div>${boardRows}</div>` +
     `<div class="sec"><h3>Draaien aan het rad</h3><div class="small">Gekochte draaien gebruik je wanneer je wilt, bovenop de gratis draai van de dag. Je hebt er ${save.spins}.</div>${save.spinSalesOn ? SPIN_PACKS.map((p, i) => item('spin' + i, `${p.n} draai${p.n > 1 ? 'en' : ''}`, `${(p.eur / p.n * 100).toFixed(0)} cent per draai`, fmtEur(p.eur), i === 0)).join('') : '<div class="small">Verkoop staat uit.</div>'}${item('spinsales', 'Verkoop van draaien', save.spinSalesOn ? 'Aan. In België is betalen voor een toevalsprijs een kansspel; zet dit daar uit (in de echte app per land).' : 'Uit (standaard, België). Alleen elders aanzetten; dan verschijnen de pakketten hier en op het Vandaag-scherm.', save.spinSalesOn ? 'Zet uit' : 'Zet aan')}</div>` +
-    `<div class="sec"><h3>Hulpmiddelen</h3>${item('shield-sap', 'Reeksschild', `Vangt één gemiste dag van je dagreeks op. Je hebt er ${save.shields}.`, '50 sap', save.sap >= 50)}${item('shield-eur', 'Reeksschild', 'Hetzelfde schild, met geld.', '€0,99')}${item('unl30', 'Onbeperkte hartjes · 30 min', 'Komt in je voorraad; activeer wanneer je tijd hebt.', '€0,49')}</div>` +
-    `<div class="sec"><h3>Sap</h3>${item('sap300', '300 sap', 'Voor fruit, hoedjes en doorgaan.', '€0,99')}${item('sap1000', '1000 sap', 'De voordelige pot.', '€2,49', true)}</div>` +
+    `<div class="sec"><h3>${ico('heart')}Hartjes</h3><div class="small">Zonder hartjes speel je niet verder. Elke 20 minuten komt er een bij; een extra leven kost ${fmtSap(HEART_ONE_SAP)} sap, of je kijkt een filmpje als ze op zijn.</div>${item('heart-one', '+1 hartje', `Je hebt er ${save.hearts} van ${maxHearts()}.`, `${fmtSap(HEART_ONE_SAP)} sap`, save.sap >= HEART_ONE_SAP && save.hearts < maxHearts())}${item('heart-five', '5 hartjes', 'Vijf voor de prijs van vier.', `${fmtSap(HEART_REFILL_SAP)} sap`)}${item('heart-eur', '5 hartjes', 'Dezelfde vijf, met geld.', '€0,99')}${(save.heartSlots || 0) < HEART_SLOT_SAP.length ? item('heart-slot', 'Extra hartjesplek', `Voorgoed één hartje meer, meteen gevuld (nu maximaal ${maxHearts()}). ${(save.heartSlots || 0) ? 'Tweede en laatste plek.' : 'Twee plekken te koop.'}`, `${fmtSap(HEART_SLOT_SAP[save.heartSlots || 0])} sap`) : '<div class="small">Beide extra hartjesplekken zijn van jou.</div>'}</div>` +
+    `<div class="sec"><h3>Hulpmiddelen</h3>${item('shield-sap', 'Reeksschild', `Vangt één gemiste dag van je dagreeks op. Je hebt er ${save.shields}.`, '300 sap', save.sap >= 300)}${item('shield-eur', 'Reeksschild', 'Hetzelfde schild, met geld.', '€0,99')}${item('unl30', 'Onbeperkte hartjes · 30 min', 'Komt in je voorraad; activeer wanneer je tijd hebt.', '€0,49')}</div>` +
+    `<div class="sec"><h3>Sap</h3>${item('sap3000', '3.000 sap', 'Precies één extra leven: voor doorgaan, een hartje, fruit of hoedjes.', '€0,99')}${item('sap10000', '10.000 sap', 'De voordelige pot: drie extra levens en wat over.', '€2,49', true)}</div>` +
     `<div class="sec"><h3>Pas en reclame</h3>${passPremium() ? '<div class="small">Fruitpas: betaald spoor actief.</div>' : item('pass', 'Fruitpas', 'Het tweede spoor van dit seizoen: hoedjes, schilden, onbeperkte minuten.', '€4,99', true)}${adFree() ? '<div class="small">Reclamevrij: actief. Filmpjes worden overgeslagen.</div>' : item('noads', 'Reclamevrij', 'Geen filmpjes meer bij doorgaan en hartjes; je krijgt de beloning meteen.', '€3,99')}</div>` +
     `<div class="small">Alle aankopen zijn hier een simulatie; er wordt niets aangerekend. Gesimuleerd uitgegeven tot nu: €${save.simEur.toFixed(2).replace('.', ',')}. Je sap: ${save.sap}.</div>`;
   $('#shop-body').querySelectorAll('[data-hat]').forEach(c => { const saved = ctx, c2 = c.getContext('2d'); ctx = c2; c2.setTransform(2, 0, 0, 2, 0, 0); c2.clearRect(0, 0, 44, 44); ctx.save(); ctx.translate(22, 30); if (c.dataset.hat === 'none') { ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -6, 12, 0, TAU); ctx.stroke(); } else drawHat(c.dataset.hat, 14); ctx.restore(); ctx = saved; });
@@ -2863,20 +2930,24 @@ function openShop() {
     else if (id === 'plus-year') { simBuy(19.99); startPlus(365, false); got = { plus: 365 }; }
     else if (id === 'plus-cancel') { save.plus.until = nowMs(); save.plus.trial = false; }
     else if (id === 'deal') { const d = dailyDeal(); if (save.sap < d.sap) return; save.sap -= d.sap; if (d.fruit) { save.owned.push(d.fruit); save.fruit = d.fruit; got = { fruit: d.fruit }; } else { save.doubleUntil = Math.max(nowMs(), save.doubleUntil || 0) + 3600000; got = { hours: 1 }; } }
-    else if (id === 'key-sap') { if (save.sap < 150 || save.perkKeys >= 2) return; save.sap -= 150; save.perkKeys++; markFresh('album'); got = { key: 1 }; }
+    else if (id === 'key-sap') { if (save.sap < 800 || save.perkKeys >= 2) return; save.sap -= 800; save.perkKeys++; markFresh('album'); got = { key: 1 }; }
     else if (id === 'key-eur') { if (save.perkKeys >= 2) return; simBuy(.99); save.perkKeys++; markFresh('album'); got = { key: 1 }; }
-    else if (id === 'dbl-sap') { if (save.sap < 200) return; save.sap -= 200; save.doubleUntil = Math.max(nowMs(), save.doubleUntil || 0) + 3600000; got = { hours: 1 }; }
+    else if (id === 'dbl-sap') { if (save.sap < 600) return; save.sap -= 600; save.doubleUntil = Math.max(nowMs(), save.doubleUntil || 0) + 3600000; got = { hours: 1 }; }
     else if (id === 'dbl-eur') { simBuy(.99); save.doubleUntil = Math.max(nowMs(), save.doubleUntil || 0) + 3600000; got = { hours: 1 }; }
     else if (id === 'coins') { simBuy(.99); save.coins = (save.coins || 0) + 5; got = { coins: 5 }; }
-    else if (id.startsWith('boost-sap:')) { const k = id.slice(10); if (save.sap < 25) return; save.sap -= 25; save.boostStock[k] = (save.boostStock[k] || 0) + 1; if (!save.armBoost) save.armBoost = k; got = { boost: k, n: 1 }; }
+    else if (id.startsWith('boost-sap:')) { const k = id.slice(10); if (save.sap < 150) return; save.sap -= 150; save.boostStock[k] = (save.boostStock[k] || 0) + 1; if (!save.armBoost) save.armBoost = k; got = { boost: k, n: 1 }; }
     else if (id.startsWith('boost-eur:')) { const k = id.slice(10); simBuy(.49); save.boostStock[k] = (save.boostStock[k] || 0) + 5; if (!save.armBoost) save.armBoost = k; got = { boost: k, n: 5 }; }
     else if (id.startsWith('boost-arm:')) { const k = id.slice(10); save.armBoost = save.armBoost === k ? '' : k; }
     else if (id.startsWith('bundle:')) { const fam = id.slice(7), list = fam === 'all' ? ORDER : FAMILIES[fam]; const miss = list.filter(k => !save.owned.includes(k)); if (!miss.length) return; simBuy(fam === 'all' ? 9.99 : Math.max(.99, Math.round(miss.reduce((a, k) => a + parseFloat((FRUITS[k].eur || '€0,99').replace('€', '').replace(',', '.')), 0) * .7) - .01)); for (const k of miss) save.owned.push(k); SFX.fanfare(); got = { fruits: miss }; }
-    else if (id === 'shield-sap') { if (save.sap < 50) return; save.sap -= 50; save.shields++; got = { shield: 1 }; }
+    else if (id === 'heart-one') { if (!buyHearts(1, HEART_ONE_SAP, 0)) return; }
+    else if (id === 'heart-five') { if (!buyHearts(5, HEART_REFILL_SAP, 0)) return; }
+    else if (id === 'heart-eur') { if (!buyHearts(5, 0, .99)) return; }
+    else if (id === 'heart-slot') { if (!buyHeartSlot()) return; }
+    else if (id === 'shield-sap') { if (save.sap < 300) return; save.sap -= 300; save.shields++; got = { shield: 1 }; }
     else if (id === 'shield-eur') { simBuy(.99); save.shields++; got = { shield: 1 }; }
     else if (id === 'unl30') { simBuy(.49); save.unlimitedBank += 30; got = { minutes: 30 }; }
-    else if (id === 'sap300') { simBuy(.99); save.sap += 300; got = { sap: 300 }; }
-    else if (id === 'sap1000') { simBuy(2.49); save.sap += 1000; got = { sap: 1000 }; }
+    else if (id === 'sap3000') { simBuy(.99); save.sap += 3000; got = { sap: 3000 }; }
+    else if (id === 'sap10000') { simBuy(2.49); save.sap += 10000; got = { sap: 10000 }; }
     else if (id === 'pass') { simBuy(4.99); ensurePass(); save.pass.premium = true; got = { pass: true }; }
     else if (id === 'noads') { simBuy(3.99); save.noAds = true; }
     else if (id === 'spinsales') save.spinSalesOn = !save.spinSalesOn;
@@ -2889,7 +2960,7 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.13.1', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.14.0', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
   appIcon(size, pad, bg) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); if (bg) { const g = x.createLinearGradient(0, 0, size, size); g.addColorStop(0, '#5a3a1e'); g.addColorStop(1, '#2a1708'); x.fillStyle = g; x.beginPath(); x.roundRect(0, 0, size, size, size * .22); x.fill(); } const f = document.createElement('canvas'); f.width = f.height = size; renderIcon(f.getContext('2d'), 'appel', size / 2, false, { look: [0, .2] }); const inner = size * (1 - 2 * pad); x.drawImage(f, size * pad, size * pad + size * .02, inner, inner); return c.toDataURL('image/png'); },
@@ -2897,7 +2968,7 @@ const HOOK = window.fruitvlucht = {
   lineNear(off, tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; return lineThrough(G.px + b.ox + off, G.py + b.oy, Math.PI / 2, 0, { tele: tele || 60, dur: 160 }); }, startInter, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,
-  WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, showReward, closeReward, rewardItems, giveReward, buySpins, nextSpinKind, modeCubeRate, cubeCap, pause, resume, hubGo, hubBadges, passClaimable,
+  WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, showReward, closeReward, rewardItems, giveReward, buyHearts, buyHeartSlot, tierOf, fruitSapBonus, fruitCalm, CONTINUE_COST, HEART_ONE_SAP, HEART_REFILL_SAP, HEART_SLOT_SAP, fmtSap, buySpins, nextSpinKind, modeCubeRate, cubeCap, pause, resume, hubGo, hubBadges, passClaimable,
   step(ms) { let left = ms; while (left > 0) { const d = Math.min(16, left); update(d); left -= d; } render(); },
   forceAim(tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; const s = lineThrough(G.px + b.ox, G.py + b.oy, Math.random() * Math.PI, 0, { tele: tele || 60, dur: 160 }); return { ax: s.ax, ay: s.ay, bx: s.bx, by: s.by }; },
   move(dx, dy) { G.tx += dx; G.ty += dy; },

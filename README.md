@@ -57,6 +57,12 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.18: Engels en Nederlands, home-knop en vlagje
+
+- Het spel start in het Engels, behalve op een toestel in het Nederlands of in België of Nederland: dan in het Nederlands. Met het vlagje (in het spel en onderaan het menu) wissel je altijd. De lange teksten in winkel, Vandaag en Hulp zijn in de Engelse versie nog deels Nederlands; dat groeit per versie.
+- Tijdens het spelen staan linksboven een home-knop en het vlagje. Home pauzeert en vraagt eerst of je het level wilt verlaten; het vlagje pauzeert en laat je de taal kiezen.
+- Nieuw in de repository: privacybeleid (privacy.html), winkelteksten (store/), jouw stappenlijst (UITROL-STAPPEN.md) en de Android-schil (native/) voor echte advertenties en aankopen.
+
 ## Nieuw in v0.17: Mes van de dag is een eigen proef
 
 - Snelkookpan: iedereen start op level 10 en elk level is drie keer zo kort, dus het mes versnelt snel. Klontjes tellen enkel; het extra sap verdien je met de dagdoelen.

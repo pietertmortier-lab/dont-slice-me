@@ -1,8 +1,8 @@
 # Fruitvlucht - muziek per keukenblad (Suno-prompts)
 
 Het spel speelt per keukenblad een eigen nummer en vloeit over naar het volgende bij een nieuwe keuken (elke
-5 levels). Zonder bestanden speelt een klein ingebouwd deuntje. Muziek staat standaard **uit**; de speler zet
-ze aan via "Muziek: aan" onderaan het hoofdmenu. Zodra jouw nummers er staan, kan de standaard op "aan".
+5 levels). Zonder bestanden speelt een klein ingebouwd deuntje. Muziek staat standaard **aan** (sinds v0.13.1, nu de
+nummers er zijn); uitzetten kan via "Muziek: uit" onderaan het hoofdmenu.
 
 ## Bestandsnamen (exact, kleine letters)
 

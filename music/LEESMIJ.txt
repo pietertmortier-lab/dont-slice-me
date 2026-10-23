@@ -12,5 +12,5 @@ Zet hier de MP3-bestanden met exact deze namen (kleine letters):
 
 Eisen: MP3 128-160 kbps, 1 tot 1,5 minuut, geen stilte aan begin/einde, geen zang, gelijk volume.
 Het spel herhaalt elk bestand en vloeit over naar het volgende blad bij een nieuwe keuken.
-Ontbreekt een bestand, dan speelt het kleine ingebouwde deuntje.
+Ontbreekt een bestand, dan speelt het kleine ingebouwde deuntje. Muziek staat standaard aan.
 De uitgewerkte Suno-prompts staan in MUZIEK-suno-prompts.md in deze map.

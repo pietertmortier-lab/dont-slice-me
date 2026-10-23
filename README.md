@@ -52,3 +52,7 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Installeerbaar als app: zet de link op je beginscherm (iPhone: Delen, Zet op beginscherm · Android: menu, App installeren). Eigen icoon, volledig scherm, speelt ook offline.
 - Tips op het eindscherm voor je eerste potjes; zwevende tekstjes stapelen in plaats van over elkaar te vallen; het fruit van de maand (Plus) heeft een knop "Houden" om het definitief te kopen.
+
+## Nieuw in v0.12
+
+- Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.

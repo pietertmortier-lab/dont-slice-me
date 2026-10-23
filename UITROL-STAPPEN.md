@@ -21,6 +21,15 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 - Sinds 0.24.2 staan de testparcoursen van level 80 en level 100 niet meer in de hulptab. De automatische tests
   gebruiken ze nog via een verborgen haak; spelers zien ze niet.
 
+### Voortgang van de accounts (bijgehouden door Claude)
+
+| Dienst | Gedaan | Nog te doen |
+|--------|--------|-------------|
+| Google Play Console | account aangevraagd, identiteitsverificatie loopt (23 oktober) | app aanmaken, winkelvermelding, producten, interne test |
+| RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus` / `noads` / `pass`, producten `noads` en `pass` | credentials JSON uit de Play Console, *Import products*, `plus_month` en `plus_year` aan `plus` koppelen |
+| Firebase | project `dont-slice-me`, web-app (config in `bridge.js`), Authentication Anonymous, Firestore europe-west1 | Blaze-plan, deploy van `native/tourney` vanaf je pc, URL in `FV_TOURNEY_URL` |
+| AdMob | nog niets | app en twee advertentieblokken aanmaken, ID's in manifest en `bridge.js` |
+
 ## 1. Vandaag: de webversie openzetten voor je testpubliek
 
 1. Deel de link https://pietertmortier-lab.github.io/dont-slice-me/ via WhatsApp of mail. Werkt in Chrome, Samsung

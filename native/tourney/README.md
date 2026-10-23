@@ -2,7 +2,7 @@
 
 The game ships with a simulated division (49 seeded opponents) so the whole tournament can be played and tested without a server. This folder holds the real backend: one HTTPS Cloud Function with five actions, a scheduled close on Sunday 23:00 (Europe/Brussels), Firestore rules, and anonymous Firebase Auth for identity.
 
-## Deploy (once, on Pieter's PC)
+## Deploy (once, on the developer's PC)
 
 1. https://console.firebase.google.com: create a project `dont-slice-me`, enable **Authentication → Anonymous** and **Firestore** (production mode, `europe-west1`).
 2. Install Node 20 and the Firebase CLI: `npm install -g firebase-tools`, then `firebase login`.

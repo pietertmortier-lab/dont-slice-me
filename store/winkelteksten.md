@@ -53,5 +53,5 @@ Free to play. Everything can be bought with juice from the game; purchases only 
 - Categorie / category: Arcade. Tags: arcade, casual, offline, single player.
 - Leeftijd / age: 13+ (IARC-vragenlijst: geen geweld tegen mensen, geen gokken; het rad is gratis).
 - Privacybeleid / privacy policy: https://pietertmortier-lab.github.io/dont-slice-me/privacy.html
-- Contact: pieter.tmortier@gmail.com
+- Contact: dont.slice.me@gmail.com
 - Afbeeldingen / graphics: icoon 512 x 512 (icons/icon-512.png in deze repository), feature graphic 1024 x 500 (promo/feature-graphic-nl.png en -en.png), 6 schermafbeeldingen 1080 x 1920 (map promo/).

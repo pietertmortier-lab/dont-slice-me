@@ -1,6 +1,6 @@
 # Voorstel: weekevenementen en Don't Slice Me! Plus
 
-Voor Pieter, 23 oktober 2026. Twee voorstellen die op goedkeuring wachten; er is nog niets van gebouwd.
+23 oktober 2026. Twee voorstellen die op goedkeuring wachten; er is nog niets van gebouwd.
 
 ---
 

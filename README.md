@@ -57,6 +57,10 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.24.4: contactadres van het spel
+
+- Het contactadres in het privacybeleid en de winkelteksten is nu dont.slice.me@gmail.com. Opmerkingen in de broncode en de publieke documenten noemen geen persoonsnamen meer; alleen het privacybeleid noemt de uitgever, zoals de wet vraagt.
+
 ## Nieuw in v0.24.3: laatste Engelse teksten op het speelveld
 
 - De banner van het tussenspel ("Tussenspel · even iets anders", "Tussenspel voorbij"), de titel van het Chefs Examen, het label "lokaas", het weekpas-icoon en de pop-ups van bonusvoorwerpen ("Goudvork!" en zo) zijn nu ook Engels in de Engelse versie. De automatische controle bekijkt voortaan de hele lijst van onvertaalde teksten.
@@ -171,7 +175,7 @@ Tot v0.23 heette het spel Fruitvlucht; de oude testlink werkt niet meer, gebruik
 
 ## Nieuw in v0.13.1
 
-- De zeven muzieknummers van Pieter staan erin en spelen per keukenblad; muziek staat nu standaard aan (uitzetten kan onderaan het menu). Het volgende nummer laadt alvast op de achtergrond, zodat een nieuwe keuken zonder stilte overvloeit.
+- De zeven muzieknummers staan erin en spelen per keukenblad; muziek staat nu standaard aan (uitzetten kan onderaan het menu). Het volgende nummer laadt alvast op de achtergrond, zodat een nieuwe keuken zonder stilte overvloeit.
 
 ## Nieuw in v0.13
 

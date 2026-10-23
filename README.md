@@ -57,6 +57,13 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.17: Mes van de dag is een eigen proef
+
+- Snelkookpan: iedereen start op level 10 en elk level is drie keer zo kort, dus het mes versnelt snel. Klontjes tellen enkel; het extra sap verdien je met de dagdoelen.
+- Dagregel: elke dag één (om de drie dagen twee) regels, dezelfde voor iedereen: Blind mes, Dubbel mes, Donkere keuken, Spiegel, Stroop op de plank, Geen bonusvoorwerpen, Reuzenfruit, Krimpende plank, Jager. Je leest ze op het Vandaag-scherm voor je op Speel drukt.
+- Dagdoelen: drie per dag, elk 150 sap; alle drie gehaald geeft +300 sap en een Chefstempel. Zeven Chefstempels: het hoedje Dagmes-speld.
+- Het dagmes is zwart met een rode snede; de deeltekst noemt je level, tijd en dagregel.
+
 ## Nieuw in v0.16
 
 - Delen loont: op het eindscherm staat bij de deelknop "+1 hartje". Wie de uitdaging deelt (of de tekst kopieert), krijgt elke dag één hartje.

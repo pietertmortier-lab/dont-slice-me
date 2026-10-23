@@ -67,7 +67,8 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 1. **Google Play Console** (verplicht): https://play.google.com/console, aanmelden met je Google-account. Kies
    "persoonlijk" of maak een zakelijk account. Eenmalig 25 dollar, identiteitscontrole (ID-kaart, adres; soms
    enkele dagen). Een persoonlijk account moet voor de eerste publieke release een gesloten test doen met minstens
-   20 testers gedurende 14 dagen.
+   12 testers die 14 dagen onafgebroken ingeschreven blijven (Google verlaagde dit in december 2024 van 20 naar 12).
+   Die 14 dagen tellen alleen in de Play Console, niet tijdens de webtest.
 2. **AdMob** (advertenties): https://admob.google.com, zelfde Google-account. Maak een app aan ("Don't Slice Me!",
    Android, nog niet in de store, pakketnaam `com.dontsliceme.app`). Maak twee advertentieblokken: *Beloning*
    (rewarded) en *Interstitial*. Noteer drie codes: de app-ID (`ca-app-pub-…~…`) en de twee blok-ID's
@@ -134,7 +135,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
    toevoegen en koppelen aan "entitlements" (Plus, noads, en één per eenmalig product).
 6. *Testen > Interne test*: upload de `.aab`, voeg jezelf en vrienden toe als testers (e-mailadressen), deel de
    link. Hier test je advertenties (testblokken) en aankopen (licentietesters betalen niet).
-7. *Testen > Gesloten test*: nieuwe release met dezelfde `.aab`, minstens 20 testers, 14 dagen laten lopen. Vraag ze
+7. *Testen > Gesloten test*: nieuwe release met dezelfde `.aab`, minstens 12 testers, 14 dagen laten lopen. Vraag ze
    om echt te spelen; na 14 dagen verschijnt de knop *Toegang tot productie aanvragen*. Je webtesters van fase 1 zijn
    hiervoor de eerste kandidaten.
 8. *Productie*: zet `testing: false` in `bridge.js`, bouw opnieuw, upload, gefaseerde uitrol 10 procent. Google
@@ -197,7 +198,7 @@ plausibiliteit en rekent zondag 23 u de week af.
 | Product-ID's en prijzen | `index.html` onder `PRODUCTS`; de lijst in fase 4 punt 4 | Play Console > *Monetisatie* > *Producten* > *In-app-producten* (eenmalige producten) en > *Abonnementen* (`plus_month`, `plus_year`). Daarna dezelfde ID's in RevenueCat > *Products* en *Entitlements*. |
 | Toernooiserver-URL | `native/bridge.js`, `FV_TOURNEY_URL` | **Ingevuld op 23 oktober 2026**: https://europe-west1-dont-slice-me.cloudfunctions.net/tourney |
 | Play Store-link van de app | bestaat pas na de eerste release | Stuur ze naar mij: ik zet ze in `index.html` bij `STORE_URL` (deelknop) en in `README.md`. Zet ze ook in de beschrijving van je YouTube-video's en je socialemediaprofielen. |
-| Testers | fase 1: je WhatsApp-groep of formulier | Play Console > *Testen* > *Interne test* > *Testers*: een lijst e-mailadressen (Google-accounts). Voor de gesloten test: dezelfde lijst, minstens 20 adressen. |
+| Testers | fase 1: je WhatsApp-groep of formulier | Play Console > *Testen* > *Interne test* > *Testers*: een lijst e-mailadressen (Google-accounts). Voor de gesloten test: dezelfde lijst, minstens 12 adressen; vraag er 15 zodat een afhaker de teller niet onder 12 brengt. |
 | Webtestlink | https://pietertmortier-lab.github.io/dont-slice-me/ | Rechtstreeks delen; staat ook bovenaan `README.md`. |
 | Muziek | `music/` (zeven mp3's en de Suno-prompts) | Niets te doen; de app en de webversie laden ze uit deze map. |
 

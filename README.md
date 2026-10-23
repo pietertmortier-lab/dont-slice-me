@@ -57,6 +57,13 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.20: direct Opnieuw na een snee, volledig Engels, Plus zonder proef
+
+- Na een snee kom je meteen op het eindscherm met Opnieuw; de tweede kans is de knop "Verder vanaf level N · filmpje" op datzelfde scherm (gratis op het testparcours). Zonder hartjes blijft het filmpje voor +1 leven op het hartjesscherm.
+- De Engelse versie is nu volledig: alle schermen, de tussenspelen, Mes van de dag, de Fruitkaart, de winkel en de deelteksten; "sap" heet in het Engels "juice".
+- De deelknop vermeldt straks de Play Store-link zodra die er is (nu de weblink).
+- Fruitvlucht Plus: de knop "7 dagen gratis" is weg.
+
 ## Nieuw in v0.19: ronde 4 (levels 100 tot 140) en het fruit springt over je vinger
 
 - Het fruit glijdt niet meer door je vinger heen: het springt in één keer van boven naar onder je vinger (en terug), met een kleine marge zodat het niet flappert.

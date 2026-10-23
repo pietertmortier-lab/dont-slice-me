@@ -29,6 +29,15 @@ The game ships with a simulated division (49 seeded opponents) so the whole tour
 
 Plausibility: a score above `seconds × MAX_PER_SEC[event] + 50` is refused. Groups fill to 50 per division in order of arrival; a player stays in their group for the week. `closeWeek` writes a `results/{uid}` document per player (rank, prize, promotion/relegation, fragment for the top 10) that the client claims once.
 
+## Duels, challenges and rivals (v0.29)
+
+- `duelfind` `{ day, level }` -> `{ opp }`: a finished entry of today's duel from a similar level band (its score, time and ghost path), or `null`.
+- `duel` `{ day, score, seconds, level, fruit, name, ghost, t, vs, vsScore }`: stores my entry once per day (`duels/{day}/entries/{uid}`), notes the picked opponent, settles friend challenges whose both sides played.
+- `challenge` `{ uid, day }`: challenges a friend to today's duel (`duels/{day}/challenges/{a_b}`); the loser pays 200 juice and wears the pan hat for a day (applied client-side from the note).
+- `friends` now also takes `{ day }` and returns `notes` (duel results, challenges, picks, passes; handed out once) and today's `challenges`.
+- `rivals` `{ level, keep }` -> two profiles just above my level (fresh views of `keep` while the week lasts); `passed` `{ uid }` notes a rival that I passed them.
+- Deploy again after pulling: `firebase deploy --only functions,firestore` from this folder. No new indexes are needed (equality filters and a single-field order on `profiles.level`).
+
 ## Costs
 
 Firestore reads are the main cost: one ladder read per screen open (≤ 50 documents). At 10,000 players that is a few euros a month on the Blaze plan; the Spark plan covers the first tests.

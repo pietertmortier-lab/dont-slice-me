@@ -16,6 +16,19 @@ const DIV_SIZE = 50;
 const MAX_PER_SEC = { sapstorm: 12, nacht: 3, estafette: 10, jacht: 2 };
 // Friends: every player has a short code; opening an invite link (or typing the code) makes two players friends at once.
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', MAX_FRIENDS = 50, FRIEND_SAP = 300, MAX_INVITE_REWARDS = 10;
+// Duels (v0.29): one seeded knife sequence a day; a player is paired with a finished entry of a similar level and sees
+// its ghost. Friend challenges are settled when both have played that day's duel. Rivals: two players just above you.
+const DUEL_MAX_PER_SEC = 15, CHALLENGE_SAP = 200, LOSER_HAT = 'pannetje', GHOST_MAX = 2400, DAY_RX = /^\d{4}-\d{2}-\d{2}$/;
+const bandOf = level => Math.floor(Math.max(1, Number(level) || 1) / 15);
+const dayOk = day => { if (!DAY_RX.test(String(day || ''))) return false; const t = Date.parse(day + 'T12:00:00Z'); return Math.abs(t - Date.now()) < 2 * 86400000; }; // today, give or take a day of timezone
+const noteTo = (other, note) => db.doc(`profiles/${other}`).set({ notes: admin.firestore.FieldValue.arrayUnion(Object.assign({ at: Date.now() }, note)) }, { merge: true });
+async function settleChallenge(day, c, ref) { // both entries present: the higher score wins; a tie pays nothing
+  const [a, b] = await Promise.all([db.doc(`duels/${day}/entries/${c.from}`).get(), db.doc(`duels/${day}/entries/${c.to}`).get()]);
+  if (!a.exists || !b.exists) return false; const sa = a.data().score || 0, sb = b.data().score || 0;
+  await Promise.all([noteTo(c.from, { type: 'duel', vs: c.toName || 'vriend', won: sa > sb, tie: sa === sb, score: sa, theirs: sb, sap: CHALLENGE_SAP, hat: LOSER_HAT, day }),
+    noteTo(c.to, { type: 'duel', vs: c.fromName || 'vriend', won: sb > sa, tie: sa === sb, score: sb, theirs: sa, sap: CHALLENGE_SAP, hat: LOSER_HAT, day }), ref.update({ resolved: true, settled: Date.now() })]);
+  return true;
+}
 const newCode = () => Array.from({ length: 6 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
 const cleanCode = v => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
 const clampInt = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.floor(Number(v) || 0)));
@@ -94,12 +107,58 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, 
       batch.set(db.doc(`friends/${uid}/of/${other}`), { since: now }); batch.set(db.doc(`friends/${other}/of/${uid}`), { since: now });
       if (rewardOk) { batch.set(db.doc(`profiles/${other}`), { inviteRewards: admin.firestore.FieldValue.increment(1), pending: admin.firestore.FieldValue.arrayUnion({ from: String(mp.name || 'Een vriend').slice(0, 16), sap: FRIEND_SAP }) }, { merge: true }); }
       await batch.commit(); res.json({ ok: true, friend: profileView(other, op), reward: rewardOk ? FRIEND_SAP : 0 });
-    } else if (action === 'friends') { // -> { code, friends: [...], rewards: [{from, sap}] } (rewards are handed out once)
+    } else if (action === 'friends') { // { day? } -> { code, friends, rewards: [{from, sap}], notes: [...], challenges: [...] } (rewards and notes are handed out once)
       const meRef = db.doc(`profiles/${uid}`), me = (await meRef.get()).data() || {}; const list = await db.collection(`friends/${uid}/of`).get();
       const refs = list.docs.map(d => db.doc(`profiles/${d.id}`)); const docs = refs.length ? await db.getAll(...refs) : [];
       const friends = docs.map(d => profileView(d.id, d.data())).filter(Boolean);
-      const rewards = Array.isArray(me.pending) ? me.pending : []; if (rewards.length) await meRef.set({ pending: [] }, { merge: true });
-      res.json({ ok: true, code: me.code || '', friends, rewards });
+      const rewards = Array.isArray(me.pending) ? me.pending : [], notes = Array.isArray(me.notes) ? me.notes.slice(0, 20) : [];
+      if (rewards.length || notes.length) await meRef.set({ pending: [], notes: [] }, { merge: true });
+      let challenges = [];
+      if (dayOk(body.day)) { // today's open friend duels involving me, with who has played
+        const [asFrom, asTo] = await Promise.all([db.collection(`duels/${body.day}/challenges`).where('from', '==', uid).get(), db.collection(`duels/${body.day}/challenges`).where('to', '==', uid).get()]);
+        const all = asFrom.docs.concat(asTo.docs).map(d => Object.assign({ id: d.id }, d.data()));
+        const ids = Array.from(new Set(all.flatMap(c => [c.from, c.to]))); const ents = ids.length ? await db.getAll(...ids.map(i => db.doc(`duels/${body.day}/entries/${i}`))) : []; const played = new Set(ents.filter(e => e.exists).map(e => e.id));
+        for (const c of all) if (!c.resolved && played.has(c.from) && played.has(c.to)) { await settleChallenge(body.day, c, db.doc(`duels/${body.day}/challenges/${c.id}`)); c.resolved = true; }
+        challenges = all.map(c => ({ from: c.from, to: c.to, mine: c.from === uid ? 'from' : 'to', fromName: c.fromName || '', toName: c.toName || '', fromPlayed: played.has(c.from), toPlayed: played.has(c.to), resolved: !!c.resolved }));
+        const fresh = (await meRef.get()).data() || {}; if (Array.isArray(fresh.notes) && fresh.notes.length) { notes.push(...fresh.notes.slice(0, 20)); await meRef.set({ notes: [] }, { merge: true }); }
+      }
+      res.json({ ok: true, code: me.code || '', friends, rewards, notes, challenges });
+    } else if (action === 'duelfind') { // { day, level } -> an opponent of a similar level who already played today's duel (with ghost), or null
+      if (!dayOk(body.day)) { res.status(400).json({ error: 'day' }); return; }
+      const band = bandOf(body.level); let snap = await db.collection(`duels/${body.day}/entries`).where('band', '==', band).limit(30).get();
+      if (snap.docs.filter(d => d.id !== uid).length === 0) snap = await db.collection(`duels/${body.day}/entries`).limit(30).get(); // nobody of my level yet: anyone will do
+      const cands = snap.docs.filter(d => d.id !== uid).map(d => Object.assign({ uid: d.id }, d.data())).sort((a, b) => (a.picked || 0) - (b.picked || 0)).slice(0, 5);
+      if (!cands.length) { res.json({ ok: true, opp: null }); return; }
+      const o = cands[Math.floor(Math.random() * cands.length)]; await db.doc(`duels/${body.day}/entries/${o.uid}`).set({ picked: admin.firestore.FieldValue.increment(1) }, { merge: true });
+      res.json({ ok: true, opp: { uid: o.uid, name: o.name, fruit: o.fruit, level: o.level, score: o.score, t: o.t, ghost: o.ghost || '' } });
+    } else if (action === 'duel') { // { day, score, seconds, level, fruit, name, ghost, t, vs, vsScore }: my finished duel; settles friend challenges that are complete now
+      if (!dayOk(body.day)) { res.status(400).json({ error: 'day' }); return; }
+      const score = clampInt(body.score, 0, 1e6), seconds = Math.max(1, Number(body.seconds) || 1); if (score > seconds * DUEL_MAX_PER_SEC + 50) { res.status(400).json({ error: 'implausible' }); return; }
+      const ref = db.doc(`duels/${body.day}/entries/${uid}`); if ((await ref.get()).exists) { res.json({ ok: true, dup: true }); return; }
+      const name = String(body.name || 'Fruit').replace(/[^\p{L}\p{N} \-]/gu, '').slice(0, 16) || 'Fruit';
+      await ref.set({ score, level: clampInt(body.level, 1, 500), band: bandOf(body.level), fruit: String(body.fruit || 'appel').slice(0, 24), name, ghost: String(body.ghost || '').replace(/[^0-9,\-]/g, '').slice(0, GHOST_MAX * 8), t: clampInt(body.t, 0, 120000), picked: 0, updatedMs: Date.now() });
+      const vs = String(body.vs || '').slice(0, 128); if (vs && vs !== uid) { try { await noteTo(vs, { type: 'picked', by: name, won: score > clampInt(body.vsScore, 0, 1e6), score, theirs: clampInt(body.vsScore, 0, 1e6), day: body.day }); } catch (e) {} }
+      const [asFrom, asTo] = await Promise.all([db.collection(`duels/${body.day}/challenges`).where('from', '==', uid).get(), db.collection(`duels/${body.day}/challenges`).where('to', '==', uid).get()]);
+      let settled = 0; for (const d of asFrom.docs.concat(asTo.docs)) { const c = d.data(); if (!c.resolved && await settleChallenge(body.day, c, d.ref)) settled++; }
+      res.json({ ok: true, settled });
+    } else if (action === 'challenge') { // { uid, day }: challenge a friend to today's duel; the loser pays CHALLENGE_SAP and wears the pan for a day
+      const other = String(body.uid || '').slice(0, 128); if (!other || other === uid || !dayOk(body.day)) { res.status(400).json({ error: 'uid' }); return; }
+      const [isFriend, mp, op] = await Promise.all([db.doc(`friends/${uid}/of/${other}`).get(), db.doc(`profiles/${uid}`).get(), db.doc(`profiles/${other}`).get()]);
+      if (!isFriend.exists) { res.json({ ok: false, error: 'notfriend' }); return; }
+      const id = [uid, other].sort().join('_'), ref = db.doc(`duels/${body.day}/challenges/${id}`); if ((await ref.get()).exists) { res.json({ ok: true, already: true }); return; }
+      const fromName = String((mp.data() || {}).name || 'Een vriend').slice(0, 16), toName = String((op.data() || {}).name || 'vriend').slice(0, 16);
+      await ref.set({ from: uid, to: other, fromName, toName, resolved: false, created: Date.now() }); await noteTo(other, { type: 'challenge', by: fromName, day: body.day });
+      const c = { from: uid, to: other, fromName, toName }; const settled = await settleChallenge(body.day, c, ref); res.json({ ok: true, settled });
+    } else if (action === 'rivals') { // { level, keep: [uid] } -> two players just above me (fresh views of the kept ones while the week lasts)
+      const keep = (Array.isArray(body.keep) ? body.keep : []).map(String).slice(0, 2).filter(u => u && u !== uid);
+      let rows = [];
+      if (keep.length) { const docs = await db.getAll(...keep.map(u => db.doc(`profiles/${u}`))); rows = docs.filter(d => d.exists).map(d => profileView(d.id, d.data())); }
+      if (rows.length < 2) { const lvl = clampInt(body.level, 1, 500); const snap = await db.collection('profiles').where('level', '>', lvl).orderBy('level', 'asc').limit(8).get();
+        for (const d of snap.docs) { if (rows.length >= 2) break; if (d.id === uid || rows.some(r => r.uid === d.id)) continue; rows.push(profileView(d.id, d.data())); } }
+      res.json({ ok: true, rivals: rows.slice(0, 2) });
+    } else if (action === 'passed') { // { uid }: tell a rival I passed them
+      const other = String(body.uid || '').slice(0, 128); if (!other || other === uid) { res.status(400).json({ error: 'uid' }); return; }
+      const mp = (await db.doc(`profiles/${uid}`).get()).data() || {}; await noteTo(other, { type: 'passed', by: String(mp.name || 'Een speler').slice(0, 16), level: mp.level || 1 }); res.json({ ok: true });
     } else if (action === 'unfriend') { // { uid }
       const other = String(body.uid || '').slice(0, 128); if (!other) { res.status(400).json({ error: 'uid' }); return; }
       const batch = db.batch(); batch.delete(db.doc(`friends/${uid}/of/${other}`)); batch.delete(db.doc(`friends/${other}/of/${uid}`)); await batch.commit(); res.json({ ok: true });

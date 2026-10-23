@@ -57,6 +57,25 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.29: Duel van de dag, vriendenduels, rivalen en Seizoen 1
+
+- **Duel van de dag** (Spellen): iedereen krijgt dezelfde messen, vanaf level 10, 90 seconden; score = sap. Je wordt gekoppeld aan een
+  speler van jouw niveau die vandaag al speelde en ziet zijn fruit als schim over jouw plank bewegen, tot het moment waarop hij gesneden
+  werd. Speelde nog niemand (of ben je offline), dan duelleer je met De Chef. Inzet 100 sap, de winnaar krijgt 200 (tegen De Chef 150).
+  Eén duel per dag, kost geen hartje.
+- **Vriendenduels**: open een vriend op het Vrienden-scherm en tik "Daag uit voor een duel". Jullie spelen allebei het duel van die dag;
+  zodra beide scores binnen zijn, betaalt de verliezer 200 sap en draagt hij een dag lang het **Pannetje**, zichtbaar voor zijn vrienden.
+- **Rivalen van de week**: twee spelers die net boven je staan. Haal ze in en je krijgt 300 sap; zij krijgen een berichtje. Elke maandag nieuwe.
+- **Seizoen 1 · Het Laatste Gerecht**: zes weken, elke week een hoofdstuk tegen De Chef en zijn hakbijl (60 seconden overleven, met een eigen
+  regel per hoofdstuk). Elk gehaald hoofdstuk geeft 500 sap en laat de Regenboogkiwi een stap evolueren (speelbaar, glinsterend, goud, gloeiend,
+  ...). Alle zes gehaald: de kiwi blijft voor altijd van jou, plus de titel Seizoensheld en 2.000 sap. Hoofdstuk 1 staat open vanaf 19 oktober,
+  hoofdstuk 2 vanaf 26 oktober, enzovoort.
+- Pauzescherm toont nu welk muzieknummer speelt (handig om de keukenmuziek te controleren).
+- **Server:** de duels, uitdagingen en rivalen draaien op de toernooiserver. Na het binnenhalen van deze versie opnieuw uitrollen vanaf de PC:
+  `cd C:\Users\piete\dont-slice-me\native\tourney` en dan `firebase deploy --only functions,firestore`. Tot die deploy speel je het duel
+  tegen De Chef en blijven vriendenduels en rivalen leeg.
+- **Testvraag:** is 90 seconden een goede duellengte? Voelt de schim eerlijk? Is De Chef in hoofdstuk 1 haalbaar voor een beginner?
+
 ## Nieuw in v0.28: flow-meter, Fruit Fever en je aartsvijand
 
 - **Flow-meter** rechtsboven: elke "Net niet!" vult hem een kwart, een snee maakt hem leeg. Hij blijft 4 seconden staan na een

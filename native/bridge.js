@@ -1,4 +1,4 @@
-// Fruitvlucht native bridge: AdMob videos and RevenueCat purchases for the Capacitor app.
+// Don't Slice Me! native bridge: AdMob videos and RevenueCat purchases for the Capacitor app.
 // The game only talks to window.FV_NATIVE; without it (the web version) everything stays a simulation.
 // Fill in the real IDs from ../UITROL-STAPPEN.md. The AdMob IDs below are Google's official test IDs.
 (async () => {

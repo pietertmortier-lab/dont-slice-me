@@ -1,4 +1,4 @@
-# Fruitvlucht (prototype)
+# Don't Slice Me! (prototype, voorheen Fruitvlucht)
 
 A reverse Fruit Ninja for phones: you *are* the fruit and a kitchen knife keeps slashing across the cutting
 board. Survive, collect sugar cubes, climb the levels, unlock 24 fruits.
@@ -56,6 +56,11 @@ from there by hand, so the version label in the menu tells you which build you a
 ## Nieuw in v0.12
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
+
+## Nieuw in v0.24.0: het spel heet nu Don't Slice Me!
+
+- De naam is in alle talen "Don't Slice Me!", ook in het Nederlands. Titel, logo, deeltekst en deelkaart, de naam van het Plus-abonnement, de winkelteksten, het privacybeleid en de Android-configuratie (pakketnaam `be.pietertmortier.dontsliceme`) zijn hernoemd.
+- Je opgeslagen voortgang blijft gewoon werken; ook de testlink blijft dezelfde. De promovideo's en winkelbeelden in `promo/` zijn opnieuw gemaakt met de nieuwe naam.
 
 ## Nieuw in v0.23.1: laatste Engelse restjes, nieuwe promovideo's en schermafbeeldingen
 

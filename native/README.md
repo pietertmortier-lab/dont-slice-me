@@ -1,4 +1,4 @@
-# Fruitvlucht - app-schil voor Android (Capacitor)
+# Don't Slice Me! - app-schil voor Android (Capacitor)
 
 Deze map maakt van de webversie een Android-app met echte advertenties (AdMob) en echte aankopen
 (RevenueCat op Google Play Billing). Het spel zelf blijft `index.html` in de hoofdmap; deze map voegt alleen de
@@ -27,6 +27,6 @@ wat vastloopt.
   simulatiescherm. De brug toont een AdMob-video en belooft `true` als de speler ze afmaakte.
 - Elke betaalde knop in het spel heeft een product-ID (`PRODUCTS` in `index.html`). Bestaat
   `window.FV_NATIVE.buy(sku)`, dan koopt de brug via RevenueCat en pas bij succes voert het spel de aankoop
-  uit. Fruitvlucht Plus is een abonnement (maand en jaar).
+  uit. Don't Slice Me! Plus is een abonnement (maand en jaar).
 - `window.FV_NATIVE.restore()` herstelt eerdere aankopen (knop Aankopen herstellen in de winkel).
 - Zonder internet of zonder sleutels doet de brug niets en blijft alles een simulatie, zodat testen altijd kan.

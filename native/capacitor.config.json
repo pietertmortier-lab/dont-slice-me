@@ -1,6 +1,6 @@
 {
-  "appId": "be.pietertmortier.fruitvlucht",
-  "appName": "Fruitvlucht",
+  "appId": "be.pietertmortier.dontsliceme",
+  "appName": "Don't Slice Me!",
   "webDir": "www",
   "android": { "allowMixedContent": false, "backgroundColor": "#17100b" },
   "plugins": { "AdMob": { "appId": "ca-app-pub-3940256099942544~3347511713" } }

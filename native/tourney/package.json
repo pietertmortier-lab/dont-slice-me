@@ -1,7 +1,7 @@
 {
-  "name": "fruitvlucht-tourney",
+  "name": "dontsliceme-tourney",
   "private": true,
-  "description": "Cloud Functions for the Fruitvlucht Kitchen Tournament (weekly ladders)",
+  "description": "Cloud Functions for the Don't Slice Me! Kitchen Tournament (weekly ladders)",
   "engines": { "node": "20" },
   "main": "index.js",
   "scripts": { "deploy": "firebase deploy --only functions,firestore:rules", "logs": "firebase functions:log" },

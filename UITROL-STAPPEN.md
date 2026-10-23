@@ -1,10 +1,14 @@
-# Fruitvlucht - jouw stappen naar de Play Store (exact, in volgorde)
+# Don't Slice Me! - jouw stappen naar de Play Store (exact, in volgorde)
 
 Alles wat ik kon voorbereiden staat in deze repository: het spel (`index.html`), het privacybeleid
 (`privacy.html`, online op https://pietertmortier-lab.github.io/fruitvlucht/privacy.html), de winkelteksten
 (`store/winkelteksten.md`), de Android-schil (`native/`) en de promovideo (`promo/`). Hieronder staat alleen wat
 jij zelf moet doen, omdat het accounts, betalingen of jouw PC vraagt. Reken op drie dagdelen werk plus de
 verplichte wachttijd van veertien dagen voor de gesloten test.
+
+## De app-id (pakketnaam) is `be.pietertmortier.dontsliceme`
+
+De pakketnaam staat in `native/capacitor.config.json` en wordt bij `npx cap add android` in het Android-project gezet. Hij is definitief zodra de eerste app-bundle in de Play Console is geupload; tot dan kan hij vrij veranderen. Had je al een map `native/android` gemaakt met de oude naam, verwijder die dan en voer `npx cap add android` opnieuw uit. AdMob, Firebase en RevenueCat vragen dezelfde pakketnaam; vul overal de nieuwe in.
 
 ## Stap 1: accounts (een avond)
 
@@ -14,15 +18,15 @@ verplichte wachttijd van veertien dagen voor de gesloten test.
    dagen). Nieuw sinds 2023: een persoonlijk account moet voor de eerste publieke release een gesloten test
    doen met minstens 20 testers gedurende 14 dagen.
 2. **AdMob** (advertenties): https://admob.google.com, zelfde Google-account. Maak een app aan
-   ("Fruitvlucht", Android, nog niet in de store). Maak twee advertentieblokken: *Beloning* (rewarded) en
+   ("Don't Slice Me!", Android, nog niet in de store). Maak twee advertentieblokken: *Beloning* (rewarded) en
    *Interstitial*. Noteer drie codes: de app-ID (`ca-app-pub-…~…`) en de twee blok-ID's (`ca-app-pub-…/…`).
    Vul ook je betaalgegevens in (IBAN) en de belastinginfo, anders wordt er niet uitbetaald.
 3. **RevenueCat** (aankopen en abonnement, gratis tot 2.500 dollar omzet per maand): https://app.revenuecat.com.
-   Maak een project "Fruitvlucht", voeg een Play Store-app toe. Je hebt hiervoor straks de Google
+   Maak een project "Don't Slice Me!", voeg een Play Store-app toe. Je hebt hiervoor straks de Google
    service-account-sleutel uit stap 3 nodig; RevenueCat legt het stap voor stap uit. Noteer de **public
    Google API key** (`goog_…`).
 4. **Firebase** (alleen statistieken en crashes, gratis): https://console.firebase.google.com, project
-   "Fruitvlucht", Android-app met pakketnaam `be.pietertmortier.fruitvlucht`. Download `google-services.json`.
+   "Don't Slice Me!", Android-app met pakketnaam `be.pietertmortier.dontsliceme`. Download `google-services.json`.
    Dit mag ook later.
 
 ## Stap 2: op je PC (een middag)
@@ -43,13 +47,13 @@ verplichte wachttijd van veertien dagen voor de gesloten test.
 
 ## Stap 3: Play Console invullen (een avond)
 
-1. *Alle apps > App maken*: naam "Fruitvlucht", standaardtaal Nederlands (Vlaanderen) of Engels, app, gratis.
+1. *Alle apps > App maken*: naam "Don't Slice Me!", standaardtaal Nederlands (Vlaanderen) of Engels, app, gratis.
 2. *Instellen van je app*: privacybeleid-URL (hierboven), app-toegang (geen login), advertenties: ja,
    contentbeoordeling (IARC-vragenlijst: geen echt geweld, geen gokken, 13+), doelgroep 13+, nieuwsapp: nee,
    data safety: "verzamelt advertentie-ID en aankoopgeschiedenis via Google; geen accountgegevens".
 3. *Winkelvermelding*: teksten uit `store/winkelteksten.md` (NL en EN), icoon 512 (`icons/icon-512.png`),
    feature graphic 1024 x 500 (`promo/feature-graphic.png`), schermafbeeldingen (`promo/screens/`), promovideo
-   (upload `promo/fruitvlucht-promo-30s.mp4` naar YouTube als "niet vermeld" en plak de link).
+   (upload `promo/dont-slice-me-promo-30s-nl.mp4` (en de EN-versie) naar YouTube als "niet vermeld" en plak de link).
 4. *Monetisatie > Producten*: maak de producten aan met exact deze ID's (dezelfde staan in `index.html` onder
    `PRODUCTS`): `sap_3000` 0,99 · `sap_10000` 2,49 · `hearts_5` 0,99 · `unlimited_24h` 1,99 · `unlimited_30m`
    0,49 · `key` 0,99 · `doubler_1h` 0,99 · `coins_5` 0,99 · `boost_5` 0,49 · `shield` 0,99 · `pass` 4,99 ·
@@ -83,7 +87,7 @@ verplichte wachttijd van veertien dagen voor de gesloten test.
 
 Het toernooi werkt nu met een gesimuleerde divisie (49 vaste tegenstanders), zodat alles te testen is. Voor echte ladders komt er een kleine server. De code staat klaar in `native/tourney/` (Cloud Functions + Firestore-regels). Wat jij doet:
 
-1. Ga naar https://console.firebase.google.com, maak een project "fruitvlucht" (Analytics mag uit).
+1. Ga naar https://console.firebase.google.com, maak een project "dont-slice-me" (Analytics mag uit).
 2. Zet **Authentication** aan met de aanmeldmethode "Anoniem".
 3. Zet **Firestore** aan (productiemodus, regio europe-west1).
 4. Installeer op je pc Node 20 en de Firebase CLI (`npm install -g firebase-tools`), log in met `firebase login`.

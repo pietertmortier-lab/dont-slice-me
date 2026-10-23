@@ -1,4 +1,4 @@
-// Fruitvlucht Keukentoernooi: the small server behind the weekly ladders.
+// Don't Slice Me! Keukentoernooi: the small server behind the weekly ladders.
 // One HTTPS Cloud Function ("tourney") with four actions, Firestore as storage, anonymous Firebase Auth for identity.
 // The game keeps working without it (simulated division); with it, divisions of 50 real players, a weekly close with
 // prizes, and plausibility checks on every score. Deploy: see README.md in this folder.

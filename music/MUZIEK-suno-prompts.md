@@ -1,4 +1,4 @@
-# Fruitvlucht - muziek per keukenblad (Suno-prompts)
+# Don't Slice Me! - muziek per keukenblad (Suno-prompts)
 
 Het spel speelt per keukenblad een eigen nummer en vloeit over naar het volgende bij een nieuwe keuken (elke
 5 levels). Zonder bestanden speelt een klein ingebouwd deuntje. Muziek staat standaard **aan** (sinds v0.13.1, nu de
@@ -16,7 +16,7 @@ nummers er zijn); uitzetten kan via "Muziek: uit" onderaan het hoofdmenu.
 | Keuken 5 - Koperen blad (21-25)     | `music/keuken-5-koperen-blad.mp3`    |
 | Keuken 6 - Nachtkeuken (26+)        | `music/keuken-6-nachtkeuken.mp3`     |
 
-De map `music/` staat naast `index.html` in de fruitvlucht-repository (GitHub Pages). Uploaden kan via
+De map `music/` staat naast `index.html` in de dont-slice-me-repository (GitHub Pages). Uploaden kan via
 GitHub (Add file > Upload files) of je stuurt mij de bestanden en ik zet ze erbij.
 
 ## Technische eisen per bestand

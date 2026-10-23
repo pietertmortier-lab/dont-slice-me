@@ -1,15 +1,15 @@
-# Don't Slice Me! (prototype, voorheen Fruitvlucht)
+# Don't Slice Me! (prototype)
 
 A reverse Fruit Ninja for phones: you *are* the fruit and a kitchen knife keeps slashing across the cutting
 board. Survive, collect sugar cubes, climb the levels, unlock 24 fruits.
 
-**Play it in any browser (phone recommended):** https://pietertmortier-lab.github.io/fruitvlucht/
+**Play it in any browser (phone recommended):** https://pietertmortier-lab.github.io/dont-slice-me/
 
 This repository only hosts the playable page. It is a single HTML file with no server, no tracking and no
 real purchases: everything that looks like a purchase is a simulation for playtesting. Progress is kept in
 your own browser.
 
-The game is developed in the `prototypes/fruitvlucht/` folder of a private repository; this copy is updated
+The game is developed in the `prototypes/dont-slice-me/` folder of a private repository; this copy is updated
 from there by hand, so the version label in the menu tells you which build you are playing.
 
 ## Voor testers
@@ -46,7 +46,7 @@ from there by hand, so the version label in the menu tells you which build you a
 
 ## Nieuw in v0.11
 
-- Fruitvlucht Plus als simulatie: 7 dagen gratis proberen, daarna maand of jaar. Geen reclame, hartjes groeien dubbel zo snel en één extra, Fruitpas premium elk seizoen, elke dag 2 munten en een Startboost, Dagdeal voor een derde, elke maand een fruit gratis te spelen, gouden koksmuts en de bordskin Plus-marmer. Opzeggen kan altijd; je houdt het hoedje en de skin.
+- Don't Slice Me! Plus als simulatie: 7 dagen gratis proberen, daarna maand of jaar. Geen reclame, hartjes groeien dubbel zo snel en één extra, Fruitpas premium elk seizoen, elke dag 2 munten en een Startboost, Dagdeal voor een derde, elke maand een fruit gratis te spelen, gouden koksmuts en de bordskin Plus-marmer. Opzeggen kan altijd; je houdt het hoedje en de skin.
 
 ## Nieuw in v0.11.1 en v0.11.2
 
@@ -59,7 +59,9 @@ from there by hand, so the version label in the menu tells you which build you a
 
 ## Nieuw in v0.24.0: het spel heet nu Don't Slice Me!
 
-- De naam is in alle talen "Don't Slice Me!", ook in het Nederlands. Titel, logo, deeltekst en deelkaart, de naam van het Plus-abonnement, de winkelteksten, het privacybeleid en de Android-configuratie (pakketnaam `be.pietertmortier.dontsliceme`) zijn hernoemd.
+Tot v0.23 heette het spel Fruitvlucht; de oude testlink werkt niet meer, gebruik de link bovenaan.
+
+- De naam is in alle talen "Don't Slice Me!", ook in het Nederlands. Titel, logo, deeltekst en deelkaart, de naam van het Plus-abonnement, de winkelteksten, het privacybeleid en de Android-configuratie (pakketnaam `com.dontsliceme.app`) zijn hernoemd.
 - Je opgeslagen voortgang blijft gewoon werken; ook de testlink blijft dezelfde. De promovideo's en winkelbeelden in `promo/` zijn opnieuw gemaakt met de nieuwe naam.
 
 ## Nieuw in v0.23.1: laatste Engelse restjes, nieuwe promovideo's en schermafbeeldingen
@@ -85,14 +87,14 @@ from there by hand, so the version label in the menu tells you which build you a
 ## Nieuw in v0.21: fruit altijd boven je vinger, Plus met echte voordelen
 
 - Het fruit zweeft nu altijd net boven je vinger, overal op het bord; geen sprong en geen omslag onderaan meer.
-- Fruitvlucht Plus: onbeperkte hartjes, +25% sap op elke poging, rad/dagreeks/opdrachten betalen dubbel, elke maandag een Plus-kist (1.500 sap + 1 hartje), het fruit van de maand blijft van jou na 10 levels ermee, en elk seizoen een exclusief hoedje (nu de Herfstbaret).
+- Don't Slice Me! Plus: onbeperkte hartjes, +25% sap op elke poging, rad/dagreeks/opdrachten betalen dubbel, elke maandag een Plus-kist (1.500 sap + 1 hartje), het fruit van de maand blijft van jou na 10 levels ermee, en elk seizoen een exclusief hoedje (nu de Herfstbaret).
 
 ## Nieuw in v0.20: direct Opnieuw na een snee, volledig Engels, Plus zonder proef
 
 - Na een snee kom je meteen op het eindscherm met Opnieuw; de tweede kans is de knop "Verder vanaf level N · filmpje" op datzelfde scherm (gratis op het testparcours). Zonder hartjes blijft het filmpje voor +1 leven op het hartjesscherm.
 - De Engelse versie is nu volledig: alle schermen, de tussenspelen, Mes van de dag, de Fruitkaart, de winkel en de deelteksten; "sap" heet in het Engels "juice".
 - De deelknop vermeldt straks de Play Store-link zodra die er is (nu de weblink).
-- Fruitvlucht Plus: de knop "7 dagen gratis" is weg.
+- Don't Slice Me! Plus: de knop "7 dagen gratis" is weg.
 
 ## Nieuw in v0.19: ronde 4 (levels 100 tot 140) en het fruit springt over je vinger
 

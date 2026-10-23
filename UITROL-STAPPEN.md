@@ -1,12 +1,12 @@
 # Don't Slice Me! - jouw stappen naar de Play Store (exact, in volgorde)
 
 Alles wat ik kon voorbereiden staat in deze repository: het spel (`index.html`), het privacybeleid
-(`privacy.html`, online op https://pietertmortier-lab.github.io/fruitvlucht/privacy.html), de winkelteksten
+(`privacy.html`, online op https://pietertmortier-lab.github.io/dont-slice-me/privacy.html), de winkelteksten
 (`store/winkelteksten.md`), de Android-schil (`native/`) en de promovideo (`promo/`). Hieronder staat alleen wat
 jij zelf moet doen, omdat het accounts, betalingen of jouw PC vraagt. Reken op drie dagdelen werk plus de
 verplichte wachttijd van veertien dagen voor de gesloten test.
 
-## De app-id (pakketnaam) is `be.pietertmortier.dontsliceme`
+## De app-id (pakketnaam) is `com.dontsliceme.app`
 
 De pakketnaam staat in `native/capacitor.config.json` en wordt bij `npx cap add android` in het Android-project gezet. Hij is definitief zodra de eerste app-bundle in de Play Console is geupload; tot dan kan hij vrij veranderen. Had je al een map `native/android` gemaakt met de oude naam, verwijder die dan en voer `npx cap add android` opnieuw uit. AdMob, Firebase en RevenueCat vragen dezelfde pakketnaam; vul overal de nieuwe in.
 
@@ -26,13 +26,13 @@ De pakketnaam staat in `native/capacitor.config.json` en wordt bij `npx cap add 
    service-account-sleutel uit stap 3 nodig; RevenueCat legt het stap voor stap uit. Noteer de **public
    Google API key** (`goog_…`).
 4. **Firebase** (alleen statistieken en crashes, gratis): https://console.firebase.google.com, project
-   "Don't Slice Me!", Android-app met pakketnaam `be.pietertmortier.dontsliceme`. Download `google-services.json`.
+   "Don't Slice Me!", Android-app met pakketnaam `com.dontsliceme.app`. Download `google-services.json`.
    Dit mag ook later.
 
 ## Stap 2: op je PC (een middag)
 
 1. Installeer Android Studio (https://developer.android.com/studio), Java 17 en Node 20 (https://nodejs.org).
-2. Haal deze repository binnen (`git clone https://github.com/pietertmortier-lab/fruitvlucht`) en open de map
+2. Haal deze repository binnen (`git clone https://github.com/pietertmortier-lab/dont-slice-me`) en open de map
    `native` in een terminal.
 3. `npm install`, dan `npm run www`, dan `npx cap add android`, dan `npx cap open android`.
 4. Open in Android Studio `android/app/src/main/AndroidManifest.xml` en zet binnen `<application>` deze regel

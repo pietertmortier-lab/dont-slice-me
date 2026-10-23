@@ -1,4 +1,4 @@
-# Voorstel: weekevenementen en Fruitvlucht Plus
+# Voorstel: weekevenementen en Don't Slice Me! Plus
 
 Voor Pieter, 23 oktober 2026. Twee voorstellen die op goedkeuring wachten; er is nog niets van gebouwd.
 
@@ -69,7 +69,7 @@ Elke week (maandag 07:00 tot zondag 23:00) draait één evenement met een eigen 
 
 ---
 
-## Deel B: Fruitvlucht Plus met echte voordelen
+## Deel B: Don't Slice Me! Plus met echte voordelen
 
 ### Wat er nu is
 

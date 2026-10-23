@@ -1,5 +1,5 @@
 {
-  "appId": "be.pietertmortier.dontsliceme",
+  "appId": "com.dontsliceme.app",
   "appName": "Don't Slice Me!",
   "webDir": "www",
   "android": { "allowMixedContent": false, "backgroundColor": "#17100b" },

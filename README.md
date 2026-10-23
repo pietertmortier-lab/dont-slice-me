@@ -57,6 +57,11 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.24.2: klaar voor het testpubliek
+
+- De testparcoursen van level 80 en level 100 staan niet meer in de hulptab.
+- `UITROL-STAPPEN.md` is volledig herschreven: eerst de webtest met een testpubliek, dan de weg naar de Play Store, en een tabel met waar elk bestand en elke sleutel komt (promovideo's, advertentiefilmpjes, feature graphic, schermafbeeldingen, teksten, sleutels).
+
 ## Nieuw in v0.24.0: het spel heet nu Don't Slice Me!
 
 Tot v0.23 heette het spel Fruitvlucht; de oude testlink werkt niet meer, gebruik de link bovenaan.

@@ -1,7 +1,7 @@
 # Fruitvlucht (prototype)
 
 A reverse Fruit Ninja for phones: you *are* the fruit and a kitchen knife keeps slashing across the cutting
-board. Survive, collect sugar cubes, climb the levels, unlock fourteen fruits.
+board. Survive, collect sugar cubes, climb the levels, unlock 24 fruits.
 
 **Play it in any browser (phone recommended):** https://pietertmortier-lab.github.io/fruitvlucht/
 
@@ -56,6 +56,11 @@ from there by hand, so the version label in the menu tells you which build you a
 ## Nieuw in v0.12
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
+
+## Nieuw in v0.23.1: laatste Engelse restjes, nieuwe promovideo's en schermafbeeldingen
+
+- Zes teksten die in het Engels nog Nederlands waren (voorraad onbeperkte hartjes, Plus-prijsknoppen, punten/vorken op de ladder, albumniveau, fruitmanden in de winkel) zijn vertaald; de automatische controle kijkt nu naar een veel langere lijst Nederlandse woorden en is weer schoon.
+- De promovideo's (NL en EN) en alle winkelbeelden in `promo/` zijn opnieuw gemaakt met deze versie.
 
 ## Nieuw in v0.23: naam voor de ladder, Vandaag in drie delen, zachtere curve, levelgrenzen voor fruit
 

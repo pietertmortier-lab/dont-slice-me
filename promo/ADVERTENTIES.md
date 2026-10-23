@@ -2,6 +2,8 @@
 
 ## Promovideo (30 s, staand 1080 x 1920, NL en EN)
 
+Laatst gerenderd met v0.23.1 (23 oktober 2026); de schermafbeeldingen in `screens/` en de feature graphics zijn van dezelfde versie.
+
 Bestanden: `fruitvlucht-promo-30s-nl.mp4` en `fruitvlucht-promo-30s-en.mp4`, gerenderd uit het spel zelf
 (beeld voor beeld, 30 per seconde) met de menumuziek eronder. Gebruik per winkelvermelding de taalversie:
 Nederlands (België) en Nederlands (Nederland) krijgen de NL-video, alle andere talen de EN-video; Play Console
@@ -11,9 +13,9 @@ laat per taal een eigen YouTube-link, feature graphic en schermafbeeldingen toe.
 |--------:|-------|----------|----------|
 | 0 - 3 | titelkaart: appel, logo | Jij bent het fruit. | You are the fruit. |
 | 3 - 8 | gameplay level 14, rode lijnen | Ontwijk het mes. | Dodge the knife. |
-| 8 - 13 | gameplay, klontjes | Pak sap. Klim de levels op. | Grab sap. Climb the levels. |
+| 8 - 13 | gameplay, klontjes | Pak sap. Klim de levels op. | Grab juice. Climb the levels. |
 | 13 - 16 | de snee in slow motion | Net niet... | Close call... |
-| 16 - 24 | kersen, drakenvrucht, citroen | 18 fruitsoorten, elk met een truc | 18 fruits, each with a trick |
+| 16 - 24 | kersen, drakenvrucht, citroen | 24 fruitsoorten, elk met een truc | 24 fruits, each with a trick |
 | 24 - 27 | Mes van de dag, donkere keuken | Mes van de dag: hetzelfde mes voor iedereen | Knife of the day: the same knife for everyone |
 | 27 - 30 | eindkaart met knop | Gratis in de Play Store | Free on the Play Store |
 
@@ -35,7 +37,7 @@ dezelfde opnames als de promovideo; per variant staan de scènes en de teksten.
    deelknop in beeld. Doelgroep: vrienden-groepen, 16-30.
 4. **De fruitsoorten** (verzamelen). 0-2 s: drakenvrucht spuwt vuur. 2-12 s: vier fruitjes met hun truc, elk 2,5 s
    (kersen twee levens, citroen spuit messen weg, avocado speelt verder als pit, granaatappel spat uiteen).
-   12-15 s: "18 fruitsoorten. Welke ben jij?" Doelgroep: casual spelers die van collecties houden.
+   12-15 s: "24 fruitsoorten. Welke ben jij?" Doelgroep: casual spelers die van collecties houden.
 5. **De keuken** (variatie). 0-2 s: blender zuigt de appel aan. 2-12 s: vork, deegrol, hete pan, garde, ijsblokjes,
    keukenwekker, elk 1,5 s. 12-15 s: "Elke vijf levels een nieuwe keuken. Gratis." Doelgroep: spelers die
    bang zijn dat het saai wordt.

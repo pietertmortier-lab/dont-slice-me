@@ -15,5 +15,6 @@ service cloud.firestore {
     match /links/{code} { allow read, write: if false; }
     match /devices/{uid} { allow read, write: if false; }
     match /duels/{day}/{document=**} { allow read, write: if false; }
+    match /tips/{id} { allow read, write: if false; }
   }
 }

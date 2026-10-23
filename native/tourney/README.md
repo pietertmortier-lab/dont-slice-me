@@ -38,6 +38,11 @@ Plausibility: a score above `seconds × MAX_PER_SEC[event] + 50` is refused. Gro
 - `rivals` `{ level, keep }` -> two profiles just above my level (fresh views of `keep` while the week lasts); `passed` `{ uid }` notes a rival that I passed them.
 - Deploy again after pulling: `firebase deploy --only functions,firestore` from this folder. No new indexes are needed (equality filters and a single-field order on `profiles.level`).
 
+## Kitchens (v0.30)
+
+- `profile` also takes `kitchen` `{ lv: {plank, oven, koelkast, vitrine}, tier, fruit, hat, tips, score }` and `friends` returns it per friend, so friends can visit each other's kitchen from their profile data.
+- `tip` `{ uid, day }`: once per friend per day; the receiver gets 100 juice by note (`tips/{day_from_to}`), the giver pays 50 client-side.
+
 ## Costs
 
 Firestore reads are the main cost: one ladder read per screen open (≤ 50 documents). At 10,000 players that is a few euros a month on the Blaze plan; the Spark plan covers the first tests.

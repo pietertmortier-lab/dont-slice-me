@@ -57,6 +57,22 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.30: Jouw Keuken
+
+- Nieuwe knop **Keuken** in het menu: je eigen keuken met vier toestellen (snijplank, oven, koelkast, vitrine), elk vijf niveaus,
+  te koop met sap. Ze maken sap terwijl je weg bent (5, 12 en 20 sap per uur per niveau; de vitrine geeft +10% per niveau),
+  tot acht uur lang. Kom langs en tik "Haal op". Langer wegblijven kost niets, maar levert ook niets extra op.
+- **Status**: Keuken, Bistro (5 niveaus), Restaurant (10), Sterrenzaak (15). Elke stap geeft een nieuwe bordskin om mee te
+  spelen (Bistrotafel, Restauranttafel, Sterrenzaak), te kiezen in de Winkel.
+- **Bestellingen**: elke maandag hangen drie chefs een briefje op: kleine opdrachten die je naar fruit en spelvormen sturen
+  die je anders overslaat (bijvoorbeeld "drie pogingen van 40 s met de Kiwi", "win een Duel van de dag"). Beloning 400, 600 en
+  800 sap; alle drie klaar: 1.000 extra.
+- **Bezoek en fooi**: in je keuken zie je "Keuken van de week" met je vrienden (score: toestelniveaus × 10 plus fooien). Bezoek
+  een vriend, bekijk zijn keuken en geef een fooi: jij betaalt 50 sap, hij krijgt 100. Eén fooi per vriend per dag.
+- **Server:** de fooien en het keukenprofiel vragen een nieuwe deploy (zelfde commando als bij v0.29). Zonder deploy werkt
+  je eigen keuken gewoon; bezoeken en fooien wachten tot de deploy.
+- **Testvraag:** voelt de keuken als "iets dat op je wacht"? Zijn de prijzen van de toestellen haalbaar met wat je per dag speelt?
+
 ## Nieuw in v0.29: Duel van de dag, vriendenduels, rivalen en Seizoen 1
 
 - **Duel van de dag** (Spellen): iedereen krijgt dezelfde messen, vanaf level 10, 90 seconden; score = sap. Je wordt gekoppeld aan een

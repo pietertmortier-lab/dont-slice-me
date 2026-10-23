@@ -18,6 +18,8 @@ const MAX_PER_SEC = { sapstorm: 12, nacht: 3, estafette: 10, jacht: 2 };
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', MAX_FRIENDS = 50, FRIEND_SAP = 300, MAX_INVITE_REWARDS = 10;
 // Duels (v0.29): one seeded knife sequence a day; a player is paired with a finished entry of a similar level and sees
 // its ghost. Friend challenges are settled when both have played that day's duel. Rivals: two players just above you.
+const TIP_SAP = 100, APPLIANCES = ['plank', 'oven', 'koelkast', 'vitrine'];
+const kitchenOf = k => { if (!k || typeof k !== 'object') return null; const lv = {}; for (const a of APPLIANCES) lv[a] = clampInt(k.lv && k.lv[a], 0, 5); return { lv, tier: clampInt(k.tier, 0, 3), fruit: String(k.fruit || 'appel').slice(0, 24), hat: String(k.hat || 'none').slice(0, 24), tips: clampInt(k.tips, 0, 1e6), score: clampInt(k.score, 0, 1e6) }; };
 const DUEL_MAX_PER_SEC = 15, CHALLENGE_SAP = 200, LOSER_HAT = 'pannetje', GHOST_MAX = 2400, DAY_RX = /^\d{4}-\d{2}-\d{2}$/;
 const bandOf = level => Math.floor(Math.max(1, Number(level) || 1) / 15);
 const dayOk = day => { if (!DAY_RX.test(String(day || ''))) return false; const t = Date.parse(day + 'T12:00:00Z'); return Math.abs(t - Date.now()) < 2 * 86400000; }; // today, give or take a day of timezone
@@ -32,7 +34,7 @@ async function settleChallenge(day, c, ref) { // both entries present: the highe
 const newCode = () => Array.from({ length: 6 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
 const cleanCode = v => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
 const clampInt = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.floor(Number(v) || 0)));
-const profileView = (id, p) => p ? ({ uid: id, name: String(p.name || 'Fruit').slice(0, 16), level: p.level || 1, best: p.best || 0, fruits: Array.isArray(p.fruits) ? p.fruits : [], hat: p.hat || 'none', streak: p.streak || 0, runs: p.runs || 0, stamps: p.stamps || 0, division: p.division || '', weekKey: p.weekKey || '', weekEv: p.weekEv || '', weekScore: p.weekScore || 0, last: p.updatedMs || 0 }) : null;
+const profileView = (id, p) => p ? ({ uid: id, name: String(p.name || 'Fruit').slice(0, 16), level: p.level || 1, best: p.best || 0, fruits: Array.isArray(p.fruits) ? p.fruits : [], hat: p.hat || 'none', streak: p.streak || 0, runs: p.runs || 0, stamps: p.stamps || 0, division: p.division || '', weekKey: p.weekKey || '', weekEv: p.weekEv || '', weekScore: p.weekScore || 0, kitchen: p.kitchen && typeof p.kitchen === 'object' ? p.kitchen : null, last: p.updatedMs || 0 }) : null;
 async function ensureCode(uid, data) { // the player's code, created once
   const ref = db.doc(`profiles/${uid}`), cur = (await ref.get()).data() || {};
   if (cur.code) return cur.code;
@@ -92,7 +94,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, 
     } else if (action === 'profile') { // { name, level, best, fruits, hat, streak, runs, stamps, division, weekKey, weekEv, weekScore } -> { code }
       const data = { name: String(body.name || 'Fruit').replace(/[^\p{L}\p{N} \-]/gu, '').slice(0, 16) || 'Fruit', level: clampInt(body.level, 1, 500), best: clampInt(body.best, 0, 3 * 3600000),
         fruits: (Array.isArray(body.fruits) ? body.fruits : []).map(k => String(k).slice(0, 24)).slice(0, 40), hat: String(body.hat || 'none').slice(0, 24), streak: clampInt(body.streak, 0, 10000), runs: clampInt(body.runs, 0, 1e6),
-        stamps: clampInt(body.stamps, 0, 100000), division: DIVISIONS.includes(body.division) ? body.division : '', weekKey: String(body.weekKey || '').slice(0, 12), weekEv: EVENTS.includes(body.weekEv) ? body.weekEv : '', weekScore: clampInt(body.weekScore, 0, 1e6),
+        stamps: clampInt(body.stamps, 0, 100000), division: DIVISIONS.includes(body.division) ? body.division : '', weekKey: String(body.weekKey || '').slice(0, 12), weekEv: EVENTS.includes(body.weekEv) ? body.weekEv : '', weekScore: clampInt(body.weekScore, 0, 1e6), kitchen: kitchenOf(body.kitchen),
         updatedMs: Date.now(), updated: admin.firestore.FieldValue.serverTimestamp() };
       const code = await ensureCode(uid, data); await db.doc(`profiles/${uid}`).set(data, { merge: true }); res.json({ ok: true, code });
     } else if (action === 'befriend') { // { code } -> both players become friends; the first time, both get FRIEND_SAP
@@ -156,6 +158,12 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, 
       if (rows.length < 2) { const lvl = clampInt(body.level, 1, 500); const snap = await db.collection('profiles').where('level', '>', lvl).orderBy('level', 'asc').limit(8).get();
         for (const d of snap.docs) { if (rows.length >= 2) break; if (d.id === uid || rows.some(r => r.uid === d.id)) continue; rows.push(profileView(d.id, d.data())); } }
       res.json({ ok: true, rivals: rows.slice(0, 2) });
+    } else if (action === 'tip') { // { uid, day }: a tip for a friend's kitchen, once per friend per day; the receiver gets TIP_SAP by note
+      const other = String(body.uid || '').slice(0, 128); if (!other || other === uid || !dayOk(body.day)) { res.status(400).json({ error: 'uid' }); return; }
+      const [isFriend, mp] = await Promise.all([db.doc(`friends/${uid}/of/${other}`).get(), db.doc(`profiles/${uid}`).get()]); if (!isFriend.exists) { res.json({ ok: false, error: 'notfriend' }); return; }
+      const ref = db.doc(`tips/${body.day}_${uid}_${other}`); if ((await ref.get()).exists) { res.json({ ok: false, error: 'already' }); return; }
+      await ref.set({ from: uid, to: other, day: body.day, at: Date.now() }); await noteTo(other, { type: 'tip', by: String((mp.data() || {}).name || 'Een vriend').slice(0, 16), sap: TIP_SAP }); await db.doc(`profiles/${other}`).set({ 'kitchen.tips': admin.firestore.FieldValue.increment(1) }, { merge: true }).catch(() => {});
+      res.json({ ok: true, sap: TIP_SAP });
     } else if (action === 'passed') { // { uid }: tell a rival I passed them
       const other = String(body.uid || '').slice(0, 128); if (!other || other === uid) { res.status(400).json({ error: 'uid' }); return; }
       const mp = (await db.doc(`profiles/${uid}`).get()).data() || {}; await noteTo(other, { type: 'passed', by: String(mp.name || 'Een speler').slice(0, 16), level: mp.level || 1 }); res.json({ ok: true });

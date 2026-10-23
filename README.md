@@ -57,6 +57,10 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.24.3: laatste Engelse teksten op het speelveld
+
+- De banner van het tussenspel ("Tussenspel · even iets anders", "Tussenspel voorbij"), de titel van het Chefs Examen, het label "lokaas", het weekpas-icoon en de pop-ups van bonusvoorwerpen ("Goudvork!" en zo) zijn nu ook Engels in de Engelse versie. De automatische controle bekijkt voortaan de hele lijst van onvertaalde teksten.
+
 ## Nieuw in v0.24.2: klaar voor het testpubliek
 
 - De testparcoursen van level 80 en level 100 staan niet meer in de hulptab.

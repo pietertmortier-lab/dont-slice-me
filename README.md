@@ -57,6 +57,20 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.28: flow-meter, Fruit Fever en je aartsvijand
+
+- **Flow-meter** rechtsboven: elke "Net niet!" vult hem een kwart, een snee maakt hem leeg. Hij blijft 4 seconden staan na een
+  net-niet en loopt daarna in 40 seconden leeg: risico nemen loont dus nu, niet straks.
+- **Fruit Fever**: bij een volle meter begint acht seconden koorts: de wereld vertraagt tot 60% (jij blijft even snel), elk nieuw
+  klontje is goud, klontjes komen dubbel zo snel en alles telt dubbel. Gouden gloed, banner, en de muziek gaat een tandje sneller.
+  Een snee maakt er meteen een einde aan.
+- **Je aartsvijand**: het mes-patroon of keukengevaar dat jou het vaakst raakte, krijgt een naam (De Spieder, Het Kruis, De
+  Pauwenstaart, De Vork, ...) en een paarse waarschuwingslijn in plaats van een rode. Ontwijk zijn hele patroon drie keer in één
+  poging en je neemt wraak: 200 sap, de sticker *Wraak*, en de aartsvijand is de rest van die poging 35% trager. Op het eindscherm
+  zie je hoe vaak je in Fever zat en hoe het tegen je aartsvijand ging.
+- Twee nieuwe stickers in het album (*Koortsig* en *Wraak*) en een nieuw hoofdstuk in Hulp: "Flow en de Aartsvijand".
+- **Testvraag voor jullie:** voelt Fever als een beloning of als chaos? Komt hij te vaak of te zelden? Is je aartsvijand herkenbaar?
+
 ## Nieuw in v0.27.1: uitroepteken bij Vandaag klopt weer
 
 - Het uitroepteken bij Vandaag telde nog het ongespeelde Mes van de dag en het weekendspel mee, terwijl die sinds v0.23 onder Spellen staan. Nu betekent het alleen nog: dagreeks te innen, opdracht te ontvangen, Plus-kist klaar of een half uur hartjes in voorraad.

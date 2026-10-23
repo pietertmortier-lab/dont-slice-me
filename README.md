@@ -57,6 +57,15 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.15 (ronde 3: level 81 tot 110)
+
+- Testparcours (via Hulp): een gratis poging die op level 80 begint en na elk uitgespeeld level (60 sap) doorspringt naar 85, 90, 95 en 100, waar het nieuwe meteen verschijnt. Telt niet voor records; sap houd je.
+- Avondzon: vanaf level 81 ligt er warm avondlicht over de keukens.
+- Nieuwe bonusvoorwerpen: Suikerspin (vanaf 85, een bel die drie sneden opvangt) en Honingpot (vanaf 95, alles staat 5 s stil en de klontjes drijven naar je toe).
+- Nieuwe gevaren: de schuivende plank (vanaf 90, beweeg mee) en de keukenwekker (vanaf 100, bij het rinkelen vuren alle rode lijnen tegelijk).
+- Lychee: nieuw fruit voor 18.000 sap, te koop vanaf level 90; haar schil groeit elke 30 s terug.
+- Chefmedaille (hoedje) bij level 100, keukenbonus 12 "Rustige plank", en de Gereedschapskist in de winkel: vijf blijvende verbeteringen voor sap.
+
 ## Nieuw in v0.14.1
 
 - De messen blijven sneller worden tot level 200 in plaats van te stoppen op 100. Vanaf level 120 kunnen er vier messen tegelijk komen, vanaf 160 vijf, met nieuwe patronen (ster, ladder met één gat, waaier van vijf).

@@ -27,7 +27,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 |--------|--------|-------------|
 | Google Play Console | account aangevraagd, identiteitsverificatie loopt (23 oktober) | app aanmaken, winkelvermelding, producten, interne test |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus` / `noads` / `pass`, producten `noads` en `pass` | credentials JSON uit de Play Console, *Import products*, `plus_month` en `plus_year` aan `plus` koppelen |
-| Firebase | project `dont-slice-me`, web-app (config in `bridge.js`), Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels en functies uitgerold (23 oktober), URL in `FV_TOURNEY_URL` | eenmalig opnieuw deployen op de Node 22-runtime (`git pull`, dan `firebase deploy --only functions`), voor 30 oktober 2026 |
+| Firebase | project `dont-slice-me`, web-app (config in `bridge.js`), Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels en functies uitgerold op de Node 22-runtime (23 oktober), URL in `FV_TOURNEY_URL` | niets; bij latere wijzigingen aan `native/tourney` opnieuw deployen |
 | AdMob | nog niets | app en twee advertentieblokken aanmaken, ID's in manifest en `bridge.js` |
 
 ## 1. Vandaag: de webversie openzetten voor je testpubliek

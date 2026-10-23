@@ -11,5 +11,8 @@ service cloud.firestore {
     match /profiles/{uid} { allow read, write: if false; }
     match /codes/{code} { allow read, write: if false; }
     match /friends/{uid}/{document=**} { allow read, write: if false; }
+    match /saves/{uid} { allow read, write: if false; }
+    match /links/{code} { allow read, write: if false; }
+    match /devices/{uid} { allow read, write: if false; }
   }
 }

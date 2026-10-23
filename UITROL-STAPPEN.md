@@ -28,7 +28,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 |--------|--------|-------------|
 | Google Play Console | account aangevraagd, identiteitsverificatie loopt (23 oktober) | app aanmaken, winkelvermelding, producten, interne test |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus` / `noads` / `pass`, producten `noads` en `pass` | credentials JSON uit de Play Console, *Import products*, `plus_month` en `plus_year` aan `plus` koppelen |
-| Firebase | project `dont-slice-me`, web-app, Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels en functies uitgerold op de Node 22-runtime (23 oktober) | **opnieuw deployen voor v0.25** (vrienden en de ontbrekende index): `git pull`, dan in `native\tourney`: `firebase deploy --only functions,firestore` |
+| Firebase | project `dont-slice-me`, web-app, Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels, index en functies uitgerold (v0.25, 23 oktober) | **opnieuw deployen voor v0.26** (opslag bij het profiel, toestellen koppelen): `git pull`, dan in `native\tourney`: `firebase deploy --only functions,firestore` |
 | AdMob | nog niets | app en twee advertentieblokken aanmaken, ID's in manifest en `bridge.js` |
 
 ## 1. Vandaag: de webversie openzetten voor je testpubliek
@@ -40,8 +40,9 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
    startscherm" (soms een knop "Installeren"). iPhone Safari: deelknop, "Zet op beginscherm". Daarna opent het
    schermvullend, zonder adresbalk, en werkt het ook zonder internet.
 3. Vertel ze vooraf:
-   - de voortgang staat alleen in de browser van hun toestel; een andere browser is opnieuw beginnen. Met Hulp >
-     "Kopieer opslagcode" nemen ze hun voortgang mee naar een ander toestel;
+   - de voortgang hoort bij de browser of app waarin ze spelen; Chrome, een incognitovenster, de app en de
+     Claude-testlink zijn voor het spel vier verschillende spelers. Wie op twee plaatsen speelt, koppelt ze via Hulp >
+     Je voortgang meenemen > "Koppel een ander toestel" (code van tien minuten); daarna delen ze alles;
    - alles wat op betalen lijkt is een simulatie, er wordt niets afgerekend;
    - reclame is een nepscherm van drie seconden; de tegenstanders in het toernooi zijn gesimuleerd;
    - de deelknop deelt nu de weblink; later de Play Store-link.

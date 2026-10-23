@@ -57,6 +57,12 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.26: je voortgang hoort bij jou
+
+- **Nooit meer terugvallen**: elke opslag krijgt een volgnummer. Een browsertabblad dat achterloopt voegt eerst de nieuwere voortgang samen (hoogste level, record, ontgrendeld fruit, stempels) en overschrijft ze niet meer.
+- **Opslag bij je profiel**: zodra je online bent, gaat je voortgang na elke wijziging ook naar de server, onder jouw spelersidentiteit. Bij het starten haalt het spel die kopie op en neemt ze over als ze verder staat.
+- **Toestellen koppelen**: speel je op meerdere toestellen of in meerdere browsers (elke browser is voor het spel een andere speler), ga dan naar Hulp > Je voortgang meenemen > *Koppel een ander toestel*. Je krijgt een koppelcode van tien minuten; typ ze op het andere toestel bij *Ik heb een koppelcode*. Vanaf dan delen beide dezelfde voortgang, vrienden en toernooi. De opslagcode kopiëren blijft ook werken.
+
 ## Nieuw in v0.25: vrienden
 
 - **Vrienden**: nieuwe knop in het menu. Je krijgt een vriendencode en een uitnodigingslink; wie het spel ermee opent is meteen je vriend en jullie krijgen allebei 300 sap (eenmalig per paar, maximaal tien beloonde uitnodigingen per speler). Een code intypen kan ook.

@@ -54,7 +54,9 @@ async function groupFor(week, uid, level, division) {
 }
 
 exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, res) => {
-  const uid = await uidFrom(req); if (!uid) { res.status(401).json({ error: 'auth' }); return; }
+  const rawUid = await uidFrom(req); if (!rawUid) { res.status(401).json({ error: 'auth' }); return; }
+  // A device that was linked with a link code acts as the identity it joined (devices/{uid}.primary).
+  let uid = rawUid; try { const dev = (await db.doc(`devices/${rawUid}`).get()).data(); if (dev && dev.primary) uid = dev.primary; } catch (e) {}
   const body = req.body || {}, action = body.action, week = isoWeek(new Date());
   try {
     if (action === 'submit') { // { ev, score, seconds, level, division, name }
@@ -101,6 +103,22 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, 
     } else if (action === 'unfriend') { // { uid }
       const other = String(body.uid || '').slice(0, 128); if (!other) { res.status(400).json({ error: 'uid' }); return; }
       const batch = db.batch(); batch.delete(db.doc(`friends/${uid}/of/${other}`)); batch.delete(db.doc(`friends/${other}/of/${uid}`)); await batch.commit(); res.json({ ok: true });
+    } else if (action === 'save') { // { data, rev, level, runs }: the save blob (the game's own FV1 code), kept unless the stored one is ahead
+      const data = String(body.data || ''); if (!data.startsWith('FV1.') || data.length > 300000) { res.status(400).json({ error: 'data' }); return; }
+      const rev = clampInt(body.rev, 0, 1e9), level = clampInt(body.level, 1, 500), runs = clampInt(body.runs, 0, 1e6), ref = db.doc(`saves/${uid}`), cur = (await ref.get()).data() || {};
+      if ((cur.rev || 0) > rev && (cur.level || 0) >= level && (cur.runs || 0) >= runs) { res.json({ ok: true, rev: cur.rev, kept: true }); return; }
+      await ref.set({ data, rev, level, runs, updatedMs: Date.now(), updated: admin.firestore.FieldValue.serverTimestamp() }); res.json({ ok: true, rev });
+    } else if (action === 'load') { // -> the stored save of this identity, if any
+      const cur = (await db.doc(`saves/${uid}`).get()).data(); res.json({ ok: true, data: cur ? cur.data : null, rev: cur ? cur.rev || 0 : 0, level: cur ? cur.level || 0 : 0 });
+    } else if (action === 'linkcode') { // -> a code, valid ten minutes, that lets another device join this identity
+      const code = Array.from({ length: 8 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
+      await db.doc(`links/${code}`).set({ uid, exp: Date.now() + 10 * 60000 }); res.json({ ok: true, code });
+    } else if (action === 'link') { // { code }: this device becomes an alias of the code's identity and receives its save
+      const code = String(body.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8); if (code.length !== 8) { res.json({ ok: false, error: 'unknown' }); return; }
+      const ref = db.doc(`links/${code}`), l = (await ref.get()).data(); if (!l || !(l.exp > Date.now())) { res.json({ ok: false, error: 'unknown' }); return; }
+      if (l.uid === uid) { res.json({ ok: false, error: 'self' }); return; }
+      await db.doc(`devices/${rawUid}`).set({ primary: l.uid, linkedMs: Date.now() }); await ref.delete();
+      const cur = (await db.doc(`saves/${l.uid}`).get()).data(); res.json({ ok: true, data: cur ? cur.data : null });
     } else if (action === 'meter') { // the community meter of the hunt
       const doc = await db.doc(`meters/${week}`).get(); res.json({ ok: true, total: (doc.data() || {}).total || 0 });
     } else if (action === 'fork') { // +n forks in the hunt

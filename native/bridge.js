@@ -35,10 +35,18 @@
 // FV_TOURNEY.fork({ n }) in the hunt. Without FV_TOURNEY_URL (or without Firebase in this shell) the game keeps its
 // simulated division. Set FV_TOURNEY_URL to the URL of the deployed "tourney" function (native/tourney/README.md).
 const FV_TOURNEY_URL = '';
-if (FV_TOURNEY_URL) {
+// Paste the "firebaseConfig" object of the Firebase *web* app here (Firebase console > Project settings > Your apps >
+// Web app). It is public client configuration; the data is protected by the Firestore rules, not by this object.
+const FIREBASE_CONFIG = null; // e.g. { apiKey: '...', authDomain: 'dont-slice-me.firebaseapp.com', projectId: 'dont-slice-me', appId: '...' }
+if (FV_TOURNEY_URL && FIREBASE_CONFIG) {
+  const loadScript = src => new Promise((ok, fail) => { const el = document.createElement('script'); el.src = src; el.onload = ok; el.onerror = fail; document.head.appendChild(el); });
+  const authReady = (async () => {
+    if (!window.firebase) { await loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js'); await loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js'); }
+    if (!window.firebase.apps.length) window.firebase.initializeApp(FIREBASE_CONFIG); return window.firebase.auth();
+  })().catch(e => { console.warn('Firebase init', e); return null; });
   const call = async (action, data) => {
     try {
-      const auth = window.firebase && window.firebase.auth ? window.firebase.auth() : null; if (!auth) return null;
+      const auth = await authReady; if (!auth) return null;
       if (!auth.currentUser) await auth.signInAnonymously(); const tok = await auth.currentUser.getIdToken();
       const r = await fetch(FV_TOURNEY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(Object.assign({ action }, data || {})) });
       return r.ok ? r.json() : null;

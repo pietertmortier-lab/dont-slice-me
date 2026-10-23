@@ -4,7 +4,7 @@ The game ships with a simulated division (49 seeded opponents) so the whole tour
 
 ## Deploy (once, on the developer's PC)
 
-1. https://console.firebase.google.com: create a project `dont-slice-me`, enable **Authentication → Anonymous** and **Firestore** (production mode, `europe-west1`).
+1. https://console.firebase.google.com: create a project `dont-slice-me`, register a **Web app** (its `firebaseConfig` goes into `native/bridge.js` as `FIREBASE_CONFIG`), enable **Authentication → Anonymous** and **Firestore** (production mode, `europe-west1`). Cloud Functions need the Blaze plan.
 2. Install Node 20 and the Firebase CLI: `npm install -g firebase-tools`, then `firebase login`.
 3. In this folder: `npm install`, `firebase use --add` (pick the project), `firebase deploy --only functions,firestore:rules`.
 4. Copy the URL of the `tourney` function from the deploy output into `native/bridge.js` (`FV_TOURNEY_URL`). The Capacitor app then talks to the server; the web version keeps the simulation.

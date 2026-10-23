@@ -67,9 +67,13 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
    Project "Don't Slice Me!", Play Store-app toevoegen met pakketnaam `com.dontsliceme.app`. Je hebt hiervoor later
    de service-account-sleutel uit fase 4 nodig; RevenueCat legt het stap voor stap uit. Noteer de **public Google API
    key** (`goog_…`).
-4. **Firebase** (toernooiserver, en gratis crashrapporten): https://console.firebase.google.com, project
-   "dont-slice-me", Android-app met pakketnaam `com.dontsliceme.app`. Download `google-services.json`. De
-   toernooiserver zelf staat in fase 6; dit mag ook later.
+4. **Firebase** (toernooiserver): https://console.firebase.google.com, project "dont-slice-me" (Spark-plan volstaat
+   om te beginnen). Klik op *Add app* en kies het **Web**-icoon (`</>`), naam "Don't Slice Me!", geen Hosting. Je krijgt
+   een blokje code met `const firebaseConfig = { apiKey: …, projectId: … }`: kopieer dat en stuur het mij, ik zet het in
+   `native/bridge.js` bij `FIREBASE_CONFIG`. Het spel praat met Firebase via de webbibliotheek in de app, daarom een
+   web-app en geen `google-services.json`. Een Android-app toevoegen mag ook, voor latere crashrapporten; dat is nu
+   niet nodig. Zet in hetzelfde project alvast *Authentication* aan met aanmeldmethode "Anoniem" en maak de
+   *Firestore Database* aan (productiemodus, locatie europe-west1); de server zelf volgt in fase 6.
 
 ## 3. Op je pc: de Android-app bouwen (een middag)
 
@@ -86,11 +90,10 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
    fase 6, de URL van de toernooiserver bij `FV_TOURNEY_URL`. De RevenueCat-sleutel staat er al in. Laat
    `testing: true` staan tot vlak voor de echte release: dan zie je testadvertenties, wat verplicht is tijdens
    ontwikkelen en testen.
-6. Zet `google-services.json` in `android/app/`.
-7. Bouw: in Android Studio *Build > Generate Signed Bundle / APK > Android App Bundle*. Maak de eerste keer een
+6. Bouw: in Android Studio *Build > Generate Signed Bundle / APK > Android App Bundle*. Maak de eerste keer een
    keystore aan en bewaar het bestand en de wachtwoorden op twee plaatsen; zonder keystore kun je de app nooit meer
    bijwerken. Resultaat: een `.aab`-bestand.
-8. Bij elke volgende versie: versienummer in `native/package.json` en `versionCode` +1 in Android Studio,
+7. Bij elke volgende versie: versienummer in `native/package.json` en `versionCode` +1 in Android Studio,
    `npm run www`, `npx cap sync android`, opnieuw bouwen.
 
 ## 4. Play Console invullen (een avond)
@@ -140,14 +143,15 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 Het toernooi werkt nu met een gesimuleerde divisie (49 vaste tegenstanders), zodat alles te testen is. Voor echte
 ladders komt er een kleine server. De code staat klaar in `native/tourney/` (Cloud Functions en Firestore-regels).
 
-1. Firebase-project "dont-slice-me" (fase 2 punt 4). Analytics mag uit.
-2. Zet **Authentication** aan met de aanmeldmethode "Anoniem".
-3. Zet **Firestore** aan (productiemodus, regio europe-west1).
+1. Firebase-project "dont-slice-me" met de web-app uit fase 2 punt 4; de `firebaseConfig` staat in `native/bridge.js`.
+2. *Build > Authentication > Get started > Sign-in method*: zet **Anoniem** aan.
+3. *Build > Firestore Database > Create database*: locatie **europe-west1**, **productiemodus**.
 4. Installeer op je pc Node 20 en de Firebase CLI (`npm install -g firebase-tools`), log in met `firebase login`.
 5. In de map `native/tourney`: `npm install`, dan `firebase use --add` (kies je project) en
    `firebase deploy --only functions,firestore:rules`.
 6. Kopieer de URL van de functie `tourney` uit de uitvoer en zet ze in `native/bridge.js` bij `FV_TOURNEY_URL`. Vanaf
-   dan praat de app met de server; de webversie blijft op de simulatie.
+   dan praat de app met de server; de webversie blijft op de simulatie. Cloud Functions vragen het Blaze-plan (betalen
+   naar gebruik, met een gratis maandelijkse marge); zonder dat plan weigert `firebase deploy` de functies.
 
 Kosten: bij 10.000 spelers een paar euro per maand (Spark/Blaze-plan). De server controleert elke score op
 plausibiliteit en rekent zondag 23 u de week af.
@@ -175,7 +179,7 @@ plausibiliteit en rekent zondag 23 u de week af.
 | AdMob app-ID (`ca-app-pub-…~…`) | nog niet (jij maakt hem in fase 2) | `native/android/app/src/main/AndroidManifest.xml`, in de `<meta-data>`-regel uit fase 3 punt 4. |
 | AdMob blok-ID's (rewarded en interstitial, `ca-app-pub-…/…`) | `native/bridge.js`, regel `const ADMOB = { rewarded: …, interstitial: …, testing: true }` (nu de testblokken van Google) | Vervang de twee waarden; laat `testing: true` tot de productierelease. |
 | RevenueCat public key (`goog_…`) | `native/bridge.js`, regel `const REVENUECAT = { apiKey: 'goog_…' }` | **Ingevuld op 23 oktober 2026.** Het is een publieke sleutel; die mag in de app staan. |
-| `google-services.json` (Firebase) | download uit de Firebase-console | `native/android/app/google-services.json`. Niet nodig voor de webversie. |
+| Firebase web-config (`firebaseConfig`) | Firebase-console > Project settings > Your apps > web-app | `native/bridge.js`, regel `const FIREBASE_CONFIG = null`: vervang `null` door het object. Publieke client-configuratie; de gegevens worden beschermd door de Firestore-regels. |
 | Keystore (handtekening van de app) | maak je in Android Studio (fase 3 punt 7) | **Niet in de repository.** Bewaar het `.jks`-bestand en de twee wachtwoorden op twee plaatsen buiten GitHub (bijvoorbeeld je NAS en een wachtwoordmanager). |
 | Product-ID's en prijzen | `index.html` onder `PRODUCTS`; de lijst in fase 4 punt 4 | Play Console > *Monetisatie* > *Producten* > *In-app-producten* (eenmalige producten) en > *Abonnementen* (`plus_month`, `plus_year`). Daarna dezelfde ID's in RevenueCat > *Products* en *Entitlements*. |
 | Toernooiserver-URL | fase 6 geeft ze; `native/bridge.js`, regel `const FV_TOURNEY_URL = ''` | Vul de URL van de functie `tourney` in. |

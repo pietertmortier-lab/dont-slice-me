@@ -28,7 +28,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 |--------|--------|-------------|
 | Google Play Console | account aangevraagd, identiteitsverificatie loopt (23 oktober) | app aanmaken, winkelvermelding, producten, interne test |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus` / `noads` / `pass`, producten `noads` en `pass` | credentials JSON uit de Play Console, *Import products*, `plus_month` en `plus_year` aan `plus` koppelen |
-| Firebase | project `dont-slice-me`, web-app, Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels, index en functies uitgerold voor v0.26 (23 oktober): toernooi, profiel, vrienden, opslag bij het profiel, toestellen koppelen | niets; bij latere wijzigingen aan `native/tourney`: `git pull` en `firebase deploy --only functions,firestore` |
+| Firebase | project `dont-slice-me`, web-app, Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels, index en functies uitgerold voor v0.26 (23 oktober): toernooi, profiel, vrienden. **Te doen:** opnieuw uitrollen voor v0.29/v0.30 (duels, uitdagingen, rivalen, fooien, keukenprofiel): `cd C:\Users\piete\dont-slice-me\native\tourney`, `git pull` in de hoofdmap, dan `firebase deploy --only functions,firestore`, opslag bij het profiel, toestellen koppelen | niets; bij latere wijzigingen aan `native/tourney`: `git pull` en `firebase deploy --only functions,firestore` |
 | AdMob | nog niets | app en twee advertentieblokken aanmaken, ID's in manifest en `bridge.js` |
 
 ## 1. Vandaag: de webversie openzetten voor je testpubliek

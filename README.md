@@ -57,6 +57,12 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.16
+
+- Delen loont: op het eindscherm staat bij de deelknop "+1 hartje". Wie de uitdaging deelt (of de tekst kopieert), krijgt elke dag één hartje.
+- Nieuw op het eindscherm: "Filmpje: nog eens +X sap", het sap van die poging nog een keer na een beloningsvideo (één keer per poging).
+- Reclame tussen pogingen (simulatie): hoogstens één op drie game-overs, minstens drie minuten ertussen, nooit in je eerste vijf pogingen en nooit tijdens het spelen. Plus en Reclamevrij zien ze niet.
+
 ## Nieuw in v0.15.1
 
 - Fout opgelost: na een snee in het testparcours liep het spel vast. Nu krijg je gewoon de doorgaan-vraag (gratis op het parcours) en daarna het eindscherm; Opnieuw start het parcours weer op level 80.

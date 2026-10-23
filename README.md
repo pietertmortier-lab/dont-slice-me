@@ -57,6 +57,10 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.27.1: uitroepteken bij Vandaag klopt weer
+
+- Het uitroepteken bij Vandaag telde nog het ongespeelde Mes van de dag en het weekendspel mee, terwijl die sinds v0.23 onder Spellen staan. Nu betekent het alleen nog: dagreeks te innen, opdracht te ontvangen, Plus-kist klaar of een half uur hartjes in voorraad.
+
 ## Nieuw in v0.27: alle fruit kijkt stoned
 
 - Elk fruit heeft nu een subtiele "stoned"-blik: lichte roze oogleden over de bovenste helft van de ogen (links iets lager), roze doorbloed oogwit met vier fijne adertjes en een lichte wal eronder, een blik die licht naar buiten drijft, een lichte blos, iets ongelijke wenkbrauwen en een licht scheve grijns. Geen tong (alleen de aardbei houdt de hare) en geen kwijl. De eigen kenmerken blijven: snor, zonnebril, monocle, kroon.

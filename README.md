@@ -57,6 +57,14 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.23: naam voor de ladder, Vandaag in drie delen, zachtere curve, levelgrenzen voor fruit
+
+- Bij de eerste start kies je een naam voor de ladders (2 tot 16 tekens, ook later te wijzigen in het toernooi).
+- Vandaag bevat nu dagreeks, opdrachten, Plus-kist en onbeperkte hartjes; Rad alleen het rad; Spellen het Mes van de dag, het weekendspel en het toernooi.
+- De moeilijkheid loopt rustiger op tot level 200 en eindigt daar met maximaal drie messen tegelijk; vier en vijf messen zijn weg.
+- Elk fruit vraagt naast sap ook een level: Druif 1 tot Drakenvrucht 60, Lychee 90, Stervrucht 110, Passievrucht 130.
+- Engels opnieuw volledig nagelopen, ook in het toernooi.
+
 ## Nieuw in v0.22: het Keukentoernooi
 
 - Elke week één evenement, vier in een maandelijkse cyclus: Sapstorm, De Lange Nacht, Chefs Estafette en Jacht op de Gouden Vork. Nieuwe tegel "Toernooi" in het menu.

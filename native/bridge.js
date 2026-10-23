@@ -30,3 +30,19 @@
     async restore() { if (!iapReady) return []; try { const { customerInfo } = await Purchases.restorePurchases(); return Object.keys(customerInfo.entitlements.active || {}); } catch (e) { return []; } },
   };
 })();
+
+// ---- Keukentoernooi: the game calls window.FV_TOURNEY.submit({ week, ev, score, division }) after every round and
+// FV_TOURNEY.fork({ n }) in the hunt. Without FV_TOURNEY_URL (or without Firebase in this shell) the game keeps its
+// simulated division. Set FV_TOURNEY_URL to the URL of the deployed "tourney" function (native/tourney/README.md).
+const FV_TOURNEY_URL = '';
+if (FV_TOURNEY_URL) {
+  const call = async (action, data) => {
+    try {
+      const auth = window.firebase && window.firebase.auth ? window.firebase.auth() : null; if (!auth) return null;
+      if (!auth.currentUser) await auth.signInAnonymously(); const tok = await auth.currentUser.getIdToken();
+      const r = await fetch(FV_TOURNEY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(Object.assign({ action }, data || {})) });
+      return r.ok ? r.json() : null;
+    } catch (e) { return null; }
+  };
+  window.FV_TOURNEY = { submit: d => call('submit', Object.assign({ seconds: Math.max(1, Math.round((d.seconds || 90))) }, d)), ladder: d => call('ladder', d), result: () => call('result'), meter: () => call('meter'), fork: d => call('fork', d) };
+}

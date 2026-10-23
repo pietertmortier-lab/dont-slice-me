@@ -78,3 +78,16 @@ verplichte wachttijd van veertien dagen voor de gesloten test.
 - De sleutels invullen en een nieuwe `.aab` voorbereiden (jij bouwt en uploadt).
 - Feature graphic en schermafbeeldingen maken uit de promovideo-frames.
 - Elke winkeltekst of review-antwoord schrijven in NL en EN.
+
+## Stap extra: de server voor het Keukentoernooi (Firebase)
+
+Het toernooi werkt nu met een gesimuleerde divisie (49 vaste tegenstanders), zodat alles te testen is. Voor echte ladders komt er een kleine server. De code staat klaar in `native/tourney/` (Cloud Functions + Firestore-regels). Wat jij doet:
+
+1. Ga naar https://console.firebase.google.com, maak een project "fruitvlucht" (Analytics mag uit).
+2. Zet **Authentication** aan met de aanmeldmethode "Anoniem".
+3. Zet **Firestore** aan (productiemodus, regio europe-west1).
+4. Installeer op je pc Node 20 en de Firebase CLI (`npm install -g firebase-tools`), log in met `firebase login`.
+5. In de map `native/tourney`: `npm install`, dan `firebase use --add` (kies je project) en `firebase deploy --only functions,firestore:rules`.
+6. Kopieer de URL van de functie `tourney` uit de uitvoer en zet ze in `native/bridge.js` bij `FV_TOURNEY_URL`. Vanaf dan praat de app met de server; de webversie blijft op de simulatie.
+
+Kosten: bij 10.000 spelers een paar euro per maand (Spark/Blaze-plan). De server controleert elke score op plausibiliteit (duur van de ronde, klontjes per seconde) en rekent zondag 23 u de week af.

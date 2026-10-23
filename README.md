@@ -57,6 +57,13 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.22: het Keukentoernooi
+
+- Elke week één evenement, vier in een maandelijkse cyclus: Sapstorm, De Lange Nacht, Chefs Estafette en Jacht op de Gouden Vork. Nieuwe tegel "Toernooi" in het menu.
+- Elke dag 3 gratis tickets (+1 met Plus); extra via filmpje, 1.000 sap, pakketten of de Weekpas. Tickets kosten geen hartje.
+- Divisies van 50 spelers (Houten tot Diamanten Lepel) met promotie en degradatie. De ladder is voorlopig gesimuleerd tot de server eraan hangt.
+- Mijlpalen voor iedereen, weekprijzen tot 5.000 sap, Toernooimunten, de Toernooiwinkel en vier evenementsfruiten die je alleen hier kunt verdienen (Gouden Perzik, Nachtbes, Regenboogkiwi, Vorkvrucht).
+
 ## Nieuw in v0.21: fruit altijd boven je vinger, Plus met echte voordelen
 
 - Het fruit zweeft nu altijd net boven je vinger, overal op het bord; geen sprong en geen omslag onderaan meer.

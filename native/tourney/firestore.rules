@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Everything is written by the Cloud Function (admin SDK); clients only read their own result and the open ladders.
+    match /groups/{group} { allow read: if request.auth != null; allow write: if false;
+      match /scores/{uid} { allow read: if request.auth != null; allow write: if false; } }
+    match /players/{uid} { allow read: if request.auth != null && request.auth.uid == uid; allow write: if false; }
+    match /results/{uid} { allow read: if request.auth != null && request.auth.uid == uid; allow write: if false; }
+    match /meters/{week} { allow read: if request.auth != null; allow write: if false; }
+  }
+}

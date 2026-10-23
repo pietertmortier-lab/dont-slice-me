@@ -424,12 +424,17 @@ const levelGoal = n => 10 + 2 * (n - 1);
 // 100. Every level starts calm, with single knives and a long warning, and only tightens a little over its
 // first minute. The level sets the base: a shorter warning, slashes closer together, and the moment within the
 // level at which two (and, from level 40, three) knives start coming.
+// Levels 1 to 100 as before; from there the pace keeps tightening to level 200 instead of stopping at 100
+// (Pieter, 23 October): warning 458 to 320 ms, a knife every 715 to 450 ms, sweep 171 to 120 ms. Four knives
+// at once from level 120, five from 160.
 const PACE = {
-  tele: n => Math.max(450, 1300 - 8.5 * (n - 1)),       // warning before the blade moves
-  interval: n => Math.max(700, 2200 - 15 * (n - 1)),    // time between slashes
-  dur: n => Math.max(170, 280 - 1.1 * (n - 1)),         // blade sweep time
+  tele: n => n <= 100 ? 1300 - 8.5 * (n - 1) : Math.max(320, 458.5 - 1.385 * (n - 100)),   // warning before the blade moves
+  interval: n => n <= 100 ? 2200 - 15 * (n - 1) : Math.max(450, 715 - 2.65 * (n - 100)),   // time between slashes
+  dur: n => n <= 100 ? 280 - 1.1 * (n - 1) : Math.max(120, 171.1 - .511 * (n - 100)),      // blade sweep time
   twoAt: n => Math.max(5000, 45000 - 400 * (n - 1)),    // two knives at once, from this far into the level
   threeAt: n => n < 40 ? Infinity : Math.max(8000, 40000 - 530 * (n - 40)), // three knives, from level 40
+  fourAt: n => n < 120 ? Infinity : Math.max(8000, 40000 - 530 * (n - 120)), // four, from level 120
+  fiveAt: n => n < 160 ? Infinity : Math.max(8000, 40000 - 800 * (n - 160)), // five, from level 160; 8 s into the level by 200
 };
 // Bonus items: one run in ten drops exactly one of these; touching it activates it. The HUD shows what it
 // does and counts down.
@@ -942,7 +947,7 @@ function difficulty() {
   const n = G.level, k = clamp(G.levelT / 60000, 0, 1), calm = fruitCalm(G.fruit);
   const chefDelay = hasPerk(11) ? 10000 : 0, ease = coached() ? 1.35 : 1; // the first two runs breathe slower
   const d = { interval: PACE.interval(n) * ease * (1 - .2 * k), tele: PACE.tele(n) * ease * calm * (1 - .12 * k) * (hasPerk(2) ? 1.1 : 1) * (1 + .15 * (G.kiwiStack || 0)), dur: PACE.dur(n) * calm * (1 + .15 * (G.kiwiStack || 0)), level: n, levelT: G.levelT,
-    knives: G.levelT >= PACE.threeAt(n) + chefDelay ? 3 : G.levelT >= PACE.twoAt(n) + chefDelay ? 2 : 1 };
+    knives: G.levelT >= PACE.fiveAt(n) + chefDelay ? 5 : G.levelT >= PACE.fourAt(n) + chefDelay ? 4 : G.levelT >= PACE.threeAt(n) + chefDelay ? 3 : G.levelT >= PACE.twoAt(n) + chefDelay ? 2 : 1 };
   if (G.power && G.power.kind === 'stroop') { const sf = slowFactor(G.level); d.interval *= sf; d.tele *= sf; d.dur *= sf * 1.07; }
   return d;
 }
@@ -970,6 +975,8 @@ function spawnPattern(d, forced, tele) {
   const pool = ['aim', 'aim', 'random'];
   if (d.knives >= 2) { const w = G.levelT - PACE.twoAt(G.level) > 20000 ? 2 : 1; for (let i = 0; i < w; i++) pool.push('cross', 'double'); }
   if (d.knives >= 3) pool.push('fan', 'triple');
+  if (d.knives >= 4) pool.push('quad', 'ladder'); // four: a star through the fruit, or four parallel lines with one gap
+  if (d.knives >= 5) pool.push('penta', 'fan5');  // five: a full star, or a five-blade fan from the side
   const p = forced || (G.mode === 'rain' ? 'random' : pick(pool));
   switch (p) {
     case 'random': LT(rnd(40, W - 40), rnd(60, H - 60), a); break;
@@ -977,6 +984,16 @@ function spawnPattern(d, forced, tele) {
     case 'cross': LT(px + jit(), py + jit(), a); LT(px + jit(), py + jit(), a + Math.PI / 2, 170); break;
     case 'double': LT(px + jit(), py + jit(), a); LT(px + jit(), py + jit(), a + rnd(.5, 2.6), 130); break;
     case 'triple': for (let i = 0; i < 3; i++) LT(px + jit(), py + jit(), a + i * 1.05, i * 150); break;
+    case 'quad': for (let i = 0; i < 4; i++) LT(px + jit(), py + jit(), a + i * Math.PI / 4, i * 120); break;
+    case 'penta': for (let i = 0; i < 5; i++) LT(px + jit(), py + jit(), a + i * Math.PI / 5, i * 110); break;
+    case 'ladder': { const nx = Math.cos(a + Math.PI / 2), ny = Math.sin(a + Math.PI / 2), gap = Math.floor(R() * 4); let k = 0; for (let i = 0; i < 5; i++) { if (i === gap) continue; LT(px + (i - 2) * 70 * nx, py + (i - 2) * 70 * ny, a, k++ * 110); } break; }
+    case 'fan5': {
+      const side = Math.floor(R() * 4);
+      const P = side === 0 ? { x: -60, y: rnd(0, H) } : side === 1 ? { x: W + 60, y: rnd(0, H) } : side === 2 ? { x: rnd(0, W), y: -60 } : { x: rnd(0, W), y: H + 60 };
+      const base = Math.atan2(py + jit() - P.y, px + jit() - P.x);
+      for (let i = -2; i <= 2; i++) LT(P.x, P.y, base + i * .3, (i + 2) * 90);
+      break;
+    }
     case 'fan': {
       const side = Math.floor(R() * 4);
       const P = side === 0 ? { x: -60, y: rnd(0, H) } : side === 1 ? { x: W + 60, y: rnd(0, H) } : side === 2 ? { x: rnd(0, W), y: -60 } : { x: rnd(0, W), y: H + 60 };
@@ -1204,7 +1221,7 @@ function updateCubes(dt) {
 }
 function updateSpawner(dt) {
   const d = difficulty();
-  if (d.knives !== G.phase) { G.phase = d.knives; if (d.knives >= 2) { G.bossText = d.knives === 3 ? 'Drie messen tegelijk' : 'Twee messen tegelijk'; G.bossBanner = 2200; SFX.boss(); G.shake = 6; G.chefRun++; track('chef', G.chefRun); } }
+  if (d.knives !== G.phase) { G.phase = d.knives; if (d.knives >= 2) { G.bossText = ['', '', 'Twee', 'Drie', 'Vier', 'Vijf'][d.knives] + ' messen tegelijk'; G.bossBanner = 2200; SFX.boss(); G.shake = 6; G.chefRun++; track('chef', G.chefRun); } }
   if (G.power && G.power.kind === 'rust' || G.mode === 'exam' || G.mode === 'knife') return;
   G.nextSlash -= dt; if (G.nextSlash <= 0) { spawnPattern(d, null, G.mode === 'rain' ? 1300 : 0); G.nextSlash = (G.mode === 'rain' ? 2600 : d.interval) * rndR(.78, 1.22); }
 }
@@ -2960,7 +2977,7 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.14.0', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.14.1', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
   appIcon(size, pad, bg) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); if (bg) { const g = x.createLinearGradient(0, 0, size, size); g.addColorStop(0, '#5a3a1e'); g.addColorStop(1, '#2a1708'); x.fillStyle = g; x.beginPath(); x.roundRect(0, 0, size, size, size * .22); x.fill(); } const f = document.createElement('canvas'); f.width = f.height = size; renderIcon(f.getContext('2d'), 'appel', size / 2, false, { look: [0, .2] }); const inner = size * (1 - 2 * pad); x.drawImage(f, size * pad, size * pad + size * .02, inner, inner); return c.toDataURL('image/png'); },
@@ -2968,7 +2985,7 @@ const HOOK = window.fruitvlucht = {
   lineNear(off, tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; return lineThrough(G.px + b.ox + off, G.py + b.oy, Math.PI / 2, 0, { tele: tele || 60, dur: 160 }); }, startInter, interKindFor, mirrored, ensureMissions, touchStreak, streakReward, todayBadge, MISSION_POOL, HATS, now: null,
   swipe: (x1, y1, x2, y2) => playerSlash(x1, y1, x2, y2), ai: () => G.ai, openAlbum, openPass, openShop, STICKERS, checkStickers, passTier, passReward, addPassXp, seasonKey,
   stamp, hasStamp, fruitLevels, fruitMedal, fruitOfWeek, ensureBounty, rowReward, rowHint, openKaart, FAMILIES, totalStamps, fullRows, skinIndex,
-  WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, showReward, closeReward, rewardItems, giveReward, buyHearts, buyHeartSlot, tierOf, fruitSapBonus, fruitCalm, CONTINUE_COST, HEART_ONE_SAP, HEART_REFILL_SAP, HEART_SLOT_SAP, fmtSap, buySpins, nextSpinKind, modeCubeRate, cubeCap, pause, resume, hubGo, hubBadges, passClaimable,
+  WHEEL, spinWheel: () => spinWheel(true), SPIN_PACKS, showReward, closeReward, rewardItems, giveReward, buyHearts, buyHeartSlot, tierOf, fruitSapBonus, fruitCalm, PACE, CONTINUE_COST, HEART_ONE_SAP, HEART_REFILL_SAP, HEART_SLOT_SAP, fmtSap, buySpins, nextSpinKind, modeCubeRate, cubeCap, pause, resume, hubGo, hubBadges, passClaimable,
   step(ms) { let left = ms; while (left > 0) { const d = Math.min(16, left); update(d); left -= d; } render(); },
   forceAim(tele) { if (G.state !== 'play') return null; const b = G.bodies[0]; const s = lineThrough(G.px + b.ox, G.py + b.oy, Math.random() * Math.PI, 0, { tele: tele || 60, dur: 160 }); return { ax: s.ax, ay: s.ay, bx: s.bx, by: s.by }; },
   move(dx, dy) { G.tx += dx; G.ty += dy; },

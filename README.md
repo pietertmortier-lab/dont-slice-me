@@ -57,6 +57,10 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.14.1
+
+- De messen blijven sneller worden tot level 200 in plaats van te stoppen op 100. Vanaf level 120 kunnen er vier messen tegelijk komen, vanaf 160 vijf, met nieuwe patronen (ster, ladder met één gat, waaier van vijf).
+
 ## Nieuw in v0.14
 
 - Sap heeft weer nut. Beter fruit kost veel meer (van 60 sap voor de druif tot 14.000 voor de drakenvrucht), hoedjes en hulpmiddelen ook. Een extra leven kost overal 3.000 sap: doorgaan na een snee, of een hartje bijkopen; 5 hartjes 12.000. Nieuw: een extra hartjesplek voor altijd (10.000, een tweede voor 25.000).

@@ -31,26 +31,5 @@
   };
 })();
 
-// ---- Keukentoernooi: the game calls window.FV_TOURNEY.submit({ week, ev, score, division }) after every round and
-// FV_TOURNEY.fork({ n }) in the hunt. Without FV_TOURNEY_URL (or without Firebase in this shell) the game keeps its
-// simulated division. Set FV_TOURNEY_URL to the URL of the deployed "tourney" function (native/tourney/README.md).
-const FV_TOURNEY_URL = 'https://europe-west1-dont-slice-me.cloudfunctions.net/tourney';
-// Paste the "firebaseConfig" object of the Firebase *web* app here (Firebase console > Project settings > Your apps >
-// Web app). It is public client configuration; the data is protected by the Firestore rules, not by this object.
-const FIREBASE_CONFIG = { apiKey: 'AIzaSyD-cpn_f2Jj_XCch_pBpnHTqxRfbLjQZTM', authDomain: 'dont-slice-me.firebaseapp.com', projectId: 'dont-slice-me', storageBucket: 'dont-slice-me.firebasestorage.app', messagingSenderId: '599236386226', appId: '1:599236386226:web:94239b28b31cb18ed218ab' };
-if (FV_TOURNEY_URL && FIREBASE_CONFIG) {
-  const loadScript = src => new Promise((ok, fail) => { const el = document.createElement('script'); el.src = src; el.onload = ok; el.onerror = fail; document.head.appendChild(el); });
-  const authReady = (async () => {
-    if (!window.firebase) { await loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js'); await loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js'); }
-    if (!window.firebase.apps.length) window.firebase.initializeApp(FIREBASE_CONFIG); return window.firebase.auth();
-  })().catch(e => { console.warn('Firebase init', e); return null; });
-  const call = async (action, data) => {
-    try {
-      const auth = await authReady; if (!auth) return null;
-      if (!auth.currentUser) await auth.signInAnonymously(); const tok = await auth.currentUser.getIdToken();
-      const r = await fetch(FV_TOURNEY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(Object.assign({ action }, data || {})) });
-      return r.ok ? r.json() : null;
-    } catch (e) { return null; }
-  };
-  window.FV_TOURNEY = { submit: d => call('submit', Object.assign({ seconds: Math.max(1, Math.round((d.seconds || 90))) }, d)), ladder: d => call('ladder', d), result: () => call('result'), meter: () => call('meter'), fork: d => call('fork', d) };
-}
+// ---- Online features (tournament submissions, the player profile, friends) are handled by the game itself: see NET in
+// index.html, which signs in anonymously to Firebase and talks to the function in native/tourney. Nothing to configure here.

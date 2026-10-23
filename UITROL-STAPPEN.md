@@ -18,6 +18,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 - Gesimuleerd in de webversie: aankopen (geen echt geld; de teller "Simulatie" in de winkel), advertenties (een
   scherm van drie seconden) en de toernooiladder (49 vaste tegenstanders). Echte advertenties, aankopen en ladders
   komen pas met de Android-app (fase 3 en 4) en de Firebase-server (fase 6).
+- Sinds 0.25 heeft het spel **vrienden**: een vriendencode, een uitnodigingslink (`…/dont-slice-me/?f=CODE`) en een scherm om je aan je vrienden te spiegelen. Daarvoor meldt het spel zich zelf anoniem aan bij Firebase, ook in de webversie, en stuurt het toernooirondes naar de server. De Firebase-config en de server-URL staan in `index.html` (`NET_CONFIG`, `NET_URL`); de brug in `native/` doet alleen nog advertenties en aankopen.
 - Sinds 0.24.2 staan de testparcoursen van level 80 en level 100 niet meer in de hulptab. De automatische tests
   gebruiken ze nog via een verborgen haak; spelers zien ze niet.
 
@@ -27,7 +28,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 |--------|--------|-------------|
 | Google Play Console | account aangevraagd, identiteitsverificatie loopt (23 oktober) | app aanmaken, winkelvermelding, producten, interne test |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus` / `noads` / `pass`, producten `noads` en `pass` | credentials JSON uit de Play Console, *Import products*, `plus_month` en `plus_year` aan `plus` koppelen |
-| Firebase | project `dont-slice-me`, web-app (config in `bridge.js`), Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels en functies uitgerold op de Node 22-runtime (23 oktober), URL in `FV_TOURNEY_URL` | niets; bij latere wijzigingen aan `native/tourney` opnieuw deployen |
+| Firebase | project `dont-slice-me`, web-app, Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels en functies uitgerold op de Node 22-runtime (23 oktober) | **opnieuw deployen voor v0.25** (vrienden en de ontbrekende index): `git pull`, dan in `native\tourney`: `firebase deploy --only functions,firestore` |
 | AdMob | nog niets | app en twee advertentieblokken aanmaken, ID's in manifest en `bridge.js` |
 
 ## 1. Vandaag: de webversie openzetten voor je testpubliek
@@ -56,6 +57,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
    - taal wisselen naar Engels (vlagknop) en terug;
    - hoe de afstand tussen vinger en fruit aanvoelt, en of het spel vloeiend blijft op hun toestel;
    - geluid en muziek aan en uit; wisselt de muziek per keuken?
+   - Vrienden: deel je uitnodigingslink met een andere tester; opent die het spel ermee, dan zien jullie elkaar op het Vrienden-scherm en krijgen jullie allebei 300 sap.
 6. Nieuwe versie: na elke push staat ze binnen een minuut online. Testers krijgen ze bij het volgende openen (soms
    pas bij het tweede openen, de service worker vernieuwt op de achtergrond). Het versienummer onderaan het menu zegt
    welke versie ze spelen.

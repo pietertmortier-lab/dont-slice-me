@@ -57,6 +57,12 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.25: vrienden
+
+- **Vrienden**: nieuwe knop in het menu. Je krijgt een vriendencode en een uitnodigingslink; wie het spel ermee opent is meteen je vriend en jullie krijgen allebei 300 sap (eenmalig per paar, maximaal tien beloonde uitnodigingen per speler). Een code intypen kan ook.
+- Op het Vrienden-scherm spiegel je je aan je vrienden: level, record, fruit, dagreeks, pogingen, divisie, wie welk fruit al heeft dat jij nog mist, een kroontje voor de hoogste, "haal in"-hint naar de eerstvolgende boven je, en een vriendenladder voor het weekevenement.
+- Het spel meldt zich nu zelf anoniem aan bij Firebase (ook in de webversie) en stuurt toernooirondes naar de server. De ladder op het scherm blijft voorlopig de simulatie; de echte uitslag van de server volgt in een latere versie.
+
 ## Nieuw in v0.24.4: contactadres van het spel
 
 - Het contactadres in het privacybeleid en de winkelteksten is nu dont.slice.me@gmail.com. Opmerkingen in de broncode en de publieke documenten noemen geen persoonsnamen meer; alleen het privacybeleid noemt de uitgever, zoals de wet vraagt.

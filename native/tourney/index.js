@@ -1,5 +1,6 @@
 // Don't Slice Me! Keukentoernooi: the small server behind the weekly ladders.
-// One HTTPS Cloud Function ("tourney") with four actions, Firestore as storage, anonymous Firebase Auth for identity.
+// One HTTPS Cloud Function ("tourney"): tournament actions, player profiles and friends. Firestore as storage, anonymous
+// Firebase Auth for identity.
 // The game keeps working without it (simulated division); with it, divisions of 50 real players, a weekly close with
 // prizes, and plausibility checks on every score. Deploy: see README.md in this folder.
 const { onRequest } = require('firebase-functions/v2/https');
@@ -13,6 +14,18 @@ const DIVISIONS = ['hout', 'koper', 'zilver', 'goud', 'diamant'];
 const DIV_SIZE = 50;
 // plausibility: the most a round can score per second of play, per event (generous, catches only forged numbers)
 const MAX_PER_SEC = { sapstorm: 12, nacht: 3, estafette: 10, jacht: 2 };
+// Friends: every player has a short code; opening an invite link (or typing the code) makes two players friends at once.
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', MAX_FRIENDS = 50, FRIEND_SAP = 300, MAX_INVITE_REWARDS = 10;
+const newCode = () => Array.from({ length: 6 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
+const cleanCode = v => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+const clampInt = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.floor(Number(v) || 0)));
+const profileView = (id, p) => p ? ({ uid: id, name: String(p.name || 'Fruit').slice(0, 16), level: p.level || 1, best: p.best || 0, fruits: Array.isArray(p.fruits) ? p.fruits : [], hat: p.hat || 'none', streak: p.streak || 0, runs: p.runs || 0, stamps: p.stamps || 0, division: p.division || '', weekKey: p.weekKey || '', weekEv: p.weekEv || '', weekScore: p.weekScore || 0, last: p.updatedMs || 0 }) : null;
+async function ensureCode(uid, data) { // the player's code, created once
+  const ref = db.doc(`profiles/${uid}`), cur = (await ref.get()).data() || {};
+  if (cur.code) return cur.code;
+  for (let i = 0; i < 8; i++) { const code = newCode(), cref = db.doc(`codes/${code}`); const ok = await db.runTransaction(async tx => { const c = await tx.get(cref); if (c.exists) return false; tx.set(cref, { uid }); tx.set(ref, Object.assign({ code }, data || {}), { merge: true }); return true; }); if (ok) return code; }
+  throw new Error('code');
+}
 const rankPrize = r => r === 1 ? { sap: 5000, munt: 3, hat: 'weekkroon' } : r <= 3 ? { sap: 3000, munt: 2 } : r <= 10 ? { sap: 2000, munt: 1 } : r <= 25 ? { sap: 1000 } : { sap: 500 };
 
 function isoWeek(d) { // "2026-W44", Monday-based, like weekKey() in the game (day boundary at 07:00)
@@ -61,6 +74,33 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, 
       const doc = await db.doc(`results/${uid}`).get(); const r = doc.data();
       if (!r || r.claimed) { res.json({ ok: true, result: null }); return; }
       await doc.ref.update({ claimed: true }); res.json({ ok: true, result: r });
+    } else if (action === 'profile') { // { name, level, best, fruits, hat, streak, runs, stamps, division, weekKey, weekEv, weekScore } -> { code }
+      const data = { name: String(body.name || 'Fruit').replace(/[^\p{L}\p{N} \-]/gu, '').slice(0, 16) || 'Fruit', level: clampInt(body.level, 1, 500), best: clampInt(body.best, 0, 3 * 3600000),
+        fruits: (Array.isArray(body.fruits) ? body.fruits : []).map(k => String(k).slice(0, 24)).slice(0, 40), hat: String(body.hat || 'none').slice(0, 24), streak: clampInt(body.streak, 0, 10000), runs: clampInt(body.runs, 0, 1e6),
+        stamps: clampInt(body.stamps, 0, 100000), division: DIVISIONS.includes(body.division) ? body.division : '', weekKey: String(body.weekKey || '').slice(0, 12), weekEv: EVENTS.includes(body.weekEv) ? body.weekEv : '', weekScore: clampInt(body.weekScore, 0, 1e6),
+        updatedMs: Date.now(), updated: admin.firestore.FieldValue.serverTimestamp() };
+      const code = await ensureCode(uid, data); await db.doc(`profiles/${uid}`).set(data, { merge: true }); res.json({ ok: true, code });
+    } else if (action === 'befriend') { // { code } -> both players become friends; the first time, both get FRIEND_SAP
+      const code = cleanCode(body.code); if (code.length !== 6) { res.status(400).json({ error: 'code' }); return; }
+      const c = (await db.doc(`codes/${code}`).get()).data(); if (!c) { res.json({ ok: false, error: 'unknown' }); return; }
+      const other = c.uid; if (other === uid) { res.json({ ok: false, error: 'self' }); return; }
+      const [mine, theirs, otherProfile, myProfile] = await Promise.all([db.collection(`friends/${uid}/of`).get(), db.collection(`friends/${other}/of`).get(), db.doc(`profiles/${other}`).get(), db.doc(`profiles/${uid}`).get()]);
+      const op = otherProfile.data() || {}, mp = myProfile.data() || {};
+      if (mine.docs.some(d => d.id === other)) { res.json({ ok: true, already: true, friend: profileView(other, op) }); return; }
+      if (mine.size >= MAX_FRIENDS || theirs.size >= MAX_FRIENDS) { res.json({ ok: false, error: 'full' }); return; }
+      const now = admin.firestore.FieldValue.serverTimestamp(), rewardOk = (op.inviteRewards || 0) < MAX_INVITE_REWARDS, batch = db.batch();
+      batch.set(db.doc(`friends/${uid}/of/${other}`), { since: now }); batch.set(db.doc(`friends/${other}/of/${uid}`), { since: now });
+      if (rewardOk) { batch.set(db.doc(`profiles/${other}`), { inviteRewards: admin.firestore.FieldValue.increment(1), pending: admin.firestore.FieldValue.arrayUnion({ from: String(mp.name || 'Een vriend').slice(0, 16), sap: FRIEND_SAP }) }, { merge: true }); }
+      await batch.commit(); res.json({ ok: true, friend: profileView(other, op), reward: rewardOk ? FRIEND_SAP : 0 });
+    } else if (action === 'friends') { // -> { code, friends: [...], rewards: [{from, sap}] } (rewards are handed out once)
+      const meRef = db.doc(`profiles/${uid}`), me = (await meRef.get()).data() || {}; const list = await db.collection(`friends/${uid}/of`).get();
+      const refs = list.docs.map(d => db.doc(`profiles/${d.id}`)); const docs = refs.length ? await db.getAll(...refs) : [];
+      const friends = docs.map(d => profileView(d.id, d.data())).filter(Boolean);
+      const rewards = Array.isArray(me.pending) ? me.pending : []; if (rewards.length) await meRef.set({ pending: [] }, { merge: true });
+      res.json({ ok: true, code: me.code || '', friends, rewards });
+    } else if (action === 'unfriend') { // { uid }
+      const other = String(body.uid || '').slice(0, 128); if (!other) { res.status(400).json({ error: 'uid' }); return; }
+      const batch = db.batch(); batch.delete(db.doc(`friends/${uid}/of/${other}`)); batch.delete(db.doc(`friends/${other}/of/${uid}`)); await batch.commit(); res.json({ ok: true });
     } else if (action === 'meter') { // the community meter of the hunt
       const doc = await db.doc(`meters/${week}`).get(); res.json({ ok: true, total: (doc.data() || {}).total || 0 });
     } else if (action === 'fork') { // +n forks in the hunt

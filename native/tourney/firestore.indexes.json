@@ -1,0 +1,6 @@
+{
+  "indexes": [
+    { "collectionGroup": "groups", "queryScope": "COLLECTION", "fields": [ { "fieldPath": "week", "order": "ASCENDING" }, { "fieldPath": "division", "order": "ASCENDING" }, { "fieldPath": "count", "order": "ASCENDING" } ] }
+  ],
+  "fieldOverrides": []
+}

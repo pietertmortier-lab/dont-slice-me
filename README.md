@@ -56,3 +56,9 @@ from there by hand, so the version label in the menu tells you which build you a
 ## Nieuw in v0.12
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
+
+## Nieuw in v0.13
+
+- Beloningspop-up: alles wat je buiten een poging krijgt (rad, dagreeks, opdrachten, Fruitpas, winkel, Plus-cadeau, munt van de dag, nieuwe stickers, nieuw fruit) verschijnt groot in beeld met het icoon van wat je kreeg en de naam erbij. Tik om verder te gaan; meerdere beloningen komen na elkaar.
+- Muziek staat standaard uit. Echte nummers per keukenblad komen in de map `music/` (menu.mp3 en keuken-1-houten-plank.mp3 tot keuken-6-nachtkeuken.mp3); het spel vloeit ze over bij een nieuwe keuken. Zonder bestanden speelt een klein ingebouwd deuntje. De Suno-prompts staan in `music/MUZIEK-suno-prompts.md`.
+- Een lager startlevel (levelkiezer of "Speel" op de Fruitkaart) geldt nog voor één poging. Daarna ga je weer verder vanaf je hoogste level, ook als je een ander fruit kiest.

@@ -1,0 +1,16 @@
+Fruitvlucht - muziek per keukenblad
+
+Zet hier de MP3-bestanden met exact deze namen (kleine letters):
+
+  menu.mp3                       menu's, Vandaag, winkel, game-over
+  keuken-1-houten-plank.mp3      levels 1-5
+  keuken-2-marmeren-blad.mp3     levels 6-10
+  keuken-3-leisteen.mp3          levels 11-15
+  keuken-4-bamboe.mp3            levels 16-20
+  keuken-5-koperen-blad.mp3      levels 21-25
+  keuken-6-nachtkeuken.mp3       level 26 en hoger
+
+Eisen: MP3 128-160 kbps, 1 tot 1,5 minuut, geen stilte aan begin/einde, geen zang, gelijk volume.
+Het spel herhaalt elk bestand en vloeit over naar het volgende blad bij een nieuwe keuken.
+Ontbreekt een bestand, dan speelt het kleine ingebouwde deuntje.
+De uitgewerkte Suno-prompts staan in MUZIEK-suno-prompts.md in deze map.

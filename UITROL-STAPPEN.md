@@ -69,7 +69,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
    key** (`goog_…`).
 4. **Firebase** (toernooiserver): https://console.firebase.google.com, project "dont-slice-me" (Spark-plan volstaat
    om te beginnen). Klik op *Add app* en kies het **Web**-icoon (`</>`), naam "Don't Slice Me!", geen Hosting. Je krijgt
-   een blokje code met `const firebaseConfig = { apiKey: …, projectId: … }`: kopieer dat en stuur het mij, ik zet het in
+   een blokje code met `const firebaseConfig = { apiKey: …, projectId: … }`; dat staat sinds 23 oktober 2026 in
    `native/bridge.js` bij `FIREBASE_CONFIG`. Het spel praat met Firebase via de webbibliotheek in de app, daarom een
    web-app en geen `google-services.json`. Een Android-app toevoegen mag ook, voor latere crashrapporten; dat is nu
    niet nodig. Zet in hetzelfde project alvast *Authentication* aan met aanmeldmethode "Anoniem" en maak de
@@ -179,7 +179,7 @@ plausibiliteit en rekent zondag 23 u de week af.
 | AdMob app-ID (`ca-app-pub-…~…`) | nog niet (jij maakt hem in fase 2) | `native/android/app/src/main/AndroidManifest.xml`, in de `<meta-data>`-regel uit fase 3 punt 4. |
 | AdMob blok-ID's (rewarded en interstitial, `ca-app-pub-…/…`) | `native/bridge.js`, regel `const ADMOB = { rewarded: …, interstitial: …, testing: true }` (nu de testblokken van Google) | Vervang de twee waarden; laat `testing: true` tot de productierelease. |
 | RevenueCat public key (`goog_…`) | `native/bridge.js`, regel `const REVENUECAT = { apiKey: 'goog_…' }` | **Ingevuld op 23 oktober 2026.** Het is een publieke sleutel; die mag in de app staan. |
-| Firebase web-config (`firebaseConfig`) | Firebase-console > Project settings > Your apps > web-app | `native/bridge.js`, regel `const FIREBASE_CONFIG = null`: vervang `null` door het object. Publieke client-configuratie; de gegevens worden beschermd door de Firestore-regels. |
+| Firebase web-config (`firebaseConfig`) | Firebase-console > Project settings > Your apps > web-app | **Ingevuld op 23 oktober 2026** in `native/bridge.js` (`FIREBASE_CONFIG`). Publieke client-configuratie; de gegevens worden beschermd door de Firestore-regels. |
 | Keystore (handtekening van de app) | maak je in Android Studio (fase 3 punt 7) | **Niet in de repository.** Bewaar het `.jks`-bestand en de twee wachtwoorden op twee plaatsen buiten GitHub (bijvoorbeeld je NAS en een wachtwoordmanager). |
 | Product-ID's en prijzen | `index.html` onder `PRODUCTS`; de lijst in fase 4 punt 4 | Play Console > *Monetisatie* > *Producten* > *In-app-producten* (eenmalige producten) en > *Abonnementen* (`plus_month`, `plus_year`). Daarna dezelfde ID's in RevenueCat > *Products* en *Entitlements*. |
 | Toernooiserver-URL | fase 6 geeft ze; `native/bridge.js`, regel `const FV_TOURNEY_URL = ''` | Vul de URL van de functie `tourney` in. |

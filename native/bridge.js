@@ -37,7 +37,7 @@
 const FV_TOURNEY_URL = '';
 // Paste the "firebaseConfig" object of the Firebase *web* app here (Firebase console > Project settings > Your apps >
 // Web app). It is public client configuration; the data is protected by the Firestore rules, not by this object.
-const FIREBASE_CONFIG = null; // e.g. { apiKey: '...', authDomain: 'dont-slice-me.firebaseapp.com', projectId: 'dont-slice-me', appId: '...' }
+const FIREBASE_CONFIG = { apiKey: 'AIzaSyD-cpn_f2Jj_XCch_pBpnHTqxRfbLjQZTM', authDomain: 'dont-slice-me.firebaseapp.com', projectId: 'dont-slice-me', storageBucket: 'dont-slice-me.firebasestorage.app', messagingSenderId: '599236386226', appId: '1:599236386226:web:94239b28b31cb18ed218ab' };
 if (FV_TOURNEY_URL && FIREBASE_CONFIG) {
   const loadScript = src => new Promise((ok, fail) => { const el = document.createElement('script'); el.src = src; el.onload = ok; el.onerror = fail; document.head.appendChild(el); });
   const authReady = (async () => {

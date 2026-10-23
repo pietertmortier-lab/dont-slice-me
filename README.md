@@ -57,6 +57,11 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.21: fruit altijd boven je vinger, Plus met echte voordelen
+
+- Het fruit zweeft nu altijd net boven je vinger, overal op het bord; geen sprong en geen omslag onderaan meer.
+- Fruitvlucht Plus: onbeperkte hartjes, +25% sap op elke poging, rad/dagreeks/opdrachten betalen dubbel, elke maandag een Plus-kist (1.500 sap + 1 hartje), het fruit van de maand blijft van jou na 10 levels ermee, en elk seizoen een exclusief hoedje (nu de Herfstbaret).
+
 ## Nieuw in v0.20: direct Opnieuw na een snee, volledig Engels, Plus zonder proef
 
 - Na een snee kom je meteen op het eindscherm met Opnieuw; de tweede kans is de knop "Verder vanaf level N · filmpje" op datzelfde scherm (gratis op het testparcours). Zonder hartjes blijft het filmpje voor +1 leven op het hartjesscherm.

@@ -4,7 +4,7 @@
 (async () => {
   if (!window.Capacitor || !window.Capacitor.isNativePlatform || !window.Capacitor.isNativePlatform()) return;
   const ADMOB = { rewarded: 'ca-app-pub-3940256099942544/5224354917', interstitial: 'ca-app-pub-3940256099942544/1033173712', testing: true };
-  const REVENUECAT = { apiKey: 'goog_XXXXXXXXXXXXXXXXXXXXXXXXXXXX' }; // public SDK key from the RevenueCat dashboard
+  const REVENUECAT = { apiKey: 'goog_FJgTybHYfqFWbkGXAXfgEJleTju' }; // public SDK key of the Google Play app in RevenueCat (safe to ship; it only allows client-side calls)
   const { AdMob, RewardAdPluginEvents, InterstitialAdPluginEvents } = window.Capacitor.Plugins.AdMob ? await import('@capacitor-community/admob') : {};
   const Purchases = window.Capacitor.Plugins.Purchases ? (await import('@revenuecat/purchases-capacitor')).Purchases : null;
   let adsReady = false, iapReady = false;

@@ -82,8 +82,8 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 4. Open in Android Studio `android/app/src/main/AndroidManifest.xml` en zet binnen `<application>` deze regel met
    jouw AdMob app-ID:
    `<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-XXXX~YYYY"/>`
-5. Open `native/bridge.js` en vul in: de twee AdMob blok-ID's (nu staan er de testblokken van Google), de
-   RevenueCat-sleutel (`goog_…`) en, na fase 6, de URL van de toernooiserver bij `FV_TOURNEY_URL`. Laat
+5. Open `native/bridge.js` en vul in: de twee AdMob blok-ID's (nu staan er de testblokken van Google) en, na
+   fase 6, de URL van de toernooiserver bij `FV_TOURNEY_URL`. De RevenueCat-sleutel staat er al in. Laat
    `testing: true` staan tot vlak voor de echte release: dan zie je testadvertenties, wat verplicht is tijdens
    ontwikkelen en testen.
 6. Zet `google-services.json` in `android/app/`.
@@ -174,7 +174,7 @@ plausibiliteit en rekent zondag 23 u de week af.
 | Contact-e-mail | `store/winkelteksten.md` onder "Vaste gegevens" | Play Console > *Winkelvermelding* > *Contactgegevens* > E-mailadres (verplicht, wordt publiek getoond). |
 | AdMob app-ID (`ca-app-pub-…~…`) | nog niet (jij maakt hem in fase 2) | `native/android/app/src/main/AndroidManifest.xml`, in de `<meta-data>`-regel uit fase 3 punt 4. |
 | AdMob blok-ID's (rewarded en interstitial, `ca-app-pub-…/…`) | `native/bridge.js`, regel `const ADMOB = { rewarded: …, interstitial: …, testing: true }` (nu de testblokken van Google) | Vervang de twee waarden; laat `testing: true` tot de productierelease. |
-| RevenueCat public key (`goog_…`) | `native/bridge.js`, regel `const REVENUECAT = { apiKey: 'goog_XXXX…' }` | Vervang de placeholder. |
+| RevenueCat public key (`goog_…`) | `native/bridge.js`, regel `const REVENUECAT = { apiKey: 'goog_…' }` | **Ingevuld op 23 oktober 2026.** Het is een publieke sleutel; die mag in de app staan. |
 | `google-services.json` (Firebase) | download uit de Firebase-console | `native/android/app/google-services.json`. Niet nodig voor de webversie. |
 | Keystore (handtekening van de app) | maak je in Android Studio (fase 3 punt 7) | **Niet in de repository.** Bewaar het `.jks`-bestand en de twee wachtwoorden op twee plaatsen buiten GitHub (bijvoorbeeld je NAS en een wachtwoordmanager). |
 | Product-ID's en prijzen | `index.html` onder `PRODUCTS`; de lijst in fase 4 punt 4 | Play Console > *Monetisatie* > *Producten* > *In-app-producten* (eenmalige producten) en > *Abonnementen* (`plus_month`, `plus_year`). Daarna dezelfde ID's in RevenueCat > *Products* en *Entitlements*. |

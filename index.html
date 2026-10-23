@@ -427,14 +427,14 @@ const levelGoal = n => 10 + 2 * (n - 1);
 // first minute. The level sets the base: a shorter warning, slashes closer together, and the moment within the
 // level at which two (and, from level 40, three) knives start coming.
 // Levels 1 to 100 as before; from there the pace keeps tightening to level 200 instead of stopping at 100
-// (Pieter, 23 October): warning 458 to 320 ms, a knife every 715 to 450 ms, sweep 171 to 120 ms. Four knives
-// at once from level 120, five from 160.
+// (Pieter, 23 October): warning 508 to 320 ms, a knife every 814 to 450 ms, sweep 171 to 120 ms. Three knives
+// at once from level 50, four from 120, five from 160. Softened slightly on 23 October (level 80 felt too hard).
 const PACE = {
-  tele: n => n <= 100 ? 1300 - 8.5 * (n - 1) : Math.max(320, 458.5 - 1.385 * (n - 100)),   // warning before the blade moves
-  interval: n => n <= 100 ? 2200 - 15 * (n - 1) : Math.max(450, 715 - 2.65 * (n - 100)),   // time between slashes
+  tele: n => n <= 100 ? 1300 - 8 * (n - 1) : Math.max(320, 508 - 1.88 * (n - 100)),         // warning before the blade moves
+  interval: n => n <= 100 ? 2200 - 14 * (n - 1) : Math.max(450, 814 - 3.64 * (n - 100)),     // time between slashes
   dur: n => n <= 100 ? 280 - 1.1 * (n - 1) : Math.max(120, 171.1 - .511 * (n - 100)),      // blade sweep time
   twoAt: n => Math.max(5000, 45000 - 400 * (n - 1)),    // two knives at once, from this far into the level
-  threeAt: n => n < 40 ? Infinity : Math.max(8000, 40000 - 530 * (n - 40)), // three knives, from level 40
+  threeAt: n => n < 50 ? Infinity : Math.max(8000, 40000 - 533 * (n - 50)), // three knives, from level 50; 8 s into the level by 110
   fourAt: n => n < 120 ? Infinity : Math.max(8000, 40000 - 530 * (n - 120)), // four, from level 120
   fiveAt: n => n < 160 ? Infinity : Math.max(8000, 40000 - 800 * (n - 160)), // five, from level 160; 8 s into the level by 200
 };
@@ -1122,7 +1122,7 @@ function die(s, b, bx, by) {
 }
 function afterDeath() {
   G.timeScale = 1; G.slashes = []; G.hazards = [];
-  if (G.mode !== 'normal') { finishMode(true); return; } // no second chance in the daily knife or the weekend games
+  if (G.mode !== 'normal' && G.mode !== 'tour') { finishMode(true); return; } // no second chance in the daily knife or the weekend games; the tour continues like a normal run
   if (G.continues < (hasPerk(3) ? 2 : 1)) openContinue(); else finishRun();
 }
 // A chosen lower start level counts for one run; recordRun then clears it, so the next run (any fruit) starts
@@ -1137,7 +1137,7 @@ function recordRun() {
   track('run', { t: G.t, fruit: G.fruit, level: G.level, mode: G.mode, levelsGained: G.levelsGained }); checkStickers(); store(); return { nr, prevBest };
 }
 function finishRun() {
-  if (G.mode !== 'normal') { finishMode(false); return; }
+  if (G.mode !== 'normal' && G.mode !== 'tour') { finishMode(false); return; } // the test tour ends like a normal run
   G.state = 'over';
   G.bonusSap = Math.floor(G.t / 10000) * Math.round((fruitDef().sapMult || 1) * boost('sapMult')) * (hasPerk(9) ? 2 : 1); save.sap += G.bonusSap;
   G.fruitBonus = G.mode === 'normal' ? Math.floor(G.sapRun * (fruitSapBonus(G.fruit) + 5 * kitLevel('zeef')) / 100) : 0; save.sap += G.fruitBonus; // the fruit's tier bonus, paid at the end so every cube still counts whole
@@ -1149,13 +1149,14 @@ function doContinue() {
   G.segLost = 0; G.lost = new Set(); G.armor = f.armor || 0; G.burstDone = false; G.seekers = []; G.zones = []; G.decoy = null; G.magnetT = 0; G.fireCharges = 0; setBodies(); G.slashes = []; G.hazards = []; G.debris = []; G.nextSlash = 1400; G.nextHazard = 12000; G.death = null; G.zoom = 1; G.flash = 0;
   showScreen(null); pauseBtn.hidden = false; SFX.go();
 }
+const contCost = () => G.mode === 'tour' ? 0 : CONTINUE_COST; // the test tour continues for free
 function openContinue() {
   G.state = 'continue'; contT = 7000;
   $('#cont-time').textContent = fmtTime(G.t);
   $('#cont-text').textContent = G.t > save.best ? `Nieuw record: ${fmtTime(G.t)}! Hoe ver kom je nog?` : `Je record is ${fmtTime(save.best)}. Je zat op ${fmtTime(G.t)}.`;
-  const sapBtn = $('#btn-cont-sap'); sapBtn.disabled = save.sap < CONTINUE_COST; sapBtn.textContent = `Extra leven · ${fmtSap(CONTINUE_COST)} sap`;
-  $('#cont-info').textContent = `Doorgaan is een extra leven: een filmpje of ${fmtSap(CONTINUE_COST)} sap. Het kost geen hartje: je tijd, level en sap blijven staan en je begint 2 s beschermd in het midden. ${hasPerk(3) ? 'Met Tweede kans mag dit twee keer per poging' : 'Dit mag één keer per poging'}; dit is keer ${G.continues + 1}.`;
-  $('#cont-sap-have').textContent = save.sap < CONTINUE_COST ? `Je hebt ${fmtSap(save.sap)} sap, te weinig voor een extra leven. Het filmpje is gratis.` : `Je hebt ${fmtSap(save.sap)} sap.`;
+  const cost = contCost(), sapBtn = $('#btn-cont-sap'); sapBtn.disabled = save.sap < cost; sapBtn.textContent = cost ? `Extra leven · ${fmtSap(cost)} sap` : 'Doorgaan (gratis op het parcours)';
+  $('#cont-info').textContent = (cost ? `Doorgaan is een extra leven: een filmpje of ${fmtSap(cost)} sap. ` : 'Testparcours: doorgaan is gratis. ') + `Het kost geen hartje: je tijd, level en sap blijven staan en je begint 2 s beschermd in het midden. ${hasPerk(3) ? 'Met Tweede kans mag dit twee keer per poging' : 'Dit mag één keer per poging'}; dit is keer ${G.continues + 1}.`;
+  $('#cont-sap-have').textContent = !cost ? '' : save.sap < cost ? `Je hebt ${fmtSap(save.sap)} sap, te weinig voor een extra leven. Het filmpje is gratis.` : `Je hebt ${fmtSap(save.sap)} sap.`;
   $('#cont-bar').style.width = '100%'; showScreen('scr-continue');
 }
 const CAPTIONS = ['Rust zacht, {n}.', 'Dat was {n}. Het mes won.', '{n} is nu fruitsalade.', 'Au. {n} zag het aankomen.', 'Een stukje {n}, iemand?'];
@@ -1164,9 +1165,10 @@ function openOver(nr, prevBest) {
   const f = fruitDef();
   $('#over-title').textContent = 'Gesneden!'; $('#btn-retry').hidden = false; $('#btn-retry').textContent = 'Opnieuw'; $('#over-badge').textContent = 'Nieuw record';
   $('#over-time').textContent = fmtTime(G.t); $('#over-badge').hidden = !nr;
-  $('#over-rec').textContent = nr ? (prevBest > 0 ? `Vorig record: ${fmtTime(prevBest)}` : 'Je eerste record!') : `Record: ${fmtTime(save.best)}. Je zat er ${fmtTime(save.best - G.t)} naast.`;
+  $('#over-rec').textContent = G.mode === 'tour' ? 'Testparcours: telt niet voor je record.' : nr ? (prevBest > 0 ? `Vorig record: ${fmtTime(prevBest)}` : 'Je eerste record!') : `Record: ${fmtTime(save.best)}. Je zat er ${fmtTime(save.best - G.t)} naast.`;
   $('#over-cubes').textContent = `${G.cubesRun} suikerklontjes (+${G.sapRun} sap) · tijdbonus +${G.bonusSap} sap${G.fruitBonus ? ` · fruitbonus ${fruitDef().name} +${fruitSapBonus(G.fruit)}%: +${G.fruitBonus} sap` : ''} · ${G.near}× net niet`;
   $('#over-level').textContent = (G.levelsGained > 0 ? `Level ${G.level} bereikt (+${G.levelsGained}, ${G.levelsGained} stempel${G.levelsGained === 1 ? '' : 's'} met ${f.name}). ` : `Level ${G.level} · nog ${levelGoal(G.level) - G.levelSap} sap tot level ${G.level + 1}. `) + rowHint();
+  if (G.mode === 'tour') $('#over-level').textContent = `Testparcours: level ${G.level} bereikt. Opnieuw begint het parcours weer op level ${G.tour ? G.tour.stops[0] : 80}.`;
   $('#over-hearts').innerHTML = heartsHTML(); $('#over-heart-timer').textContent = heartsLine();
   const tip = $('#over-tip'); tip.hidden = save.runs > 3; tip.innerHTML = save.runs <= 1 ? '<b>Tip:</b> elk level dat je haalt geeft een stempel op je Fruitkaart. Open <b>Vandaag</b> voor het rad en je dagreeks.' : save.runs === 2 ? '<b>Tip:</b> met sap koop je nieuw fruit met eigen trucjes. Kijk bij <b>Fruit</b> wat je al kunt betalen.' : '<b>Tip:</b> om de vier levels komt een tussenspel; alles daarin pak je door erover te zweven.';
   shareText = `Ik overleefde ${fmtTime(G.t)} als ${f.name} in Fruitvlucht. Haal jij meer?`;
@@ -2547,7 +2549,7 @@ pauseBtn.addEventListener('click', () => { SFX.click(); pause(); });
 $('#btn-resume').addEventListener('click', () => { SFX.click(); resume(); });
 $('#btn-quit').addEventListener('click', () => { SFX.click(); quitRun(); });
 $('#btn-cont-ad').addEventListener('click', () => { SFX.click(); G.state = 'ad'; adT = adFree() ? 400 : 3000; $('#ad-count').textContent = adFree() ? 'reclamevrij' : '3'; showScreen('scr-ad'); });
-$('#btn-cont-sap').addEventListener('click', () => { if (save.sap < CONTINUE_COST) return; SFX.click(); save.sap -= CONTINUE_COST; store(); doContinue(); });
+$('#btn-cont-sap').addEventListener('click', () => { const cost = contCost(); if (save.sap < cost) return; SFX.click(); save.sap -= cost; store(); doContinue(); });
 $('#btn-cont-no').addEventListener('click', () => { SFX.click(); finishRun(); });
 $('#btn-retry').addEventListener('click', () => { SFX.click(); if (G.mode === 'tour') startTour(G.fruit, G.tour && G.tour.id); else startRun(G.fruit, false, G.mode); });
 $('#btn-menu').addEventListener('click', () => { SFX.click(); openMenu(); });
@@ -3071,7 +3073,7 @@ $('#btn-shop-back').addEventListener('click', () => { SFX.click(); openMenu(); }
 
 // ---- Loop and test hooks. HOOK.freeze stops the frame loop from advancing time; HOOK.step(ms) advances it by hand.
 const HOOK = window.fruitvlucht = {
-  version: '0.15.0', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.15.1', freeze: false, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
   appIcon(size, pad, bg) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); if (bg) { const g = x.createLinearGradient(0, 0, size, size); g.addColorStop(0, '#5a3a1e'); g.addColorStop(1, '#2a1708'); x.fillStyle = g; x.beginPath(); x.roundRect(0, 0, size, size, size * .22); x.fill(); } const f = document.createElement('canvas'); f.width = f.height = size; renderIcon(f.getContext('2d'), 'appel', size / 2, false, { look: [0, .2] }); const inner = size * (1 - 2 * pad); x.drawImage(f, size * pad, size * pad + size * .02, inner, inner); return c.toDataURL('image/png'); },

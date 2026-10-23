@@ -57,6 +57,11 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.15.1
+
+- Fout opgelost: na een snee in het testparcours liep het spel vast. Nu krijg je gewoon de doorgaan-vraag (gratis op het parcours) en daarna het eindscherm; Opnieuw start het parcours weer op level 80.
+- Iets makkelijker: de waarschuwing voor een mes duurt wat langer, messen komen iets minder snel na elkaar, en drie messen tegelijk beginnen pas vanaf level 50 (was 40).
+
 ## Nieuw in v0.15 (ronde 3: level 81 tot 110)
 
 - Testparcours (via Hulp): een gratis poging die op level 80 begint en na elk uitgespeeld level (60 sap) doorspringt naar 85, 90, 95 en 100, waar het nieuwe meteen verschijnt. Telt niet voor records; sap houd je.

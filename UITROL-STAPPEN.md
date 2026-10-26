@@ -29,7 +29,7 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 | Google Play Console | account aangevraagd, identiteitsverificatie loopt (23 oktober) | app aanmaken, winkelvermelding, producten, interne test |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus` / `noads` / `pass`, producten `noads` en `pass` | credentials JSON uit de Play Console, *Import products*, `plus_month` en `plus_year` aan `plus` koppelen |
 | Firebase | project `dont-slice-me`, web-app, Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels, index en functies uitgerold voor v0.26 (23 oktober): toernooi, profiel, vrienden. **Te doen:** opnieuw uitrollen voor v0.29/v0.30 (duels, uitdagingen, rivalen, fooien, keukenprofiel): `cd C:\Users\piete\dont-slice-me\native\tourney`, `git pull` in de hoofdmap, dan `firebase deploy --only functions,firestore`, opslag bij het profiel, toestellen koppelen | niets; bij latere wijzigingen aan `native/tourney`: `git pull` en `firebase deploy --only functions,firestore` |
-| AdMob | nog niets | app en twee advertentieblokken aanmaken, ID's in manifest en `bridge.js` |
+| AdMob | account aangemaakt, betalingsprofiel in verificatie (26 oktober; de IBAN komt pas later onder *Betalingen*) | app en twee advertentieblokken aanmaken, AVG-bericht publiceren, privacy-URL invullen, ID's in `capacitor.config.json`, manifest en `bridge.js`, telefoon als testapparaat, later `app-ads.txt` |
 
 ## 1. Vandaag: de webversie openzetten voor je testpubliek
 
@@ -75,7 +75,9 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 2. **AdMob** (advertenties): https://admob.google.com, zelfde Google-account. Maak een app aan ("Don't Slice Me!",
    Android, nog niet in de store, pakketnaam `com.dontsliceme.app`). Maak twee advertentieblokken: *Beloning*
    (rewarded) en *Interstitial*. Noteer drie codes: de app-ID (`ca-app-pub-…~…`) en de twee blok-ID's
-   (`ca-app-pub-…/…`). Vul betaalgegevens (IBAN) en belastinginfo in, anders wordt er niet uitbetaald.
+   (`ca-app-pub-…/…`). Bij het aanmaken vraagt AdMob alleen een betalingsprofiel (naam, adres); de IBAN en de
+   belastinginfo vul je later in onder *Betalingen*, zodra het profiel geverifieerd is. Zonder die gegevens wordt er
+   niet uitbetaald, maar advertenties tonen kan al wel.
 3. **RevenueCat** (aankopen en abonnement, gratis tot 2.500 dollar omzet per maand): https://app.revenuecat.com.
    Project "Don't Slice Me!", Play Store-app toevoegen met pakketnaam `com.dontsliceme.app`. Je hebt hiervoor later
    de service-account-sleutel uit fase 4 nodig; RevenueCat legt het stap voor stap uit. Noteer de **public Google API

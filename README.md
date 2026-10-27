@@ -57,6 +57,11 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.30.1: statusregel in het spel
+
+- "Overleeft nog 1 snee" liep linksboven in de levelregel bij een breed sapgetal. De tekst heet nu "Nog 1 snee vrij" en de
+  levelregel schuift opzij als de statusregel ruimte nodig heeft (zoals de timer al deed).
+
 ## Nieuw in v0.30: Jouw Keuken
 
 - Nieuwe knop **Keuken** in het menu: je eigen keuken met vier toestellen (snijplank, oven, koelkast, vitrine), elk vijf niveaus,

@@ -57,6 +57,10 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.30.9: dagopdrachten met tussenspelletjes tellen weer
+
+- In v0.30.8 telden de dagopdrachten "Speel 1 tussenspel" en "Haal het doel van een tussenspel" niet mee. Dat is hersteld.
+
 ## Nieuw in v0.30.8: herstellingen na een grondige controle van de tussenspelletjes
 
 - Stop je een munt-spelletje halverwege, dan heeft je volgende gewone poging niet langer een te laag plafond en eindigt ze

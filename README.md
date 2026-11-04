@@ -57,6 +57,18 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.30.3 en v0.30.4: seizoenen lopen door, en eerlijker spelen
+
+- **Seizoenen lopen door.** Na Seizoen 1 (tot 30 november) volgt meteen Seizoen 2 "De Gouden Oogst" met de Gouden Perzik,
+  en zo verder, telkens zes weken. Je vormen per seizoen blijven bewaard.
+- **Geen betaald toeval meer.** Draaien aan het rad zijn niet meer te koop. Het filmpje op het rad geeft nu altijd 300 sap,
+  en Plus verdubbelt het rad niet meer. Gekochte draaien die je nog had, blijven bewaard en worden later omgezet.
+- **Duels zonder inzet.** Winnen geeft 150 sap, verliezen kost niets. Wie een vriendenduel verliest, draagt nog wel het Pannetje.
+- **Oefenladder.** Het toernooi toont eerlijk dat je tegen computertegenstanders speelt en geeft geen rangprijzen meer.
+- **Elke poging telt.** Verlaat je het eindscherm via de onderbalk of de terugknop, dan worden record, bonus en XP toch bijgeteld.
+- **De webwinkel is een demo.** Kopen met geld kan alleen in de app; met sap kopen werkt gewoon.
+- Testlijst: TESTLIJST-v0.30.3-0.30.4.md.
+
 ## Nieuw in v0.30.2: tussenspellen half zo vaak
 
 - Het tussenspel in een poging komt nu om de acht levels (9, 17, 25, ...) in plaats van om de vier. De losse spelletjes met

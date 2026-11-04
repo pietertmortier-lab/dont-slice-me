@@ -57,6 +57,18 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.30.7: tussenspelletjes groeien trager, met een plafond van 3000 sap op level 200
+
+- **Waarom.** Op level 113 leverde een tussenspel meer dan 3000 sap op. De vermenigvuldigers stapelden: je fruit, je
+  ervaring met dat fruit, de keukenmeester, woensdag en de sapverdubbelaar, samen tot ×14,5 op level 113.
+- **Nu.** Elk level heeft een plafond dat meegroeit: 191 sap op level 9, 1721 op level 113 en 3000 vanaf level 200. Een los
+  spelletje met een munt levert hoogstens 600 sap op. Hoe dichter je bij het plafond komt, hoe minder een extra punt nog
+  oplevert, maar elk punt telt en het plafond zelf haal je nooit.
+- **Voorbeelden** (Suikerstorm, sterk spelletje / perfect spelletje): level 9 zonder extra's 36 / 54; level 113 zonder
+  extra's 219 / 333, met alles op woensdag rond 1080 / 1360; level 200 met alles samen hoogstens zo'n 2980.
+- Testen: speel een tussenspel rond level 113 (op woensdag of met de verdubbelaar) en kijk of de beloning nu ver onder 3000
+  blijft.
+
 ## Nieuw in v0.30.6: tussenspelletjes groeien mee met je level, en het kaarslicht flikkert niet meer
 
 - **Tussenspelletjes groeien mee.** Een tussenspel telt nu in punten: een klontje is 1, een goudklontje 5, een "net niet" in

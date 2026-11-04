@@ -57,6 +57,17 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.30.8: herstellingen na een grondige controle van de tussenspelletjes
+
+- Stop je een munt-spelletje halverwege, dan heeft je volgende gewone poging niet langer een te laag plafond en eindigt ze
+  niet meer plots op het Vandaag-scherm.
+- Haal je het doel, dan zegt het spel ook "doel gehaald!" als je al tegen het plafond aan zit.
+- Een munt-spelletje rekent met je echte level, niet met een lager startlevel. Het gebruikt ook de dubbele sap van je eerste
+  poging van de dag niet meer op. Ook op het plafond van 600 telt elk punt.
+- In een tussenspel bouw je geen combo meer op die daarna ongemerkt meetelt.
+- Tussenspel-sap telt niet meer mee voor de fruitbonus, Plus en het filmpje "nog eens erbij" op het eindscherm. Zo blijft het
+  echt onder het plafond. Je ziet het apart staan: "tussenspel +X sap".
+
 ## Nieuw in v0.30.7: tussenspelletjes groeien trager, met een plafond van 3000 sap op level 200
 
 - **Waarom.** Op level 113 leverde een tussenspel meer dan 3000 sap op. De vermenigvuldigers stapelden: je fruit, je

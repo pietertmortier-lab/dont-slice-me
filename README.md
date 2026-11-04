@@ -57,6 +57,16 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.30.5: muziek volgt het keukenblad overal, en de bananenschil werkt echt
+
+- **Muziek.** Waar de echte muziek niet laadt (offline, de voorvertoning in Claude), speelde vroeger één klein deuntje voor
+  elke keuken. Nu heeft elke keuken een eigen deuntje, met een eigen toonsoort, tempo en klank. Kan de browser een nieuw nummer
+  niet meteen starten, dan blijft het vorige spelen tot je volgende tik, in plaats van stil te vallen.
+- **Banaan.** Een mes dat over een gevallen schil gaat, glijdt nu echt uit: het blijft even haken, wiebelt, je ziet
+  "Uitgegleden!", en daarna schuift het half zo snel verder. De beschrijving van de banaan zegt nu precies dat.
+- Testen: speel met de banaan, wacht tot hij een schil laat vallen (om de 20 s) en blijf er vlakbij. Kijk op het pauzescherm welk
+  muziekstuk speelt, voor en na een nieuw keukenblad.
+
 ## Nieuw in v0.30.3 en v0.30.4: seizoenen lopen door, en eerlijker spelen
 
 - **Seizoenen lopen door.** Na Seizoen 1 (tot 30 november) volgt meteen Seizoen 2 "De Gouden Oogst" met de Gouden Perzik,

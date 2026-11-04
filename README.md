@@ -57,6 +57,19 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.30.6: tussenspelletjes groeien mee met je level, en het kaarslicht flikkert niet meer
+
+- **Tussenspelletjes groeien mee.** Een tussenspel telt nu in punten: een klontje is 1, een goudklontje 5, een "net niet" in
+  de sprint 3. Elk punt is sap waard in verhouding tot je level. Een sterk spelletje levert overal ongeveer twee keer het sap
+  van je level op (level 9: zo'n 50 sap, level 100: zo'n 420, level 150: zo'n 620). Er is geen maximum meer, dus elk extra
+  klontje telt. Combo's en koortsrondes tellen in een tussenspel niet mee. Je fruit, de keukenmeester, een dubbele dag en de
+  sapverdubbelaar tellen er wel bovenop. Het intro toont vooraf wat het doel waard is, en tijdens het spel zie je "Nu: +X sap".
+- **Losse spelletjes (munten)** groeien mee tot level 150, zodat een munt nooit meer waard wordt dan een sappakket.
+- **Kaarslicht (level 91 tot 120).** Het licht flikkert niet meer en de donkere rand beweegt niet meer: de warme kaarssfeer
+  blijft, maar rustig.
+- Testen: speel een tussenspel op een laag en op een hoog level en vergelijk de beloning. Speel rond level 91 tot 120 en kijk
+  of de rand stil blijft.
+
 ## Nieuw in v0.30.5: muziek volgt het keukenblad overal, en de bananenschil werkt echt
 
 - **Muziek.** Waar de echte muziek niet laadt (offline, de voorvertoning in Claude), speelde vroeger één klein deuntje voor

@@ -57,6 +57,20 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.0: levels worden trager en trager, en onbeperkt spelen is beperkt
+
+- **Tragere levels.** Levels 1 tot 8 blijven gelijk. Vanaf level 9 duurt elk level wat langer dan het vorige: ongeveer 35
+  seconden op level 10, 2½ minuut op level 50, 5 minuten op level 100 en 11 minuten op level 200. Level 200 kost nu zo'n
+  18 à 20 uur spelen in plaats van 75 minuten.
+- **Stappen.** Een lang level bestaat uit stappen ter grootte van een oud level. Elke stap geeft wat vroeger een nieuw level
+  gaf: even rustige messen, een kans op een bonus, +5 sap, en om de 8 stappen een tussenspel.
+- **Je balk blijft bewaard** tussen pogingen, dus elke poging brengt je verder.
+- **Dubbel sap gaat naar je spaarpot.** Woensdag, de eerste poging van de dag en de verdubbelaar vullen je spaarpot, niet
+  de levelbalk.
+- **Onbeperkte hartjes:** 10 minuten, één keer per dag, na een filmpje. "Onbeperkt 24 uur" en het pakket van 30 minuten
+  zijn weg.
+- Testlijst: TESTLIJST-v0.31.0.md. Noteer vooral hoe lang je overleeft op level 100, 130 en 150.
+
 ## Nieuw in v0.30.9: dagopdrachten met tussenspelletjes tellen weer
 
 - In v0.30.8 telden de dagopdrachten "Speel 1 tussenspel" en "Haal het doel van een tussenspel" niet mee. Dat is hersteld.

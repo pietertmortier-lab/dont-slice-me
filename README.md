@@ -57,6 +57,13 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.5: een hartje per uur, geen meldingen over de aartsvijand, en hoogstens 2 filmpjes per level per dag
+
+- Een hartje komt nu elk uur terug in plaats van elke 20 minuten. Met Snelle hartjes is dat om de 45, dan om de 36 minuten.
+- Geen meldingen meer over je aartsvijand, ook niet op het eindscherm. Zijn messen blijven wel paars.
+- "Verder vanaf level X · filmpje" en het filmpje voor een extra hartje kun je samen hoogstens 2 keer per level per dag
+  gebruiken. Op de knop staat hoeveel je er vandaag nog hebt; zijn ze op, dan zegt de knop dat.
+
 ## Nieuw in v0.31.4: de Taaie schil stopt bij 2 schillen
 
 - De keukenbonus Taaie schil (vanaf level 41) geeft nog altijd elke overleefde minuut een schil, maar alleen zolang je er

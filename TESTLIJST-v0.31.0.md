@@ -39,3 +39,7 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 15. Op level 145 of hoger: zie je een "!" bij Fruit en kun je de Mirakelbes kopen voor 36.000 sap? Worden keukengevaren zoet en onschadelijk? Voelt dat te makkelijk aan?
 16. Op level 165 of hoger: de Bosbes. Helpt de blauwe lijn vóór de rode waarschuwing, en zie je 1-2-3 bij twee of drie messen?
 17. Loopt het spel vlot als een gevaar zoet is (vooral de blender en de garde) op je telefoon?
+
+## v0.31.5
+18. Gebruik "Verder vanaf level X · filmpje" twee keer op hetzelfde level. Staat er daarna dat het vandaag op is? En op het hartjesscherm ook?
+19. Zie je nog ergens meldingen over je aartsvijand?

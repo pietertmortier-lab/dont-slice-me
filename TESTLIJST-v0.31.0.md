@@ -43,3 +43,6 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 ## v0.31.5
 18. Gebruik "Verder vanaf level X · filmpje" twee keer op hetzelfde level. Staat er daarna dat het vandaag op is? En op het hartjesscherm ook?
 19. Zie je nog ergens meldingen over je aartsvijand?
+
+## v0.31.6
+20. Open de Fruitkaart en scrol helemaal naar beneden. Kom je tot level 1, en start "Speel" daar een poging op dat level? Scrolt het vlot op je telefoon?

@@ -57,6 +57,11 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.6: de Fruitkaart scrolt helemaal tot level 1
+
+- De Fruitkaart toont nu alle rijen, van je hoogste level tot level 1. Je scrolt gewoon naar beneden en kunt bij elk
+  level op "Speel" tikken. De regel "... en nog N rijen lager." is weg.
+
 ## Nieuw in v0.31.5: een hartje per uur, geen meldingen over de aartsvijand, en hoogstens 2 filmpjes per level per dag
 
 - Een hartje komt nu elk uur terug in plaats van elke 20 minuten. Met Snelle hartjes is dat om de 45, dan om de 36 minuten.

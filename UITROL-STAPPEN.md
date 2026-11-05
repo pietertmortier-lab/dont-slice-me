@@ -73,8 +73,10 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
    12 testers die 14 dagen onafgebroken ingeschreven blijven (Google verlaagde dit in december 2024 van 20 naar 12).
    Die 14 dagen tellen alleen in de Play Console, niet tijdens de webtest.
 2. **AdMob** (advertenties): https://admob.google.com, zelfde Google-account. Maak een app aan ("Don't Slice Me!",
-   Android, nog niet in de store, pakketnaam `com.dontsliceme.app`). Maak twee advertentieblokken: *Beloning*
-   (rewarded) en *Interstitial*. Noteer drie codes: de app-ID (`ca-app-pub-…~…`) en de twee blok-ID's
+   Android, nog niet in de store). Een pakketnaam vraagt AdMob dan niet: die komt er pas bij "Voeg winkels toe aan uw
+   AdMob-app", zodra de app in Google Play staat (`com.dontsliceme.app`). Maak twee advertentieblokken: *Beloning*
+   (rewarded; beloningsinstelling: aantal 1, item "beloning", want het spel bepaalt zelf wat de speler krijgt) en
+   *Interstitial*. Noteer drie codes: de app-ID (`ca-app-pub-…~…`) en de twee blok-ID's
    (`ca-app-pub-…/…`). Bij het aanmaken vraagt AdMob alleen een betalingsprofiel (naam, adres); de IBAN en de
    belastinginfo vul je later in onder *Betalingen*, zodra het profiel geverifieerd is. Zonder die gegevens wordt er
    niet uitbetaald, maar advertenties tonen kan al wel.

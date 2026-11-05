@@ -57,6 +57,13 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.7: het Level Complete-deuntje
+
+- Elke keer dat je een level uitspeelt, hoor je het Level Complete-deuntje. De keukenmuziek pauzeert even en speelt daarna
+  verder waar ze was.
+- Ging het level snel (korter dan 45 seconden, zoals in het begin), dan speelt alleen het begin: 5 seconden.
+- Met "Geluid: uit" hoor je het niet.
+
 ## Nieuw in v0.31.6: de Fruitkaart scrolt helemaal tot level 1
 
 - De Fruitkaart toont nu alle rijen, van je hoogste level tot level 1. Je scrolt gewoon naar beneden en kunt bij elk

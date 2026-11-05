@@ -46,3 +46,6 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 
 ## v0.31.6
 20. Open de Fruitkaart en scrol helemaal naar beneden. Kom je tot level 1, en start "Speel" daar een poging op dat level? Scrolt het vlot op je telefoon?
+
+## v0.31.7
+21. Speel een level uit. Hoor je het Level Complete-deuntje, pauzeert de keukenmuziek even en speelt ze daarna verder? Duurt het in de eerste levels maar 5 seconden? Is het niet te luid of te stil naast de muziek?

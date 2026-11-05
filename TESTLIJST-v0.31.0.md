@@ -34,3 +34,8 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 12. Voelen level 100 tot 120 nu milder aan? Hoe lang overleef je daar nu (vergelijk met je notities)?
 13. Rond level 50 en hoger: verschijnt de rasp op jouw hoogte, en ben je traag als je erin blijft? Ontsnap je als je er tijdens de waarschuwing uitstapt?
 14. Rond level 90 en hoger: neemt de schuivende plank je fruit een klein stukje mee?
+
+## v0.31.3
+15. Op level 145 of hoger: zie je een "!" bij Fruit en kun je de Mirakelbes kopen voor 36.000 sap? Worden keukengevaren zoet en onschadelijk? Voelt dat te makkelijk aan?
+16. Op level 165 of hoger: de Bosbes. Helpt de blauwe lijn vóór de rode waarschuwing, en zie je 1-2-3 bij twee of drie messen?
+17. Loopt het spel vlot als een gevaar zoet is (vooral de blender en de garde) op je telefoon?

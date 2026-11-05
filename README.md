@@ -57,6 +57,16 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.3: de eerste late fruitsoorten, de Mirakelbes en de Bosbes
+
+- **Mirakelbes** (vanaf level 145, 36.000 sap): elk keukengevaar wordt zoet en onschadelijk ("Karamelpan!"), en laat 2
+  gouden klontjes voor je spaarpot achter. Messen blijven gevaarlijk, maar blijven even plakken in karamel en ijs.
+- **Bosbes** (vanaf level 165, 45.000 sap): elk mes toont zich eerst 0,22 s als blauwe stippellijn, vóór de gewone rode
+  waarschuwing. Bij twee of drie messen tegelijk zie je 1-2-3 in de volgorde waarin ze slaan.
+- Ze zijn alleen voor sap te koop, en hun truc werkt alleen in een gewone poging, niet in duels, het toernooi of de Chef.
+- Het fruit van de week en de dagpremie kiezen nu alleen fruit dat je hebt of mag kopen. De deegrol toont nu zijn lichte
+  hout (een oude tekenfout maakte hem donker).
+
 ## Nieuw in v0.31.2: mildere messen vanaf level 80, en elk keukengevaar doet echt iets
 
 - **Mildere messen.** Levels 1 tot 79 blijven gelijk. Vanaf level 80 krijg je meer waarschuwing en meer tijd tussen de

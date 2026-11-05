@@ -57,6 +57,12 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.4: de Taaie schil stopt bij 2 schillen
+
+- De keukenbonus Taaie schil (vanaf level 41) geeft nog altijd elke overleefde minuut een schil, maar alleen zolang je er
+  minder dan 2 hebt. Zo stapel je in lange pogingen geen onkwetsbaarheid meer op. Schillen van je fruit (Kokosnoot, Lychee,
+  Ananas) en van de Dikke schil blijven zoals ze waren.
+
 ## Nieuw in v0.31.3: de eerste late fruitsoorten, de Mirakelbes en de Bosbes
 
 - **Mirakelbes** (vanaf level 145, 36.000 sap): elk keukengevaar wordt zoet en onschadelijk ("Karamelpan!"), en laat 2

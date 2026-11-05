@@ -57,6 +57,14 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.9: een dure Sapverdubbelaar en hoogstens 2 startboosts met sap
+
+- De **Sapverdubbelaar** kost 30.000 sap per uur. De uren tellen op, tot hoogstens 5 uur. In de Dagdeal kost hij 15.000
+  sap, één keer per dag. Wie al meer dan 5 uur had, houdt die.
+- **Schild, stroop en magneet** koop je met sap tot je er 2 hebt. Wat je via Plus, een beloning of een pakje krijgt,
+  telt daar niet voor mee.
+- Een knop die niet kan, wordt grijs en zegt waarom: "max 5 uur", "max 2", "Gekocht", of hoeveel sap je nog tekort hebt.
+
 ## Nieuw in v0.31.8: de Lampionvrucht en de Mispel
 
 - **Lampionvrucht** (vanaf level 185, 55.000 sap): een tussenspel dat eraan komt, kun je bewaren als lampion (2, op

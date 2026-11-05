@@ -53,3 +53,7 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 ## v0.31.8
 22. Op level 185 of hoger: koop de Lampionvrucht. Bewaar een tussenspel als lampion en laat hem later opgaan met de knop naast pauze. Is duidelijk wanneer het kan? Voelt het niet te sterk als je hem net voor een snee gebruikt?
 23. Op level 205 of hoger: koop de Mispel. Zie je wanneer de zandloper vol is, en voelt het terugspoelen eerlijk en duidelijk?
+
+## v0.31.9
+24. Kijk in de winkel naar de Sapverdubbelaar. Snap je meteen wat hij kost, hoe lang hij loopt en waarom de knop grijs is als je 5 uur hebt of te weinig sap?
+25. Koop schild, stroop of magneet met sap tot je er 2 hebt. Zie je "max 2"?

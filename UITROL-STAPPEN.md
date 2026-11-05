@@ -26,10 +26,10 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 
 | Dienst | Gedaan | Nog te doen |
 |--------|--------|-------------|
-| Google Play Console | account aangevraagd, identiteitsverificatie loopt (23 oktober) | app aanmaken, winkelvermelding, producten, interne test |
+| Google Play Console | account actief (bevestigd op 5 november) | app aanmaken, *Instellen van je app*, winkelvermelding; producten pas met de nieuwe hartjesladder van de remake (v0.32); interne test zodra de app gebouwd is |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus` / `noads` / `pass`, producten `noads` en `pass` | credentials JSON uit de Play Console, *Import products*, `plus_month` en `plus_year` aan `plus` koppelen |
 | Firebase | project `dont-slice-me`, web-app, Authentication Anonymous, Firestore europe-west1, Blaze-plan, regels, index en functies uitgerold voor v0.26 (23 oktober): toernooi, profiel, vrienden. **Te doen:** opnieuw uitrollen voor v0.29/v0.30 (duels, uitdagingen, rivalen, fooien, keukenprofiel): `cd C:\Users\piete\dont-slice-me\native\tourney`, `git pull` in de hoofdmap, dan `firebase deploy --only functions,firestore`, opslag bij het profiel, toestellen koppelen | niets; bij latere wijzigingen aan `native/tourney`: `git pull` en `firebase deploy --only functions,firestore` |
-| AdMob | account goedgekeurd; app en twee advertentieblokken (Beloning, Tussenreclame) aangemaakt en AVG-toestemmingsbericht gepubliceerd op 5 november (privacy-URL: privacy.html); codes genoteerd in `native/README.md` van de privérepo | app en twee advertentieblokken aanmaken, AVG-bericht publiceren, privacy-URL invullen, ID's in `capacitor.config.json`, manifest en `bridge.js`, telefoon als testapparaat, later `app-ads.txt` |
+| AdMob | account goedgekeurd; app en twee advertentieblokken (Beloning, Tussenreclame) aangemaakt en AVG-toestemmingsbericht gepubliceerd op 5 november (privacy-URL: privacy.html); codes genoteerd in `native/README.md` van de privérepo | de drie codes invullen in `bridge.js` en het manifest (na Pieters goedkeuring van de laatste versie); optioneel *Alternatieve toestemmingsverzameling* of *Dekking voor bericht maximaliseren* |
 
 ## 1. Vandaag: de webversie openzetten voor je testpubliek
 
@@ -129,7 +129,8 @@ jij zelf moet doen, omdat het accounts, betalingen of jouw pc vraagt.
 4. *Monetisatie > Producten*: maak de producten aan met exact deze ID's (dezelfde staan in `index.html` onder
    `PRODUCTS`):
    - sap: `sap_3000` 0,99 · `sap_10000` 2,49
-   - hartjes en tijd: `hearts_5` 0,99 · `unlimited_24h` 1,99 · `unlimited_30m` 0,49
+   - hartjes: `hearts_5` 0,99 (onbeperkt 24 uur en 30 minuten zijn sinds v0.31.0 uit het spel; de remake vervangt de
+     hartjes door de ladder 10/25/65, dus maak de producten pas aan met die versie)
    - hulpjes: `key` 0,99 · `doubler_1h` 0,99 · `coins_5` 0,99 · `boost_5` 0,49 · `shield` 0,99
    - Fruitpas `pass` 4,99 · reclamevrij `noads` 3,99 · hoedje `hat_hoed` 1,49
    - fruit: `fruit_<naam>` één per fruit, 0,99 tot 3,99 (de prijs staat op elke fruitkaart in het spel);

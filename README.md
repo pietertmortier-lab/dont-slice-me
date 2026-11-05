@@ -57,6 +57,18 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.2: mildere messen vanaf level 80, en elk keukengevaar doet echt iets
+
+- **Mildere messen.** Levels 1 tot 79 blijven gelijk. Vanaf level 80 krijg je meer waarschuwing en meer tijd tussen de
+  messen, en komen twee en drie messen tegelijk later in elke stap. Level 100 speelt nu ongeveer zoals vroeger level 90,
+  level 150 zoals vroeger 110 en level 200 zoals vroeger 135. Het blijft wel elk level iets moeilijker.
+- **De rasp werkt nu.** Hij kwam vroeger meestal ergens anders terecht dan bij je fruit. Nu verschijnt hij op jouw hoogte:
+  stap eruit tijdens de waarschuwing, of je bent 6 seconden traag ("Rasp: je bent traag!").
+- **De vork en de deegrol** waarschuwen langer met de keukenbonus Rustige plank (vanaf level 61) en met de Vorkvrucht,
+  zoals beloofd.
+- **De schuivende plank** neemt je fruit nu ook mee als je met je vinger speelt, een klein stukje.
+- **De kurk als aartsvijand:** hem ontwijken telt nu mee voor je wraak.
+
 ## Nieuw in v0.31.1: hoogstens 3 minuten per level op level 200, en geen FLOW-balkje meer
 
 - Elk level duurt nog altijd wat langer dan het vorige, maar trager oplopend: ongeveer 25 seconden op level 9, 50 seconden

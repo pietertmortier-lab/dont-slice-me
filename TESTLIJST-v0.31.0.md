@@ -29,3 +29,8 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 ## v0.31.1
 10. Duurt een level rond level 100 ongeveer 1½ minuut, en rond level 150 ongeveer 2¼ minuut?
 11. Is het FLOW-balkje weg, en zie je "FEVER 8 s" rechtsboven alleen als Fruit Fever bezig is?
+
+## v0.31.2
+12. Voelen level 100 tot 120 nu milder aan? Hoe lang overleef je daar nu (vergelijk met je notities)?
+13. Rond level 50 en hoger: verschijnt de rasp op jouw hoogte, en ben je traag als je erin blijft? Ontsnap je als je er tijdens de waarschuwing uitstapt?
+14. Rond level 90 en hoger: neemt de schuivende plank je fruit een klein stukje mee?

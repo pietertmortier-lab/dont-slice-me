@@ -25,3 +25,7 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 
 ## Tussenspelletjes
 9. Komt er in een lang level om de 8 stappen een tussenspel?
+
+## v0.31.1
+10. Duurt een level rond level 100 ongeveer 1½ minuut, en rond level 150 ongeveer 2¼ minuut?
+11. Is het FLOW-balkje weg, en zie je "FEVER 8 s" rechtsboven alleen als Fruit Fever bezig is?

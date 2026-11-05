@@ -57,6 +57,14 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.1: hoogstens 3 minuten per level op level 200, en geen FLOW-balkje meer
+
+- Elk level duurt nog altijd wat langer dan het vorige, maar trager oplopend: ongeveer 25 seconden op level 9, 50 seconden
+  op level 50, 1½ minuut op level 100, 2¼ minuut op level 150 en 3 minuten op level 200. Daarna komt er per level ongeveer
+  een halve seconde bij.
+- Het FLOW-balkje rechtsboven is weg. Fruit Fever blijft: vier keer "Net niet!" kort na elkaar en het begint. Alleen
+  tijdens Fever zie je rechtsboven hoe lang het nog duurt.
+
 ## Nieuw in v0.31.0: levels worden trager en trager, en onbeperkt spelen is beperkt
 
 - **Tragere levels.** Levels 1 tot 8 blijven gelijk. Vanaf level 9 duurt elk level wat langer dan het vorige: ongeveer 35

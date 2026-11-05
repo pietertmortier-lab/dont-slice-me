@@ -49,3 +49,7 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 
 ## v0.31.7
 21. Speel een level uit. Hoor je het Level Complete-deuntje, pauzeert de keukenmuziek even en speelt ze daarna verder? Duurt het in de eerste levels maar 5 seconden? Is het niet te luid of te stil naast de muziek?
+
+## v0.31.8
+22. Op level 185 of hoger: koop de Lampionvrucht. Bewaar een tussenspel als lampion en laat hem later opgaan met de knop naast pauze. Is duidelijk wanneer het kan? Voelt het niet te sterk als je hem net voor een snee gebruikt?
+23. Op level 205 of hoger: koop de Mispel. Zie je wanneer de zandloper vol is, en voelt het terugspoelen eerlijk en duidelijk?

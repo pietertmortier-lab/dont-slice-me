@@ -57,6 +57,15 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.8: de Lampionvrucht en de Mispel
+
+- **Lampionvrucht** (vanaf level 185, 55.000 sap): een tussenspel dat eraan komt, kun je bewaren als lampion (2, op
+  fruitniveau 5 zelfs 3). Met de lampionknop naast de pauzeknop, een tweede vinger of de L-toets laat je er een opgaan
+  wanneer jij wilt: alle messen verfrommelen en het tussenspel begint. Er komen geen extra tussenspellen en geen extra sap bij.
+- **Mispel** (vanaf level 205, 65.000 sap): een zandloper spoelt één snee terug. De messen gaan terug naar hun
+  waarschuwing en het gevaar valt even stil. Na 40 seconden (30 op fruitniveau 5) is de zandloper weer vol; elke
+  "Net niet!" maakt het sneller.
+
 ## Nieuw in v0.31.7: het Level Complete-deuntje
 
 - Elke keer dat je een level uitspeelt, hoor je het Level Complete-deuntje. De keukenmuziek pauzeert even en speelt daarna

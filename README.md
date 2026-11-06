@@ -57,6 +57,19 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.11: Ontvang alles, prijsvoorbeelden, 5 duels per uur en Vrienden
+
+- **Ontvang alles:** bovenaan Vandaag haal je met één knop alles op wat klaarligt (dagreeks, opdrachten, keuken,
+  Fruitpas, toernooi). Je ziet vooraf wat je krijgt. Fruitpas en Keuken hebben hun eigen knop.
+- **Prijsvoorbeelden:** tik op een prijs en je ziet wat het is: een hoedje op je eigen fruit, een bord met je fruit
+  erop, een fruit met wat het kan. Overal staat hoeveel, wanneer en waar je het krijgt.
+- **Duel van de dag** springt niet meer terug naar het begin.
+- **5 duels per uur**, tegen vrienden of andere spelers samen. Er staat hoeveel je er nog hebt en wanneer er nieuwe
+  komen. Elk duel heeft nieuwe messen.
+- **Vrienden:** een eigen tabblad. Zoek iemand op naam en vraag of jullie vrienden worden, of deel je
+  uitnodigingslink of code. Daag een vriend uit: de verliezer draagt een dag het Pannetje.
+- Zoeken op naam en vriendschapsverzoeken werken pas als de server opnieuw is uitgerold (zie de stappen hieronder).
+
 ## Nieuw in v0.31.10: elk gevaar legt zichzelf uit
 
 - Bij elk keukengevaar staat nu in drie korte regels wat het is, wat je moet doen en wat er gebeurt als je te dichtbij

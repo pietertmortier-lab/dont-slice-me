@@ -16,5 +16,13 @@ service cloud.firestore {
     match /devices/{uid} { allow read, write: if false; }
     match /duels/{day}/{document=**} { allow read, write: if false; }
     match /tips/{id} { allow read, write: if false; }
+    // v0.32: ghosts, the hourly duel limit, rate limits, friend requests (and refusals), friend duels, ghost summaries, paid pairs
+    match /ghosts/{id} { allow read, write: if false; }
+    match /duelwin/{uid} { allow read, write: if false; }
+    match /limits/{key} { allow read, write: if false; }
+    match /requests/{uid}/{document=**} { allow read, write: if false; }
+    match /challenges/{id} { allow read, write: if false; }
+    match /duelsum/{uid} { allow read, write: if false; }
+    match /pairs/{id} { allow read, write: if false; }
   }
 }

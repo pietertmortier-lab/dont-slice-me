@@ -61,3 +61,9 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 ## v0.31.10
 26. Speel vanaf level 10 en hoger. Lees je bij elk gevaar in één oogopslag wat het is en wat je moet doen? Staat de tekst nergens in de weg (onder je duim, over je fruit, over het gevaar)?
 27. Bij de vork: staat de uitleg boven de rode ring, niet onder je vinger?
+
+## v0.31.11
+28. Tik op Vandaag op "Ontvang alles". Krijg je alles in één kaart, en klopt wat er vooraf stond?
+29. Tik op een prijs (toernooi, Spellen, Fruitpas, winkel). Zie je wat het is en wat het doet?
+30. Speel 5 duels na elkaar. Klopt de teller ("nog 3 van 5") en de tijd tot er nieuwe komen? Stop er eens een halverwege.
+31. Na het uitrollen van de server: zoek een vriend op naam, stuur een verzoek, aanvaard er een, en daag een vriend uit.

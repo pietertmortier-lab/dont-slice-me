@@ -43,6 +43,27 @@ Plausibility: a score above `seconds × MAX_PER_SEC[event] + 50` is refused. Gro
 - `profile` also takes `kitchen` `{ lv: {plank, oven, koelkast, vitrine}, tier, fruit, hat, tips, score }` and `friends` returns it per friend, so friends can visit each other's kitchen from their profile data.
 - `tip` `{ uid, day }`: once per friend per day; the receiver gets 100 juice by note (`tips/{day_from_to}`), the giver pays 50 client-side.
 
+## Duels per hour and friends by name (v0.32)
+
+Deploy again: `firebase deploy --only functions,firestore` (or `npm run deploy`, which now does the same) from this folder. This deploys the function, the rules for the new collections and four composite indexes (`ghosts` by band and age; `challenges` by receiver and status, by receiver and age, by sender and age). Wait until the console shows the indexes as built (a few minutes) before testing. Optional, once: a TTL policy so ghosts of players who stopped disappear after three days (an active player overwrites his own 20 slots anyway): `gcloud firestore fields ttls update expireAt --collection-group=ghosts --enable-ttl --project=dont-slice-me`. Everything is backward compatible: older clients keep the day-based duel, the old `challenge` flow and instant code friendships; the new client falls back to them when `hello` is unknown.
+
+| action | body | reply |
+|--------|------|-------|
+| `hello` | - | `{ ok, v: 32, caps: ['find', 'request', 'duel2'], inbox: { req, duel } }`: what this server can do and how many friend requests (of the last two weeks) and open friend duels wait |
+| `duelfind` | `v: 2, day, level, seen: [seed], challenge?` | `{ opp: { id, seed, name, fruit, level, score, t, ghost } }` or `null`: a ghost of the last 48 h of my level band (then the bands next to it), never mine and never a seed in `seen`. With `challenge`: the friend's seed and ghost; the first call starts the friend duel (`playing`), a second call is answered only within 20 s (a retry after a slow answer), later `error: 'playing'`. No uid. |
+| `duel` | `day, seed, score, seconds, level, fruit, name, ghost, t, quit, vsGhost, challenge?, challengeTo?` | `{ ok, stored, settled, challenge, error }`: stores the duel as a ghost in one of the player's 20 slots, at most 5 (+1) an hour per player, the window anchored at the duel's start (`{ stored: false, limit: true }` beyond); `seconds` is bounded by `t` (at most 95 s); `vsGhost` counts the played ghost (only on its own seed) for its owner's daily summary note; `challenge` settles a friend duel (also beyond the limit); `challengeTo` (a friend's uid) opens one (`error: 'already' \| 'notfriend' \| 'oldapp' \| 'seen' \| 'quit' \| 'limit'`). A friend duel that was started but whose score never comes counts as 0 after 3 minutes. A duel on the day's seed also writes the old daily entry. Without `seed` the old day-based action runs, with the same bound on `seconds`. |
+| `challenge` | `uid, day` | unchanged, except `error: 'newapp'` when the friend's client plays friend duels v2 (an old challenge would never be settled) |
+| `findplayer` | `q` | `{ players: [{ ref, name, level, fruit, tag, friend }] }`: exact name, and names that start with `q` from three letters; at most 8; only players whose new client allows it (`findable`); 20 searches per 10 minutes per player and 60 per address (`error: 'slow'`) |
+| `friendreq` | `ref` | `{ ok, sent }`, or `{ ok, friend, reward, mutual }` when the other player had asked me already; asking again sends no second note; after a refusal `error: 'unknown'` for a week; `error: 'unknown' \| 'self' \| 'full' \| 'friends' \| 'slow'` (20 requests a day, 20 open per receiver; requests expire after two weeks) |
+| `friendans` | `ref, yes` | accepts (both become friends, the requester gets a note) or refuses a request |
+| `friends` | `day` | now also `requests: { in, out }` and `duels2` (every open or started friend duel v2 and the newest settled ones); the daily ghost summary arrives as a `ghostsum` note; each friend has `v2` (their client plays friend duels v2) |
+| `profile` | also `findable`, `fruit` | stores `nameKey` (lowercase, without accents) when `findable` is true and the client version `cv`; every profile gets a public `ref` (10 characters, not the friend code) |
+
+- Rewards: `befriend` and accepted requests pay `FRIEND_SAP` once per pair (`pairs/{a_b}`); the inviter at most 10 times (`inviteRewards`), the joiner at most 10 times (`joinRewards`).
+- Privacy: name search returns name, level, fruit and a tag (`#` + three characters of `ref`); never a uid, a friend code, a save or activity. Ghost ids are a hash, not the uid. A player can switch `Anderen mogen mij vinden op naam` off; old clients are never findable. The search limit per address stores a hash of the address, never the address. Update privacy.html sections 5 and 6: findable by name (default on, can be switched off), friend requests (kept two weeks; a refusal one week), duel ghosts kept three days and several duels per hour.
+- New collections (function only, deny-all rules): `ghosts`, `duelwin`, `limits`, `requests/{uid}/in|out|refused`, `challenges`, `duelsum`, `pairs`.
+- Optional hardening for the owner: Firebase App Check on the function makes scripted anonymous accounts much harder.
+
 ## Costs
 
 Firestore reads are the main cost: one ladder read per screen open (≤ 50 documents). At 10,000 players that is a few euros a month on the Blaze plan; the Spark plan covers the first tests.

@@ -57,3 +57,7 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 ## v0.31.9
 24. Kijk in de winkel naar de Sapverdubbelaar. Snap je meteen wat hij kost, hoe lang hij loopt en waarom de knop grijs is als je 5 uur hebt of te weinig sap?
 25. Koop schild, stroop of magneet met sap tot je er 2 hebt. Zie je "max 2"?
+
+## v0.31.10
+26. Speel vanaf level 10 en hoger. Lees je bij elk gevaar in één oogopslag wat het is en wat je moet doen? Staat de tekst nergens in de weg (onder je duim, over je fruit, over het gevaar)?
+27. Bij de vork: staat de uitleg boven de rode ring, niet onder je vinger?

@@ -57,6 +57,15 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.10: elk gevaar legt zichzelf uit
+
+- Bij elk keukengevaar staat nu in drie korte regels wat het is, wat je moet doen en wat er gebeurt als je te dichtbij
+  komt. Bijvoorbeeld bij de blender: "Blender gestart! Blijf weg: hoe dichter je komt, hoe harder hij je naar de messen
+  zuigt!" In het Engels ook.
+- De tekst staat in het gevaar tijdens de waarschuwing, en daarna net eronder, zodat je het gevaar zelf blijft zien. Hij
+  komt nooit onder je duim en schuift weg van je fruit.
+- Bij de schuivende plank staat nu "Duw terug" (er stond "Beweeg mee", en dat werkt net niet).
+
 ## Nieuw in v0.31.9: een dure Sapverdubbelaar en hoogstens 2 startboosts met sap
 
 - De **Sapverdubbelaar** kost 30.000 sap per uur. De uren tellen op, tot hoogstens 5 uur. In de Dagdeal kost hij 15.000

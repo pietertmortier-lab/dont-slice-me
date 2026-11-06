@@ -80,3 +80,9 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 38. Kloppen de rode getallen met wat "Ontvang alles" meeneemt? Verdwijnen de gele bolletjes als je het subtabblad opent?
 39. Werkt de terugknop van je gsm logisch (eerst een venster dicht, dan naar het eerste subtabblad, dan naar Levels)?
 40. Ziet het er op je gsm goed uit, zonder afgeknipte woorden?
+
+## v0.32.1
+41. Open het Album. Snap je bij elke sticker wat hij vraagt en wat hij geeft? Werkt "Ga erheen"?
+42. Ontvang een sticker en een volle set. Krijg je de titel in de Kast?
+43. Plak een sticker als etiket op je fruit. Zie je het tijdens het spelen, en vliegt het weg als je gesneden wordt?
+44. Tik op de rode Spelen-knop vanaf een ander tabblad: kom je altijd op Levels?

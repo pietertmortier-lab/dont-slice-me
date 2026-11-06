@@ -340,6 +340,105 @@ canvas.pvthumb{width:44px;height:44px;flex:0 0 44px;border-radius:10px;backgroun
 .hlbtn .hearts{font-size:20px;letter-spacing:2px}
 .hlbtn .small{font-size:12px}
 @media (max-width:359px){.sheet h2{font-size:20px;margin:2px 44px 0}}
+/* v0.32.1 album: tappable stickers in six sets, the card "Zo zien vrienden je" with its milestones, the sticker sheet, Aanpassen, the Fruitetiket */
+#album-body{gap:10px}
+#album-body .sec h3,#show-body .sec h3{display:flex;align-items:center;gap:6px}
+#album-body .sec h3 small,#show-body .sec h3 small{margin-left:auto;font:800 12px var(--font-ui);color:var(--ink-dim);white-space:nowrap}
+.cwait span.gold{background:rgba(255,213,74,.2);color:var(--sugar)}
+.al-set{padding:12px 8px}
+.al-set>h3{padding:0 4px}
+.al-stk{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+@media (max-width:359px){.al-stk{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:10px}}
+.sk{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;padding:2px 0;min-width:0;color:var(--ink);cursor:pointer;font:inherit}
+.sk .disc{position:relative;width:46px;height:46px;flex:0 0 46px;border-radius:50%;display:grid;place-items:center;color:#2a1208}
+.sk svg,.stkbig svg,.al-pin svg,.al-prize svg,.al-fold svg,.kastrow .tdot svg{stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sk .disc svg{width:24px;height:24px}
+.sk.got .disc{background:var(--c);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 2px 0 rgba(0,0,0,.35)}
+.sk.got .disc::after{content:'';position:absolute;right:-2px;bottom:-1px;width:15px;height:15px;border-radius:50%;background:#3fae5a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/11px no-repeat;border:2px solid #2a1a0d}
+.sk.ready .disc{background:var(--c);box-shadow:0 0 0 3px var(--sugar),0 0 16px rgba(255,213,74,.7);animation:stkglow 1.6s ease-in-out infinite}
+.sk.lock .disc{background:conic-gradient(var(--sugar) calc(var(--p)*1%),rgba(255,255,255,.1) 0);color:rgba(255,244,228,.5)}
+.sk.lock .disc::before{content:'';position:absolute;inset:4px;border-radius:50%;background:#2c1b0e}
+.sk.lock .disc svg{position:relative}
+.sk .nm{font:800 10.5px/1.15 var(--font-ui);color:var(--ink);text-align:center;-webkit-hyphens:manual;hyphens:manual;overflow-wrap:normal;word-break:normal;min-height:24px;max-width:100%}
+.sk.lock .nm{color:var(--ink-dim)}
+.sk .st{font:800 10.5px/1.25 var(--font-ui);color:var(--ink-dim);font-style:normal;white-space:nowrap}
+.sk.ready .st{color:#fff;background:var(--knife);padding:0 5px;border-radius:999px}
+.sk.got .st{color:#7fd28f;font-weight:700}
+@keyframes stkglow{50%{box-shadow:0 0 0 3px var(--sugar),0 0 24px rgba(255,213,74,.95)}}
+.sk.flap .disc{animation:stkflap .6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes stkflap{0%{transform:scale(1.6) rotate(-20deg);opacity:.15}60%{transform:scale(.9) rotate(5deg);opacity:1}100%{transform:none}}
+.sk .fly{position:absolute;top:-6px;left:50%;font:900 12px var(--font-ui);color:var(--sugar);text-shadow:0 1px 0 rgba(0,0,0,.6);animation:stkfly 1.4s ease-out both;pointer-events:none;white-space:nowrap}
+@keyframes stkfly{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-28px)}}
+.sk.mini{padding:4px;border-radius:14px}
+.sk.mini .disc{width:40px;height:40px;flex-basis:40px}
+.sk.mini .disc svg{width:21px;height:21px}
+.sk.mini.on{background:rgba(255,213,74,.28);box-shadow:0 0 0 3px var(--sugar)}
+.sk.mini:not(.on) .disc::after{display:none}
+.shnow{margin:0}
+.shnow b{color:var(--ink)}
+.alget{margin-top:2px}
+.al-stk.mini{grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:6px}
+.al-prize{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;background:none;border:0;border-top:1px solid rgba(255,220,180,.08);margin-top:2px;padding:8px 4px 0;text-align:left;font:600 12px/1.35 var(--font-ui);color:var(--ink-dim);cursor:pointer}
+.al-prize .pt,.al-fold .pt{width:34px;height:34px;flex:0 0 34px;border-radius:10px;border:1px solid rgba(255,213,74,.4);display:grid;place-items:center;background:rgba(255,213,74,.08);color:var(--sugar)}
+.al-prize .pt svg,.al-fold .pt svg{width:20px;height:20px}
+.al-prize b{color:var(--ink)}
+.al-prize .t{flex:1;min-width:0}
+.al-prize .go{margin-left:auto;color:var(--ink-dim);font-size:18px}
+.al-prize.can{color:var(--ink)}
+.al-prize.can .pt{background:var(--sugar);color:#2a1208;box-shadow:0 0 12px rgba(255,213,74,.6)}
+.al-set.done{border-color:rgba(255,213,74,.42)}
+.al-fold{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;text-align:left;background:rgba(255,213,74,.06);border:1px solid rgba(255,213,74,.3);border-radius:14px;padding:10px 12px;font:700 13px/1.25 var(--font-ui);color:var(--ink);cursor:pointer}
+.al-fold .t{flex:1;min-width:0}
+.al-fold .t small{display:block;color:var(--ink-dim);font-weight:600;font-size:11.5px}
+.al-fold .ok{color:#7fd28f;font:800 14px var(--font-ui)}
+.al-card{display:flex;gap:12px;align-items:center}
+.al-card canvas{width:64px;height:64px;flex:0 0 64px}
+.al-card .who{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.al-card .who b{font:600 19px/1.1 var(--font-display);overflow-wrap:anywhere}
+.al-card .tt{font:800 12px/1.2 var(--font-ui);color:var(--sugar)}
+.al-card.off .who,.al-card.off canvas{opacity:.5}
+.al-pins{display:flex;gap:6px;margin-top:3px}
+.al-pin{width:30px;height:30px;flex:0 0 30px;border-radius:9px;display:grid;place-items:center;background:var(--c);color:#2a1208;border:2px solid rgba(255,213,74,.7);cursor:pointer}
+.al-pin svg{width:16px;height:16px;stroke-width:2.4}
+.al-pin.empty{background:none;border:2px dashed rgba(255,220,180,.3);color:var(--ink-dim);font:800 9px/1 var(--font-ui);text-align:center;cursor:default}
+.al-edit{align-self:flex-start;background:none;border:0;color:var(--sugar);font:800 12.5px var(--font-ui);padding:12px 4px;margin:-10px -4px;cursor:pointer;white-space:nowrap}
+.al-miles{position:relative;height:8px;background:rgba(255,255,255,.12);border-radius:4px;margin:12px 8px 2px}
+.al-miles i{position:absolute;left:0;top:0;bottom:0;background:var(--sugar);border-radius:4px}
+.al-miles b{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:4px;background:#2c1b0e;border:2px solid var(--sugar)}
+.al-miles b.ok{background:var(--sugar)}
+.al-miles b.can{background:var(--knife);border-color:#fff;box-shadow:0 0 10px rgba(255,90,60,.8)}
+.al-mlab{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.al-mlab button{background:none;border:0;padding:4px 1px;min-height:40px;font:700 10.5px/1.25 var(--font-ui);color:var(--ink-dim);text-align:center;cursor:pointer;border-radius:10px;min-width:0}
+.al-mlab button b{display:block;color:var(--ink);font-size:11.5px}
+.al-mlab button span{display:block}
+.al-mlab button.can{background:rgba(255,77,61,.2);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(255,77,61,.6)}
+.al-seal{flex-direction:row;align-items:center;gap:10px}
+.al-seal .sk{cursor:default}
+.al-seal .t{flex:1;min-width:0;font:700 13px/1.3 var(--font-ui)}
+.al-seal .t small{display:block;color:var(--ink-dim);font-weight:600;font-size:11.5px}
+#stkbox .sheet{gap:9px}
+#stk-body{gap:9px}
+.stkbig{width:86px;height:86px;flex:0 0 86px;border-radius:50%;align-self:center;display:grid;place-items:center;background:var(--c);color:#2a1208;box-shadow:0 0 0 4px var(--sugar),0 0 26px rgba(255,213,74,.8);margin-top:4px}
+.stkbig svg{width:44px;height:44px}
+.stkbig.lock{background:#3a2615;color:rgba(255,244,228,.6);box-shadow:0 0 0 3px rgba(255,220,180,.25)}
+.stkbig.got{box-shadow:0 0 0 4px #7fd28f,0 2px 0 rgba(0,0,0,.35)}
+.stkmeta{font:800 11px/1.3 var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--sugar)}
+#stk-body h2{-webkit-hyphens:manual;hyphens:manual}
+.stkrule{font-size:14px;line-height:1.4;margin:0;color:var(--ink)}
+.stkbar{height:10px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden}
+.stkbar i{display:block;height:100%;background:#7fd28f}
+.stknum{display:flex;justify-content:space-between;font:700 12px var(--font-ui);color:var(--ink-dim);margin-top:-4px}
+.stkchips{justify-content:center}
+.stkset{font-size:12.5px;line-height:1.4;color:var(--ink-dim);background:rgba(0,0,0,.25);border-radius:12px;padding:8px 10px;text-align:left}
+.stkset b{color:var(--ink)}
+.stkset .linkbtn{display:inline-block;margin-top:4px;min-height:36px;color:var(--sugar)}
+#stk-body .small{margin:0}
+.achips{display:flex;flex-wrap:wrap;gap:6px}
+.achip{background:rgba(255,235,210,.07);border:1px solid var(--panel-edge);border-radius:999px;color:var(--ink);font:800 12.5px var(--font-ui);padding:8px 12px;min-height:40px;cursor:pointer}
+.achip.on{background:var(--sugar);color:#2a1208;border-color:var(--sugar)}
+#show-body .achip[data-slabel=""]{align-self:flex-start}
+#rw-acts{margin-top:4px}
+#rw-acts .btn{flex:1 1 120px;font-size:16px;padding:10px 14px}
 </style>
 </head>
 <body>
@@ -505,9 +604,11 @@ canvas.pvthumb{width:44px;height:44px;flex:0 0 44px;border-radius:10px;backgroun
       <input class="copybox" id="copybox" readonly hidden aria-label="Tekst om te delen">
     </div>
   </section>
-  <div id="reward" hidden role="dialog" aria-label="Beloning"><div class="rw-card"><div class="rw-title" id="rw-title">Gekregen!</div><div class="rw-icons" id="rw-icons"></div><div class="rw-text" id="rw-text" hidden></div><button class="btn primary" id="rw-ok">Top!</button><div class="small rw-hint">Tik om verder te gaan</div></div></div>
+  <div id="reward" hidden role="dialog" aria-label="Beloning"><div class="rw-card"><div class="rw-title" id="rw-title">Gekregen!</div><div class="rw-icons" id="rw-icons"></div><div class="rw-text" id="rw-text" hidden></div><div class="row" id="rw-acts" hidden></div><button class="btn primary" id="rw-ok">Top!</button><div class="small rw-hint">Tik om verder te gaan</div></div></div>
   <div id="playbar" hidden><button id="btn-home-game" title="Level verlaten"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/><path d="M10 19v-5h4v5"/></svg></button><button id="btn-lang-game" title="Taal"><span class="flag cur nl"></span></button></div>
   <div id="confirm" class="dialog" hidden><div class="rw-card"><div class="rw-title">Level verlaten?</div><p class="small">Je verlaat dit level en moet straks opnieuw beginnen.</p><div class="row"><button class="btn primary" id="btn-confirm-yes">Ja, stoppen</button><button class="btn" id="btn-confirm-no">Nee, verder spelen</button></div></div></div>
+  <div id="stkbox" class="dialog sheetbox" hidden role="dialog" aria-label="Sticker"><div class="sheet stksheet"><span class="grab"></span><button class="iconbtn closex" id="btn-stk-close" type="button" aria-label="Sluiten" title="Sluiten"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="stack" id="stk-body"></div></div></div>
+  <div id="showbox" class="dialog sheetbox" hidden role="dialog" aria-label="Je kaartje"><div class="sheet"><span class="grab"></span><button class="iconbtn closex" id="btn-show-close" type="button" aria-label="Sluiten" title="Sluiten"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><h2>Je kaartje</h2><div class="stack" id="show-body"></div></div></div>
   <div id="prevbox" class="dialog" hidden role="dialog" aria-label="Voorbeeld"><div class="rw-card pvcard"><div class="rw-title" id="pv-title"></div><canvas id="pv-canvas" width="320" height="320" style="width:160px;height:160px"></canvas><div class="pv-forms" id="pv-forms" hidden></div><div class="pv-lines" id="pv-lines"></div><div class="row" id="pv-acts"></div></div></div>
   <div id="gearbox" class="dialog sheetbox" hidden role="dialog" aria-label="Instellingen en hulp"><div class="sheet"><span class="grab"></span><button class="iconbtn closex" id="btn-gear-close" type="button" aria-label="Sluiten" title="Sluiten"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><h2>Instellingen en hulp</h2><div class="sec" id="gear-set"><h3>Instellingen</h3><div class="setrow"><button class="linkbtn" id="btn-sound">Geluid: aan</button><button class="linkbtn" id="btn-music">Muziek: aan</button><button class="linkbtn" id="btn-lang">Taal: Nederlands</button></div></div><div class="stack" id="help-body"></div><p class="small" id="ver">Prototype v0.30 · geen echte aankopen</p></div></div>
   <div id="perkbox" class="dialog sheetbox" hidden role="dialog" aria-label="Keukenbonussen"><div class="sheet"><span class="grab"></span><button class="iconbtn closex" id="btn-perk-close" type="button" aria-label="Sluiten" title="Sluiten"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><h2 id="perk-title">Keukenbonussen</h2><div class="stack" id="perk-body"></div></div></div>
@@ -2547,7 +2648,7 @@ function trTree(root) { if (!root) return; if (root.nodeType === 3) { trNode(roo
 const i18nObs = new MutationObserver(ms => { if (lang !== 'en') return; for (const m of ms) { if (m.type === 'characterData') trNode(m.target); else for (const n of m.addedNodes) trTree(n); } });
 function detectLang(list) { const ls = (list || navigator.languages || [navigator.language || 'en']).map(x => String(x).toLowerCase()); return ls.some(x => x.startsWith('nl') || /-(be|nl)$/.test(x)) ? 'nl' : 'en'; }
 const langLabel = () => lang === 'en' ? 'Language: English' : 'Taal: Nederlands';
-function setLang(l) { lang = l === 'en' ? 'en' : 'nl'; save.lang = lang; store(); document.documentElement.lang = lang; trTree($('#ui')); for (const el of document.querySelectorAll('.flag.cur')) { el.classList.toggle('en', lang === 'en'); el.classList.toggle('nl', lang !== 'en'); } const b = $('#btn-lang'); if (b) b.innerHTML = `<span class="flag cur${lang === 'en' ? ' en' : ' nl'}"></span> ${langLabel()}`; try { navBuild(); } catch (e) {} } // v0.32.0: the tab and sub-tab labels follow the language
+function setLang(l) { lang = l === 'en' ? 'en' : 'nl'; save.lang = lang; store(); document.documentElement.lang = lang; trTree($('#ui')); for (const el of document.querySelectorAll('.flag.cur')) { el.classList.toggle('en', lang === 'en'); el.classList.toggle('nl', lang !== 'en'); } const b = $('#btn-lang'); if (b) b.innerHTML = `<span class="flag cur${lang === 'en' ? ' en' : ' nl'}"></span> ${langLabel()}`; try { navBuild(); } catch (e) {} try { if (curScreen === 'scr-album') renderAlbum(); if (stkOpen && !$('#stkbox').hidden) openStk(stkOpen); } catch (e) {} } /* v0.32.1: names with soft hyphens per language */ // v0.32.0: the tab and sub-tab labels follow the language
 function initLang() { lang = save.lang === 'en' || save.lang === 'nl' ? save.lang : detectLang(); document.documentElement.lang = lang; i18nObs.observe($('#ui'), { subtree: true, childList: true, characterData: true }); setLang(lang); }
 { const P = CanvasRenderingContext2D.prototype, f = P.fillText, st = P.strokeText, me = P.measureText; P.fillText = function (s, ...a) { return f.call(this, tr(String(s)), ...a); }; P.strokeText = function (s, ...a) { return st.call(this, tr(String(s)), ...a); }; P.measureText = function (s) { return me.call(this, tr(String(s))); }; }
 const FD = "'Fredoka','Trebuchet MS',sans-serif", FU = "'Nunito','Segoe UI',sans-serif";
@@ -2776,9 +2877,9 @@ const SAVE_DEFAULTS = {
   streak: 0, streakLast: '', streakClaimed: '', shields: 0, firstRunDay: '',
   missions: { day: '', list: [] }, daily: { day: '', played: false, best: 0, goals: '' }, chefStamps: 0, weekend: { week: '', cleared: false, best: 0, game: '' },
   friendCode: '', pendingFriend: '', friends: { at: 0, list: [] }, profileAt: 0, duel: { day: '', played: false, score: 0, vs: '', vsName: '', vsScore: 0, result: '', pot: 0, stake: 0 }, challenges: { day: '', list: [] }, duelHour: { start: 0, n: 0, at: [] }, duelSeeds: [], duelPay: { day: '', n: 0 }, findable: true, friendReqs: { at: 0, in: [], out: [] }, friendDuels: { at: 0, list: [] }, rivals: { week: '', list: [], passed: [] }, season: { id: '', cleared: [], best: {}, done: false, prev: null }, seasonForms: {}, loserHatUntil: 0, kitchen: { lv: { plank: 0, oven: 0, koelkast: 0, vitrine: 0 }, at: 0, got: 0, tips: 0, tipped: {}, orders: { week: '', list: [] } }, unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
-  stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, cutBy: {}, fevers: 0, feverRun: 0, revenge: 0, duels: 0, duelWins: 0, rivalsPassed: 0, chapters: 0, kitchenSap: 0, ordersDone: 0, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0, interDone: 0, solo: 0 },
+  stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, cutBy: {}, fevers: 0, feverRun: 0, revenge: 0, duels: 0, duelWins: 0, rivalsPassed: 0, chapters: 0, kitchenSap: 0, ordersDone: 0, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0, interDone: 0, solo: 0, ladderTop10: 0, revengeBest: 0 },
   stamps: {}, families: {}, titles: [], boards: [], board: '', startLevel: 0, bounty: { day: '', n: 0, k: '', claimed: false }, wheel: { day: '', result: '', ad: false },
-  spins: 0, spinSalesOn: false, paidSpins: 0, seen: {}, fresh: {}, seenDay: {}, show: { title: '' },
+  spins: 0, spinSalesOn: false, paidSpins: 0, seen: {}, fresh: {}, seenDay: {}, show: { title: '', pins: [], label: '' }, stkClaimed: {}, setClaimed: {}, albumMiles: {}, stkCtx: {}, albumFx: {}, albumFxOff: [], albumSince: '',
   perkKeys: 0, boostStock: { schild: 0, stroop: 0, magneet: 0 }, armBoost: '', doubleUntil: 0, boughtStamps: {}, dealDay: '', dealPick: '', dealBought: '', sapDay: { day: '', n: 0 }, unlConverted: false, coins: 1, coinDay: '', lastSolo: -1,
   lampions: [], bar: { lv: 0, sap: 0 }, rev: 0, savedAt: 0, plus: { until: 0, trial: false, since: 0, used: false }, plusGrantDay: '', plusMonth: { key: '', n: 0 }, plusChest: '', tourney: null, name: '',
 };
@@ -2809,7 +2910,9 @@ function loadSave(keep) { // keep: normalise the save in memory without reading 
   if (!(save.hearts >= 0 && save.hearts <= maxHearts())) save.hearts = maxHearts();
   if (!(save.heartsAt > 0)) save.heartsAt = 0; if (!(save.unlimitedUntil > 0)) save.unlimitedUntil = 0; if (typeof save.unlDay !== 'string') save.unlDay = ''; if (!save.sapDay || typeof save.sapDay.day !== 'string' || !(save.sapDay.n >= 0)) save.sapDay = { day: '', n: 0 }; if (typeof save.dealPick !== 'string') save.dealPick = ''; if (typeof save.dealBought !== 'string') save.dealBought = ''; if (!(save.simEur >= 0)) save.simEur = 0;
   { const ob = v => !!v && typeof v === 'object' && !Array.isArray(v); // v0.32.0: badges per sub-tab; an old fresh key moves to its sub-tab, an old seen key is copied (and kept)
-    if (!ob(save.seen)) save.seen = {}; if (!ob(save.fresh)) save.fresh = {}; if (!ob(save.seenDay)) save.seenDay = {}; if (!ob(save.show)) save.show = { title: '' }; if (typeof save.show.title !== 'string') save.show.title = '';
+    if (!ob(save.seen)) save.seen = {}; if (!ob(save.fresh)) save.fresh = {}; if (!ob(save.seenDay)) save.seenDay = {}; if (!ob(save.show)) save.show = { title: '', pins: [], label: '' }; if (typeof save.show.title !== 'string') save.show.title = '';
+    if (!Array.isArray(save.show.pins)) save.show.pins = []; save.show.pins = save.show.pins.filter(x => typeof x === 'string').slice(0, 3); if (typeof save.show.label !== 'string') save.show.label = ''; // v0.32.1 album: your card's pins and the Fruitetiket
+    for (const k of ['stkClaimed', 'setClaimed', 'albumMiles', 'stkCtx', 'albumFx']) if (!ob(save[k])) save[k] = {}; if (!Array.isArray(save.albumFxOff)) save.albumFxOff = []; save.albumFxOff = save.albumFxOff.filter(x => typeof x === 'string'); if (typeof save.albumSince !== 'string') save.albumSince = '';
     for (const o of Object.keys(FRESH_KEY)) { const n = FRESH_KEY[o]; if (save.fresh[o] && o !== 'shop') save.fresh[n] = true; if (o in save.fresh) delete save.fresh[o]; if (save.seen[o] && save.seen[n] === undefined) save.seen[n] = true; }
     if (!save.seen.v0320) { save.seen.v0320 = true; delete save.fresh.album; delete save.fresh.fruit; } } // v0.32.0 review: once, drop the old flags that meant nothing new (the Dagdeal lit the shop on every new day, album and fruit flags came from medals, keys and a stronger fruit)
   if (!(save.rev >= 0)) save.rev = 0; storedRev = save.rev;
@@ -2915,6 +3018,10 @@ function mergeSaves(base, other) { // base is the newer save and wins on setting
   { const ta = duelAt(base.duelHour), tb = duelAt(other.duelHour); if (ta.length || tb.length) { const cnt = new Map(); for (const L of [ta, tb]) { const m = new Map(); for (const t of L) m.set(t, (m.get(t) || 0) + 1); for (const [t, c] of m) cnt.set(t, Math.max(cnt.get(t) || 0, c)); } const at = []; for (const [t, c] of cnt) for (let i = 0; i < c; i++) at.push(t); at.sort((x, y) => x - y); const keep = at.slice(-40); base.duelHour = { start: keep[0], n: keep.length, at: keep }; } } // v0.32 review: the duels of both devices (a union of their start times), never fewer
   if (Array.isArray(other.duelSeeds)) base.duelSeeds = Array.from(new Set([...(Array.isArray(base.duelSeeds) ? base.duelSeeds : []), ...other.duelSeeds])).slice(-60);
   { const a = base.duelPay, b = other.duelPay; if (b && typeof b === 'object' && b.day) { if (!a || typeof a !== 'object' || String(b.day) > String(a.day || '')) base.duelPay = { day: b.day, n: b.n || 0 }; else if (a.day === b.day) a.n = Math.max(a.n || 0, b.n || 0); } }
+  { const ob = v => !!v && typeof v === 'object' && !Array.isArray(v); // v0.32.1 album: a union of the claimed keys (earliest day) and the looks; the diary lines of both
+    for (const k of ['stkClaimed', 'setClaimed', 'albumMiles', 'albumFx']) { const b = other[k]; if (!ob(b)) continue; if (!ob(base[k])) base[k] = {}; for (const kk of Object.keys(b)) { const a = base[k][kk]; if (!b[kk]) continue; if (!a || String(b[kk]) < String(a)) base[k][kk] = b[kk]; } }
+    if (ob(other.stkCtx)) { if (!ob(base.stkCtx)) base.stkCtx = {}; for (const kk of Object.keys(other.stkCtx)) if (!base.stkCtx[kk]) base.stkCtx[kk] = other.stkCtx[kk]; }
+    const sa = String(base.albumSince || ''), sb = typeof other.albumSince === 'string' ? other.albumSince : ''; if (sb && (!sa || sb < sa)) base.albumSince = sb; } // the catch-up ran once on either device
   base.rev = Math.max(base.rev || 0, other.rev || 0); return base;
 }
 function store() {
@@ -3284,7 +3391,7 @@ let adT = 0, adThen = null, adKind = 'rewarded', heartTick = 0, menuT = 1200, sh
 const pauseBtn = document.getElementById('btn-pause'), lampBtn = document.getElementById('btn-lampion');
 const screens = ['scr-menu', 'scr-intro', 'scr-fruit', 'scr-pause', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-tourney', 'scr-today', 'scr-album', 'scr-kast', 'scr-pass', 'scr-shop', 'scr-kaart', 'scr-friends', 'scr-keuken'];
 let curScreen = null;
-function showScreen(id) { try { duelLeave(id); } catch (e) {} closeSheets(); if (id !== 'scr-menu') $('#navhint').hidden = true; if (G.state === 'over' && G.settled === false && id && id !== 'scr-over' && id !== 'scr-ad') settleRun(); curScreen = id; if (id === 'scr-menu' && !save.name && $('#namebox').hidden) openNameBox(); for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); $('#playbar').hidden = !(id === null && G.state === 'play'); if (lang === 'en' && id) trTree($('#' + id)); try { if (id && id !== 'scr-menu' && !(history.state && history.state.s === id)) { if (history.state && history.state.s) history.replaceState({ s: id }, ''); else history.pushState({ s: id }, ''); } } catch (e) {} }
+function showScreen(id) { try { duelLeave(id); } catch (e) {} closeSheets(); if (id !== 'scr-menu') $('#navhint').hidden = true; if (G.state === 'over' && G.settled === false && id && id !== 'scr-over' && id !== 'scr-ad') settleRun(); curScreen = id; if (id === 'scr-menu' && !save.name && $('#namebox').hidden) openNameBox(); for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); $('#playbar').hidden = !(id === null && G.state === 'play'); if (lang === 'en' && id) trTree($('#' + id)); try { if (id && id !== 'scr-menu' && !(history.state && history.state.s === id)) { if (history.state && history.state.s) history.replaceState({ s: id }, ''); else history.pushState({ s: id }, ''); } } catch (e) {} try { stkScreen(id); } catch (e) {} } /* v0.32.1: stickers that waited get their card on the next screen outside a run */
 // ---- Navigation (v0.32.0, Pieter: "volledig akkoord met het voorstel"): five tabs at the bottom (Verzamel, Vandaag, the raised red
 // Spelen disc, Vrienden, Winkel) and a row of sub-tabs at the top of every hub screen. NAV_TABS is the one table. Every screen maps to
 // [tab, sub] (HUB_SCREENS, navRouteFor); the last sub-tab of each tab is remembered for the session (memory only, no save field);
@@ -3331,7 +3438,7 @@ function navGo(tab, sub) { // open a sub-tab: the screen, the row and the memory
   const T = NAV_TAB[tab]; if (!T) return false; const S = sub && NAV_SUB[sub] && NAV_SUB[sub].tab === tab ? NAV_SUB[sub] : T.subs[0];
   navCur = [tab, S.k]; navLast[tab] = S.k; S.open(); if (curScreen === S.scr) navFocus(S.focus); return true;
 }
-function tabTap(k) { const T = NAV_TAB[k]; if (!T) return; const r = navRouteFor(curScreen); navGo(k, r && r[0] === k ? T.subs[0].k : navLast[k]); } // the active tab again: its first sub-tab
+function tabTap(k) { const T = NAV_TAB[k]; if (!T) return; const r = navRouteFor(curScreen); navGo(k, k === 'play' || (r && r[0] === k) ? T.subs[0].k : navLast[k]); } /* v0.32.1: the Spelen disc always opens Levels (Pieter) */ // the active tab again: its first sub-tab
 const GOTO = { kast: 'coll:kast', duels: 'friends:duels', rivals: 'friends:rivalen', season: 'play:seizoen', home: 'play:levels', fruit: 'coll:fruit', today: 'today:vandaag', wheel: 'today:rad', games: 'play:dagmes', kaart: 'coll:stempels', tourney: 'play:toernooi', album: 'coll:album', pass: 'today:pas', shop: 'shop:aanbod', friends: 'friends:vrienden', keuken: 'today:keuken' };
 function goTo(k) { // every old key still works ('help' is the gear's sheet); new keys are 'tab:sub' or a tab
   if (k === 'help') { openHelp(); return; } const [t, s] = String(GOTO[k] || k).split(':'); if (NAV_TAB[t]) navGo(t, s || navLast[t]);
@@ -3365,12 +3472,13 @@ function claimCounts() { // the red numbers: the big bar's list split over the s
 function hubBadges() {
   const c = claimCounts(), f = save.fresh, t = TS(), rv = save.rivals, ib = save.friendInbox || {}, B = {}, put = (k, n, dot) => { B[k] = { n: n || 0, dot: !!dot }; };
   const duelIn = friendDuelsIn().length > 0 || ib.duel > 0 || (!NET.has('duel2') && todayChallenges().some(x => x.mine === 'to' && !x.resolved && !x.toPlayed)), reqIn = friendReqs().in.length > 0 || ib.req > 0;
-  put('fruit', 0, f.fruit); put('stempels', 0, f.stempels || !save.seen.stempels); put('album', c.album, f.album); put('kast', 0, f.kast); // Stempels: the v0.31.12 rule (until opened once, then only a 20/20 row)
+  put('fruit', 0, f.fruit); put('stempels', 0, f.stempels || !save.seen.stempels); put('album', c.album); /* v0.32.1: only what the album's own Ontvang alles takes */ put('kast', 0, f.kast); // Stempels: the v0.31.12 rule (until opened once, then only a 20/20 row)
   put('vandaag', c.vandaag); put('keuken', c.keuken, f.keuken); put('rad', 0, nextSpinKind() === 'free' && dayDot('rad')); put('pas', c.pas, f.pas);
   put('levels', 0); put('dagmes', 0, (!dailyPlayedToday() || (weekendOpen() && !weekendCleared())) && dayDot('dagmes'));
   put('toernooi', c.toernooi, (!!(t.result && !t.result.shown) && !c.toernooi) || (t.rounds === 0 && t.week === weekKey() && hasTicket() && curEvent() !== 'jacht' && dayDot('toernooi'))); put('seizoen', 0, chapterBadge() && dayDot('seizoen'));
   put('duels', 0, f.duels || (duelIn && dayDot('duels'))); put('vrienden', 0, f.vrienden || (reqIn && dayDot('vrienden'))); put('rivalen', 0, !!rv && rv.week === weekKey() && Array.isArray(rv.list) && rv.list.length > 0 && dayDot('rivalen'));
   put('aanbod', 0); put('spullen', 0); put('sap', 0); // the Winkel never: nobody should be urged to buy
+  if (!save.runs) for (const k in B) B[k].dot = false; /* v0.32.1: no yellow dots before the first run (Pieter); red numbers stay */
   return B;
 }
 const navBadges = () => hubBadges();
@@ -3425,7 +3533,7 @@ subnav.addEventListener('click', e => { const b = e.target.closest ? e.target.cl
 navBuild();
 // Sheets that slide up from the bottom (the gear's settings, the kitchen perks). Opening one adds a history entry, so the back
 // button closes it instead of leaving the game; every screen change closes it.
-const SHEETS = ['gearbox', 'perkbox'], MODALS = ['gearbox', 'perkbox', 'prevbox', 'langbox', 'stormbox', 'confirm'];
+const SHEETS = ['gearbox', 'perkbox', 'stkbox', 'showbox'], MODALS = ['gearbox', 'perkbox', 'stkbox', 'showbox', 'prevbox', 'langbox', 'stormbox', 'confirm']; // v0.32.1: the sticker sheet and Aanpassen
 function navPushModal() { // v0.32.0 review: a pop-up you open (a sheet, a preview, the language box, Level verlaten?, the storm cards) gets a history entry, a stacked one too
   const n = MODALS.filter(m => { const el = $('#' + m); return !!el && !el.hidden; }).length; try { const st = history.state; if (n && !(st && st.sheet >= n)) history.pushState({ s: curScreen, sheet: n }, ''); } catch (e) {}
 }
@@ -3469,7 +3577,7 @@ $('#btn-menu-hearts').addEventListener('click', () => { SFX.click(); openHearts(
 $('#btn-perks').addEventListener('click', () => { SFX.click(); openPerks(); });
 // Existing players see once that the tiles moved into the bar (save.seen.navHint; a new save starts with it set)
 function navHintCheck() { if (save.seen.navHint) return; save.seen.navHint = true; store(); if (save.runs > 0 || save.level > 1) $('#navhint').hidden = false; }
-$('#btn-navhint').addEventListener('click', () => { SFX.click(); $('#navhint').hidden = true; });
+$('#btn-navhint').addEventListener('click', () => { SFX.click(); $('#navhint').hidden = true; stkFlush(); }); /* v0.32.1: a card that waited for this hint */
 // The system back button (Android, installed app): a pop-up closes first (a reward card, the language box, Level verlaten?, the storm
 // cards, a sheet, a preview); a run pauses, and pressed again on the pause screen it stops like Stoppen; while the fruit is being cut
 // back waits for the game-over screen (so the run is recorded); a video stops and you are back where it started; a sub-tab goes to the
@@ -3483,6 +3591,7 @@ function navBack() {
   if (!$('#langbox').hidden || !$('#confirm').hidden) { $('#langbox').hidden = true; $('#confirm').hidden = true; return; } // in a paused run you stay paused
   if (!$('#stormbox').hidden) { $('#stormbox').hidden = true; return; }
   if (G.state === 'pause') { quitRun(); return; }
+  if (!$('#prevbox').hidden && (!$('#stkbox').hidden || !$('#showbox').hidden)) { closePrize(); return; } // v0.32.1: a set preview opened from the sticker sheet sits on top of it
   if (closeSheets()) return; if (!$('#prevbox').hidden) { closePrize(); return; }
   if (G.state === 'intro') { if (save.seen.intro) openMenu(); return; } // the picture guide from the gear goes back to Spelen; a first launch stays
   if (G.state === 'menu') return;
@@ -3909,7 +4018,7 @@ function startRun(type, free, mode) {
   }
   if (mode === 'chef') { G.chefSeason = curSeason().id; G.chefLate = false; } // the run belongs to the season it starts in
   G.mode = mode; G.seed = mode === 'normal' ? 0 : hashStr((mode === 'daily' ? (pendingDaily || dayKey()) : mode === 'duel' ? (G.duelSeed = duelSeedFor()) : mode === 'chef' ? G.chefSeason + ':' + (G.chefChapter || seasonChapter()) : weekKey()) + ':' + mode); R = mode === 'normal' ? Math.random : mulberry(G.seed);
-  G.combo = 0; G.bestCombo = 0; G.nearStreak = 0; G.chefRun = 0; G.bonusRun = 0; G.hazards = []; G.goldLabelT = 1e9; G.nextHazard = 14000; G.modeT = 0; G.score = 0; G.wave = 0; G.cleared = false; G.note = ''; G.noteT = 0;
+  G.combo = 0; G.bestCombo = 0; G.nearStreak = 0; G.chefRun = 0; G.bonusRun = 0; G.hazards = []; G.goldLabelT = 1e9; G.nextHazard = 14000; G.modeT = 0; G.score = 0; G.wave = 0; G.cleared = false; G.note = ''; G.noteT = 0; G.noteNext = '';
   G.dayMult = 1;
   if (mode === 'normal') {
     const today = dayKey(), wed = new Date(nowMs()).getDay() === 3;
@@ -3943,7 +4052,7 @@ function startRun(type, free, mode) {
   G.mira = null; G.vb = null; G.vbRec = false; G.wipes = []; G.signs = []; G.sweetSeen = {}; G.jachtBonus = false; G.forkMissed = false; G.peachGold = false; G.rainbow = -1; G.rainbowT = 0; G.relay = null; G.storm = ''; G.lantern = 0; if (TOURNEY_MODES.includes(mode)) tourneyInitRun(mode);
   if (G.startBoost) { activatePower(G.startBoost); G.slowmo = 0; G.startBoost = ''; }
   save.stats.kitchens[themeIndex(G.level)] = 1; track('start', { fruit: G.fruit, mode });
-  setBodies(); if (mode === 'knife') G.bodies = []; showScreen(null); pauseBtn.hidden = false; SFX.go();
+  stkRunNote(); setBodies(); if (mode === 'knife') G.bodies = []; showScreen(null); pauseBtn.hidden = false; SFX.go();
   // v0.30.4: a run gets its own history entry, so the first back press always reaches popstate (pause) and the second stops
   // and records the run, also for a run started straight from the menu (without it, back left the page or closed the app)
   try { if (!(history.state && history.state.s === 'play')) { if (history.state && history.state.s) history.replaceState({ s: 'play' }, ''); else history.pushState({ s: 'play' }, ''); } } catch (e) {} // v0.32.0 review: replace, so the history stays short
@@ -4074,7 +4183,7 @@ function nemesisEnter(kind) { // the nemesis shows itself: once per run a note, 
 }
 function nemesisSurvived(kind) { // its pattern came and went without touching the fruit
   if (!G.nemesis || kind !== G.nemesis || G.state !== 'play') return;
-  G.revenge++; track('revenge', G.revenge);
+  G.revenge++; track('revenge', G.revenge); save.stats.revengeBest = Math.max(save.stats.revengeBest || 0, Math.min(REVENGE_AT, G.revenge)); // v0.32.1 review: the Wraak sticker shows your best run (x/3)
   if (G.revenge >= REVENGE_AT && !G.revenged) {
     G.revenged = true; save.stats.revenge = (save.stats.revenge || 0) + 1; gainSap(REVENGE_SAP, 0); checkStickers();
     // v0.31.5: revenge stays (a slower nemesis and the sap) but without its messages (Pieter: they were useless and could land off screen)
@@ -4326,7 +4435,7 @@ function openOver(nr, prevBest) {
 function openMenu() {
   settleRun(); netTick(); // v0.30.4: every screen opener settles a game-over first (idempotent; mode runs are settled at start)
   kaartPick = 0; /* v0.31.12: a Fruitkaart run that went to the menu instead (no hearts) is no replay any more */ MUS.setMood('menu'); G.state = 'menu'; G.slashes = []; G.debris = []; G.death = null; G.zoom = 1; G.timeScale = 1; menuT = 900; pauseBtn.hidden = true;
-  menuSel = save.fruit; lateNotice(); buildMenu(); showScreen('scr-menu'); navHintCheck();
+  menuSel = save.fruit; lateNotice(); buildMenu(); showScreen('scr-menu'); navHintCheck(); stkFlush();
 }
 function pause() { if (G.state !== 'play') return; G.state = 'pause'; drag = null; hubConfirm = ''; $('#pause-time').textContent = G.mode === 'duel' ? `Je zit op ${fmtTime(G.t)}. Stop je, dan telt je duel met ${G.sapRun} sap.` : `Je zit op ${fmtTime(G.t)}.`; $('#pause-music').textContent = save.music3 ? `Muziek: ${MUS.cur ? (MUS.FILES[MUS.cur.key] || MUS.cur.key).split('/').pop() + (MUS.cur.a.paused ? ' (gepauzeerd)' : '') : MUS.on ? 'ingebouwd deuntje' : 'geen'}` : 'Muziek: uit'; showScreen('scr-pause'); pauseBtn.hidden = true; }
 function resume() { if (G.state !== 'pause') return; G.state = 'play'; G.inv = Math.max(G.inv, 600); showScreen(null); pauseBtn.hidden = false; }
@@ -5211,7 +5320,7 @@ function updateFx(dt, real) {
   G.parts = G.parts.filter(p => p.t < p.life);
   for (const t of G.texts) { t.t += dt; t.y -= 22 * dt / 1000; } G.texts = G.texts.filter(t => t.t < t.life);
   for (const s of G.scars) s.t += dt; G.scars = G.scars.filter(s => s.t < 1600);
-  if (G.bossBanner > 0) G.bossBanner -= real; if (G.themeFlash > 0) G.themeFlash -= real; if (G.noteT > 0) G.noteT -= real; if (G.perkBanner > 0) G.perkBanner -= real;
+  if (G.bossBanner > 0) G.bossBanner -= real; if (G.themeFlash > 0) G.themeFlash -= real; if (G.noteT > 0) G.noteT -= real; else if (G.noteNext && !G.coach) { G.note = G.noteNext; G.noteNext = ''; G.noteT = 4000; } /* v0.32.1: a note that waits for the one before it */ if (G.perkBanner > 0) G.perkBanner -= real;
   G.shake *= Math.pow(.02, real / 1000); G.flash *= Math.pow(.05, real / 1000);
 }
 
@@ -5237,6 +5346,7 @@ function deathDebris(type, x, y, r, nx, ny, eyesOnly, half) {
   if (q.teeth || q.gaptooth) for (let i = 0; i < 2; i++) P('tooth', fx + (i - .5) * fr * .2, fy + fr * .35, fr * .1, '#fff', null, 'spray');
   if (q.worm) P('worm', x + r * .9, y + r * .2, r * .3, '#8fd16a', null, 'flutter');
   const hat = G.mode === 'knife' ? 'none' : wornHat(); if (hat && hat !== 'none' && !eyesOnly) P('hat', x, y - r, r * .5, hat, null, 'pop');
+  const lbl = G.mode === 'knife' ? '' : etiketKey(); if (lbl && !eyesOnly) P('label', x + r * ETK_SPOT.x, y + r * ETK_SPOT.y, r * ETK_SPOT.rx, lbl, null, 'pop'); // v0.32.1: the Fruitetiket flies off with the hat
   if (eyesOnly) return;
   const J = () => rnd(-r * .5, r * .5);
   switch (type) {
@@ -5308,6 +5418,7 @@ function drawPiece(p, x, y) {
     case 'scrap': { ctx.fillStyle = p.col; ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = i / 6 * TAU, k = s * (i % 2 ? .62 : 1); ctx.lineTo(Math.cos(a) * k, Math.sin(a) * k * .8); } ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(105,62,28,.55)'; ctx.lineWidth = Math.max(.6, s * .1); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-s * .6, 0); ctx.lineTo(s * .6, s * .1); ctx.stroke(); break; } // a paper scrap of the husk
     case 'watch': { ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(0, 0, s, 0, TAU); ctx.fill(); ctx.fillStyle = '#fff8e6'; ctx.beginPath(); ctx.arc(0, 0, s * .72, 0, TAU); ctx.fill(); ctx.strokeStyle = '#2a1a0a'; ctx.lineWidth = Math.max(.6, s * .12); ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -s * .5); ctx.moveTo(0, 0); ctx.lineTo(s * .35, 0); ctx.stroke(); ctx.fillStyle = p.col; ctx.fillRect(-s * .2, -s * 1.3, s * .4, s * .35); break; } // the Mispel's pocket watch
     case 'hat': ctx.translate(0, s * 1.8); drawHat(p.col, s * 2); break;
+    case 'label': ctx.fillStyle = '#fffaf0'; ctx.beginPath(); ctx.ellipse(0, 0, s, s * .7, 0, 0, TAU); ctx.fill(); ctx.lineWidth = Math.max(1, s * .14); ctx.strokeStyle = stkCol(p.col); ctx.beginPath(); ctx.ellipse(0, 0, s * .86, s * .56, 0, 0, TAU); ctx.stroke(); drawEmblem(ctx, p.col, 0, 0, s, '#3a2010', 2.8); ctx.beginPath(); break;
     case 'aihalf': { // one half of a fruit cut in "Jij bent het mes": clipped outside plus its cross-section on the cut
       const L = 200, lx = p.nx * p.off, ly = p.ny * p.off, r = p.r, chord = Math.max(r * .3, Math.sqrt(Math.max(0, r * r - p.off * p.off))), depth = Math.max(3, r * .36);
       ctx.save(); ctx.beginPath(); ctx.moveTo(lx + p.ux * L, ly + p.uy * L); ctx.lineTo(lx + p.ux * L + p.nx * p.side * L, ly + p.uy * L + p.ny * p.side * L); ctx.lineTo(lx - p.ux * L + p.nx * p.side * L, ly - p.uy * L + p.ny * p.side * L); ctx.lineTo(lx - p.ux * L, ly - p.uy * L); ctx.closePath(); ctx.clip();
@@ -6148,7 +6259,7 @@ function drawFruit(type, x, y, r, ang, half, o) {
     ctx.save(); ctx.rotate(faceRot); const g = ctx.createRadialGradient(-r * .3, -r * .3, r * .1, 0, 0, r * 1.1); g.addColorStop(0, 'rgba(255,240,170,.55)'); g.addColorStop(.6, 'rgba(255,200,60,.3)'); g.addColorStop(1, 'rgba(200,140,0,.35)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r * 1.02, 0, TAU); ctx.fill();
     ctx.fillStyle = '#fff'; const tt = performance.now() / 500; for (let i = 0; i < 3; i++) { const a = tt + i * 2.1, sx = Math.cos(a) * r * .8, sy = Math.sin(a * 1.3) * r * .7, k = r * .12 * (.6 + .4 * Math.sin(tt * 3 + i)); ctx.beginPath(); ctx.moveTo(sx, sy - k); ctx.quadraticCurveTo(sx, sy, sx + k, sy); ctx.quadraticCurveTo(sx, sy, sx, sy + k); ctx.quadraticCurveTo(sx, sy, sx - k, sy); ctx.quadraticCurveTo(sx, sy, sx, sy - k); ctx.fill(); } ctx.restore();
   }
-  const fc = FACE[type] || { y: 0, s: 1 }; ctx.rotate(faceRot); ctx.translate(0, fc.y * r); drawFace(r * fc.s, o, half, type);
+  const fc = FACE[type] || { y: 0, s: 1 }; ctx.rotate(faceRot); ctx.translate(0, fc.y * r); drawFace(r * fc.s, o, half, type); if (o.label && !o.dead) drawEtiket(o.label, r, -fc.y * r); /* v0.32.1: the Fruitetiket, inside the fruit, over the cheek */
   if (o.hat && o.hat !== 'none' && !o.dead) { ctx.translate(0, -fc.y * r); drawHat(o.hat, r); }
   ctx.restore();
 }
@@ -6257,7 +6368,7 @@ function drawPlayer() {
     if (dying && G.death && G.death.body === b) { drawCutFruit(x, y, b, f, type); continue; }
     if (G.inv > 0 && G.state === 'play' && Math.floor(G.inv / 90) % 2 === 0) ctx.globalAlpha = .45;
     drawShadow(x, y, b.r);
-    drawFruit(type, x, y, b.r, f.rotates ? G.spin : G.ang, b.half, Object.assign({ look: [G.lookX, G.lookY], scared: dying ? 1 : G.scared, cracks: (f.armor || 0) - G.armor, segLost: G.segLost, stage: G.shrinkStage, burst: G.burstDone, hat: b.id === G.bodies[0].id ? wornHat() : 'none', gold: isGold(G.fruit) || seasonFx() >= 3 }, LL));
+    drawFruit(type, x, y, b.r, f.rotates ? G.spin : G.ang, b.half, Object.assign({ look: [G.lookX, G.lookY], scared: dying ? 1 : G.scared, cracks: (f.armor || 0) - G.armor, segLost: G.segLost, stage: G.shrinkStage, burst: G.burstDone, hat: b.id === G.bodies[0].id ? wornHat() : 'none', label: b.id === G.bodies[0].id && G.mode !== 'knife' ? etiketKey() : '', gold: isGold(G.fruit) || seasonFx() >= 3 }, LL));
     ctx.globalAlpha = 1;
   }
 }
@@ -6829,9 +6940,14 @@ function rewardItems(r) {
   if (r.hat && HATS[r.hat]) add('hoedje: ' + HATS[r.hat].name, (c, css) => fruitWithHat(c, css, r.hat));
   if (r.board) add('bordskin: ' + (THEMES[skinIndex(r.board)] || THEMES[0]).name, (c, css) => drawBoardIcon(c, css, r.board));
   if (r.title) add(`titel "${r.title}"`, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 26); });
+  if (r.title2) add(`titel "${r.title2}"`, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 26); }); // v0.32.1: the full album gives Albumkoning and Albumkoningin
   if (r.fruit && FRUITS[r.fruit]) { add(FRUITS[r.fruit].name, (c, css) => renderIcon(c, r.fruit, css, false)); if (FRUITS[r.fruit].late) it[it.length - 1].anim = (c, css, t) => lateReveal(r.fruit, css, t); } // late fruit: the unlock reveal plays its own animation
   if (r.fruits) { for (const k of r.fruits.slice(0, 6)) if (FRUITS[k]) add(FRUITS[k].name, (c, css) => renderIcon(c, k, css, false)); if (r.fruits.length > 6) add(`+${r.fruits.length - 6} meer`, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 24); }); }
   if (r.stickers) for (const n of r.stickers) add(n, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 26); });
+  if (r.stk) { const cap = r.stkMax || 6; for (const id of r.stk.slice(0, cap)) if (STK[id]) add(STK[id].name, (c, css) => { rwCenter(c, css); c.fillStyle = stkCol(id); c.beginPath(); c.arc(0, 0, 24, 0, TAU); c.fill(); drawEmblem(c, id, 0, 0, 28, '#2a1208', 2.4); }); if (r.stk.length > cap) add(`+${r.stk.length - cap} meer`, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 24); }); } // v0.32.1: a sticker with its own emblem (stkMax: fewer on a small phone)
+  if (r.fx && ALBUM_FX[r.fx]) { const F = ALBUM_FX[r.fx]; add(F.live ? F.name : `${F.name} (volgende versie)`, (c, css) => { rwCenter(c, css); c.globalAlpha = F.live ? 1 : .5; c.fillStyle = 'rgba(255,213,74,.18)'; c.beginPath(); c.arc(0, 0, 25, 0, TAU); c.fill(); drawEmblem(c, r.fx, 0, 0, 32, '#ffd54a', 2.2); c.globalAlpha = 1; }); } // a look that comes next version says so and is drawn dimmed
+  if (r.card) add('je kaartje "Zo zien vrienden je"', (c, css) => { rwCenter(c, css); drawEmblem(c, 'card', 0, 0, 42, '#ffd54a', 2); });
+  if (r.pin) add(`${r.pin}e plekje op je kaartje`, (c, css) => { rwCenter(c, css); drawEmblem(c, 'pin', 0, 0, 38, '#ffd54a', 2.2); });
   if (r.note) add(r.note, (c, css) => { rwCenter(c, css); c.fillStyle = '#c77dff'; c.beginPath(); c.arc(0, 0, 22, 0, TAU); c.fill(); c.fillStyle = '#fff'; c.font = `900 26px ${FU}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('!', 0, 2); });
   if (r.heartFull) add('hartjes vol: geen hartje erbij', (c, css) => { rwCenter(c, css); c.globalAlpha = .35; drawHeartIcon(c, 0, 0, 22); c.globalAlpha = 1; });
   if (r.dupHat && HATS[r.dupHat]) add(`${HATS[r.dupHat].name} had je al: +250 sap`, (c, css) => { fruitWithHat(c, css, r.dupHat); rwCenter(c, css); drawSugar(17, 17, 9, false, -.25, c); });
@@ -6851,7 +6967,11 @@ function nextReward() {
   $('#rw-title').textContent = q.title; const txt = $('#rw-text'); txt.textContent = q.sub; txt.hidden = !q.sub; const ic = $('#rw-icons'); ic.innerHTML = '';
   q.items.forEach((it, i) => { const d = document.createElement('div'); d.className = 'rw-icon'; d.style.animationDelay = `${.15 + i * .12}s`; const cv = rewardCanvas(it.draw); d.appendChild(cv); if (it.anim) playReveal(cv, it.anim, .15 + i * .12); const b = document.createElement('b'); b.textContent = it.label; d.appendChild(b); ic.appendChild(d); });
   const card = box.firstElementChild; card.style.animation = 'none'; box.hidden = false; void card.offsetWidth; card.style.animation = ''; // the card pops again for each reward in the queue
-  SFX.jingle(); rwTimer = setTimeout(nextReward, 6000 + q.items.length * 700);
+  rwActs(q); SFX.jingle(); if (!q.acts) rwTimer = setTimeout(nextReward, 6000 + q.items.length * 700); // a card with buttons waits for you
+}
+function rwActs(q) { // v0.32.1: a card may carry its own buttons (a sticker: Ontvang +X, Bekijk in album); a tap beside them still closes it
+  const row = $('#rw-acts'), ok = $('#rw-ok'), hint = $('#reward .rw-hint'); if (!row) return; row.innerHTML = ''; row.hidden = !q.acts; ok.hidden = !!q.acts; if (hint) hint.hidden = !!q.acts;
+  if (q.acts) for (const [label, fn, primary] of q.acts) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn' + (primary ? ' primary' : ''); b.textContent = label; b.addEventListener('click', e => { e.stopPropagation(); SFX.click(); nextReward(); fn(); }); row.appendChild(b); }
 }
 function closeReward() { rwQueue.length = 0; nextReward(); }
 $('#reward').addEventListener('click', e => { e.stopPropagation(); nextReward(); });
@@ -6868,6 +6988,8 @@ function giveReward(r, title, sub) { // sub: an optional line under the pop-up t
   if (r.fragment && r.fruitKey) { addFragment(r.fruitKey, r.fragment); txt.push(`fragment ${FRUITS[r.fruitKey].name} (${Math.min(3, TS().fragments[r.fruitKey] || 0)}/3)`); }
   if (r.board) { if (!save.boards.includes(r.board)) { save.boards.push(r.board); markFresh('kast'); save.board = r.board; txt.push('bordskin: ' + THEMES[skinIndex(r.board)].name); } else { save.sap += 500; delete eff.board; eff.dupBoard = r.board; txt.push('+500 sap (bordskin had je al)'); } }
   if (r.title) { if (!save.titles.includes(r.title)) { save.titles.push(r.title); markFresh('kast'); txt.push('titel: ' + r.title); } else { delete eff.title; eff.dupTitle = r.title; } }
+  if (r.title2) { if (!save.titles.includes(r.title2)) { save.titles.push(r.title2); markFresh('kast'); txt.push('titel: ' + r.title2); } else delete eff.title2; } // v0.32.1 album
+  if (r.fx && ALBUM_FX[r.fx]) { if (!save.albumFx[r.fx]) { save.albumFx[r.fx] = dayKey(); markFresh('kast'); } txt.push(ALBUM_FX[r.fx].name); }
   store(); if (G.state !== 'play') showReward(eff, title, sub); return txt.join(' · ');
 }
 const rewardText = r => [r.sap ? `${r.sap} sap` : '', r.heart ? `${r.heart} hartje${r.heart > 1 ? 's' : ''}` : '', r.munt ? `${r.munt} Toernooimunt${r.munt > 1 ? 'en' : ''}` : '', r.fragment && r.fruitKey ? `fragment ${FRUITS[r.fruitKey].name}` : '', r.tickets ? `${r.tickets} ticket${r.tickets > 1 ? 's' : ''}` : '', r.hat ? `hoedje ${HATS[r.hat] ? HATS[r.hat].name : r.hat}` : '', r.shield ? `${r.shield} reeksschild` : '', r.minutes ? `${r.minutes} min onbeperkt` : '', r.board ? `bordskin ${THEMES[skinIndex(r.board)] ? THEMES[skinIndex(r.board)].name : r.board}` : '', r.title ? `titel "${r.title}"` : ''].filter(Boolean).join(' + ');
@@ -6877,8 +6999,8 @@ const rewardText = r => [r.sap ? `${r.sap} sap` : '', r.heart ? `${r.heart} hart
 // so every reward lands exactly once. prizeTile draws a prize with its icon, exact amount, when and source; a tap on anything with
 // data-pv opens #prevbox with a big preview (a hat on your fruit, a board in portrait, a fruit with its trait). No new save fields.
 const RW_SUM = ['sap', 'coins', 'heart', 'shield', 'munt', 'tickets', 'minutes', 'hours', 'key', 'heartFull'];
-const RW_ORDER = ['sap', 'coins', 'heart', 'heartFull', 'shield', 'munt', 'tickets', 'fragment', 'minutes', 'hours', 'key', 'boost', 'hat', 'dupHat', 'board', 'dupBoard', 'title', 'dupTitle', 'fruit', 'fruits', 'stickers', 'note', 'weekpas', 'pass', 'plus'];
-const RW_MAIN = ['hat', 'dupHat', 'board', 'dupBoard', 'fruit', 'fragment', 'fruits', 'title', 'dupTitle', 'weekpas', 'pass', 'plus', 'munt', 'minutes', 'shield', 'heart', 'heartFull', 'tickets', 'coins', 'key', 'hours', 'boost', 'stickers', 'sap', 'note'];
+const RW_ORDER = ['sap', 'coins', 'heart', 'heartFull', 'shield', 'munt', 'tickets', 'fragment', 'minutes', 'hours', 'key', 'boost', 'hat', 'dupHat', 'board', 'dupBoard', 'fx', 'title', 'title2', 'dupTitle', 'card', 'pin', 'fruit', 'fruits', 'stickers', 'stk', 'note', 'weekpas', 'pass', 'plus'];
+const RW_MAIN = ['hat', 'dupHat', 'board', 'dupBoard', 'fx', 'card', 'pin', 'fruit', 'fragment', 'fruits', 'title', 'title2', 'dupTitle', 'stk', 'weekpas', 'pass', 'plus', 'munt', 'minutes', 'shield', 'heart', 'heartFull', 'tickets', 'coins', 'key', 'hours', 'boost', 'stickers', 'sap', 'note'];
 const rwPart = (r, k) => { const o = { [k]: r[k] }; if (k === 'fragment') o.fruitKey = r.fruitKey; if (k === 'boost') o.n = r.n; return o; };
 const mainPart = r => { for (const k of RW_MAIN) if (r && r[k]) return rwPart(r, k); return r || {}; };
 const splitReward = r => RW_ORDER.filter(k => r && r[k]).map(k => rwPart(r, k)).filter(o => rewardItems(o).length);
@@ -6901,6 +7023,7 @@ const heartHeld = r => !!(r && r.heart) && !plusActive() && save.hearts >= maxHe
 const heldText = (n, scope) => `${n} beloning${n > 1 ? 'en' : ''} met een hartje wacht${n > 1 ? 'en' : ''} tot je een hartje kwijt bent${scope === 'pass' ? '' : '; ophalen kan tot 7 uur'}`; /* v0.31.12: Fruitpas tiers do not end at 7 */ // v0.32 review: at 7:00 the day's rewards are new
 function claimables(scope) { // what waits, in the order claimAll takes it; missions first, so their Fruitpas XP counts in the same press
   scope = scope || 'all'; const all = scope === 'all', today = dayKey(), out = [], add = (kind, label, r, claim, x) => out.push(Object.assign({ kind, label, r, claim }, x || {}));
+  const alb = all || scope === 'album' ? albumClaimables() : []; // v0.32.1: the album's stickers, sets and milestones
   if (all) {
     touchStreak(); ensureMissions(); ensureTourney();
     save.missions.list.forEach((m, i) => { if (!m.done || m.claimed) return; const r = plusDouble(MISSION_REWARDS[i]); add('mission', m.text, r, () => { if (!m.done || m.claimed) return false; m.claimed = true; giveReward(r, 'Opdracht volbracht'); track('claim', 'mission'); return true; }); });
@@ -6920,16 +7043,15 @@ function claimables(scope) { // what waits, in the order claimAll takes it; miss
       add('pass', `trede ${t}`, r, () => { if (t > passTier() || has() || (prem && !passPremium())) return false; (prem ? save.pass.claimedPrem : save.pass.claimedFree).push(t); giveReward(r, 'Fruitpas'); return true; }, { t, prem });
     }
   }
-  if (all || scope === 'album') for (const x of albumClaimables()) add('album', x.label, x.r, x.claim); // v0.32.0 hook: the album (stickers, set prizes, milestones) joins in the next round
+  if (all || scope === 'album') for (const x of alb) add('album', x.label, x.r, x.claim, { ak: x.ak, xp: x.xp }); // v0.32.1: the album (stickers, set prizes, milestones)
   if (all) { const t = TS(); if (t.result && !t.result.shown && t.result.prize && Object.keys(t.result.prize).length) { const p = Object.assign({}, t.result.prize); if (p.hat2) { if (!p.hat) p.hat = p.hat2; delete p.hat2; } add('tourney', `Weekresultaat ${TEVENT[t.result.ev] ? TEVENT[t.result.ev].name : ''}`.trim(), p, () => { showTourneyResult(); return true; }); } }
   markHeld(out); return out;
 }
-function albumClaimables() { return []; } // v0.32.0: the album's own scope (Verzamel > Album and its scoped bar) is filled in the next round
 function markHeld(list) { // in claim order: a reward with a heart waits once the hearts are full (Plus: never)
   let h = save.hearts; const hmax = maxHearts(), plus = plusActive();
   for (const x of list) { x.held = false; if (x.r && x.r.heart && !plus) { if (h >= hmax) x.held = true; else h = Math.min(hmax, h + x.r.heart); } }
 }
-function claimChips(list) { // what waits, in short phrases (each a chip of its own, so each is translated on its own)
+function claimChips(list, scope) { // what waits, in short phrases (each a chip of its own, so each is translated on its own)
   const c = k => list.filter(x => x.kind === k).length, out = [];
   for (const x of list) if (x.kind === 'streak') out.push(x.label);
   if (c('mission')) out.push(`${c('mission')} opdracht${c('mission') > 1 ? 'en' : ''}`);
@@ -6938,19 +7060,21 @@ function claimChips(list) { // what waits, in short phrases (each a chip of its 
   if (c('order')) out.push(`${c('order')} bestelling${c('order') > 1 ? 'en' : ''}`);
   if (c('pass')) out.push(`Fruitpas: ${c('pass')} beloning${c('pass') > 1 ? 'en' : ''}`);
   for (const x of list) if (x.kind === 'tourney') out.push(x.label);
+  { const al = list.filter(x => x.kind === 'album'); if (al.length) { if (scope === 'album') out.push(...albumChips(al)); else out.push(albumSummary(al)); } } // v0.32.1: the album's own chips on its bar (at most six), one summary elsewhere
   return out;
 }
 function claimAll(scope) { // every waiting reward of the scope in one press, one card; returns how many were claimed (0: nothing waited)
   scope = scope || 'all'; if (rwBatch) return 0; let n = 0, held = 0, got = []; const done = [];
   const take = list => { for (const x of list) { if (heartHeld(x.r)) { held++; continue; } if (x.claim()) { n++; done.push(x); } } };
   rwBatch = [];
-  try { take(claimables(scope).filter(x => x.kind !== 'pass')); if (scope === 'all' || scope === 'pass') take(claimables('pass')); } finally { got = rwBatch || []; rwBatch = null; }
+  try { const pre = claimables(scope), cap = scope === 'all' ? pre.reduce((a, x) => x.kind === 'pass' ? Math.max(a, x.t) : a, 0) : PASS_TIERS; // v0.32.1 review: the big press takes the tiers it counted, no more (a tier the album's XP reaches waits on Fruitpas)
+    take(pre.filter(x => x.kind !== 'pass')); if (scope === 'all' || scope === 'pass') take(claimables('pass').filter(x => x.t <= cap)); } finally { got = rwBatch || []; rwBatch = null; }
   store(); if (!n) return 0; SFX.fanfare();
-  showRewardList(got, 'Alles ontvangen', `Opgehaald: ${claimChips(done).join(' · ')}${held ? ` · ${heldText(held, scope)}` : ''}`); updateHub(curScreen); return n;
+  showRewardList(got, 'Alles ontvangen', `Opgehaald: ${claimChips(done, scope).join(' · ')}${held ? ` · ${heldText(held, scope)}` : ''}`); updateHub(curScreen); return n;
 }
 function previewRewards(rs) { // what a list of rewards will really give: a hat or board you have (or get earlier in the list) pays sap instead
   const hats = new Set(save.hats), boards = new Set(save.boards), out = [];
-  for (const r0 of rs) { const r = Object.assign({}, r0); if (r.hat) { if (hats.has(r.hat)) { r.sap = (r.sap || 0) + 250; delete r.hat; } else hats.add(r.hat); } if (r.board) { if (boards.has(r.board)) { r.sap = (r.sap || 0) + 500; delete r.board; } else boards.add(r.board); } if (r.title && save.titles.includes(r.title)) delete r.title; out.push(r); }
+  for (const r0 of rs) { const r = Object.assign({}, r0); if (r.hat) { if (hats.has(r.hat)) { r.sap = (r.sap || 0) + 250; delete r.hat; } else hats.add(r.hat); } if (r.board) { if (boards.has(r.board)) { r.sap = (r.sap || 0) + 500; delete r.board; } else boards.add(r.board); } if (r.title && save.titles.includes(r.title)) delete r.title; if (r.title2 && save.titles.includes(r.title2)) delete r.title2; out.push(r); }
   return out;
 }
 function claimBar(scope) { // the bar on top of Vandaag (all), the Fruitpas (pass) and your Keuken (keuken); '' when a scoped bar has nothing
@@ -6960,7 +7084,7 @@ function claimBar(scope) { // the bar on top of Vandaag (all), the Fruitpas (pas
   if (!n) { const sm = scope === 'all' ? ready.find(x => x.kind === 'kitchen') : null; return `<button class="btn" id="${id}" disabled>Ontvang alles</button><div class="small">${held ? heldText(held, scope) + '.' : scope === 'all' ? 'Alles is binnen. Morgen om 7 uur nieuwe dagbeloningen.' : 'Alles is binnen.'}</div>${sm ? `<div class="small">Je keuken spaart verder: ${sm.r.sap} sap. Vanaf 100 sap telt het hier mee.</div>` : ''}${wheel}`; } /* v0.32.0 review: sap under 100 waits in the kitchen and says so */
   const tiles = mergeRewards(previewRewards(ready.map(x => x.r))).flatMap(splitReward).map(r => prizeTile(r, { plain: 1 })).join('');
   const top = scope === 'all' ? '' : `<div class="small alltop">Alles samen: <button class="linkbtn" id="btn-claim-top-${scope}">bovenaan Vandaag (${claimCounts().all})</button></div>`;
-  return `<button class="btn primary" id="${id}">Ontvang alles · ${n}</button><div class="cwait">${claimChips(ready).map(t => `<span>${escH(t)}</span>`).join('')}${held ? `<span class="held">${heldText(held, scope)}</span>` : ''}</div><div class="small">Dit krijg je:</div><div class="prizes">${tiles}</div>${wheel}${top}`;
+  return `<button class="btn primary" id="${id}">Ontvang alles · ${n}</button><div class="cwait">${claimChips(ready, scope).map(t => `<span${/^(Set |Mijlpaal |Album: )/.test(t) ? ' class="gold"' : ''}>${escH(t)}</span>`).join('')}${held ? `<span class="held">${heldText(held, scope)}</span>` : ''}</div>${scope === 'album' ? albumGetLine(ready) : `<div class="small">Dit krijg je:</div><div class="prizes">${tiles}</div>`}${wheel}${top}`; /* v0.32.1: the album's bar says what you get in one line (the judge's mockup) */
 }
 function mountClaimBar(el, scope, reopen) {
   if (!el) return false; const html = claimBar(scope); el.innerHTML = html; el.hidden = !html; if (!html) return false; paintPrizes(el);
@@ -7047,6 +7171,7 @@ function pvFrame(t) {
 function pvRefresh() { const fn = { shop: openShop, today: () => openToday(), pass: openPass, tourney: () => openTourney(), keuken: () => openKitchen(kitchenView), kaart: openKaart, album: openAlbum, kast: openKast }[G.state]; if (fn) fn(); }
 function closePrize() { $('#prevbox').hidden = true; pvSpec = null; cancelAnimationFrame(pvRaf); }
 function openPrize(spec) {
+  { const m0 = spec && spec.r ? mainPart(spec.r) : {}; if (m0.fx) return openAlbumPv('fx', m0.fx); if (m0.card) return openAlbumPv('mile', 3); if (m0.pin) return openAlbumPv('mile', m0.pin === 2 ? 10 : 20); } // v0.32.1 album
   const r = spec && spec.r; if (!r || !rewardItems(r).length) return false; pvSpec = spec; cancelAnimationFrame(pvRaf);
   const { m, hat, bd, fruit } = pvKeys(spec), kind = Object.keys(m)[0], items = rewardItems(r), lines = [], acts = [], line = t => lines.push(`<div>${escH(t)}</div>`);
   if (hat && (!pvFruit || !save.owned.includes(pvFruit))) pvFruit = save.fruit;
@@ -7077,7 +7202,7 @@ function openPrize(spec) {
   return true;
 }
 $('#pv-acts').addEventListener('click', e => {
-  const b = e.target.closest('[data-pa]'), spec = pvSpec; if (!b || !spec) return; const { hat, bd, fruit } = pvKeys(spec), k = b.dataset.pa; SFX.click();
+  const b = e.target.closest('[data-pa]'), spec = pvSpec; if (!b || !spec) return; const { hat, bd, fruit } = pvKeys(spec), k = b.dataset.pa; SFX.click(); if (spec.album) { albumPvAct(k); return; } // v0.32.1
   if (k === 'close') { closePrize(); return; }
   if (k === 'fruit') { const list = save.owned.filter(f => FRUITS[f]), i = list.indexOf(pvFruit || save.fruit); pvFruit = list[(i + 1) % list.length]; openPrize(spec); return; }
   if (k === 'wear' && save.hats.includes(hat)) { save.hat = hat; store(); }
@@ -7436,53 +7561,439 @@ $('#lv-minus').addEventListener('click', () => { SFX.click(); save.startLevel = 
 $('#lv-plus').addEventListener('click', () => { SFX.click(); const n = clamp(save.startLevel || save.level, 1, save.level) + 1; save.startLevel = n >= save.level ? 0 : n; store(); updateLevelPick(); });
 $('#lv-max').addEventListener('click', () => { SFX.click(); save.startLevel = 0; store(); updateLevelPick(); });
 
-// ---- Album: stickers (achievements). v0.32.0: the kitchen perks moved to Spelen > Levels, the titles to the Kast and the Fruitpedia
-// to the Fruit detail card (Verzamel > Fruit); the album itself is rebuilt in the next round.
+// ---- Album (v0.32.1, Pieter: "volledig akkoord met het voorstel"). 30 stickers in six sets of five, each one a button. A sticker you earn
+// waits in the album until you claim it: then it pays its fixed sap once, plus +25 Fruitpas-XP when you earned it after this update. A
+// set whose five stickers are in your album gives its title, its sap and a look that exists nowhere else; milestones at 3, 10, 20 and 30
+// claimed stickers give your card "Zo zien vrienden je", its pins and sap. Album sap is never doubled (Plus, the Sapverdubbelaar) and
+// never counts for "Verzamel N sap" (it goes through giveReward, not gainSap). No packs, no chance, nothing for sale, no hearts, Verders,
+// boosts, coins, tickets, stamps or level bar. Plusser left the album: its owners keep a Bedankt-zegel that counts for nothing.
+// Old saves: what you earned before this version is claimable once, sap only (albumSince, set by albumCatchUp); stkCtx (the diary
+// line's fruit and level) is only recorded for stickers earned after it, and it is what makes a sticker give Fruitpas-XP.
+// Totals: 30 stickers 10.450 + 6 sets 2.750 + milestones 3.500 = 16.700 sap. The set looks other than the Fruitetiket come in the next
+// version: claiming a set already records them (save.albumFx), and their preview says so plainly.
+const STK_XP = 25;
+// Emblems: one line drawing per sticker on a 24 grid, [stroke path, fill path]; the same path data draws the SVG in the album and the
+// Fruitetiket on the canvas (Path2D), so the label on your fruit is the sticker you see in the album. No emoji, no photos.
+const EMB = {
+  first: ['M4 20l7.5-7.5M11.5 12.5C13 7 16.5 4 20.5 3.5 20 7.5 17 11 11.5 12.5z'],
+  combo3: ['M3 15h5v5H3zM9.5 10.5h5v5h-5zM16 6h5v5h-5z'],
+  fever10: ['M12 21c-4 0-6.5-2.7-6.5-6.2 0-3.4 2.6-5.3 3.8-8.3 1.6 1.6 2 3.4 2 4.6 1-.6 1.8-2 2-3.3 2.2 1.8 3.2 4.3 3.2 6.9 0 3.6-2.5 6.3-4.5 6.3z'],
+  inter10: ['M7 4h10a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3H7a3 3 0 0 1 -3 -3V7a3 3 0 0 1 3 -3z', 'M10.5 8.5a1.5 1.5 0 1 1 -3 0a1.5 1.5 0 1 1 3 0zM13.5 12a1.5 1.5 0 1 1 -3 0a1.5 1.5 0 1 1 3 0zM16.5 15.5a1.5 1.5 0 1 1 -3 0a1.5 1.5 0 1 1 3 0z'],
+  medal: ['M8.6 10.2L6 3h4l2 4.5L14 3h4l-2.6 7.2M17.5 14.5a5.5 5.5 0 1 1 -11 0a5.5 5.5 0 1 1 11 0z'],
+  level10: ['M3 20c3-3 6-4.5 9-4.5s6 1.5 9 4.5M12 15.5V6M12 6.5h6l-1.6 2.2 1.6 2.3h-6'],
+  level25: ['M2.5 20c3-6 6-8.5 9.5-8.5s6.5 2.5 9.5 8.5M12 11.5V3.5M12 4h6l-1.6 2.2 1.6 2.3h-6'],
+  kitchens: ['M4 10.5h16M5 10.5v8a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5 -1.5v-8M8 10.5V8a4 4 0 0 1 8 0v2.5M3 7.5h2M19 7.5h2M12 2.5v2'],
+  level50: ['M2 20.5l7-11 4 6 2.5-3.5 6.5 8.5zM9 9.5V3M9 3.5h5l-1.3 1.9 1.3 1.9H9'],
+  level100: ['M2 21l6.5-10.5 3.5 5.5 3-4.5 7 9.5z', 'M16.5 2l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z'],
+  streak7: ['M7 5h10a3 3 0 0 1 3 3v9a3 3 0 0 1 -3 3H7a3 3 0 0 1 -3 -3V8a3 3 0 0 1 3 -3zM4 10h16M8 3v4M16 3v4M8.5 14.5l2.3 2.3 4.7-4.6'],
+  daily10: ['M16 13a6.5 6.5 0 1 1 -13 0a6.5 6.5 0 1 1 13 0zM12.5 13a3 3 0 1 1 -6 0a3 3 0 1 1 6 0zM20.5 21V3c-1.6 1.4-2.5 4-2.5 7.5h2.5'],
+  missions20: ['M8.5 3.5h7v3h-7zM6.5 5H5v16h14V5h-1.5M8 12.5l2 2 4-4.5M8 17.5h8'],
+  runs100: ['M4.5 12a7.5 7.5 0 0 1 13 -5.1M19.5 12a7.5 7.5 0 0 1 -13 5.1M18 3v4.2h-4.2M6 21v-4.2h4.2'],
+  solo5: ['M20.5 12a8.5 8.5 0 1 1 -17 0a8.5 8.5 0 1 1 17 0zM12 7.5v9M9.5 9.5h4a1.8 1.8 0 0 1 0 3.5h-3a1.8 1.8 0 0 0 0 3.5h4'],
+  near30: ['M14 15.5a5.5 5.5 0 1 1 -11 0a5.5 5.5 0 1 1 11 0zM21.5 2.5l-7.2 7.2M21.5 2.5c-.9 2.9-2.8 5-5.6 6.5M14.3 9.7l-1.6 1.6M17.5 13.5l2 .6M15.6 15.4l.8 1.9'],
+  wraak: ['M13 2.5L4.5 13.5H11l-1 8 8.5-11H12z'],
+  duel10: ['M4 4l9 9M20 4l-9 9M4 20l4-4M20 20l-4-4M6.5 13.5l4 4M17.5 13.5l-4 4'],
+  weekend: ['M16 12a4 4 0 1 1 -8 0a4 4 0 1 1 8 0zM12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1'],
+  rivaal: ['M3 17.5l6-6 4 4 8-8M15 7.5h6v6'],
+  eigenkeuken: ['M5 6.5h14a1 1 0 0 1 1 1V20H4V7.5a1 1 0 0 1 1 -1zM4 10.5h16M7.5 13.5h9v4h-9z', 'M8.9 8.5a.9.9 0 1 1 -1.8 0a.9.9 0 1 1 1.8 0zM12.9 8.5a.9.9 0 1 1 -1.8 0a.9.9 0 1 1 1.8 0zM16.9 8.5a.9.9 0 1 1 -1.8 0a.9.9 0 1 1 1.8 0z'],
+  chef3: ['M6 15h12v4H6zM6 15c-2.5-.5-3.5-3-2-5 1-1.4 3-1.6 4-.8.4-2.6 2.5-4.2 4-4.2s3.6 1.6 4 4.2c1-.8 3-.6 4 .8 1.5 2 .5 4.5-2 5'],
+  orders10: ['M7 3.5h10v17H7zM9.5 8h5M9.5 11.5h5M9.5 15h3'],
+  seizoen: ['M7 4h10v5a5 5 0 0 1 -10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1 -3 4M12 14v3M8.5 20h7M10 17h4v3'],
+  sterren: ['M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.9l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.8z'],
+  stamps100: ['M9.5 3.5h5v5l2.5 3v2H7v-2l2.5-3zM5 16.5h14V20H5z'],
+  families10: ['M11 9a3 3 0 1 1 -6 0a3 3 0 1 1 6 0zM19 9a3 3 0 1 1 -6 0a3 3 0 1 1 6 0zM15 15.5a3 3 0 1 1 -6 0a3 3 0 1 1 6 0z'],
+  gold: ['M12 8c-1.6-1.3-5.2-1.4-6.6 1.6-1.5 3.3.4 8.6 3.1 10.3 1.2.8 2.3.3 3.5.3s2.3.5 3.5-.3c2.7-1.7 4.6-7 3.1-10.3C17.2 6.6 13.6 6.7 12 8zM12 8c0-2 .9-3.4 2.3-4.2', 'M19 1.8l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z'],
+  rows10: ['M3.5 10h17l-2 9.5h-13zM8 10l3-6M16 10l-3-6M9.5 13.5v3M14.5 13.5v3'],
+  allfruit: ['M3.5 12.5h17l-2 8h-13zM9.5 9.5a2.5 2.5 0 1 1 -5 0a2.5 2.5 0 1 1 5 0zM14.5 8a2.5 2.5 0 1 1 -5 0a2.5 2.5 0 1 1 5 0zM19.5 9.5a2.5 2.5 0 1 1 -5 0a2.5 2.5 0 1 1 5 0z'],
+  plusser: ['M12 3l2.1 2.2 3-.4.6 3 2.6 1.5L19 12l1.3 2.7-2.6 1.5-.6 3-3-.4L12 21l-2.1-2.2-3 .4-.6-3-2.6-1.5L5 12 3.7 9.3l2.6-1.5.6-3 3 .4z', 'M12 15.5s-3-1.9-3-4a1.6 1.6 0 0 1 3-1 1.6 1.6 0 0 1 3 1c0 2.1-3 4-3 4z'],
+  etiket: ['M20.5 12c0 3.6-3.8 6.5-8.5 6.5S3.5 15.6 3.5 12 7.3 5.5 12 5.5s8.5 2.9 8.5 6.5z', 'M12 8.6l1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z'],
+  drop: ['M3 10c2-3 4-3 6 0s4 3 6 0 4-3 6 0M3 15c2-3 4-3 6 0s4 3 6 0 4-3 6 0'],
+  ontbijt: ['M12 3.5c2.2 0 4 3.2 4 6.2s-1.8 4.3-4 4.3-4-1.3-4-4.3 1.8-6.2 4-6.2zM6.5 14h11l-1.8 3.5H8.3zM9.5 17.5v3h5v-3'],
+  vonken: ['M12 3v5M12 16v5M3 12h5M16 12h5M6 6l3 3M15 15l3 3M6 18l3-3M15 9l3-3'],
+  diploma: ['M4 4.5h16v12H4zM8 9h8M8 12h5M18.5 17.5a2.5 2.5 0 1 1 -5 0a2.5 2.5 0 1 1 5 0zM15 19.5l-.5 2.5M17 19.5l.5 2.5'],
+  foto: ['M6 6h12a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1 -2.5 2.5H6a2.5 2.5 0 0 1 -2.5 -2.5v-8A2.5 2.5 0 0 1 6 6zM15.5 12.5a3.5 3.5 0 1 1 -7 0a3.5 3.5 0 1 1 7 0zM8.5 6l1.5-2.5h4L15.5 6'],
+  levend: ['M4 4h11l5 5v11H4zM15 4c0 3 1.8 5 5 5'],
+  platen: ['M20.5 12a8.5 8.5 0 1 1 -17 0a8.5 8.5 0 1 1 17 0zM14 12a2 2 0 1 1 -4 0a2 2 0 1 1 4 0zM12 6.5a5.5 5.5 0 0 1 5.5 5.5'],
+  posters: ['M5 3h14v18H5zM8 6.5h8M14.5 12.5a2.5 2.5 0 1 1 -5 0a2.5 2.5 0 1 1 5 0zM8 18h8'],
+  card: ['M4 6h16a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 18H4a1.5 1.5 0 0 1 -1.5 -1.5v-9A1.5 1.5 0 0 1 4 6zM11 12a2.5 2.5 0 1 1 -5 0a2.5 2.5 0 1 1 5 0zM13.5 10h5M13.5 14h3.5'],
+  pin: ['M9 3h6l-1 5.5 3 3.5H7l3-3.5zM12 12v9'],
+};
+const embSvg = k => { const e = EMB[k] || EMB.sterren; return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${e[0]}"/>${e[1] ? `<path d="${e[1]}" fill="currentColor" stroke="none"/>` : ''}</svg>`; };
+const EMB_P = {};
+function drawEmblem(c, k, x, y, size, col, lw) { // the same drawing on a canvas, centred on x, y and size wide
+  const e = EMB[k] || EMB.sterren; let p = EMB_P[k]; if (!p) { try { p = EMB_P[k] = [new Path2D(e[0]), e[1] ? new Path2D(e[1]) : null]; } catch (err) { return; } }
+  c.save(); c.translate(x - size / 2, y - size / 2); c.scale(size / 24, size / 24); c.lineWidth = lw || 2.4; c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = col; c.stroke(p[0]); if (p[1]) { c.fillStyle = col; c.fill(p[1]); } c.restore();
+}
+const bestFruitLevels = () => ORDER.concat(LATE).reduce((a, k) => Math.max(a, fruitLevels(k)), 0);
+const famBadges = s => Object.keys(s.families || {}).reduce((a, n) => a + (Array.isArray(s.families[n]) ? s.families[n].length : 0), 0);
+// The 30 stickers. nm: the name with soft hyphens (never clipped, two lines at most); go: where Ga erheen takes you; prog: [now, goal].
+// Every test is the one the sticker always had (Inhaler: also the top 10 of the practice ladder, which works offline); Eigen keuken is new.
 const STICKERS = [
-  { id: 'first', name: 'Eerste snede', info: 'Eén poging gespeeld.', test: s => s.runs >= 1 },
-  { id: 'runs100', name: 'Honderd pogingen', info: '100 pogingen gespeeld.', test: s => s.runs >= 100 },
-  { id: 'combo3', name: 'Combo ×3', info: 'Tien klontjes op rij zonder snede.', test: s => s.stats.bestCombo >= 10 },
-  { id: 'near30', name: 'Scheerlijn', info: '30× "Net niet!" in één poging.', test: s => s.stats.nearRun >= 30 },
-  { id: 'fever10', name: 'Koortsig', info: 'Tien keer Fruit Fever.', test: s => (s.stats.fevers || 0) >= 10 },
-  { id: 'wraak', name: 'Wraak', info: 'Je aartsvijand drie keer ontweken in één poging.', test: s => (s.stats.revenge || 0) >= 1 },
-  { id: 'duel10', name: 'Duellist', info: '25 duels gewonnen.', test: s => (s.stats.duelWins || 0) >= 25 },
-  { id: 'rivaal', name: 'Inhaler', info: 'Een rivaal ingehaald.', test: s => (s.stats.rivalsPassed || 0) >= 1 },
-  { id: 'seizoen', name: 'Seizoensheld', info: 'Alle zes hoofdstukken van een seizoen gehaald.', test: s => !!(s.season && s.season.done) || Object.values(s.seasonForms || {}).some(v => v >= 6) },
-  { id: 'sterren', name: 'Sterrenzaak', info: 'Je keuken is een Sterrenzaak (15 toestelniveaus).', test: () => kitchenLevels() >= 15 },
-  { id: 'orders10', name: 'Leverancier', info: 'Tien bestellingen van chefs afgeleverd.', test: s => (s.stats.ordersDone || 0) >= 10 },
-  { id: 'chef3', name: 'Chefkok', info: 'Drie keer De Chef in één poging.', test: s => s.stats.chefRun >= 3 },
-  { id: 'kitchens', name: 'Zes keukens', info: 'Alle zes keukens gezien.', test: s => Object.keys(s.stats.kitchens).length >= 6 },
-  { id: 'level10', name: 'Level 10', info: 'Level 10 bereikt.', test: s => s.level >= 10 },
-  { id: 'level25', name: 'Level 25', info: 'Level 25 bereikt.', test: s => s.level >= 25 },
-  { id: 'level50', name: 'Level 50', info: 'Level 50 bereikt.', test: s => s.level >= 50 },
-  { id: 'level100', name: 'Level 100', info: 'Level 100 bereikt.', test: s => s.level >= 100 },
-  { id: 'allfruit', name: 'Fruitmand', info: `Alle ${ORDER.length} fruitsoorten ontgrendeld.`, test: s => ORDER.every(k => s.owned.includes(k)) },
-  { id: 'weekend', name: 'Weekendwinnaar', info: 'Een weekendspel gewonnen.', test: s => s.stats.weekendWins >= 1 },
-  { id: 'streak7', name: 'Week van sap', info: 'Zeven dagen op rij gespeeld.', test: s => (s.stats.bestStreak || 0) >= 7 },
-  { id: 'daily10', name: 'Dagelijkse kost', info: 'Tien keer het Mes van de dag gespeeld.', test: s => s.stats.dailyPlayed >= 10 },
-  { id: 'gold', name: 'Gouden fruit', info: 'Een fruit met een gouden medaille (50 levels).', test: s => ORDER.concat(LATE).some(k => isGold(k)) },
-  { id: 'missions20', name: 'Plichtsbewust', info: '20 dagopdrachten volbracht.', test: s => s.stats.missionsDone >= 20 },
-  { id: 'stamps100', name: 'Stempelaar', info: '100 stempels op de Fruitkaart.', test: s => totalStamps() >= 100 },
-  { id: 'rows10', name: 'Tien manden', info: `Tien levels met alle ${ORDER.length} fruitsoorten uitgespeeld.`, test: s => fullRows() >= 10 },
-  { id: 'families10', name: 'Familiemens', info: 'Tien familie-badges.', test: s => Object.keys(s.families).reduce((a, n) => a + s.families[n].length, 0) >= 10 },
-  { id: 'medal', name: 'Eerste medaille', info: 'Een fruit met tien levels uitgespeeld.', test: s => ORDER.concat(LATE).some(k => fruitMedal(k)) },
-  { id: 'inter10', name: 'Tussendoortje', info: 'Tien tussenspelletjes gespeeld.', test: s => (s.stats.interDone || 0) >= 10 },
-  { id: 'solo5', name: 'Muntenspeler', info: 'Vijf losse spelletjes met een munt gespeeld.', test: s => (s.stats.solo || 0) >= 5 },
-  { id: 'plusser', name: 'Plusser', info: "Don't Slice Me! Plus geprobeerd.", test: s => !!(s.plus && s.plus.used) },
+  { id: 'first', name: 'Eerste snede', sap: 100, go: 'home', rule: 'Speel je eerste poging.', test: s => s.runs >= 1, prog: s => [s.runs, 1] },
+  { id: 'combo3', name: 'Combo ×3', sap: 100, go: 'home', rule: 'Pak tien suikerklontjes op rij zonder gesneden te worden: dat is combo ×3.', test: s => s.stats.bestCombo >= 10, prog: s => [s.stats.bestCombo || 0, 10] },
+  { id: 'fever10', name: 'Koortsig', sap: 100, go: 'home', rule: 'Start tien keer Fruit Fever.', test: s => (s.stats.fevers || 0) >= 10, prog: s => [s.stats.fevers || 0, 10] },
+  { id: 'inter10', name: 'Tussendoortje', nm: 'Tussen­doortje', sap: 100, go: 'games', rule: 'Speel tien tussenspelletjes: tussen de levels of als los spelletje.', test: s => (s.stats.interDone || 0) >= 10, prog: s => [s.stats.interDone || 0, 10] },
+  { id: 'medal', name: 'Eerste medaille', sap: 100, go: 'kaart', rule: 'Speel tien levels uit met hetzelfde fruit: dan krijgt het een medaille.', test: s => ORDER.concat(LATE).some(k => fruitMedal(k)), prog: () => [bestFruitLevels(), 10] },
+  { id: 'level10', name: 'Level 10', sap: 100, go: 'home', rule: 'Haal level 10.', test: s => s.level >= 10, prog: s => [s.level, 10] },
+  { id: 'level25', name: 'Level 25', sap: 250, go: 'home', rule: 'Haal level 25.', test: s => s.level >= 25, prog: s => [s.level, 25] },
+  { id: 'kitchens', name: 'Zes keukens', sap: 250, fx: 'platen', go: 'home', rule: 'Speel in alle zes keukens: om de vijf levels kom je in een andere keuken.', test: s => Object.keys(s.stats.kitchens).length >= 6, prog: s => [Object.keys(s.stats.kitchens || {}).length, 6] },
+  { id: 'level50', name: 'Level 50', sap: 500, go: 'home', rule: 'Haal level 50.', test: s => s.level >= 50, prog: s => [s.level, 50] },
+  { id: 'level100', name: 'Level 100', sap: 1000, go: 'home', rule: 'Haal level 100.', test: s => s.level >= 100, prog: s => [s.level, 100] },
+  { id: 'streak7', name: 'Week van sap', sap: 250, go: 'today', rule: 'Speel zeven dagen op rij.', test: s => (s.stats.bestStreak || 0) >= 7, prog: s => [s.stats.bestStreak || 0, 7] },
+  { id: 'daily10', name: 'Dagelijkse kost', nm: 'Dage­lijkse kost', sap: 250, go: 'games', rule: 'Speel tien keer het Mes van de dag (Spelen › Dagmes).', test: s => s.stats.dailyPlayed >= 10, prog: s => [s.stats.dailyPlayed || 0, 10] },
+  { id: 'missions20', name: 'Plichtsbewust', nm: 'Plichts­bewust', sap: 250, go: 'today', rule: 'Maak 20 dagopdrachten af.', test: s => s.stats.missionsDone >= 20, prog: s => [s.stats.missionsDone || 0, 20] },
+  { id: 'runs100', name: 'Honderd pogingen', sap: 250, go: 'home', rule: 'Speel 100 pogingen.', test: s => s.runs >= 100, prog: s => [s.runs, 100] },
+  { id: 'solo5', name: 'Muntenspeler', nm: 'Munten­speler', sap: 250, go: 'games', rule: 'Speel vijf losse spelletjes met een munt (Spelen › Dagmes).', test: s => (s.stats.solo || 0) >= 5, prog: s => [s.stats.solo || 0, 5] },
+  { id: 'near30', name: 'Scheerlijn', nm: 'Scheer­lijn', sap: 250, go: 'home', rule: 'Haal 30 keer "Net niet!" in één poging.', test: s => s.stats.nearRun >= 30, prog: s => [s.stats.nearRun || 0, 30] },
+  { id: 'wraak', name: 'Wraak', sap: 250, fx: 'posters', go: 'home', rule: 'Ontwijk je aartsvijand drie keer in één poging. Je aartsvijand is het gevaar dat jou het vaakst raakte: je herkent het aan zijn paarse waarschuwingslijn.', test: s => (s.stats.revenge || 0) >= 1, prog: s => [Math.min(3, s.stats.revengeBest || 0), 3] },
+  { id: 'duel10', name: 'Duellist', sap: 250, go: 'duels', rule: 'Win 25 duels. Duels tegen De Chef tellen ook, en die kun je altijd spelen, ook offline.', test: s => (s.stats.duelWins || 0) >= 25, prog: s => [s.stats.duelWins || 0, 25] },
+  { id: 'weekend', name: 'Weekendwinnaar', nm: 'Weekend­winnaar', sap: 250, go: 'games', rule: 'Win een weekendspel: op zaterdag en zondag onder Spelen › Dagmes.', test: s => s.stats.weekendWins >= 1, prog: s => [s.stats.weekendWins || 0, 1] },
+  { id: 'rivaal', name: 'Inhaler', sap: 250, go: 'tourney', rule: 'Haal een rivaal in, of eindig een week in de top 10 van de Oefenladder (Spelen › Toernooi). Dat kan ook offline.', test: s => (s.stats.rivalsPassed || 0) >= 1 || (s.stats.ladderTop10 || 0) >= 1, prog: s => [(s.stats.rivalsPassed || 0) + (s.stats.ladderTop10 || 0), 1] },
+  { id: 'eigenkeuken', name: 'Eigen keuken', sap: 100, go: 'keuken', rule: 'Koop je eerste toestel in Jouw Keuken (Vandaag › Keuken).', test: () => kitchenLevels() >= 1, prog: () => [kitchenLevels(), 1] },
+  { id: 'chef3', name: 'Chefkok', sap: 250, go: 'home', rule: 'Kom De Chef drie keer tegen in één poging.', test: s => s.stats.chefRun >= 3, prog: s => [s.stats.chefRun || 0, 3] },
+  { id: 'orders10', name: 'Leverancier', nm: 'Leve­ran­cier', sap: 500, go: 'keuken', rule: 'Lever tien bestellingen af aan de chefs in Jouw Keuken.', test: s => (s.stats.ordersDone || 0) >= 10, prog: s => [s.stats.ordersDone || 0, 10] },
+  { id: 'seizoen', name: 'Seizoensheld', nm: 'Seizoens­held', sap: 500, go: 'season', rule: 'Haal alle zes hoofdstukken van een seizoen (Spelen › Seizoen).', test: s => !!(s.season && s.season.done) || Object.values(s.seasonForms || {}).some(v => v >= 6), prog: s => [Math.max(s.season && Array.isArray(s.season.cleared) ? s.season.cleared.length : 0, ...Object.values(s.seasonForms || {}).map(v => +v || 0)), 6] },
+  { id: 'sterren', name: 'Sterrenzaak', nm: 'Sterren­zaak', sap: 1000, go: 'keuken', rule: 'Maak van je keuken een Sterrenzaak: 15 toestelniveaus samen.', test: () => kitchenLevels() >= 15, prog: () => [kitchenLevels(), 15] },
+  { id: 'stamps100', name: 'Stempelaar', nm: 'Stempe­laar', sap: 250, go: 'kaart', rule: 'Verzamel 100 stempels op de Fruitkaart.', test: () => totalStamps() >= 100, prog: () => [totalStamps(), 100] },
+  { id: 'families10', name: 'Familiemens', nm: 'Familie­mens', sap: 250, go: 'kaart', rule: 'Verdien tien familie-badges op de Fruitkaart.', test: s => famBadges(s) >= 10, prog: s => [famBadges(s), 10] },
+  { id: 'gold', name: 'Gouden fruit', sap: 500, go: 'kaart', rule: 'Speel 50 levels uit met hetzelfde fruit: dan krijgt het een gouden medaille.', test: () => ORDER.concat(LATE).some(k => isGold(k)), prog: () => [bestFruitLevels(), 50] },
+  { id: 'rows10', name: 'Tien manden', sap: 1000, go: 'kaart', rule: `Speel tien levels uit met alle ${ORDER.length} gewone fruitsoorten.`, test: () => fullRows() >= 10, prog: () => [fullRows(), 10] },
+  { id: 'allfruit', name: 'Fruitmand', nm: 'Fruit­mand', sap: 1000, go: 'fruit', rule: `Ontgrendel alle ${ORDER.length} gewone fruitsoorten (Verzamel › Fruit).`, test: s => ORDER.every(k => s.owned.includes(k)), prog: s => [ORDER.filter(k => s.owned.includes(k)).length, ORDER.length] },
 ];
+const PLUSSER_SEAL = 'plusser'; // save.stickers.plusser stays: a Bedankt-zegel for its owners, no reward, never counted
+// The six sets (sap per set: 250 for the quick first one, 500 for the others) and the milestones (claimed stickers)
+const ALBUM_SETS = [
+  { k: 'hapjes', name: 'Eerste hapjes', col: '#ffb3c7', ids: ['first', 'combo3', 'fever10', 'inter10', 'medal'], fx: 'etiket', title: 'Proever', sap: 250 },
+  { k: 'opweg', name: 'Op weg naar boven', col: '#9ee37d', ids: ['level10', 'level25', 'kitchens', 'level50', 'level100'], fx: 'drop', title: 'Hoogvlieger', sap: 500 },
+  { k: 'elkedag', name: 'Elke dag', col: '#ffcf6b', ids: ['streak7', 'daily10', 'missions20', 'runs100', 'solo5'], fx: 'ontbijt', title: 'Vaste klant', sap: 500 },
+  { k: 'lef', name: 'Lef en wedstrijd', col: '#ff8a6b', ids: ['near30', 'wraak', 'duel10', 'weekend', 'rivaal'], fx: 'vonken', title: 'Waaghals', sap: 500 },
+  { k: 'chef', name: 'Chef en keuken', col: '#f4e2c4', ids: ['eigenkeuken', 'chef3', 'orders10', 'seizoen', 'sterren'], fx: 'diploma', title: 'Souschef', sap: 500 },
+  { k: 'kaart', name: 'Fruitkaart', col: '#8fd3ff', ids: ['stamps100', 'families10', 'gold', 'rows10', 'allfruit'], fx: 'foto', title: 'Fruitkenner', sap: 500 },
+];
+const ALBUM_MILES = [{ n: 3, r: { card: 1 } }, { n: 10, r: { pin: 2, sap: 500 } }, { n: 20, r: { pin: 3, sap: 1000 } }, { n: 30, r: { fx: 'levend', title: 'Albumkoning', title2: 'Albumkoningin', sap: 2000 } }];
+// The looks the album gives. live: it works in this version (only the Fruitetiket); the others are recorded as yours and arrive next version.
+const ALBUM_FX = {
+  etiket: { name: 'Fruitetiket', live: true, what: 'Plak een sticker uit je album als ovaal etiket op je fruit. Hij vliegt mee weg als je gesneden wordt, net als je hoedje.' },
+  drop: { name: 'Dropveterbalk', what: 'Je levelbalk wordt een gedraaide dropveter. Bij elk nieuw level legt hij een knoopje; hij vult even snel.' },
+  ontbijt: { name: 'Ontbijttafel', what: 'Een bordskin met croissantkruimels, een eierdopje en ochtendzon. Je keukenbonussen blijven gelden.' },
+  vonken: { name: 'Net-niet-vonken', what: 'Gouden vonkjes en een klein "tsjing" bij elke "Net niet!". De regel voor "Net niet!" verandert niet.' },
+  diploma: { name: 'Diploma van De Chef', what: 'In Jouw Keuken hangt een ingelijst diploma "Erkend door De Chef" met jouw naam, en De Chef tikt tegen zijn muts als hij verschijnt.' },
+  foto: { name: 'Groepsfoto', what: 'Al je fruit, elk met zijn hoedje, samen in een mand: als achtergrond of op je deelkaart. Hij groeit mee met elk nieuw fruit.' },
+  levend: { name: 'Levende sticker', what: 'Je fruit krijgt een witte stickerrand; als je gesneden wordt, pelt hij los en krult hij op als een sticker. De rand ligt binnen je fruit.' },
+  platen: { name: 'Platenspeler', what: 'Kies zelf welke keukenmuziek speelt, of laat ze de keuken volgen.' },
+  posters: { name: 'Gezocht-posters', what: 'Voor elke aartsvijand die je wreekte, hangt een poster in je album.' },
+};
+const FX_NEXT = 'Komt in de volgende versie. Dan is het meteen van jou: wat je nu ontvangt, blijft bewaard.';
+const STK = {}, STK_SET = {}; STICKERS.forEach(s => { STK[s.id] = s; }); ALBUM_SETS.forEach(S => S.ids.forEach((id, i) => { STK_SET[id] = S; STK[id].i = i + 1; }));
+const ALBUM_SAP = { stickers: STICKERS.reduce((a, s) => a + s.sap, 0), sets: ALBUM_SETS.reduce((a, S) => a + S.sap, 0), miles: ALBUM_MILES.reduce((a, M) => a + (M.r.sap || 0), 0) };
+const stkCol = id => id === 'gold' ? '#ffd54a' : (STK_SET[id] || { col: '#ffd54a' }).col;
+const albumGot = () => STICKERS.filter(s => save.stkClaimed[s.id]).length; // claimed stickers: what the milestones count
+const albumPins = () => save.albumMiles[20] ? 3 : save.albumMiles[10] ? 2 : save.albumMiles[3] ? 1 : 0;
+const stkState = id => save.stkClaimed[id] ? 'got' : save.stickers[id] ? 'ready' : 'lock';
+const stkXpOk = id => !!(save.stkCtx[id] && typeof save.stkCtx[id] === 'object'); // earned after the update: only then +25 Fruitpas-XP
+const stkReward = s => Object.assign({ sap: s.sap }, s.fx ? { fx: s.fx } : {});
+const setReward = S => ({ sap: S.sap, title: S.title, fx: S.fx });
+function stkProg(id) { // [now, goal] for the bar under a locked sticker; an earned sticker is full
+  const s = STK[id]; let p = [0, 1]; try { p = s.prog(save); } catch (e) {} const goal = Math.max(1, +p[1] || 1), cur = save.stickers[id] ? goal : Math.max(0, Math.min(goal, Math.floor(+p[0] || 0)));
+  return [cur, goal];
+}
+const etiketKey = () => { const id = save.show && save.show.label; return id && STK[id] && save.stkClaimed[id] && save.albumFx.etiket && !save.albumFxOff.includes('etiket') ? id : ''; };
+const ETK_SPOT = { x: .48, y: .4, rx: .33, ry: .235, rot: -.2 }; // in fruit radii: the label sits low on the right cheek, wholly inside the fruit (.955 of the radius)
+const ETK = { drawn: 0 };
+function drawEtiket(id, r, dy) { // the Fruitetiket in fruit-local coordinates, stuck over the cheek like a real fruit sticker; purely visual (dy: back from the face offset)
+  const E = ETK_SPOT; ctx.save(); ctx.translate(E.x * r, E.y * r + (dy || 0)); ctx.rotate(E.rot);
+  ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(r * .02, r * .03, E.rx * r, E.ry * r, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#fffaf0'; ctx.beginPath(); ctx.ellipse(0, 0, E.rx * r, E.ry * r, 0, 0, TAU); ctx.fill();
+  ctx.lineWidth = Math.max(1, r * .045); ctx.strokeStyle = stkCol(id); ctx.beginPath(); ctx.ellipse(0, 0, E.rx * r * .86, E.ry * r * .8, 0, 0, TAU); ctx.stroke();
+  drawEmblem(ctx, id, 0, 0, E.ry * r * 1.55, '#3a2010', 3); ctx.restore(); ctx.beginPath(); ETK.drawn++; // a clean path: the Koksmuts fills the current path
+}
+const MON_NL = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
+const MON_EN = { januari: 'January', februari: 'February', maart: 'March', april: 'April', mei: 'May', juni: 'June', juli: 'July', augustus: 'August', september: 'September', oktober: 'October', november: 'November', december: 'December' };
+const fmtDay = dk => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dk || '')); return m ? `${+m[3]} ${MON_NL[+m[2] - 1]}` : ''; };
+function stkDiary(id) { // the dagboekregel: the day, and for a sticker earned in this version the fruit and the level
+  const d = fmtDay(save.stickers[id]), c = save.stkCtx[id]; if (!d) return '';
+  return c && FRUITS[c.f] && c.l >= 1 ? `Behaald op ${d}, met de ${FRUITS[c.f].name} op level ${c.l}.` : `Behaald op ${d}.`;
+}
+// ---- Claiming. Each claim checks its own guard, so pressing twice (or Ontvang alles after a single tap) pays once.
+function albumGive(r, title, sub, quiet) { // quiet: no pop-up (a sticker claimed on its sheet sticks itself in the album instead)
+  const q = quiet && !rwBatch; if (q) rwBatch = []; try { giveReward(r, title, sub); } finally { if (q) rwBatch = null; }
+}
+function claimSticker(id, o) {
+  const s = STK[id]; if (!s || !save.stickers[id] || save.stkClaimed[id]) return false;
+  const xp = stkXpOk(id); save.stkClaimed[id] = dayKey(); albumGive(stkReward(s), 'Sticker ontvangen', s.name, o && o.quiet);
+  if (xp) addPassXp(STK_XP); track('claim', 'sticker'); store(); return true;
+}
+function claimSet(k) {
+  const S = ALBUM_SETS.find(x => x.k === k); if (!S || save.setClaimed[k] || !S.ids.every(id => save.stkClaimed[id])) return false;
+  save.setClaimed[k] = dayKey(); albumGive(setReward(S), 'Set vol!', S.name);
+  if (S.fx === 'etiket' && !save.show.label) save.show.label = S.ids.find(id => save.stkClaimed[id]) || ''; // review: the Fruitetiket goes on your fruit at once (Aanpassen changes it, the Kast switches it off)
+  track('claim', 'albumset'); store(); return true;
+}
+function claimMile(n) {
+  const M = ALBUM_MILES.find(x => x.n === +n); if (!M || save.albumMiles[M.n] || albumGot() < M.n) return false;
+  save.albumMiles[M.n] = dayKey(); albumGive(M.r, `Mijlpaal: ${M.n} stickers`); if (M.n === 3 && !save.show.pins.length) { const first = STICKERS.find(s => save.stkClaimed[s.id]); if (first) save.show.pins = [first.id]; } track('claim', 'albummile'); store(); return true;
+}
+function albumClaimables() { // what waits in the album, in claim order: stickers, then the sets and milestones they complete (also in the same press)
+  const out = [], have = new Set(STICKERS.filter(s => save.stkClaimed[s.id]).map(s => s.id));
+  for (const s of STICKERS) if (save.stickers[s.id] && !save.stkClaimed[s.id]) { have.add(s.id); out.push({ ak: 'stk:' + s.id, label: s.name, r: stkReward(s), xp: stkXpOk(s.id), claim: () => claimSticker(s.id) }); }
+  for (const S of ALBUM_SETS) if (!save.setClaimed[S.k] && S.ids.every(id => have.has(id))) out.push({ ak: 'set:' + S.k, label: `Set ${S.name}`, r: setReward(S), claim: () => claimSet(S.k) });
+  for (const M of ALBUM_MILES) if (!save.albumMiles[M.n] && have.size >= M.n) out.push({ ak: 'mile:' + M.n, label: `Mijlpaal ${M.n}`, r: M.r, claim: () => claimMile(M.n) });
+  return out;
+}
+function albumChip(x) { // one chip on the album's own bar: what it is and its sap
+  const [k, v] = x.ak.split(':');
+  if (k === 'stk') return `${STK[v].name} +${STK[v].sap}`;
+  if (k === 'set') { const S = ALBUM_SETS.find(y => y.k === v); return `Set ${S.name}: ${ALBUM_FX[S.fx].name} +${S.sap}`; }
+  const M = ALBUM_MILES.find(y => y.n === +v); return M.r.sap ? `Mijlpaal ${M.n}: +${fmtSap(M.r.sap)}` : `Mijlpaal ${M.n}: je kaartje`;
+}
+function albumChips(list) { // the album's own bar: a chip per item, or for a long list (an old save) one chip for the stickers, at most three gold ones and "+N meer" (five chips)
+  if (list.length <= 6) return list.map(albumChip);
+  const st = list.filter(x => x.ak.startsWith('stk:')), gold = list.filter(x => !x.ak.startsWith('stk:')), out = [];
+  if (st.length === 1) out.push(albumChip(st[0])); else if (st.length) out.push(`${st.length} stickers +${fmtSap(st.reduce((a, x) => a + (x.r.sap || 0), 0))}`);
+  gold.slice(0, 3).forEach(x => out.push(albumChip(x))); if (gold.length > 3) out.push(`+${gold.length - 3} meer`);
+  return out;
+}
+function albumGetLine(ready) { // the album's bar: what you get, in one line instead of a grid of tiles (at most five things, then "en nog N")
+  const items = mergeRewards(previewRewards(ready.map(x => x.r))).flatMap(r => rewardItems(r)).map(it => it.label); if (!items.length) return '';
+  const shown = items.slice(0, 5).map(t => `<span>${escH(t)}</span>`); if (items.length > 5) shown.push(`<span>en nog ${items.length - 5}</span>`);
+  return `<div class="small alget"><span>Dit krijg je:</span> ${shown.join('<span>, </span>')}<span>.</span></div>`;
+}
+function albumSummary(list) { // one chip on the big bar: Album: 4 stickers + set Elke dag + mijlpaal 10
+  const n = list.filter(x => x.ak.startsWith('stk:')).length, parts = [];
+  if (n) parts.push(`${n} sticker${n > 1 ? 's' : ''}`);
+  for (const x of list) { const [k, v] = x.ak.split(':'); if (k === 'set') parts.push(`set ${ALBUM_SETS.find(y => y.k === v).name}`); else if (k === 'mile') parts.push(`mijlpaal ${v}`); }
+  return `Album: ${parts.join(' + ')}`;
+}
+// ---- Earning. checkStickers marks what you earned (save.stickers[id] = the day, as always) and records the diary line's fruit and level.
+const inRunState = () => ['play', 'dying', 'over', 'pause', 'continue', 'ad'].includes(G.state);
 function checkStickers() {
   const got = [];
-  for (const s of STICKERS) { if (save.stickers[s.id]) continue; let ok = false; try { ok = !!s.test(save); } catch (e) {} if (ok) { save.stickers[s.id] = dayKey(); got.push(s.name); } }
-  if (got.length) { markFresh('album'); store(); G.note = 'Sticker: ' + got.join(', '); G.noteT = 3500; if (G.state !== 'play') showReward({ stickers: got }, got.length > 1 ? 'Nieuwe stickers' : 'Nieuwe sticker', 'Je vindt ze terug in het album.'); }
-  return got;
+  for (const s of STICKERS) { if (save.stickers[s.id]) continue; let ok = false; try { ok = !!s.test(save); } catch (e) {} if (ok) { save.stickers[s.id] = dayKey(); if (save.albumSince) save.stkCtx[s.id] = { f: inRunState() && FRUITS[G.fruit] ? G.fruit : save.fruit, l: inRunState() && G.level >= 1 ? G.level : save.level }; got.push(s.id); } }
+  if (got.length) { store(); G.note = 'Sticker: ' + got.map(id => STK[id].name).join(', '); G.noteT = 3500; stkNotify(got); }
+  return got.map(id => STK[id].name);
+}
+function albumCatchUp(pop) { // once per save (v0.32.1): what you earned before this version becomes claimable, sap only; one card says so
+  if (save.albumSince) return 0;
+  for (const s of STICKERS) { if (save.stickers[s.id]) continue; let ok = false; try { ok = !!s.test(save); } catch (e) {} if (ok) save.stickers[s.id] = dayKey(); }
+  save.albumSince = dayKey(); store(); const n = STICKERS.filter(s => save.stickers[s.id] && !save.stkClaimed[s.id]).length;
+  if (pop && n) stkCatch = true; return n; // at boot: the card waits for the first screen (openMenu flushes it after the one-time hint about the bar)
+}
+// A sticker earned in a run, or settled on the game-over screen, cannot show its card there: it waits in stkPend for the next screen outside a run
+// (also the next game-over screen; never the pause or the ad). Opnieuw from the game-over screen names it once in the next run's note. In the album
+// it just lights up. stkCatch: the old save's one-time card. Neither is saved: the sticker itself waits in the album and its badge is red.
+var stkPend = [], stkCatch = false;
+function stkNotify(ids) { // in a run: the short note on the board and the card later; in the album: the sticker just lights up; elsewhere: a card with buttons
+  if (G.state === 'album') { renderAlbum(); return; } // also while the Album opens (curScreen follows right after)
+  if (inRunState()) { const seen = G.state !== 'over' && G.state !== 'ad'; for (const id of ids) if (!stkPend.some(p => p.id === id)) stkPend.push({ id, noted: seen }); return; } // seen: the note on the board named it
+  if (rwBatch) { setTimeout(() => stkPopup(ids), 0); return; } // after the Ontvang alles card, not inside it
+  stkPopup(ids);
+}
+function stkScreen(id) { if (id && id !== 'scr-pause' && id !== 'scr-ad' && id !== 'scr-menu') stkFlush(); } // scr-menu: openMenu flushes after its one-time hint
+function stkFlush() { // the stickers that waited get their card now (one card), unless the hint about the bar is up (its Oké flushes)
+  if (!stkPend.length && !stkCatch) return false; if (!$('#navhint').hidden) return false;
+  const ids = stkPend.map(p => p.id).filter(id => save.stickers[id] && !save.stkClaimed[id]), all = stkCatch; stkPend = []; stkCatch = false;
+  if (curScreen === 'scr-album' || (!ids.length && !all)) return false; // in the album they are lit, with the album's own Ontvang alles
+  if (rwBatch) { setTimeout(() => stkPopup(all ? null : ids), 0); return true; }
+  return stkPopup(all ? null : ids);
+}
+function stkRunNote() { // Opnieuw straight from the game-over screen: the stickers it settled are named once, after the run's own note (never over the coach)
+  const fresh = stkPend.filter(p => !p.noted && save.stickers[p.id] && !save.stkClaimed[p.id]); if (!fresh.length) return; fresh.forEach(p => { p.noted = true; });
+  G.noteNext = fresh.length === 1 ? `Nieuwe sticker in je album: ${STK[fresh[0].id].name}` : `${fresh.length} nieuwe stickers in je album`;
+}
+function stkPopup(ids) {
+  const ready = STICKERS.filter(s => save.stickers[s.id] && !save.stkClaimed[s.id]); if (!ready.length) return false;
+  const sap = albumClaimables().reduce((a, x) => a + (x.r.sap || 0), 0), view = id => () => { goTo('album'); if (id) openStk(id); };
+  if (ready.length === 1 && ids && ids.length === 1 && ready[0].id === ids[0]) { const s = ready[0]; return showAction({ stk: [s.id] }, 'Nieuwe sticker', `Hij wacht in je album: +${s.sap} sap.`, [[`Ontvang +${s.sap}`, () => { claimSticker(s.id); }, true], ['Bekijk in album', view(s.id)]]); }
+  return showAction({ stk: ready.map(s => s.id), stkMax: innerHeight < 700 ? 3 : innerHeight < 800 ? 4 : 6 }, `${ready.length} sticker${ready.length > 1 ? 's' : ''} klaar`, `Samen ${fmtSap(sap)} sap in je album.`, [['Ontvang alles', () => { claimAll('album'); }, true], ['Bekijk in album', view('')]]); // a smaller phone: three or four stickers and "+N meer", so nothing hides behind a scroll
+}
+function showAction(r, title, sub, acts) { // a reward card with its own buttons (never merged into an Ontvang alles card, no timer)
+  const items = rewardItems(r || {}); if (!items.length) return false; rwQueue.push({ items, title, sub: sub || '', acts }); if ($('#reward').hidden) nextReward(); return true;
+}
+// ---- The album page (Verzamel > Album)
+let albumOpenSets = new Set(), albumFlap = '';
+const STK_EN_NM = { inter10: 'Snack break', near30: 'Razor’s edge', rivaal: 'Over­taker', families10: 'Family person', sterren: 'Starred house', runs100: 'A hundred runs', weekend: 'Weekend winner', eigenkeuken: 'Own kitchen' };
+const stkNm = s => lang === 'en' ? (STK_EN_NM[s.id] || tr(s.name)) : (s.nm || s.name);
+function stkBtn(s, mini) { // a sticker: its disc (the emblem, a progress ring while locked), its whole name and its state
+  const st = stkState(s.id), [cur, goal] = stkProg(s.id), lab = st === 'got' ? 'binnen' : st === 'ready' ? `+${s.sap}` : `${cur}/${goal}`;
+  return `<button type="button" class="sk ${st}${albumFlap === s.id ? ' flap' : ''}${mini ? ' mini' : ''}" data-stk="${s.id}" style="--c:${stkCol(s.id)};--p:${Math.round(100 * cur / goal)}" aria-label="${escH(s.name)}"><span class="disc">${embSvg(s.id)}</span>${mini ? '' : `<span class="nm">${escH(stkNm(s))}</span><span class="st">${lab}</span>`}${albumFlap === s.id ? `<span class="fly">+${s.sap}</span>` : ''}</button>`;
+}
+function albumCardHTML() { // Zo zien vrienden je: your fruit with its Fruitetiket, your name, worn title and pins; the milestones under it
+  const n = albumGot(), pins = albumPins(), wt = wornTitle(), card = !!save.albumMiles[3];
+  const pinned = (save.show.pins || []).filter(id => STK[id] && save.stkClaimed[id]).slice(0, pins);
+  let slots = pinned.map(id => `<span class="al-pin" style="--c:${stkCol(id)}" data-stk="${id}">${embSvg(id)}</span>`).join('');
+  for (let i = pinned.length; i < 3; i++) slots += i < pins ? '<span class="al-pin empty"><span>leeg</span></span>' : `<span class="al-pin empty"><span>bij ${[3, 10, 20][i]}</span></span>`;
+  const mark = M => save.albumMiles[M.n] ? 'ok' : n >= M.n ? 'can' : '', pos = M => (M.n / 30 * 100).toFixed(1);
+  const lab = { 3: 'je kaartje', 10: '2e plekje', 20: '3e plekje', 30: 'Levende sticker' };
+  return `<div class="sec al-cardsec" id="album-card"><h3>Zo zien vrienden je<small>${n}/30 stickers</small></h3>
+    <div class="al-card${card ? '' : ' off'}"><canvas id="album-fruit" width="128" height="128"></canvas><span class="who"><b>${escH(save.name || 'Jij')}</b><span class="tt">${wt ? escH(wt) : 'geen titel'}</span><span class="al-pins">${slots}</span></span>${card ? '<button type="button" class="al-edit" id="btn-album-edit">Aanpassen ›</button>' : ''}</div>
+    <div class="small">${card ? 'Nu zie je dit kaartje alleen zelf. Later, met de vriendenserver, zien je vrienden het in hun lijst en bij een duel.' : 'Bij 3 stickers in je album krijg je dit kaartje.'}</div>
+    <div class="al-miles"><i style="width:${Math.min(100, n / 30 * 100).toFixed(1)}%"></i>${ALBUM_MILES.map(M => `<b class="${mark(M)}" style="left:${pos(M)}%"></b>`).join('')}</div>
+    <div class="al-mlab">${ALBUM_MILES.map(M => `<button type="button" class="${mark(M)}" data-mile="${M.n}"><b>${M.n}${save.albumMiles[M.n] ? ' ✓' : ''}</b><span>${lab[M.n]}</span>${M.r.sap ? `<span> +${fmtSap(M.r.sap)}</span>` : ''}</button>`).join('')}</div></div>`;
+}
+function setPrizeHTML(S, got) { // the row under a set: its prize; a tap opens the preview (with Ontvang when the set is full)
+  const can = !save.setClaimed[S.k] && got === 5, done = !!save.setClaimed[S.k];
+  return `<button type="button" class="al-prize${can ? ' can' : ''}" data-setpv="${S.k}"><span class="pt">${embSvg(S.fx)}</span><span class="t"><span>${done ? 'Ontvangen:' : can ? 'Klaar:' : 'Set vol:'}</span> <b>${ALBUM_FX[S.fx].name}</b><span> + titel "${S.title}" + ${S.sap} sap</span></span><span class="go">›</span></button>`;
+}
+function renderAlbum() {
+  const body = $('#album-body'); if (!body) return;
+  const sets = ALBUM_SETS.map(S => { const got = S.ids.filter(id => save.stkClaimed[id]).length;
+    if (save.setClaimed[S.k] && !albumOpenSets.has(S.k)) return `<button type="button" class="al-fold" data-unfold="${S.k}"><span class="pt">${embSvg(S.fx)}</span><span class="t"><span>${escH(S.name)}</span> · 5/5<small>${ALBUM_FX[S.fx].name}, titel en ${S.sap} sap ontvangen · tik om te openen</small></span><span class="ok">✓</span></button>`;
+    return `<div class="sec al-set${got === 5 ? ' done' : ''}" id="set-${S.k}"><h3>${escH(S.name)}<small>${got === 5 ? '5/5 · vol!' : `${got}/5`}</small></h3><div class="al-stk">${S.ids.map(id => stkBtn(STK[id])).join('')}</div>${setPrizeHTML(S, got)}</div>`; }).join('');
+  const seal = save.stickers[PLUSSER_SEAL] ? `<div class="sec al-seal" id="album-seal"><span class="sk got" style="--c:#c9a7ff"><span class="disc">${embSvg('plusser')}</span></span><span class="t"><b>Bedankt-zegel</b><small>Je probeerde Don't Slice Me! Plus. Dank je wel! Dit zegel telt niet mee voor het album en geeft niets.</small></span></div>` : '';
+  body.innerHTML = '<div class="claimall" id="album-all" hidden></div>' + albumCardHTML() + sets + seal + '<div class="small" id="album-moved">De cijfers en de doorsnede van elk fruit vind je nu bij Fruit (tik op een fruit); je titels draag je in de Kast.</div>';
+  mountClaimBar($('#album-all'), 'album', () => { renderAlbum(); updateHub(curScreen); });
+  const cv = $('#album-fruit'); if (cv) renderIcon(cv.getContext('2d'), save.fruit, 64, !save.albumMiles[3], { hat: wornHat(), label: etiketKey() });
+  albumFlap = '';
 }
 function openAlbum() {
-  settleRun(); G.state = 'album'; markSeen('album'); checkStickers(); const got = Object.keys(save.stickers).length;
-  const st = STICKERS.map(s => `<div class="fcard stk${save.stickers[s.id] ? ' sel' : ' locked'}" title="${s.info}"><span class="star">${save.stickers[s.id] ? '★' : '☆'}</span><span>${s.name}</span><span class="st">${save.stickers[s.id] ? 'behaald' : s.info}</span></div>`).join('');
-  $('#album-body').innerHTML = `<div class="sec"><h3>Stickers · ${got}/${STICKERS.length}</h3><div class="grid">${st}</div></div>` +
-    '<div class="small" id="album-moved">De cijfers en de doorsnede van elk fruit vind je nu bij Fruit (tik op een fruit); je titels draag je in de Kast.</div>';
+  settleRun(); G.state = 'album'; markSeen('album'); albumCatchUp(false); checkStickers(); renderAlbum();
   showScreen('scr-album'); pauseBtn.hidden = true;
 }
+$('#album-body').addEventListener('click', e => {
+  const t = e.target.closest ? e.target : null; if (!t) return; const sk = t.closest('[data-stk]'), sp = t.closest('[data-setpv]'), uf = t.closest('[data-unfold]'), ml = t.closest('[data-mile]');
+  if (t.closest('#btn-album-edit')) { SFX.click(); openShow(); return; }
+  if (sk && !sk.closest('#album-all')) { SFX.click(); openStk(sk.dataset.stk); return; }
+  if (sp) { SFX.click(); openAlbumPv('set', sp.dataset.setpv); return; }
+  if (ml) { SFX.click(); openAlbumPv('mile', +ml.dataset.mile); return; }
+  if (uf) { SFX.click(); const k = uf.dataset.unfold; albumOpenSets.add(k); renderAlbum(); const el = $('#set-' + k); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); }
+});
+// ---- The sticker sheet: what it is, its rule in one sentence, your progress, what you get and one button that fits its state
+let stkOpen = '';
+function stkSetLine(s) {
+  const S = STK_SET[s.id], got = S.ids.filter(id => save.stkClaimed[id]).length, last = got === 4 && !save.stkClaimed[s.id];
+  return `<div class="stkset">${last ? `<span>Dit is de laatste van de set</span> <b>${escH(S.name)}</b><span>.</span>` : `<span>Set</span> <b>${escH(S.name)}</b> <span>(${got}/5).</span>`} <span>Volle set:</span> <b>${ALBUM_FX[S.fx].name}</b><span>, titel "${S.title}" en ${S.sap} sap.</span> <button type="button" class="linkbtn" data-setpv="${S.k}">Bekijk de setprijs</button></div>`;
+}
+function stkBody(id) {
+  const s = STK[id], S = STK_SET[id], st = stkState(id), [cur, goal] = stkProg(id), left = goal - cur, gname = (() => { const g = String(GOTO[s.go] || s.go).split(':'); return NAV_SUB[g[1]] ? NAV_SUB[g[1]].name : NAV_TAB[g[0]] ? NAV_TAB[g[0]].name : ''; })();
+  const xp = st === 'lock' || (st === 'ready' && stkXpOk(id)), fx = s.fx ? ALBUM_FX[s.fx] : null, pins = albumPins(), pinned = (save.show.pins || []).includes(id), labeled = save.show.label === id;
+  const chips = st === 'got' ? '' : `<div class="cwait stkchips"><span class="gold">+${s.sap} sap</span>${xp ? `<span class="gold">+${STK_XP} Fruitpas-XP</span>` : ''}${fx ? `<span>${fx.name}</span>` : ''}</div>`;
+  let notes = '', btns = '';
+  if (st === 'ready' && !stkXpOk(id)) notes += '<p class="small">Deze sticker had je al voor deze versie: je krijgt het sap, geen Fruitpas-XP.</p>';
+  if (fx) notes += `<p class="small"><b>${fx.name}</b> <span>${FX_NEXT}</span></p>`;
+  if (st === 'lock') btns = `<button type="button" class="btn primary" data-go="${s.go}">Ga erheen: ${gname}</button><button type="button" class="btn ghost" data-close="1">Sluiten</button>`;
+  else if (st === 'ready') btns = `<button type="button" class="btn primary" data-claim="${id}">Ontvang ${s.sap} sap</button>`;
+  else {
+    btns = save.albumFx.etiket ? `<button type="button" class="btn" data-label="${id}">${labeled ? 'Van je fruit halen' : 'Op je fruit plakken'}</button>` : '';
+    btns += pins ? `<button type="button" class="btn" data-pin="${id}">${pinned ? 'Van je kaartje halen' : 'Op je kaartje prikken'}</button>` : '';
+    if (!save.albumFx.etiket) notes += '<p class="small">Op je fruit plakken kan met het Fruitetiket: de prijs van de set Eerste hapjes.</p>';
+    if (!pins) notes += '<p class="small">Op je kaartje prikken kan vanaf de mijlpaal van 3 stickers.</p>';
+    else if (!pinned && (save.show.pins || []).filter(x => STK[x] && save.stkClaimed[x]).length >= pins) notes += `<p class="small">Je kaartje is vol: prikken vervangt ${STK[save.show.pins.find(x => STK[x] && save.stkClaimed[x])].name}.</p>`;
+    if (labeled && save.albumFxOff.includes('etiket')) notes += '<p class="small">Het Fruitetiket staat uit in je Kast.</p>';
+    btns += '<button type="button" class="btn ghost" data-close="1">Sluiten</button>';
+  }
+  const day = st !== 'lock' ? stkDiary(id) : '';
+  return `<span class="stkbig ${st}" style="--c:${stkCol(id)}">${embSvg(id)}</span><span class="stkmeta">Set ${escH(S.name)} · sticker ${s.i} van 5</span><h2>${escH(stkNm(s))}</h2><p class="stkrule">${escH(s.rule)}</p>`
+    + `<div class="stkbar"><i style="width:${Math.round(100 * cur / goal)}%"></i></div><div class="stknum"><span>${cur} van ${goal}</span><span>${left > 0 ? `nog ${left}` : 'klaar!'}</span></div>`
+    + (day ? `<p class="small stkday">${escH(day)}</p>` : '') + chips + notes + stkSetLine(s) + `<div class="row stkacts">${btns}</div>`;
+}
+function openStk(id) { if (!STK[id]) return false; stkOpen = id; $('#stk-body').innerHTML = stkBody(id); $('#stkbox').firstElementChild.className = 'sheet stksheet ' + stkState(id); openSheet('stkbox'); return true; }
+function stkPin(id) { // a pin on your card: on or off; a full card lets go of its oldest pin
+  const max = albumPins(); if (!max || !save.stkClaimed[id]) return false; let p = (save.show.pins || []).filter(x => STK[x] && save.stkClaimed[x]);
+  if (p.includes(id)) p = p.filter(x => x !== id); else { p.push(id); while (p.length > max) p.shift(); } save.show.pins = p; store(); return true;
+}
+function stkLabel(id) { if (!save.albumFx.etiket || (id && !save.stkClaimed[id])) return false; save.show.label = save.show.label === id ? '' : id || ''; store(); return true; }
+$('#stk-body').addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('button') : null; if (!b) return; SFX.click(); const d = b.dataset;
+  if (d.close) { closeSheets(); return; }
+  if (d.go) { closeSheets(); goTo(d.go); return; }
+  if (d.setpv) { openAlbumPv('set', d.setpv); return; }
+  if (d.claim) { const id = d.claim; if (claimSticker(id, { quiet: true })) { SFX.collect(); albumFlap = id; } closeSheets(); if (curScreen === 'scr-album') renderAlbum(); updateHub(curScreen); return; }
+  if (d.label) { stkLabel(d.label); openStk(d.label); if (curScreen === 'scr-album') renderAlbum(); return; }
+  if (d.pin) { stkPin(d.pin); openStk(d.pin); if (curScreen === 'scr-album') renderAlbum(); }
+});
+$('#btn-stk-close').addEventListener('click', () => { SFX.click(); closeSheets(); });
+// ---- Aanpassen: your card's title, the sticker on your fruit (Fruitetiket) and your pins. Only fixed pictures and titles, no free text.
+function openShow() {
+  const claimed = STICKERS.filter(s => save.stkClaimed[s.id]), wt = wornTitle(), pins = albumPins(), pinned = (save.show.pins || []).filter(id => STK[id] && save.stkClaimed[id]);
+  const titles = ['<button type="button" class="achip' + (wt ? '' : ' on') + '" data-stitle="">Geen titel</button>'].concat((save.titles || []).map(t => `<button type="button" class="achip${wt === t ? ' on' : ''}" data-stitle="${escH(t)}">${escH(t)}</button>`)).join('');
+  const grid = (attr, on) => claimed.length ? `<div class="al-stk mini">${claimed.map(s => stkBtn(s, true).replace('data-stk=', `${attr}=`).replace('class="sk got', `class="sk got${on(s.id) ? ' on' : ''}`)).join('')}</div>` : '<div class="small">Nog geen stickers in je album.</div>';
+  const nmOf = id => `<span>${escH(lang === 'en' ? stkNm(STK[id]).replace(/­/g, '') : STK[id].name)}</span>`, lab = STK[save.show.label] && save.stkClaimed[save.show.label] ? save.show.label : ''; // review: say by name what is on your fruit and card
+  const now = (head, ids) => `<div class="small shnow"><b>${head}</b> ${ids.length ? ids.map(nmOf).join('<span>, </span>') : '<span>nog niets</span>'}</div>`;
+  const lbl = save.albumFx.etiket ? `${now('Op je fruit:', lab ? [lab] : [])}<div class="small">Tik op een sticker: die plakt als ovaal etiket op je fruit, in elke poging en in duels. Hij verandert niets aan het spel.</div>${grid('data-slabel', id => save.show.label === id)}<button type="button" class="achip${save.show.label ? '' : ' on'}" data-slabel="">Geen etiket</button>${save.albumFxOff.includes('etiket') ? '<div class="small">Het Fruitetiket staat nu uit in je Kast.</div>' : ''}` : '<div class="small">Het Fruitetiket krijg je met de set Eerste hapjes.</div>';
+  $('#show-body').innerHTML = `<div class="sec"><h3>Titel</h3><div class="achips">${titles}</div></div><div class="sec"><h3>Etiket op je fruit</h3>${lbl}</div><div class="sec"><h3>Stickers op je kaartje<small>${pinned.length} van ${pins}</small></h3>${pins ? `${now('Op je kaartje:', pinned)}<div class="small">Tik om te prikken of los te halen.</div>${grid('data-spin', id => pinned.includes(id))}` : '<div class="small">Vanaf de mijlpaal van 3 stickers.</div>'}</div>`;
+  openSheet('showbox');
+}
+$('#show-body').addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('button') : null; if (!b) return; const d = b.dataset; SFX.click();
+  if (d.stitle !== undefined) { if (d.stitle && !(save.titles || []).includes(d.stitle)) return; save.show.title = d.stitle; store(); }
+  else if (d.slabel !== undefined) stkLabel(d.slabel);
+  else if (d.spin !== undefined) stkPin(d.spin);
+  else return;
+  const sc = $('#showbox .sheet').scrollTop; openShow(); $('#showbox .sheet').scrollTop = sc; if (curScreen === 'scr-album') renderAlbum();
+});
+$('#btn-show-close').addEventListener('click', () => { SFX.click(); closeSheets(); });
+// ---- Previews of a set prize, a milestone or a sticker's extra (in #prevbox): how it looks, what it does, Ontvang or Gebruik nu
+function fxSource(fx) { const S = ALBUM_SETS.find(x => x.fx === fx); if (S) return ['set', S.k]; const s = STICKERS.find(x => x.fx === fx); if (s) return ['stk', s.id]; return ['mile', 30]; }
+function openAlbumPv(kind, key) {
+  if (kind === 'fx') [kind, key] = fxSource(key);
+  const lines = [], acts = [], line = t => lines.push(`<div>${escH(t)}</div>`); let title = '', fx = '';
+  if (kind === 'set') {
+    const S = ALBUM_SETS.find(x => x.k === key); if (!S) return false; const got = S.ids.filter(id => save.stkClaimed[id]).length, done = save.setClaimed[S.k]; fx = S.fx; title = ALBUM_FX[fx].name;
+    lines.push(`<b><span>${ALBUM_FX[fx].name}</span><span> · </span><span>titel "${S.title}"</span><span> · </span><span>+${S.sap} sap</span></b>`);
+    line(`Wat het doet: ${ALBUM_FX[fx].what}`); line('Puur uiterlijk, ook in duels.'); if (!ALBUM_FX[fx].live) line(FX_NEXT);
+    line(done ? `Ontvangen op ${fmtDay(done)}.` : `Set ${S.name}: ${got} van 5 stickers in je album.`);
+    if (!done && got === 5) acts.push(['aclaim', 'Ontvang']); else if (done && ALBUM_FX[fx].live) acts.push(['ause', 'Gebruik nu']);
+  } else if (kind === 'stk') {
+    const s = STK[key]; if (!s) return false; fx = s.fx; title = ALBUM_FX[fx].name; lines.push(`<b><span>${ALBUM_FX[fx].name}</span></b>`);
+    line(`Wat het doet: ${ALBUM_FX[fx].what}`); line(FX_NEXT); line(`Je krijgt het met de sticker ${s.name}.`); acts.push(['astk', 'Naar de sticker']);
+  } else {
+    const M = ALBUM_MILES.find(x => x.n === +key); if (!M) return false; const n = albumGot(), done = save.albumMiles[M.n]; title = `Mijlpaal: ${M.n} stickers`; fx = M.r.fx || '';
+    lines.push(`<b>${rewardItems(M.r).map(it => `<span>${escH(it.label)}</span>`).join('<span> · </span>')}</b>`);
+    if (M.n === 3) line('Wat het doet: je kaartje "Zo zien vrienden je" met je naam, je titel, je fruit met zijn etiket en 1 plekje voor een sticker. Alleen vaste plaatjes en titels, geen vrije tekst.');
+    else if (M.r.pin) line(`Wat het doet: een ${M.r.pin}e plekje voor een sticker op je kaartje.`);
+    else { line(`Wat het doet: ${ALBUM_FX.levend.what}`); line(FX_NEXT); line('Je krijgt allebei de titels Albumkoning en Albumkoningin: je kiest zelf welke je draagt.'); }
+    line('Nu zie je je kaartje alleen zelf; later, met de vriendenserver, zien vrienden het ook.');
+    line(done ? `Ontvangen op ${fmtDay(done)}.` : `${Math.min(n, M.n)} van ${M.n} stickers in je album.`);
+    if (!done && n >= M.n) acts.push(['amile', 'Ontvang']); else if (done && M.n < 30) acts.push(['ashow', 'Gebruik nu']);
+  }
+  pvSpec = { album: { kind, key, fx } }; cancelAnimationFrame(pvRaf); $('#pv-title').textContent = title; $('#pv-forms').hidden = true; $('#pv-lines').innerHTML = lines.join('');
+  acts.push(['close', 'Sluiten']); $('#pv-acts').innerHTML = acts.map(([k, t], i) => `<button class="btn${i === 0 && k !== 'close' ? ' primary' : ''}" data-pa="${k}">${t}</button>`).join('');
+  $('#prevbox').hidden = false; navPushModal(); albumPvFrame(0); return true;
+}
+function albumPvAct(k) {
+  const a = pvSpec && pvSpec.album; if (!a) return; if (k === 'close') { closePrize(); return; }
+  if (k === 'aclaim') { closePrize(); claimSet(a.key); }
+  else if (k === 'amile') { closePrize(); claimMile(a.key); }
+  else if (k === 'ause') { closePrize(); closeSheets(); openShow(); return; }
+  else if (k === 'ashow') { closePrize(); closeSheets(); openShow(); return; }
+  else if (k === 'astk') { closePrize(); openStk(a.key); return; }
+  if (curScreen === 'scr-album') renderAlbum(); updateHub(curScreen); if (stkOpen && !$('#stkbox').hidden) openStk(stkOpen);
+}
+function albumPvFrame() { // the big picture of a prize; a look that comes next version is drawn as it will look (its line says so)
+  const a = pvSpec && pvSpec.album; if (!a) return; const cv = $('#pv-canvas'), c = cv.getContext('2d'), W2 = 160; cv.width = cv.height = W2 * 2; cv.style.width = cv.style.height = W2 + 'px';
+  const saved = ctx; ctx = c; try { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); albumPicture(c, a.kind === 'mile' && !a.fx ? 'card' : a.fx, W2); } finally { ctx = saved; }
+}
+function albumPicture(c, k, W2) { // canvas pictures of the album prizes, W2 css pixels square (the canvas is 2x)
+  const lbl = etiketKey() || (STICKERS.find(s => save.stkClaimed[s.id]) || STK.first).id, f = save.fruit;
+  const fruitAt = (x, y, css, extra) => { const t = document.createElement('canvas'); t.width = t.height = css * 2; renderIcon(t.getContext('2d'), f, css, false, Object.assign({ hat: wornHat() }, extra || {})); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(t, (x - css / 2) * 2, (y - css / 2) * 2); };
+  c.setTransform(2, 0, 0, 2, 0, 0);
+  if (k === 'etiket') { fruitAt(W2 / 2, W2 / 2, W2, { label: lbl }); return; }
+  if (k === 'levend') { const r = W2 * .27, cx = W2 / 2, cy = W2 / 2 + W2 * .04; c.fillStyle = '#fffaf0'; c.beginPath(); c.arc(cx, cy, r * 1.0, 0, TAU); c.fill(); fruitAt(W2 / 2, W2 / 2, W2 * .86); c.setTransform(2, 0, 0, 2, 0, 0); c.fillStyle = '#fffaf0'; c.beginPath(); c.moveTo(cx + r * .55, cy - r * .85); c.quadraticCurveTo(cx + r * 1.25, cy - r * 1.05, cx + r * 1.2, cy - r * .3); c.closePath(); c.fill(); c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 1.5; c.stroke(); return; }
+  if (k === 'card') { c.fillStyle = 'rgba(255,235,210,.1)'; c.strokeStyle = 'rgba(255,213,74,.7)'; c.lineWidth = 2; c.beginPath(); roundBox(10, 34, W2 - 20, W2 - 68, 14); c.fill(); c.stroke(); fruitAt(46, 80, 64, { label: etiketKey() }); c.setTransform(2, 0, 0, 2, 0, 0); c.fillStyle = '#fff4e4'; c.font = `600 15px ${FD}`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(String(save.name || 'Jij').slice(0, 10), 80, 62); c.fillStyle = '#ffd54a'; c.font = `800 10px ${FU}`; c.fillText(wornTitle() || 'Waaghals', 80, 78);
+    for (let i = 0; i < 3; i++) { const x = 80 + i * 22, y = 92; c.fillStyle = i < Math.max(1, albumPins()) ? stkCol(['first', 'streak7', 'duel10'][i]) : 'rgba(255,255,255,.08)'; c.beginPath(); roundBox(x, y, 18, 18, 5); c.fill(); if (i < Math.max(1, albumPins())) drawEmblem(c, ['first', 'streak7', 'duel10'][i], x + 9, y + 9, 12, '#2a1208', 2.6); } return; }
+  if (k === 'drop') { const y = W2 / 2; c.lineCap = 'round'; for (let i = 0; i < 2; i++) { c.strokeStyle = i ? '#1c1010' : '#d7263d'; c.lineWidth = 9; c.beginPath(); for (let x = 16; x <= W2 - 16; x += 2) { const yy = y + Math.sin(x / 9 + i * Math.PI) * 6; if (x === 16) c.moveTo(x, yy); else c.lineTo(x, yy); } c.stroke(); } c.strokeStyle = '#d7263d'; c.lineWidth = 6; c.beginPath(); c.arc(W2 * .62, y - 2, 9, 0, TAU); c.stroke(); c.fillStyle = '#fff4e4'; c.font = `800 12px ${FU}`; c.textAlign = 'center'; c.fillText('Level 39', W2 / 2, y - 28); return; }
+  if (k === 'ontbijt') { // a breakfast table: linen, morning sun, an egg in its cup, a croissant and its crumbs
+    c.save(); c.beginPath(); roundBox(12, 12, W2 - 24, W2 - 24, 16); c.clip(); c.fillStyle = '#f3e3c3'; c.fillRect(12, 12, W2 - 24, W2 - 24); c.strokeStyle = 'rgba(214,120,90,.35)'; c.lineWidth = 5; for (let i = 0; i < 5; i++) { c.beginPath(); c.moveTo(12, 28 + i * 28); c.lineTo(W2 - 12, 28 + i * 28); c.stroke(); c.beginPath(); c.moveTo(28 + i * 28, 12); c.lineTo(28 + i * 28, W2 - 12); c.stroke(); }
+    const g = c.createRadialGradient(W2 - 22, 24, 4, W2 - 22, 24, 70); g.addColorStop(0, 'rgba(255,236,150,.95)'); g.addColorStop(1, 'rgba(255,236,150,0)'); c.fillStyle = g; c.fillRect(12, 12, W2 - 24, W2 - 24); c.fillStyle = '#ffd54a'; c.beginPath(); c.arc(W2 - 22, 24, 13, 0, TAU); c.fill(); c.restore();
+    c.fillStyle = 'rgba(0,0,0,.12)'; c.beginPath(); c.ellipse(52, 116, 26, 7, 0, 0, TAU); c.fill(); c.fillStyle = '#fffdf6'; c.beginPath(); c.ellipse(52, 70, 13, 17, 0, 0, TAU); c.fill(); c.fillStyle = '#4fa3d9'; c.beginPath(); c.moveTo(36, 78); c.lineTo(68, 78); c.lineTo(62, 98); c.lineTo(42, 98); c.closePath(); c.fill(); c.fillRect(46, 98, 12, 6); c.fillRect(38, 104, 28, 6);
+    c.fillStyle = '#d98d2f'; c.strokeStyle = '#a8601c'; c.lineWidth = 2; for (let i = -2; i <= 2; i++) { c.beginPath(); c.ellipse(108 + i * 9, 100 - Math.abs(i) * 4 + (i === 0 ? -4 : 0), 7, 11 - Math.abs(i) * 2, i * .35, 0, TAU); c.fill(); c.stroke(); }
+    c.fillStyle = '#c9802a'; for (let i = 0; i < 8; i++) { c.beginPath(); c.arc(84 + (i * 37) % 50, 124 + (i * 13) % 14, 1.8, 0, TAU); c.fill(); } return; }
+  if (k === 'vonken') { fruitAt(W2 / 2, W2 / 2 + 8, W2 * .9); c.setTransform(2, 0, 0, 2, 0, 0); c.fillStyle = '#ffd54a'; for (let i = 0; i < 9; i++) { const a = i / 9 * TAU, rr = W2 * .36; drawStarIcon(c, W2 / 2 + Math.cos(a) * rr, W2 / 2 + 8 + Math.sin(a) * rr * .8, 4 + (i % 3) * 1.5); } c.fillStyle = '#fff4e4'; c.font = `800 14px ${FU}`; c.textAlign = 'center'; c.fillText('Net niet!', W2 / 2, 22); return; }
+  if (k === 'diploma') { c.fillStyle = '#7a4a22'; c.beginPath(); roundBox(14, 26, W2 - 28, W2 - 52, 6); c.fill(); c.fillStyle = '#fbf3df'; c.beginPath(); roundBox(22, 34, W2 - 44, W2 - 68, 3); c.fill(); c.fillStyle = '#3a2010'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = `700 11px ${FD}`; c.fillText('Erkend door De Chef', W2 / 2, 58); c.font = `600 15px ${FD}`; c.fillText(String(save.name || 'Jij').slice(0, 12), W2 / 2, 80); c.fillStyle = '#d7263d'; c.beginPath(); c.arc(W2 * .7, W2 * .7, 9, 0, TAU); c.fill(); return; }
+  if (k === 'foto') { c.fillStyle = '#a0682f'; c.beginPath(); c.moveTo(20, 96); c.lineTo(W2 - 20, 96); c.lineTo(W2 - 32, 140); c.lineTo(32, 140); c.closePath(); c.fill(); const own = save.owned.filter(x => FRUITS[x]).slice(0, 5); own.forEach((x, i) => { const t = document.createElement('canvas'); t.width = t.height = 96; renderIcon(t.getContext('2d'), x, 48, false); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(t, (18 + i * 24) * 2, (56 + (i % 2) * 8) * 2); }); return; }
+  if (k === 'platen') { c.fillStyle = '#5a3a1e'; c.beginPath(); roundBox(16, 30, W2 - 32, W2 - 60, 12); c.fill(); c.fillStyle = '#141014'; c.beginPath(); c.arc(W2 / 2 - 8, W2 / 2, 40, 0, TAU); c.fill(); c.strokeStyle = 'rgba(255,255,255,.12)'; for (let rr = 14; rr < 40; rr += 6) { c.beginPath(); c.arc(W2 / 2 - 8, W2 / 2, rr, 0, TAU); c.stroke(); } c.fillStyle = '#ffd54a'; c.beginPath(); c.arc(W2 / 2 - 8, W2 / 2, 10, 0, TAU); c.fill(); c.strokeStyle = '#d9d0c0'; c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(W2 - 30, 40); c.lineTo(W2 - 46, W2 / 2 + 6); c.stroke(); return; }
+  if (k === 'posters') { c.fillStyle = '#efe0b9'; c.beginPath(); roundBox(30, 16, W2 - 60, W2 - 32, 4); c.fill(); c.fillStyle = '#3a2010'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = `700 14px ${FD}`; c.fillText('GEZOCHT', W2 / 2, 36); drawEmblem(c, 'duel10', W2 / 2, W2 / 2 + 4, 46, '#3a2010', 2.4); c.font = `800 10px ${FU}`; c.fillText('37× gewroken', W2 / 2, W2 - 34); return; }
+  c.fillStyle = 'rgba(255,213,74,.15)'; c.beginPath(); c.arc(W2 / 2, W2 / 2, W2 * .36, 0, TAU); c.fill(); drawEmblem(c, k || 'sterren', W2 / 2, W2 / 2, W2 * .44, '#ffd54a', 2.2);
+}
+// ---- Settings and the Kast: album looks on or off (albumFxOff); what you do not own yet says how you get it
+function kastAlbumHTML(row) {
+  const rows = Object.keys(ALBUM_FX).map(k => { const F = ALBUM_FX[k], own = !!save.albumFx[k], off = save.albumFxOff.includes(k), src = fxSource(k);
+    const how = own ? (F.live ? '' : FX_NEXT) : src[0] === 'set' ? `Vul de set ${ALBUM_SETS.find(S => S.k === src[1]).name} in je album.` : src[0] === 'stk' ? `Met de sticker ${STK[src[1]].name}.` : 'Vul je hele album: 30 stickers.';
+    const btn = own && F.live ? `<button class="btn${off ? ' primary' : ''}" data-afx="${k}">${off ? 'Zet aan' : 'Zet uit'}</button>` : '';
+    return row(`<span class="tdot">${embSvg(k)}</span>`, F.name, own && F.live ? (off ? 'Staat uit.' : 'Staat aan.') : '', how, btn, own); }).join('');
+  return `<div class="sec" id="kast-album"><h3>${ico('album')}Albumprijzen</h3><div class="small">Prijzen uit het album: puur uiterlijk, ook in duels, en nergens te koop. Je kunt ze uitzetten.</div>${rows}</div>`;
+}
+function kastAlbumWire(body) { body.querySelectorAll('[data-afx]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.afx; if (!save.albumFx[k]) return; SFX.click(); save.albumFxOff = save.albumFxOff.includes(k) ? save.albumFxOff.filter(x => x !== k) : save.albumFxOff.concat(k); store(); openKast(); })); }
 
 // ---- Fruitpas: a monthly season of 30 tiers, 100 pass-XP each, with a free and a (simulated) paid track.
 const PASS_TIERS = 30, PASS_XP = 100;
@@ -7583,6 +8094,9 @@ function openShop(group) { // v0.32.0: Winkel > Aanbod, Spullen or Sap; without 
 const TITLE_HOW = {
   Fruitmandbouwer: 'Speel level 25 uit met alle 20 gewone fruitsoorten (Fruitkaart).', 'Meester van de Fruitmand': 'Speel level 50 uit met alle 20 gewone fruitsoorten (Fruitkaart).', 'Legende van de Fruitmand': 'Speel level 100 uit met alle 20 gewone fruitsoorten (Fruitkaart).',
   Seizoensheld: 'Haal alle zes hoofdstukken van een seizoen (Spelen › Seizoen).', Stormjager: 'Ruil 4 Toernooimunten in de Toernooiwinkel.', Nachtbraker: 'Ruil 4 Toernooimunten in de Toernooiwinkel.', Estafetteloper: 'Ruil 4 Toernooimunten in de Toernooiwinkel.', Vorkenverzamelaar: 'Ruil 4 Toernooimunten in de Toernooiwinkel.',
+  Proever: 'Vul de set Eerste hapjes in je album (Verzamel › Album).', Hoogvlieger: 'Vul de set Op weg naar boven in je album (Verzamel › Album).', 'Vaste klant': 'Vul de set Elke dag in je album (Verzamel › Album).', // v0.32.1 album
+  Waaghals: 'Vul de set Lef en wedstrijd in je album (Verzamel › Album).', Souschef: 'Vul de set Chef en keuken in je album (Verzamel › Album).', Fruitkenner: 'Vul de set Fruitkaart in je album (Verzamel › Album).',
+  Albumkoning: 'Vul je hele album: 30 stickers (Verzamel › Album).', Albumkoningin: 'Vul je hele album: 30 stickers (Verzamel › Album).',
 };
 const wornTitle = () => Array.isArray(save.titles) && save.titles.includes(save.show.title) ? save.show.title : '';
 function openKast() {
@@ -7602,13 +8116,13 @@ function openKast() {
   $('#kast-body').innerHTML = `<div class="sec" id="kast-now"><div class="kastnow">Je draagt: ${escH((HATS[wornHat()] || HATS.none).name)} · ${escH(bdName(save.board || ''))} · ${wt ? escH(wt) : 'geen titel'}</div><div class="small">Alles in de Kast is puur uiterlijk: het maakt je fruit niet sterker en geeft geen voordeel, ook niet in duels.</div></div>` +
     `<div class="sec" id="kast-hats"><h3>${ico('star')}Hoedjes · ${nH} van ${aH}</h3><div class="small">Je fruit draagt zijn hoedje tijdens het spelen en in je keuken. Tik op een hoedje voor een voorbeeld.</div>${hats}</div>` +
     `<div class="sec" id="kast-boards"><h3>${ico('kaart')}Bordskins</h3><div class="small">Een vaste tafel in plaats van de keuken van je level. Je keukenbonussen blijven gewoon gelden.</div>${boards}</div>` +
-    `<div class="sec" id="kast-titles"><h3>${ico('album')}Titels · ${nT}</h3><div class="small">Eén titel draag je onder je naam, op de vriendenladder. Later zien vrienden hem ook bij een duel.</div>${titles}</div>`;
+    `<div class="sec" id="kast-titles"><h3>${ico('album')}Titels · ${nT}</h3><div class="small">Eén titel draag je onder je naam, op de vriendenladder. Later zien vrienden hem ook bij een duel.</div>${titles}</div>` + kastAlbumHTML(row);
   const body = $('#kast-body'); paintPrizes(body);
   body.querySelectorAll('canvas[data-hat]').forEach(c => { const saved = ctx, c2 = c.getContext('2d'); ctx = c2; c2.setTransform(2, 0, 0, 2, 0, 0); c2.clearRect(0, 0, 44, 44); ctx.save(); ctx.translate(22, 30); if (c.dataset.hat === 'none') { ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -6, 12, 0, TAU); ctx.stroke(); } else drawHat(c.dataset.hat, 14); ctx.restore(); ctx = saved; });
   body.querySelectorAll('[data-wear]').forEach(b => b.addEventListener('click', () => { if (!save.hats.includes(b.dataset.wear)) return; SFX.click(); save.hat = b.dataset.wear; store(); openKast(); }));
   body.querySelectorAll('[data-board]').forEach(b => b.addEventListener('click', () => { const id = b.dataset.board; if (id && !save.boards.includes(id)) return; SFX.click(); save.board = id; board = null; store(); openKast(); }));
   body.querySelectorAll('[data-title]').forEach(b => b.addEventListener('click', () => { const t = b.dataset.title; if (t && !(save.titles || []).includes(t)) return; SFX.click(); save.show.title = t; store(); openKast(); }));
-  body.querySelectorAll('[data-toshop]').forEach(b => b.addEventListener('click', () => { SFX.click(); goTo('shop:spullen'); }));
+  body.querySelectorAll('[data-toshop]').forEach(b => b.addEventListener('click', () => { SFX.click(); goTo('shop:spullen'); })); kastAlbumWire(body);
   showScreen('scr-kast'); pauseBtn.hidden = true;
 }
 
@@ -7680,6 +8194,7 @@ function closeTourneyWeek(t) { // the result of the week that just ended. v0.30.
   t.division = ''; // from the next week the division follows the level again (owner question 9); the result keeps the one played in
   if (!played) { t.streak = 0; t.result = null; return; }
   const score = ev === 'jacht' ? t.vorken : t.best, rank = tourneyRankFor(t.week, ev, div, score), prize = {};
+  if (rank <= 10) save.stats.ladderTop10 = (save.stats.ladderTop10 || 0) + 1; // v0.32.1: the Inhaler sticker's second way, also offline
   if (t.weekpass === t.week) { prize.fragment = 1; prize.fruitKey = TEVENT[ev].fruit; }
   let note = `Plaats ${rank} van 50 op de Oefenladder`;
   if (ev === 'jacht' && communityTotal() >= COMMUNITY_GOAL) { prize.sap = (prize.sap || 0) + 1000; note += ' · de meter is vol: +1.000 sap voor iedereen'; }
@@ -8024,7 +8539,7 @@ function openFriends(view) { // v0.32.0: Vrienden > Duels, Vrienden or Rivalen; 
 
 const HOOK = window.dontsliceme = {
   LVSND,
-  version: '0.32.0', freeze: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, PLUS_SEASON_HATS, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, wornHat, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, LOSER_HAT, LOSER_HAT_MS, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.32.1', freeze: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, PLUS_SEASON_HATS, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, wornHat, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, LOSER_HAT, LOSER_HAT_MS, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   get SEASON() { return curSeason(); }, // v0.30.3: the current season of the series
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
@@ -8229,6 +8744,85 @@ EN_RX.unshift( // v0.32 duels per hour and the Friends tab
   [/^Speel Don't Slice Me! met mij en word mijn vriend in het spel: (\S+) · of typ mijn code (\S+) bij Vrienden$/, m => `Play Don't Slice Me! with me and become my friend in the game: ${m[1]} · or type my code ${m[2]} under Friends`],
 );
 
+Object.assign(EN, { // v0.32.1 album
+  "Zo zien vrienden je": "How friends see you", "Jij": "You", "leeg": "empty", "Aanpassen ›": "Edit ›", "je kaartje": "your card", "2e plekje": "2nd spot", "3e plekje": "3rd spot", "Levende sticker": "Living sticker",
+  "Nu zie je dit kaartje alleen zelf. Later, met de vriendenserver, zien je vrienden het in hun lijst en bij een duel.": "For now only you see this card. Later, with the friends server, your friends will see it in their list and in a duel.",
+  "Bij 3 stickers in je album krijg je dit kaartje.": "At 3 stickers in your album you get this card.",
+  "Eerste hapjes": "First bites", "Op weg naar boven": "On the way up", "Elke dag": "Every day", "Lef en wedstrijd": "Nerve and contests", "Chef en keuken": "Chef and kitchen",
+  "binnen": "got it", "Ontvangen:": "Received:", "Klaar:": "Ready:", "Set vol:": "Full set:", "Volle set:": "Full set:", "Bekijk de setprijs": "See the set prize", "Dit is de laatste van de set": "This is the last one of the set",
+  "Bedankt-zegel": "Thank-you seal", "Je probeerde Don't Slice Me! Plus. Dank je wel! Dit zegel telt niet mee voor het album en geeft niets.": "You tried Don't Slice Me! Plus. Thank you! This seal does not count for the album and gives nothing.",
+  "Fruitetiket": "Fruit label", "Dropveterbalk": "Licorice bar", "Ontbijttafel": "Breakfast table", "Net-niet-vonken": "Close-call sparks", "Diploma van De Chef": "Diploma from The Chef", "Groepsfoto": "Group photo", "Platenspeler": "Record player", "Gezocht-posters": "Wanted posters",
+  "Proever": "Taster", "Hoogvlieger": "High flyer", "Vaste klant": "Regular", "Waaghals": "Daredevil", "Souschef": "Sous-chef", "Fruitkenner": "Fruit expert", "Albumkoning": "Album king", "Albumkoningin": "Album queen", "Eigen keuken": "Own kitchen",
+  "Plak een sticker uit je album als ovaal etiket op je fruit. Hij vliegt mee weg als je gesneden wordt, net als je hoedje.": "Stick a sticker from your album on your fruit as an oval label. It flies off when you are cut, just like your hat.",
+  "Je levelbalk wordt een gedraaide dropveter. Bij elk nieuw level legt hij een knoopje; hij vult even snel.": "Your level bar becomes a twisted licorice lace. At every new level it ties a little knot; it fills just as fast.",
+  "Een bordskin met croissantkruimels, een eierdopje en ochtendzon. Je keukenbonussen blijven gelden.": "A board skin with croissant crumbs, an egg cup and morning sun. Your kitchen perks still apply.",
+  "Gouden vonkjes en een klein \"tsjing\" bij elke \"Net niet!\". De regel voor \"Net niet!\" verandert niet.": "Golden sparks and a little \"ting\" at every \"Close call!\". The rule for \"Close call!\" does not change.",
+  "In Jouw Keuken hangt een ingelijst diploma \"Erkend door De Chef\" met jouw naam, en De Chef tikt tegen zijn muts als hij verschijnt.": "A framed diploma \"Approved by The Chef\" with your name hangs in Your Kitchen, and The Chef tips his hat when he shows up.",
+  "Al je fruit, elk met zijn hoedje, samen in een mand: als achtergrond of op je deelkaart. Hij groeit mee met elk nieuw fruit.": "All your fruit, each with its hat, together in a basket: as a background or on your share card. It grows with every new fruit.",
+  "Je fruit krijgt een witte stickerrand; als je gesneden wordt, pelt hij los en krult hij op als een sticker. De rand ligt binnen je fruit.": "Your fruit gets a white sticker border; when you are cut, it peels off and curls up like a sticker. The border lies inside your fruit.",
+  "Kies zelf welke keukenmuziek speelt, of laat ze de keuken volgen.": "Choose which kitchen music plays yourself, or let it follow the kitchen.",
+  "Voor elke aartsvijand die je wreekte, hangt een poster in je album.": "For every nemesis you took revenge on, a poster hangs in your album.",
+  "Komt in de volgende versie. Dan is het meteen van jou: wat je nu ontvangt, blijft bewaard.": "Arrives in the next version. Then it is yours at once: what you receive now is kept.",
+  "Speel je eerste poging.": "Play your first run.", "Pak tien suikerklontjes op rij zonder gesneden te worden: dat is combo ×3.": "Grab ten sugar cubes in a row without being cut: that is combo ×3.",
+  "Start tien keer Fruit Fever.": "Start Fruit Fever ten times.", "Speel tien tussenspelletjes: tussen de levels of als los spelletje.": "Play ten minigames: between levels or as a single minigame.",
+  "Speel tien levels uit met hetzelfde fruit: dan krijgt het een medaille.": "Clear ten levels with the same fruit: then it earns a medal.",
+  "Haal level 10.": "Reach level 10.", "Haal level 25.": "Reach level 25.", "Haal level 50.": "Reach level 50.", "Haal level 100.": "Reach level 100.",
+  "Speel in alle zes keukens: om de vijf levels kom je in een andere keuken.": "Play in all six kitchens: every five levels you get to another kitchen.",
+  "Speel zeven dagen op rij.": "Play seven days in a row.", "Speel tien keer het Mes van de dag (Spelen › Dagmes).": "Play the Knife of the day ten times (Play › Daily).", "Maak 20 dagopdrachten af.": "Complete 20 daily missions.",
+  "Speel 100 pogingen.": "Play 100 runs.", "Speel vijf losse spelletjes met een munt (Spelen › Dagmes).": "Play five single minigames with a coin (Play › Daily).",
+  "Haal 30 keer \"Net niet!\" in één poging.": "Get 30 \"Close call!\"s in one run.",
+  "Ontwijk je aartsvijand drie keer in één poging. Je aartsvijand is het gevaar dat jou het vaakst raakte: je herkent het aan zijn paarse waarschuwingslijn.": "Dodge your nemesis three times in one run. Your nemesis is the danger that hit you most often: you know it by its purple warning line.",
+  "Op je fruit:": "On your fruit:", "Op je kaartje:": "On your card:", "nog niets": "nothing yet",
+  "Win 25 duels. Duels tegen De Chef tellen ook, en die kun je altijd spelen, ook offline.": "Win 25 duels. Duels against The Chef count too, and you can always play those, offline as well.",
+  "Win een weekendspel: op zaterdag en zondag onder Spelen › Dagmes.": "Win a weekend game: on Saturday and Sunday under Play › Daily.",
+  "Haal een rivaal in, of eindig een week in de top 10 van de Oefenladder (Spelen › Toernooi). Dat kan ook offline.": "Overtake a rival, or finish a week in the top 10 of the practice ladder (Play › Tourney). That works offline too.",
+  "Koop je eerste toestel in Jouw Keuken (Vandaag › Keuken).": "Buy your first appliance in Your Kitchen (Today › Kitchen).", "Kom De Chef drie keer tegen in één poging.": "Meet The Chef three times in one run.",
+  "Lever tien bestellingen af aan de chefs in Jouw Keuken.": "Deliver ten orders to the chefs in Your Kitchen.", "Maak van je keuken een Sterrenzaak: 15 toestelniveaus samen.": "Make your kitchen a Starred house: 15 appliance levels in all.",
+  "Verzamel 100 stempels op de Fruitkaart.": "Collect 100 stamps on the Fruit Card.", "Verdien tien familie-badges op de Fruitkaart.": "Earn ten family badges on the Fruit Card.",
+  "Speel 50 levels uit met hetzelfde fruit: dan krijgt het een gouden medaille.": "Clear 50 levels with the same fruit: then it earns a gold medal.",
+  [`Speel tien levels uit met alle ${ORDER.length} gewone fruitsoorten.`]: `Clear ten levels with all ${ORDER.length} regular fruits.`, [`Ontgrendel alle ${ORDER.length} gewone fruitsoorten (Verzamel › Fruit).`]: `Unlock all ${ORDER.length} regular fruits (Collect › Fruit).`,
+  "klaar!": "done!", "Deze sticker had je al voor deze versie: je krijgt het sap, geen Fruitpas-XP.": "You already had this sticker before this version: you get the juice, no Fruit Pass XP.",
+  "Op je fruit plakken kan met het Fruitetiket: de prijs van de set Eerste hapjes.": "Sticking it on your fruit needs the Fruit label: the prize of the set First bites.",
+  "Op je kaartje prikken kan vanaf de mijlpaal van 3 stickers.": "Pinning it to your card works from the 3-sticker milestone.", "Het Fruitetiket staat uit in je Kast.": "The Fruit label is switched off in your Closet.",
+  "Op je fruit plakken": "Stick on your fruit", "Van je fruit halen": "Take off your fruit", "Op je kaartje prikken": "Pin to your card", "Van je kaartje halen": "Unpin from your card",
+  "Je kaartje": "Your card", "Titel": "Title", "Etiket op je fruit": "Label on your fruit", "Geen etiket": "No label", "Stickers op je kaartje": "Stickers on your card", "Tik om te prikken of los te halen.": "Tap to pin or unpin.",
+  "Tik op een sticker: die plakt als ovaal etiket op je fruit, in elke poging en in duels. Hij verandert niets aan het spel.": "Tap a sticker: it sticks on your fruit as an oval label, in every run and in duels. It changes nothing in the game.",
+  "Het Fruitetiket staat nu uit in je Kast.": "The Fruit label is now switched off in your Closet.", "Het Fruitetiket krijg je met de set Eerste hapjes.": "You get the Fruit label with the set First bites.",
+  "Nog geen stickers in je album.": "No stickers in your album yet.", "Vanaf de mijlpaal van 3 stickers.": "From the 3-sticker milestone.",
+  "Puur uiterlijk, ook in duels.": "Looks only, also in duels.", "Gebruik nu": "Use now", "Naar de sticker": "To the sticker",
+  "je kaartje \"Zo zien vrienden je\" met je naam, je titel, je fruit met zijn etiket en 1 plekje voor een sticker. Alleen vaste plaatjes en titels, geen vrije tekst.": "your card \"How friends see you\" with your name, your title, your fruit with its label and 1 spot for a sticker. Only fixed pictures and titles, no free text.",
+  "Je krijgt allebei de titels Albumkoning en Albumkoningin: je kiest zelf welke je draagt.": "You get both titles, Album king and Album queen: you choose which one you wear.",
+  "Nu zie je je kaartje alleen zelf; later, met de vriendenserver, zien vrienden het ook.": "For now only you see your card; later, with the friends server, friends will see it too.",
+  "je kaartje \"Zo zien vrienden je\"": "your card \"How friends see you\"", "Bekijk in album": "See in album", "Sticker ontvangen": "Sticker claimed", "Set vol!": "Set complete!",
+  "Erkend door De Chef": "Approved by The Chef", "GEZOCHT": "WANTED",
+  "Albumprijzen": "Album prizes", "Prijzen uit het album: puur uiterlijk, ook in duels, en nergens te koop. Je kunt ze uitzetten.": "Prizes from the album: looks only, also in duels, and for sale nowhere. You can switch them off.",
+  "Staat aan.": "On.", "Staat uit.": "Off.", "Zet uit": "Turn off", "Zet aan": "Turn on", "Vul je hele album: 30 stickers.": "Fill your whole album: 30 stickers.", "Vul je hele album: 30 stickers (Verzamel › Album).": "Fill your whole album: 30 stickers (Collect › Album).",
+});
+{ const ORD = n => n === '1' ? '1st' : n === '2' ? '2nd' : n === '3' ? '3rd' : n + 'th', mon = s => MON_EN[s] || s;
+  EN_RX.unshift( // v0.32.1 album
+    [/^bij (\d+)$/, m => `at ${m[1]}`], [/^(\d)\/5 · vol!$/, m => `${m[1]}/5 · full!`], [/^\+ titel "(.+)" \+ (\d+) sap$/, m => `+ title "${tr(m[1])}" + ${m[2]} juice`],
+    [/^(.+), titel en (\d+) sap ontvangen · tik om te openen$/, m => `${tr(m[1])}, title and ${m[2]} juice received · tap to open`],
+    [/^Set (.+): (.+) \+([\d.]+)$/, m => `Set ${tr(m[1])}: ${tr(m[2])} +${m[3]}`], [/^Mijlpaal (\d+): \+([\d.]+)$/, m => `Milestone ${m[1]}: +${m[2]}`], [/^Mijlpaal (\d+): je kaartje$/, m => `Milestone ${m[1]}: your card`],
+    [/^Album: (.+)$/, m => `Album: ${m[1].split(' + ').map(x => { let k; if ((k = /^(\d+) stickers?$/.exec(x))) return x; if ((k = /^set (.+)$/.exec(x))) return `set ${tr(k[1])}`; if ((k = /^mijlpaal (\d+)$/.exec(x))) return `milestone ${k[1]}`; return tr(x); }).join(' + ')}`],
+    [/^Set (.+) · sticker (\d) van 5$/, m => `Set ${tr(m[1])} · sticker ${m[2]} of 5`], [/^(\d+) van (\d+)$/, m => `${m[1]} of ${m[2]}`], [/^nog (\d+)$/, m => `${m[1]} to go`],
+    [/^Behaald op (\d+) (\S+), met de (.+) op level (\d+)\.$/, m => `Earned on ${m[1]} ${mon(m[2])}, with the ${tr(m[3])} at level ${m[4]}.`], [/^Behaald op (\d+) (\S+)\.$/, m => `Earned on ${m[1]} ${mon(m[2])}.`],
+    [/^\+(\d+) Fruitpas-XP$/, m => `+${m[1]} Fruit Pass XP`], [/^Je kaartje is vol: prikken vervangt (.+)\.$/, m => `Your card is full: pinning replaces ${tr(m[1])}.`],
+    [/^, titel "(.+)" en (\d+) sap\.$/, m => `, title "${tr(m[1])}" and ${m[2]} juice.`], [/^Ga erheen: (.+)$/, m => `Go there: ${NAV_EN[m[1]] || tr(m[1])}`], [/^Ontvang ([\d.]+) sap$/, m => `Claim ${m[1]} juice`],
+    [/^Mijlpaal: (\d+) stickers$/, m => `Milestone: ${m[1]} stickers`], [/^Ontvangen op (\d+) (\S+)\.$/, m => `Received on ${m[1]} ${mon(m[2])}.`],
+    [/^Set (.+): (\d) van 5 stickers in je album\.$/, m => `Set ${tr(m[1])}: ${m[2]} of 5 stickers in your album.`], [/^Je krijgt het met de sticker (.+)\.$/, m => `You get it with the sticker ${tr(m[1])}.`],
+    [/^een (\d)e plekje voor een sticker op je kaartje\.$/, m => `a ${ORD(m[1])} spot for a sticker on your card.`], [/^(\d+) van (\d+) stickers in je album\.$/, m => `${m[1]} of ${m[2]} stickers in your album.`],
+    [/^(\d)e plekje op je kaartje$/, m => `${ORD(m[1])} spot on your card`], [/^(\d+)× gewroken$/, m => `avenged ${m[1]}×`],
+    [/^(\d+) stickers? klaar$/, m => `${m[1]} sticker${m[1] === '1' ? '' : 's'} ready`], [/^Hij wacht in je album: \+(\d+) sap\.$/, m => `It waits in your album: +${m[1]} juice.`],
+    [/^Samen ([\d.]+) sap in je album\.$/, m => `All together: ${m[1]} juice in your album.`], [/^\+(\d+) meer$/, m => `+${m[1]} more`], [/^Ontvang \+([\d.]+)$/, m => `Claim +${m[1]}`],
+    [/^Vul de set (.+) in je album( \(Verzamel › Album\))?\.$/, m => `Fill the set ${tr(m[1])} in your album${m[2] ? ' (Collect › Album)' : ''}.`], [/^Met de sticker (.+)\.$/, m => `With the sticker ${tr(m[1])}.`],
+    [/^(.+) \(volgende versie\)$/, m => `${tr(m[1])} (next version)`], [/^en nog (\d+)$/, m => `and ${m[1]} more`], [/^(\d+) nieuwe stickers in je album$/, m => `${m[1]} new stickers in your album`],
+    [/^Nieuwe sticker in je album: (.+)$/, m => { const s = STICKERS.find(x => x.name === m[1]); return `New sticker in your album: ${s ? stkNm(s).replace(/­/g, '') : tr(m[1])}`; }],
+  );
+  EN_RX.push([/^(.+) \+([\d.]+)$/, m => `${tr(m[1])} +${m[2]}`]); // last: a sticker chip on the album's bar (Plichtsbewust +250)
+  for (const s of STICKERS) if (s.nm) EN[s.nm] = STK_EN_NM[s.id] || EN[s.name] || s.name; // the soft-hyphen names too
+}
+Object.assign(HOOK, { ALBUM_SETS, ALBUM_MILES, ALBUM_FX, ALBUM_SAP, STK, STK_SET, EMB, STK_XP, PLUSSER_SEAL, FX_NEXT, claimSticker, claimSet, claimMile, albumCatchUp, albumGot, albumPins, stkProg, stkState, stkXpOk, stkReward, etiketKey, ETK, ETK_SPOT, openStk, openShow, openAlbumPv, renderAlbum, albumChip, albumSummary, stkPin, stkLabel, stkDiary, fmtDay, showAction, stkPopup, stkNm, drawEmblem, kastAlbumHTML, ensurePass, albumChips, albumGetLine, stkFlush, stkRunNote, stkPend: () => stkPend.map(p => p.id + (p.noted ? '+' : '')).join(), stkCatch: () => stkCatch, albumOpenSets: () => albumOpenSets, stkOpen: () => stkOpen }); // v0.32.1 album
+
 let last = performance.now();
 function frame(now) { const real = Math.min(50, now - last); last = now; if (!HOOK.freeze) update(real); render(); requestAnimationFrame(frame); }
 
@@ -8239,7 +8833,7 @@ function boot(hot) {
   const m = /^#dag(\d{4})(\d{2})(\d{2})$/.exec(location.hash || ''); if (m) pendingDaily = `${m[1]}-${m[2]}-${m[3]}`;
   const inv = parseInvite(location.href); if (inv) { save.pendingFriend = inv; store(); try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {} }
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {}); // offline play when served from a site
-  G.px = G.tx = W / 2; G.py = G.ty = H * .6; convertUnlBank(); if (!save.seen.intro && !save.runs && !pendingDaily) openIntro(); else openMenu(); if (pendingDaily) openToday('games'); requestAnimationFrame(frame);
+  G.px = G.tx = W / 2; G.py = G.ty = H * .6; convertUnlBank(); albumCatchUp(true); if (!save.seen.intro && !save.runs && !pendingDaily) openIntro(); else openMenu(); if (pendingDaily) openToday('games'); requestAnimationFrame(frame);
   initLang(); // the saved language wins once the save is in
   if (NET.on()) setTimeout(() => { cloudPull(); }, 300);
 }

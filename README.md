@@ -57,6 +57,16 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.1: een album dat je kunt aantikken
+
+- Het **Album** (Verzamel > Album) heeft 30 stickers in 6 sets van 5. Tik op een sticker en je ziet wat hij vraagt, hoe ver
+  je staat en wat hij geeft. Elke sticker geeft sap, elke volle set een prijs, een titel en sap. Samen 16.700 sap.
+- Stickers die je al had, liggen één keer klaar om te ontvangen. "Ontvang alles" neemt ze ook mee.
+- **Zo zien vrienden je:** je eigen kaartje met je fruit, je titel en tot 3 stickers. Later zien je vrienden het ook.
+- **Fruitetiket:** plak een sticker als etiket op je fruit. Het vliegt mee weg als je gesneden wordt.
+- De andere setprijzen (zoals de Dropveterbalk en de Levende sticker) komen in de volgende versie; wie ze ontvangt, houdt ze.
+- De rode Spelen-knop opent altijd Levels. Nieuwe spelers zien pas gele bolletjes na hun eerste poging.
+
 ## Nieuw in v0.32.0: vijf tabbladen met subtabbladen
 
 - Onderaan staan nu 5 tabbladen: **Verzamel**, **Vandaag**, **Spelen** (de rode knop in het midden), **Vrienden** en

@@ -57,6 +57,15 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.0: vijf tabbladen met subtabbladen
+
+- Onderaan staan nu 5 tabbladen: **Verzamel**, **Vandaag**, **Spelen** (de rode knop in het midden), **Vrienden** en
+  **Winkel**. Bovenaan elk tabblad staat een rij subtabbladen, bijvoorbeeld Vandaag · Keuken · Rad · Fruitpas.
+- Het startscherm heet nu Spelen > Levels. De tegels zijn weg; in hun plaats staat "Nu te doen" met hoogstens 3 dingen die
+  echt wachten. Geluid, muziek, taal, de hulp en het koppelen van een toestel zitten achter het tandwiel rechtsboven.
+- De duels zitten bij Vrienden. In de nieuwe **Kast** (bij Verzamel) draag je je hoedjes, borden en titels.
+- Een rood getal betekent: er ligt iets klaar om te ontvangen. Een geel bolletje: er is iets nieuw of te doen vandaag.
+
 ## Nieuw in v0.31.12: grenzen op kopen met sap, uitleg bij de hoedjes, Stempels en onbeperkte hartjes
 
 - **Hartjes voor sap:** hoogstens 5 per dag, voor 300 · 300 · 300 · 400 · 500 sap. Het schema staat vooraf op het

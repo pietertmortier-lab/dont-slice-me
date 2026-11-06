@@ -74,3 +74,9 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 34. Open de Fruitkaart en speel een level opnieuw. Stelt het eindscherm het volgende fruit voor, en start die knop het juiste level?
 35. Komt het "!" bij Stempels alleen nog terug als je een rij van 20/20 vol hebt?
 36. Onbeperkte hartjes op Vandaag en op het hartjesscherm: staat er "eenmaal per dag", zonder voorraad?
+
+## v0.32.0
+37. Vind je alles terug in de 5 tabbladen? Probeer: het rad, de Fruitpas, de keuken, het toernooi, het Mes van de dag, de duels, je vrienden, de hoedjes dragen (Kast), de hulp (tandwiel).
+38. Kloppen de rode getallen met wat "Ontvang alles" meeneemt? Verdwijnen de gele bolletjes als je het subtabblad opent?
+39. Werkt de terugknop van je gsm logisch (eerst een venster dicht, dan naar het eerste subtabblad, dan naar Levels)?
+40. Ziet het er op je gsm goed uit, zonder afgeknipte woorden?

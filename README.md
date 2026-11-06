@@ -57,6 +57,19 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.31.12: grenzen op kopen met sap, uitleg bij de hoedjes, Stempels en onbeperkte hartjes
+
+- **Hartjes voor sap:** hoogstens 5 per dag, voor 300 · 300 · 300 · 400 · 500 sap. Het schema staat vooraf op het
+  scherm. Daarna: wachten, een filmpje of een pakket.
+- **Dagdeal:** één per dag. **Tickets:** hoogstens 2 per dag voor sap, en tickets vervallen niet meer.
+  **Reeksschild:** met sap tot je er 2 hebt. **Keukensleutel:** 3.000 sap.
+- De verdubbelaar en het gereedschap werken alleen nog in je eigen pogingen, niet in duels of toernooien.
+- **Hoedjes:** bij elk hoedje staat wat het is en hoe je het krijgt. De tekst loopt niet meer over de naam.
+- **Stempels:** het "!" verdwijnt als je de kaart bekeken hebt en komt pas terug bij een volle rij van 20/20. Na een
+  poging vanaf de Fruitkaart stelt het spel voor: "Level N met <volgend fruit>".
+- **Onbeperkte hartjes:** eenmaal per dag 10 minuten na een filmpje, zonder voorraad. Minuten die je won, zijn hartjes
+  geworden.
+
 ## Nieuw in v0.31.11: Ontvang alles, prijsvoorbeelden, 5 duels per uur en Vrienden
 
 - **Ontvang alles:** bovenaan Vandaag haal je met één knop alles op wat klaarligt (dagreeks, opdrachten, keuken,

@@ -67,3 +67,10 @@ Dit bepaalt of de levels nog trager mogen (het getal LEVEL_PACE) en of de messen
 29. Tik op een prijs (toernooi, Spellen, Fruitpas, winkel). Zie je wat het is en wat het doet?
 30. Speel 5 duels na elkaar. Klopt de teller ("nog 3 van 5") en de tijd tot er nieuwe komen? Stop er eens een halverwege.
 31. Na het uitrollen van de server: zoek een vriend op naam, stuur een verzoek, aanvaard er een, en daag een vriend uit.
+
+## v0.31.12
+32. Koop hartjes met sap tot het niet meer kan. Snap je het schema (300 · 300 · 300 · 400 · 500) en wat je daarna kunt doen?
+33. Kijk naar de hoedjes in de winkel: staat bij elk wat het is en hoe je het krijgt, zonder tekst door elkaar?
+34. Open de Fruitkaart en speel een level opnieuw. Stelt het eindscherm het volgende fruit voor, en start die knop het juiste level?
+35. Komt het "!" bij Stempels alleen nog terug als je een rij van 20/20 vol hebt?
+36. Onbeperkte hartjes op Vandaag en op het hartjesscherm: staat er "eenmaal per dag", zonder voorraad?

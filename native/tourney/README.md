@@ -49,7 +49,7 @@ Deploy again: `firebase deploy --only functions,firestore` (or `npm run deploy`,
 
 | action | body | reply |
 |--------|------|-------|
-| `hello` | - | `{ ok, v: 32, caps: ['find', 'request', 'duel2'], inbox: { req, duel } }`: what this server can do and how many friend requests (of the last two weeks) and open friend duels wait |
+| `hello` | - | `{ ok, v: 32, caps: ['find', 'request', 'duel2'], inbox: { req, duel } }`: what this server can do and how many friend requests (of the last two weeks) and open friend duels wait (v0.32.3: `v: 33`, `duel3`, `inbox.notes`) |
 | `duelfind` | `v: 2, day, level, seen: [seed], challenge?` | `{ opp: { id, seed, name, fruit, level, score, t, ghost } }` or `null`: a ghost of the last 48 h of my level band (then the bands next to it), never mine and never a seed in `seen`. With `challenge`: the friend's seed and ghost; the first call starts the friend duel (`playing`), a second call is answered only within 20 s (a retry after a slow answer), later `error: 'playing'`. No uid. |
 | `duel` | `day, seed, score, seconds, level, fruit, name, ghost, t, quit, vsGhost, challenge?, challengeTo?` | `{ ok, stored, settled, challenge, error }`: stores the duel as a ghost in one of the player's 20 slots, at most 5 (+1) an hour per player, the window anchored at the duel's start (`{ stored: false, limit: true }` beyond); `seconds` is bounded by `t` (at most 95 s); `vsGhost` counts the played ghost (only on its own seed) for its owner's daily summary note; `challenge` settles a friend duel (also beyond the limit); `challengeTo` (a friend's uid) opens one (`error: 'already' \| 'notfriend' \| 'oldapp' \| 'seen' \| 'quit' \| 'limit'`). A friend duel that was started but whose score never comes counts as 0 after 3 minutes. A duel on the day's seed also writes the old daily entry. Without `seed` the old day-based action runs, with the same bound on `seconds`. |
 | `challenge` | `uid, day` | unchanged, except `error: 'newapp'` when the friend's client plays friend duels v2 (an old challenge would never be settled) |
@@ -63,6 +63,32 @@ Deploy again: `firebase deploy --only functions,firestore` (or `npm run deploy`,
 - Privacy: name search returns name, level, fruit and a tag (`#` + three characters of `ref`); never a uid, a friend code, a save or activity. Ghost ids are a hash, not the uid. A player can switch `Anderen mogen mij vinden op naam` off; old clients are never findable. The search limit per address stores a hash of the address, never the address. Update privacy.html sections 5 and 6: findable by name (default on, can be switched off), friend requests (kept two weeks; a refusal one week), duel ghosts kept three days and several duels per hour.
 - New collections (function only, deny-all rules): `ghosts`, `duelwin`, `limits`, `requests/{uid}/in|out|refused`, `challenges`, `duelsum`, `pairs`.
 - Optional hardening for the owner: Firebase App Check on the function makes scripted anonymous accounts much harder.
+
+## Duels per day, unlimited friend duels and duel tickets (v0.32.3)
+
+Deploy: `firebase deploy --only functions` from this folder (only the function changed; the rules and the indexes stay as
+they are, so `firebase deploy --only functions,firestore` does no harm either). Deploy it together with the v0.32.3 game:
+an older game keeps working (it still limits itself to five duels an hour), and the new game also works against the
+v0.32 server, except that friend challenges then still count against that server's hourly limit.
+
+- Random (public) duels: at most 15 per player per game day (`duelwin/{uid}` now holds `{ day, n, gk }`; the day is the
+  game day, 07:00, of the duel's start): 5 free, 2 more after a video each and up to 8 with duel tickets. The client keeps
+  the exact split; the server only refuses the 16th (`{ stored: false, limit: true }`). Duel tickets are earned only by
+  completing an album set (10 per set in the first phase, 30 in the second); they live in the save, the server never sees them.
+- Friend duels are unlimited: a duel with `challengeTo` (you challenge a friend) or `challenge` (you play a friend's
+  challenge) never counts and its ghost never goes into the public `ghosts` pool. No sap prize for friend duels (client).
+- Challenges are per direction: `challenges/{from}-{to}` (v0.32 used `{a_b}`; open ones keep working). `error: 'already'`
+  only while your own challenge to that friend is open, so the friend can challenge you back meanwhile.
+- `hello` -> `{ ok, v: 33, caps: [..., 'duel3'], inbox: { req, duel, notes } }`: `notes` counts the notes and rewards that
+  wait. The game asks `hello` at start, when it comes back to the foreground and every three minutes while it is open, and
+  `friends` only when something waits; the challenge and the result arrive as in-game cards, never as phone notifications.
+- Notes: a challenge note has `id` (the card's Speel button plays it); a result note has `ch: 'from'` (the challenger's) or
+  `ch: 'to'` (the friend's), and `forfeit: true` when a started challenge never got its score.
+- `profile` stores `pv` (the v0.32.3 game sends `pv: 33`: it polls for challenges and shows them as in-game cards; an older
+  game that sends `findable` resets it to 0), and every friend row (`profileView`) has `v3: pv >= 33` next to `v2`. The game
+  tells a challenger before the run when a friend has `v2` but not `v3` (an app that only shows the challenge under
+  Vrienden > Duels), and lets him send it anyway.
+- Plausibility (`seconds` bounded by `t`, at most 15 sap a second + 50) and everything else is unchanged.
 
 ## Save history (v0.32.2)
 

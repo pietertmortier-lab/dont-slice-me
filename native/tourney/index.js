@@ -1,5 +1,5 @@
 // Don't Slice Me! Keukentoernooi: the small server behind the weekly ladders.
-// One HTTPS Cloud Function ("tourney"): tournament actions, player profiles and friends. v0.32 duels per hour, ghosts and friend requests (review fixes) (see README). Firestore as storage, anonymous
+// One HTTPS Cloud Function ("tourney"): tournament actions, player profiles and friends. v0.32 ghosts and friend requests (review fixes), v0.32.3 duels per day and unlimited friend duels (see README). Firestore as storage, anonymous
 // Firebase Auth for identity.
 // The game keeps working without it (simulated division); with it, divisions of 50 real players, a weekly close with
 // prizes, and plausibility checks on every score. Deploy: see README.md in this folder.
@@ -25,17 +25,19 @@ const bandOf = level => Math.floor(Math.max(1, Number(level) || 1) / 15);
 // v0.32 duels per hour, ghosts and friend requests. hello tells a client what this server can do. A ghost is one finished duel
 // with its own seed; a player keeps GHOST_KEEP of them in fixed slots (ghosts/{hash}_{k}, no uid in the id), a random opponent
 // comes from the last two days of the same level band (then the bands next to it), never yourself and never a seed you already
-// played; the reply has no uid. At most DUEL_PER_HOUR duels an hour per player (+1 for clock skew), the window anchored at
-// the duel's start like the client. Friend duels v2: the challenger's seed and ghost go into challenges/{a_b}; the first
+// played; the reply has no uid. v0.32.3: at most DUEL_DAY_MAX random duels a game day per player (5 free + 2 after a video + 8 duel
+// tickets; the client keeps the split), the day of the duel's start like the client. Friend duels are unlimited and never
+// public ghosts. Friend duels v2: the challenger's seed and ghost go into challenges/{from}-{to} (v0.32: {a_b}); the first
 // duelfind of the friend starts it (status playing, no replays), the friend's score settles it, and a started duel whose
 // score never comes counts as 0 after CHALLENGE_PLAY_MS. Only friends whose client knows v2 (profile cv) can be challenged.
+// hello counts what waits (requests, open challenges, notes), so a client asks friends only when there is something.
 // Friends by name: profiles that a new client marked findable carry nameKey; findplayer answers with name, level, fruit
 // and a tag only (no uid, no code), rate limited per player and per address; friendreq / friendans make a request the
 // other player accepts; a repeated request sends no new note, a refused one waits a week, requests expire after two weeks.
 // FRIEND_SAP is paid once per pair.
 const crypto = require('crypto');
 const SAVE_HISTORY_DAYS = 7; // v0.32.2: one copy of the save per day, the last 7 days (saves/{uid}/history/{YYYY-MM-DD})
-const SERVER_V = 32, CLIENT_V = 32, CAPS = ['find', 'request', 'duel2'], DUEL_PER_HOUR = 5, HOUR_MS = 3600000, GHOST_KEEP = 20, GHOST_DAYS = 3, GHOST_RECENT_MS = 48 * HOUR_MS;
+const SERVER_V = 33, CLIENT_V = 32, POLL_V = 33, CAPS = ['find', 'request', 'duel2', 'duel3'], DUEL_DAY_MAX = 15, HOUR_MS = 3600000, GHOST_KEEP = 20, GHOST_DAYS = 3, GHOST_RECENT_MS = 48 * HOUR_MS;
 const CHALLENGE_MS = 24 * HOUR_MS, CHALLENGE_GRACE_MS = 20000, CHALLENGE_PLAY_MS = 3 * 60000, DUEL_T_MAX = 95000;
 const FIND_MAX = 20, FIND_IP_MAX = 60, FIND_WINDOW_MS = 10 * 60000, REQ_IN_MAX = 20, REQ_OUT_DAY = 20, REQ_TTL_MS = 14 * 86400000, REFUSED_MS = 7 * 86400000, MAX_JOIN_REWARDS = 10, SEED_RX = /^[A-Za-z0-9.\-]{4,40}$/;
 const ghostBand = level => Math.floor(Math.max(1, Number(level) || 1) / 10);
@@ -46,7 +48,7 @@ const ghostView = (id, g) => ({ id, seed: String(g.seed || ''), name: String(g.n
 const reqView = p => ({ ref: String(p.ref || ''), name: String(p.name || 'Fruit').slice(0, 16), level: p.level || 1, fruit: String(p.fruit || 'appel').slice(0, 24), tag: p.ref ? '#' + String(p.ref).slice(0, 3) : '' });
 const hashOf = (salt, v) => crypto.createHash('sha256').update(salt + ':' + v).digest('hex');
 const ghostKey = uid => hashOf('ghost', uid).slice(0, 20); // a ghost id never shows the uid
-const dayNow = () => new Date(Date.now() - 7 * 3600000).toISOString().slice(0, 10); // the game's day starts at 07:00
+const dayOf = t => new Date(t - 7 * 3600000).toISOString().slice(0, 10), dayNow = () => dayOf(Date.now()); // the game's day starts at 07:00
 const reqFresh = d => (((d.data && d.data()) || {}).at || 0) > Date.now() - REQ_TTL_MS; // a friend request older than two weeks no longer counts
 const clientIp = req => { const xff = String((req.get && req.get('x-forwarded-for')) || '').split(',').map(s => s.trim()).filter(Boolean); return xff.length ? xff[xff.length - 1] : String(req.ip || ''); }; // Google's front end appends the real address last
 async function rateOk(key, max, windowMs) { // a fixed window per key in limits/{key}
@@ -75,12 +77,12 @@ async function freshRequests(uid) { // the requests that wait for uid; stale one
   if (old.length) { const b = db.batch(); for (const d of old) { b.delete(d.ref); b.delete(db.doc(`requests/${d.id}/out/${uid}`)); } await b.commit(); }
   return keep;
 }
-async function duelSlot(uid, startedAt, withGhost) { // the hourly duel limit (a window from the start of its first duel, DUEL_PER_HOUR + 1 for clock skew) and the ghost slot
-  const ref = db.doc(`duelwin/${uid}`);
-  return db.runTransaction(async tx => { const d = (await tx.get(ref)).data() || {}, gk = d.gk || 0; let start = d.start || 0, n = d.n || 0;
-    if (!start || startedAt >= start + HOUR_MS) { start = startedAt; n = 0; } // a duel that started before the window counts in it
-    if (n >= DUEL_PER_HOUR + 1) return { ok: false, k: -1 };
-    tx.set(ref, { start, n: n + 1, gk: gk + (withGhost ? 1 : 0) }); return { ok: true, k: gk % GHOST_KEEP }; });
+async function duelSlot(uid, startedAt, withGhost) { // v0.32.3: the daily random-duel limit (DUEL_DAY_MAX a game day, the day of the duel's start like the client) and the ghost slot; friend duels never come here
+  const ref = db.doc(`duelwin/${uid}`), day = dayOf(startedAt);
+  return db.runTransaction(async tx => { const d = (await tx.get(ref)).data() || {}, gk = d.gk || 0; let cur = typeof d.day === 'string' ? d.day : '', n = d.n || 0;
+    if (!cur || day > cur) { cur = day; n = 0; } // a new day (an old hourly doc has no day); a late post from the day before counts in the current one
+    if (n >= DUEL_DAY_MAX) return { ok: false, k: -1 };
+    tx.set(ref, { day: cur, n: n + 1, gk: gk + (withGhost ? 1 : 0) }); return { ok: true, k: gk % GHOST_KEEP }; });
 }
 async function ghostPlayed(id, seed, day, myScore) { // a ghost was played on its own seed: its counts, and a summary for its owner, one note a day instead of one per pick
   const gref = db.doc(`ghosts/${String(id).slice(0, 64)}`), g = (await gref.get()).data(); if (!g || !g.uid || g.seed !== seed) return; // a stale or made-up id counts nothing
@@ -92,7 +94,7 @@ async function ghostPlayed(id, seed, day, myScore) { // a ghost was played on it
 const chalLive = (x, now) => (x.status === 'open' && (x.expires || 0) > now) || (x.status === 'playing' && (x.startedAt || 0) + CHALLENGE_PLAY_MS > now); // a friend duel that can still take the friend's score
 async function settleStale(ref) { // a friend duel that was started (duelfind) but whose score never came within CHALLENGE_PLAY_MS counts as 0 sap
   const now = Date.now(); const x = await db.runTransaction(async tx => { const c = (await tx.get(ref)).data(); if (!c || c.status !== 'playing' || (c.startedAt || 0) + CHALLENGE_PLAY_MS > now) return null; tx.update(ref, { status: 'done', toScore: 0, settled: now, forfeit: true }); return c; });
-  if (x) { const theirs = x.fromScore || 0, day = dayNow(); await Promise.all([noteTo(x.from, { type: 'duel', vs: x.toName || 'vriend', won: theirs > 0, tie: theirs === 0, score: theirs, theirs: 0, hat: LOSER_HAT, day }), noteTo(x.to, { type: 'duel', vs: x.fromName || 'vriend', won: false, tie: theirs === 0, score: 0, theirs, hat: LOSER_HAT, day })]); }
+  if (x) { const theirs = x.fromScore || 0, day = dayNow(); await Promise.all([noteTo(x.from, { type: 'duel', ch: 'from', forfeit: true, vs: x.toName || 'vriend', won: theirs > 0, tie: theirs === 0, score: theirs, theirs: 0, hat: LOSER_HAT, day }), noteTo(x.to, { type: 'duel', ch: 'to', forfeit: true, vs: x.fromName || 'vriend', won: false, tie: theirs === 0, score: 0, theirs, hat: LOSER_HAT, day })]); } // v0.32.3: ch says whose note it is
   return x;
 }
 const dayOk = day => { if (!DAY_RX.test(String(day || ''))) return false; const t = Date.parse(day + 'T12:00:00Z'); return Math.abs(t - Date.now()) < 2 * 86400000; }; // today, give or take a day of timezone
@@ -107,7 +109,7 @@ async function settleChallenge(day, c, ref) { // both entries present: the highe
 const newCode = () => Array.from({ length: 6 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
 const cleanCode = v => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
 const clampInt = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.floor(Number(v) || 0)));
-const profileView = (id, p) => p ? ({ uid: id, name: String(p.name || 'Fruit').slice(0, 16), level: p.level || 1, best: p.best || 0, fruits: Array.isArray(p.fruits) ? p.fruits : [], hat: p.hat || 'none', streak: p.streak || 0, runs: p.runs || 0, stamps: p.stamps || 0, division: p.division || '', weekKey: p.weekKey || '', weekEv: p.weekEv || '', weekScore: p.weekScore || 0, kitchen: p.kitchen && typeof p.kitchen === 'object' ? p.kitchen : null, last: p.updatedMs || 0, v2: (p.cv || 0) >= CLIENT_V }) : null; // v0.32: v2 = the friend's client plays friend duels v2
+const profileView = (id, p) => p ? ({ uid: id, name: String(p.name || 'Fruit').slice(0, 16), level: p.level || 1, best: p.best || 0, fruits: Array.isArray(p.fruits) ? p.fruits : [], hat: p.hat || 'none', streak: p.streak || 0, runs: p.runs || 0, stamps: p.stamps || 0, division: p.division || '', weekKey: p.weekKey || '', weekEv: p.weekEv || '', weekScore: p.weekScore || 0, kitchen: p.kitchen && typeof p.kitchen === 'object' ? p.kitchen : null, last: p.updatedMs || 0, v2: (p.cv || 0) >= CLIENT_V, v3: (p.pv || 0) >= POLL_V }) : null; // v0.32: v2 = the friend's client plays friend duels v2; v0.32.3: v3 = it also polls and shows a challenge as an in-game card
 async function ensureCode(uid, data) { // the player's code, created once
   const ref = db.doc(`profiles/${uid}`), cur = (await ref.get()).data() || {};
   if (cur.code) return cur.code;
@@ -147,9 +149,10 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, 
   let uid = rawUid; try { const dev = (await db.doc(`devices/${rawUid}`).get()).data(); if (dev && dev.primary) uid = dev.primary; } catch (e) {}
   const body = req.body || {}, action = body.action, week = isoWeek(new Date());
   try {
-    if (action === 'hello') { // v0.32: what this server can do, and what waits for me (friend requests, friend duels)
-      const [rin, cin] = await Promise.all([freshRequests(uid), db.collection('challenges').where('to', '==', uid).where('status', '==', 'open').limit(10).get()]);
-      const now = Date.now(); res.json({ ok: true, v: SERVER_V, caps: CAPS, inbox: { req: rin.length, duel: cin.docs.filter(d => (d.data().expires || 0) > now).length } });
+    if (action === 'hello') { // v0.32: what this server can do, and what waits for me (friend requests, friend duels); v0.32.3: and how many notes and rewards wait (friends hands them out)
+      const [rin, cin, mine] = await Promise.all([freshRequests(uid), db.collection('challenges').where('to', '==', uid).where('status', '==', 'open').limit(10).get(), db.doc(`profiles/${uid}`).get()]);
+      const now = Date.now(), p = mine.data() || {}, notes = (Array.isArray(p.notes) ? p.notes.length : 0) + (Array.isArray(p.pending) ? p.pending.length : 0);
+      res.json({ ok: true, v: SERVER_V, caps: CAPS, inbox: { req: rin.length, duel: cin.docs.filter(d => (d.data().expires || 0) > now).length, notes } });
     } else if (action === 'submit') { // { ev, score, seconds, level, division, name }
       const ev = String(body.ev); if (!EVENTS.includes(ev) || ev !== eventOfWeek(week)) { res.status(400).json({ error: 'event' }); return; }
       const score = Math.max(0, Math.floor(Number(body.score) || 0)), seconds = Math.max(1, Number(body.seconds) || 1);
@@ -172,7 +175,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, 
         fruits: (Array.isArray(body.fruits) ? body.fruits : []).map(k => String(k).slice(0, 24)).slice(0, 40), hat: String(body.hat || 'none').slice(0, 24), streak: clampInt(body.streak, 0, 10000), runs: clampInt(body.runs, 0, 1e6),
         stamps: clampInt(body.stamps, 0, 100000), division: DIVISIONS.includes(body.division) ? body.division : '', weekKey: String(body.weekKey || '').slice(0, 12), weekEv: EVENTS.includes(body.weekEv) ? body.weekEv : '', weekScore: clampInt(body.weekScore, 0, 1e6), kitchen: kitchenOf(body.kitchen),
         updatedMs: Date.now(), updated: admin.firestore.FieldValue.serverTimestamp() };
-      if (typeof body.findable === 'boolean') { data.findable = body.findable; data.nameKey = body.findable ? nameKeyOf(data.name) : ''; data.cv = CLIENT_V; } // v0.32: only a client that can show requests and friend duels v2 sends findable
+      if (typeof body.findable === 'boolean') { data.findable = body.findable; data.nameKey = body.findable ? nameKeyOf(data.name) : ''; data.cv = CLIENT_V; data.pv = clampInt(body.pv, 0, 999); } // v0.32: only a client that can show requests and friend duels v2 sends findable; v0.32.3: pv 33 = it polls (an older one resets it to 0)
       if (body.fruit) data.fruit = String(body.fruit).slice(0, 24);
       const code = await ensureCode(uid, data); await db.doc(`profiles/${uid}`).set(data, { merge: true }); await ensureRef(uid); res.json({ ok: true, code });
     } else if (action === 'befriend') { // { code } -> both players become friends; the first time, both get FRIEND_SAP
@@ -240,22 +243,23 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, 
       const seed = String(body.seed), score = clampInt(body.score, 0, 1e6), t = clampInt(body.t, 0, DUEL_T_MAX), seconds = Math.max(1, Math.min(Number(body.seconds) || 1, t / 1000 + 2, DUEL_T_MAX / 1000)); // a duel lasts 90 s: seconds is bounded by its own t
       if (score > seconds * DUEL_MAX_PER_SEC + 50) { res.status(400).json({ error: 'implausible' }); return; }
       const now = Date.now(), name = playerName(body.name), level = clampInt(body.level, 1, 500), fruit = String(body.fruit || 'appel').slice(0, 24), quit = !!body.quit, ghost = quit ? '' : String(body.ghost || '').replace(/[^0-9,\-]/g, '').slice(0, GHOST_MAX * 8);
-      const cid = String(body.challenge || '').slice(0, 300), to = String(body.challengeTo || '').slice(0, 128), slot = await duelSlot(uid, now - t, !!ghost); // the window is anchored at the duel's start, like the client's
+      const cid = String(body.challenge || '').slice(0, 300), to = String(body.challengeTo || '').slice(0, 128), friendly = !!cid || !!(to && to !== uid); // v0.32.3: a friend duel (one you send or play) is unlimited and never a public ghost
+      const slot = friendly ? { ok: true, k: -1 } : await duelSlot(uid, now - t, !!ghost); // a random duel counts on the day of its start, like the client's
       let ghostId = '', settled = 0, challenge = '', error = '';
-      if (slot.ok) {
+      if (slot.ok && !friendly) {
         if (ghost) { ghostId = `${ghostKey(uid)}_${slot.k}`; await db.doc(`ghosts/${ghostId}`).set({ uid, name, fruit, level, band: ghostBand(level), seed, score, t, ghost, createdMs: now, expireAt: new Date(now + GHOST_DAYS * 86400000), picked: 0, wins: 0, losses: 0 }); } // a fixed slot: the oldest of the player's GHOST_KEEP ghosts is replaced, no trim query
         if (seed === body.day && ghost) { const ref = db.doc(`duels/${body.day}/entries/${uid}`); if (!(await ref.get()).exists) { await ref.set({ score, level, band: bandOf(level), fruit, name, ghost, t, picked: 0, updatedMs: now });
           const [asFrom, asTo] = await Promise.all([db.collection(`duels/${body.day}/challenges`).where('from', '==', uid).get(), db.collection(`duels/${body.day}/challenges`).where('to', '==', uid).get()]); for (const d of asFrom.docs.concat(asTo.docs)) { const c = d.data(); if (!c.resolved) await settleChallenge(body.day, c, d.ref); } } }
         if (body.vsGhost) { try { await ghostPlayed(body.vsGhost, seed, body.day, score); } catch (e) {} }
       }
-      if (cid) { const cref = db.doc(`challenges/${cid}`); const c = await db.runTransaction(async tx => { const x = (await tx.get(cref)).data(); if (!x || x.to !== uid || x.seed !== seed || !chalLive(x, now)) return null; tx.update(cref, { status: 'done', toScore: score, settled: now }); return x; }); // a reply settles even beyond the hourly limit: it was started from duelfind
-        if (c) { const theirs = c.fromScore || 0; await Promise.all([noteTo(c.from, { type: 'duel', vs: c.toName || name, won: theirs > score, tie: theirs === score, score: theirs, theirs: score, hat: LOSER_HAT, day: body.day }), noteTo(uid, { type: 'duel', vs: c.fromName || 'vriend', won: score > theirs, tie: theirs === score, score, theirs, hat: LOSER_HAT, day: body.day })]); settled = 1; } }
-      if (to && to !== uid) { if (!slot.ok) error = 'limit'; else if (!ghostId) error = 'quit'; else { const [isFriend, op, seenG, seenD] = await Promise.all([db.doc(`friends/${uid}/of/${to}`).get(), db.doc(`profiles/${to}`).get(), db.collection('ghosts').where('uid', '==', to).where('seed', '==', seed).limit(1).get(), seed === body.day ? db.doc(`duels/${body.day}/entries/${to}`).get() : Promise.resolve(null)]);
+      if (cid) { const cref = db.doc(`challenges/${cid}`); const c = await db.runTransaction(async tx => { const x = (await tx.get(cref)).data(); if (!x || x.to !== uid || x.seed !== seed || !chalLive(x, now)) return null; tx.update(cref, { status: 'done', toScore: score, settled: now }); return x; }); // a reply is a friend duel: never limited, it was started from duelfind
+        if (c) { const theirs = c.fromScore || 0; await Promise.all([noteTo(c.from, { type: 'duel', ch: 'from', vs: c.toName || name, won: theirs > score, tie: theirs === score, score: theirs, theirs: score, hat: LOSER_HAT, day: body.day }), noteTo(uid, { type: 'duel', ch: 'to', vs: c.fromName || 'vriend', won: score > theirs, tie: theirs === score, score, theirs, hat: LOSER_HAT, day: body.day })]); settled = 1; } } // the result reaches the challenger as a note (ch: 'from'); hello counts it
+      if (to && to !== uid) { if (quit || !ghost) error = 'quit'; else { const [isFriend, op, seenG, seenD] = await Promise.all([db.doc(`friends/${uid}/of/${to}`).get(), db.doc(`profiles/${to}`).get(), db.collection('ghosts').where('uid', '==', to).where('seed', '==', seed).limit(1).get(), seed === body.day ? db.doc(`duels/${body.day}/entries/${to}`).get() : Promise.resolve(null)]);
         const o = op.data() || {};
         if (!isFriend.exists) error = 'notfriend'; else if (!((o.cv || 0) >= CLIENT_V)) error = 'oldapp'; else if (!seenG.empty || (seenD && seenD.exists)) error = 'seen'; // an older app cannot play a v2 challenge; never knives the friend already played
-        else { const id = [uid, to].sort().join('_'), cref = db.doc(`challenges/${id}`), cur = (await cref.get()).data();
-          if (cur && chalLive(cur, now)) error = 'already';
-          else { await cref.set({ from: uid, to, fromName: name, toName: String(o.name || 'vriend').slice(0, 16), seed, ghost, t, fromScore: score, fromFruit: fruit, level, status: 'open', created: now, expires: now + CHALLENGE_MS }); await noteTo(to, { type: 'challenge', v: 2, by: name }); challenge = id; } } } }
+        else { const id = `${uid}-${to}`, cref = db.doc(`challenges/${id}`), [cur, old] = (await Promise.all([cref.get(), db.doc(`challenges/${[uid, to].sort().join('_')}`).get()])).map(s => s.data()); // v0.32.3: one open challenge per direction; a uid has no '-', a v0.32 pair id has '_'
+          if ((cur && chalLive(cur, now)) || (old && old.from === uid && chalLive(old, now))) error = 'already';
+          else { await cref.set({ from: uid, to, fromName: name, toName: String(o.name || 'vriend').slice(0, 16), seed, ghost, t, fromScore: score, fromFruit: fruit, level, status: 'open', created: now, expires: now + CHALLENGE_MS }); await noteTo(to, { type: 'challenge', v: 2, by: name, id }); challenge = id; } } } } // the note reaches the friend's next hello (inbox.notes) and its card plays this id
       res.json(slot.ok ? { ok: true, stored: true, settled, challenge, error } : { ok: true, stored: false, limit: true, settled, challenge, error });
     } else if (action === 'duel') { // { day, score, seconds, level, fruit, name, ghost, t, vs, vsScore }: my finished duel; settles friend challenges that are complete now
       if (!dayOk(body.day)) { res.status(400).json({ error: 'day' }); return; }

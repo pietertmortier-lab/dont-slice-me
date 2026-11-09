@@ -439,6 +439,8 @@ canvas.pvthumb{width:44px;height:44px;flex:0 0 44px;border-radius:10px;backgroun
 #show-body .achip[data-slabel=""]{align-self:flex-start}
 #rw-acts{margin-top:4px}
 #rw-acts .btn{flex:1 1 120px;font-size:16px;padding:10px 14px}
+#askbox{z-index:12}#askbox .rw-card{display:flex;flex-direction:column;gap:10px}#askbox .rw-title{font-size:20px;line-height:1.15}#ask-text{margin:0;font-size:14px;color:var(--ink);text-align:left}#ask-note{margin:0;font-size:13px;font-weight:700;color:var(--ink);text-align:left;background:rgba(255,200,60,.22);border-left:4px solid #f0a020;border-radius:8px;padding:7px 9px}#askbox .finput{width:100%;flex:0 0 auto}#ask-area{min-height:84px;resize:none;font-size:13px;word-break:break-all}#askbox .finput.caps{text-transform:uppercase;letter-spacing:.08em}#askbox .row{margin-top:2px}#askbox .row .btn{flex:1 1 110px;font-size:17px;padding:11px 14px}
+.duelx-row{gap:6px;margin:6px 0 2px;justify-content:stretch}.duelx-row .btn{flex:1 1 140px;font-size:14px;padding:9px 10px;line-height:1.2}
 </style>
 </head>
 <body>
@@ -607,6 +609,7 @@ canvas.pvthumb{width:44px;height:44px;flex:0 0 44px;border-radius:10px;backgroun
   <div id="reward" hidden role="dialog" aria-label="Beloning"><div class="rw-card"><div class="rw-title" id="rw-title">Gekregen!</div><div class="rw-icons" id="rw-icons"></div><div class="rw-text" id="rw-text" hidden></div><div class="row" id="rw-acts" hidden></div><button class="btn primary" id="rw-ok">Top!</button><div class="small rw-hint">Tik om verder te gaan</div></div></div>
   <div id="playbar" hidden><button id="btn-home-game" title="Level verlaten"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/><path d="M10 19v-5h4v5"/></svg></button><button id="btn-lang-game" title="Taal"><span class="flag cur nl"></span></button></div>
   <div id="confirm" class="dialog" hidden><div class="rw-card"><div class="rw-title">Level verlaten?</div><p class="small">Je verlaat dit level en moet straks opnieuw beginnen.</p><div class="row"><button class="btn primary" id="btn-confirm-yes">Ja, stoppen</button><button class="btn" id="btn-confirm-no">Nee, verder spelen</button></div></div></div>
+  <div id="askbox" class="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ask-title"><div class="rw-card"><div class="rw-title" id="ask-title"></div><p class="rw-text" id="ask-text"></p><p class="rw-text" id="ask-note" hidden></p><input class="finput" id="ask-input" hidden autocomplete="off" autocapitalize="off" enterkeyhint="done" aria-label="Antwoord"><textarea class="finput" id="ask-area" hidden rows="4" autocomplete="off" spellcheck="false" aria-label="Opslagcode"></textarea><div class="row"><button class="btn primary" id="ask-yes" type="button">Oké</button><button class="btn" id="ask-no" type="button">Annuleer</button></div></div></div>
   <div id="stkbox" class="dialog sheetbox" hidden role="dialog" aria-label="Sticker"><div class="sheet stksheet"><span class="grab"></span><button class="iconbtn closex" id="btn-stk-close" type="button" aria-label="Sluiten" title="Sluiten"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="stack" id="stk-body"></div></div></div>
   <div id="showbox" class="dialog sheetbox" hidden role="dialog" aria-label="Je kaartje"><div class="sheet"><span class="grab"></span><button class="iconbtn closex" id="btn-show-close" type="button" aria-label="Sluiten" title="Sluiten"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><h2>Je kaartje</h2><div class="stack" id="show-body"></div></div></div>
   <div id="prevbox" class="dialog" hidden role="dialog" aria-label="Voorbeeld"><div class="rw-card pvcard"><div class="rw-title" id="pv-title"></div><canvas id="pv-canvas" width="320" height="320" style="width:160px;height:160px"></canvas><div class="pv-forms" id="pv-forms" hidden></div><div class="pv-lines" id="pv-lines"></div><div class="row" id="pv-acts"></div></div></div>
@@ -2500,7 +2503,7 @@ const EN_RX = [
   [/^Kost ([\d.]+) sap, je hebt er ([\d.]+)\. Later ook (.+)\.$/, m => `Costs ${m[1]} juice, you have ${m[2]}. Later also ${m[3]}.`], [/^Kost ([\d.]+) sap\. Later ook (.+)\.$/, m => `Costs ${m[1]} juice. Later also ${m[2]}.`],
   [/^Koop · ([\d.]+) sap$/, m => `Buy · ${m[1]} juice`], [/^Houden · ([\d.]+) sap$/, m => `Keep · ${m[1]} juice`], [/^Ontgrendeld \(([\d.]+) sap\)\.$/, m => `Unlocked (${m[1]} juice).`], [/^Vanaf level (\d+)$/, m => `From level ${m[1]}`],
   [/^Te koop vanaf level (\d+) \(jij zit op (\d+)\)\. Kost ([\d.]+) sap\.$/, m => `For sale from level ${m[1]} (you are at ${m[2]}). Costs ${m[3]} juice.`],
-  [/^Fruitbonus: \+(\d+)% sap na elke poging en messen (\d+)% rustiger\. (.*)$/, m => `Fruit bonus: +${m[1]}% juice after every run and knives ${m[2]}% calmer. ${tr(m[3])}`],
+  [/^Fruitbonus: \+(\d+)% sap na elke poging en messen (\d+)% rustiger \(niet in duels\)\. (.*)$/, m => `Fruit bonus: +${m[1]}% juice after every run and knives ${m[2]}% calmer (not in duels). ${tr(m[3])}`],
   [/^Niveau (\d+)(.*)$/, m => `Level ${m[1]}${m[2].replace('eigenschap versterkt', 'trait strengthened').replace(/ · (\d+)\/(\d+) s tot sterker/, ' · $1/$2 s to stronger').replace(/ · (\d+) levels? uitgespeeld/, ' · $1 levels completed').replace(' · brons bij 10', ' · bronze at 10').replace('brons', 'bronze').replace('zilver', 'silver').replace('goud', 'gold').replace('diamant', 'diamond')}`],
   [/^\+(\d+) sap$/, m => `+${m[1]} juice`], [/^\+(\d+) hartje$/, m => `+${m[1]} heart`], [/^\+(\d+) hartjes$/, m => `+${m[1]} hearts`], [/^hoedje: (.+)$/, m => `hat: ${tr(m[1])}`], [/^bordskin: (.+)$/, m => `board skin: ${tr(m[1])}`], [/^titel "(.+)"$/, m => `title "${tr(m[1])}"`], [/^\+(\d+) munt$/, m => `+${m[1]} coin`], [/^\+(\d+) munten$/, m => `+${m[1]} coins`], [/^\+(\d+) reeksschild$/, m => `+${m[1]} streak shield`], [/^\+(\d+) min onbeperkt$/, m => `+${m[1]} min unlimited`], [/^Sapverdubbelaar (\d+) uur$/, m => `Juice doubler ${m[1]} h`], [/^Keukensleutel ×(\d+)$/, m => `Kitchen key ×${m[1]}`], [/^(Schild|Stroop|Magneet) ×(\d+)$/, m => `${tr(m[1])} ×${m[2]}`], [/^Plus: (\d+) dagen proef$/, m => `Plus: ${m[1]} days trial`], [/^(.+) niv\. (\d+)$/, m => `${tr(m[1])} lvl ${m[2]}`],
   [/^Volgend hartje over (.+)$/, m => `Next heart in ${m[1]}`], [/^\+1 hartje · ([\d.]+) sap \(nog (\d+) van (\d+) vandaag\)$/, m => `+1 heart · ${m[1]} juice (${m[2]} of ${m[3]} left today)`], [/^Extra hartjesplek · ([\d.]+) sap$/, m => `Extra heart slot · ${m[1]} juice`],
@@ -2877,7 +2880,7 @@ const SAVE_DEFAULTS = {
   videoDay: { day: '', n: {} }, sap: 0, best: 0, bestBy: {}, owned: ['appel'], fruit: 'appel', sound: true, music3: true, runs: 0, cubes: 0, level: 1, hearts: 5, heartsAt: 0, heartSlots: 0, shareDay: '', lang: '', kit: { zicht: 0, schil: 0, zeef: 0, hartjes: 0, mand: 0 }, unlimitedUntil: 0, simEur: 0,
   streak: 0, streakLast: '', streakClaimed: '', shields: 0, firstRunDay: '',
   missions: { day: '', list: [] }, daily: { day: '', played: false, best: 0, goals: '' }, chefStamps: 0, weekend: { week: '', cleared: false, best: 0, game: '' },
-  friendCode: '', pendingFriend: '', friends: { at: 0, list: [] }, profileAt: 0, duel: { day: '', played: false, score: 0, vs: '', vsName: '', vsScore: 0, result: '', pot: 0, stake: 0 }, challenges: { day: '', list: [] }, duelHour: { start: 0, n: 0, at: [] }, duelSeeds: [], duelPay: { day: '', n: 0 }, findable: true, friendReqs: { at: 0, in: [], out: [] }, friendDuels: { at: 0, list: [] }, rivals: { week: '', list: [], passed: [] }, season: { id: '', cleared: [], best: {}, done: false, prev: null }, seasonForms: {}, loserHatUntil: 0, kitchen: { lv: { plank: 0, oven: 0, koelkast: 0, vitrine: 0 }, at: 0, got: 0, tips: 0, tipped: {}, orders: { week: '', list: [] } }, unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
+  friendCode: '', pendingFriend: '', friends: { at: 0, list: [] }, profileAt: 0, duel: { day: '', played: false, score: 0, vs: '', vsName: '', vsScore: 0, result: '', pot: 0, stake: 0 }, challenges: { day: '', list: [] }, duelDay: { day: '', n: 0, ad: 0, adc: 0, tk: 0 }, duelTickets: 0, duelBack: false, duelPaid: {}, duelSeeds: [], duelPay: { day: '', n: 0 }, findable: true, friendReqs: { at: 0, in: [], out: [] }, friendDuels: { at: 0, list: [] }, rivals: { week: '', list: [], passed: [] }, season: { id: '', cleared: [], best: {}, done: false, prev: null }, seasonForms: {}, loserHatUntil: 0, kitchen: { lv: { plank: 0, oven: 0, koelkast: 0, vitrine: 0 }, at: 0, got: 0, tips: 0, tipped: {}, orders: { week: '', list: [] } }, unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
   stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, cutBy: {}, fevers: 0, feverRun: 0, revenge: 0, duels: 0, duelWins: 0, rivalsPassed: 0, chapters: 0, kitchenSap: 0, ordersDone: 0, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0, interDone: 0, solo: 0, ladderTop10: 0, revengeBest: 0 },
   stamps: {}, families: {}, titles: [], boards: [], board: '', startLevel: 0, bounty: { day: '', n: 0, k: '', claimed: false }, wheel: { day: '', result: '', ad: false },
   spins: 0, spinSalesOn: false, paidSpins: 0, seen: {}, fresh: {}, seenDay: {}, show: { title: '', pins: [], label: '' }, stkClaimed: {}, setClaimed: {}, albumMiles: {}, stkCtx: {}, albumFx: {}, albumFxOff: [], albumSince: '',
@@ -2906,7 +2909,7 @@ function loadSave(keep) { // keep: normalise the save in memory without reading 
   if (!Array.isArray(save.lampions)) save.lampions = []; save.lampions = save.lampions.filter(x => x && typeof x === 'object' && interOwn(x.k) && x.lv >= 1).map(x => Object.assign({ k: x.k, lv: Math.floor(x.lv) }, x.m > 0 && x.m < 1e3 ? { m: +x.m } : {})).slice(0, 3); // v0.32: the Lampionvrucht's saved minigames (a merge keeps the newer save's list); only real minigame keys (not 'constructor'); m: the sap multiplier of the run that saved it
   if (!save.friends || typeof save.friends !== 'object' || !Array.isArray(save.friends.list)) save.friends = { at: 0, list: [] }; if (typeof save.friendCode !== 'string') save.friendCode = ''; if (typeof save.pendingFriend !== 'string') save.pendingFriend = '';
   { const ob = v => !!v && typeof v === 'object' && !Array.isArray(v); // v0.32: new fields with defaults; a broken value (null, a string) gets the default
-    save.duelSeeds = Array.isArray(save.duelSeeds) ? save.duelSeeds.filter(x => typeof x === 'string').slice(-60) : []; if (!ob(save.duelHour) || !(save.duelHour.n >= 0 && save.duelHour.start >= 0)) save.duelHour = { start: 0, n: 0, at: [] }; if (!ob(save.duelPay) || !(save.duelPay.n >= 0)) save.duelPay = { day: '', n: 0 }; if (typeof save.findable !== 'boolean') save.findable = true;
+    save.duelSeeds = Array.isArray(save.duelSeeds) ? save.duelSeeds.filter(x => typeof x === 'string').slice(-60) : []; delete save.duelHour; if (!ob(save.duelDay) || typeof save.duelDay.day !== 'string' || !(save.duelDay.n >= 0 && save.duelDay.ad >= 0 && save.duelDay.adc >= 0 && save.duelDay.tk >= 0)) save.duelDay = { day: '', n: 0, ad: 0, adc: 0, tk: 0 }; save.duelTickets = Math.max(0, Math.floor(+save.duelTickets) || 0); if (typeof save.duelBack !== 'boolean') save.duelBack = false; if (!ob(save.duelPaid)) save.duelPaid = {}; for (const k of Object.keys(save.duelPaid)) { const v = Math.floor(+save.duelPaid[k]) || 0; if (v > 0) save.duelPaid[k] = v; else delete save.duelPaid[k]; } /* v0.32.3: duels per day (the hourly window is gone), duel tickets and their catch-up (duelPaid: the tickets each album set paid, per set) */ if (!ob(save.duelPay) || !(save.duelPay.n >= 0)) save.duelPay = { day: '', n: 0 }; if (typeof save.findable !== 'boolean') save.findable = true;
     if (!ob(save.friendReqs) || !Array.isArray(save.friendReqs.in) || !Array.isArray(save.friendReqs.out)) save.friendReqs = { at: 0, in: [], out: [] }; if (!ob(save.friendDuels) || !Array.isArray(save.friendDuels.list)) save.friendDuels = { at: 0, list: [] }; }
   if (!(save.hearts >= 0 && save.hearts <= maxHearts())) save.hearts = maxHearts();
   if (!(save.heartsAt > 0)) save.heartsAt = 0; if (!(save.unlimitedUntil > 0)) save.unlimitedUntil = 0; if (typeof save.unlDay !== 'string') save.unlDay = ''; if (!save.sapDay || typeof save.sapDay.day !== 'string' || !(save.sapDay.n >= 0)) save.sapDay = { day: '', n: 0 }; if (typeof save.dealPick !== 'string') save.dealPick = ''; if (typeof save.dealBought !== 'string') save.dealBought = ''; if (!(save.simEur >= 0)) save.simEur = 0;
@@ -3016,7 +3019,10 @@ function mergeSaves(base, other) { // base is the newer save and wins on setting
   if (!base.name && other.name) base.name = other.name; if (!base.friendCode && other.friendCode) base.friendCode = other.friendCode;
   if (other.plus && typeof other.plus === 'object' && (other.plus.until || 0) > ((base.plus && base.plus.until) || 0)) base.plus = other.plus; if (other.noAds) base.noAds = true;
   if (other.pass && typeof other.pass === 'object' && other.pass.premium && base.pass && typeof base.pass === 'object' && !base.pass.premium && other.pass.season === base.pass.season) base.pass.premium = true;
-  { const ta = duelAt(base.duelHour), tb = duelAt(other.duelHour); if (ta.length || tb.length) { const cnt = new Map(); for (const L of [ta, tb]) { const m = new Map(); for (const t of L) m.set(t, (m.get(t) || 0) + 1); for (const [t, c] of m) cnt.set(t, Math.max(cnt.get(t) || 0, c)); } const at = []; for (const [t, c] of cnt) for (let i = 0; i < c; i++) at.push(t); at.sort((x, y) => x - y); const keep = at.slice(-40); base.duelHour = { start: keep[0], n: keep.length, at: keep }; } } // v0.32 review: the duels of both devices (a union of their start times), never fewer
+  { const a = base.duelDay, b = other.duelDay; if (b && typeof b === 'object' && typeof b.day === 'string' && b.day) { if (!a || typeof a !== 'object' || typeof a.day !== 'string' || b.day > a.day) base.duelDay = { day: b.day, n: b.n || 0, ad: b.ad || 0, adc: b.adc || 0, tk: b.tk || 0 }; else if (a.day === b.day) for (const k of ['n', 'ad', 'tk']) a[k] = Math.max(a[k] || 0, b[k] || 0); } } // v0.32.3: today's public duels of both devices, never fewer (a video's unused duel stays the newer save's, like the wallet)
+  { const okP = v => !!v && typeof v === 'object' && !Array.isArray(v), pb = okP(other.duelPaid) ? other.duelPaid : null; if (other.duelBack === true) base.duelBack = true; // v0.32.3: the duel tickets each album set paid, a union per set (never a set twice)
+    if (pb) { const P = okP(base.duelPaid) ? base.duelPaid : (base.duelPaid = {}); let extra = 0; for (const k of Object.keys(pb)) { const v = Math.floor(+pb[k]) || 0; if (v > 0 && !(+P[k] > 0)) { P[k] = v; extra += v; } }
+      if (extra) base.duelTickets = Math.max(0, Math.floor(+base.duelTickets) || 0) + Math.min(extra, Math.max(0, Math.floor(+other.duelTickets) || 0)); } } // tickets the other device got for sets this save never paid come along (at most what it still holds); otherwise tickets are like the wallet (the newer save's); a claimed set paid on neither pays at the next catch-up (duelBackPay)
   if (Array.isArray(other.duelSeeds)) base.duelSeeds = Array.from(new Set([...(Array.isArray(base.duelSeeds) ? base.duelSeeds : []), ...other.duelSeeds])).slice(-60);
   { const a = base.duelPay, b = other.duelPay; if (b && typeof b === 'object' && b.day) { if (!a || typeof a !== 'object' || String(b.day) > String(a.day || '')) base.duelPay = { day: b.day, n: b.n || 0 }; else if (a.day === b.day) a.n = Math.max(a.n || 0, b.n || 0); } }
   { const ob = v => !!v && typeof v === 'object' && !Array.isArray(v); // v0.32.1 album: a union of the claimed keys (earliest day) and the looks; the diary lines of both
@@ -3028,7 +3034,7 @@ function mergeSaves(base, other) { // base is the newer save and wins on setting
 function store() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
-    if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object' && (d.rev || 0) > storedRev) { const merged = mergeSaves(d, save); for (const k of Object.keys(merged)) save[k] = merged[k]; loadSave(true); } }
+    if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object' && (d.rev || 0) > storedRev) { const merged = mergeSaves(d, save); for (const k of Object.keys(merged)) save[k] = merged[k]; loadSave(true); setTimeout(() => { if (!inRunState()) duelBackPay(); }, 0); } } /* v0.32.3: a set claimed in another tab without its tickets pays them (never inside a run) */
     settleSeasons(); save.rev = Math.max(save.rev || 0, storedRev) + 1; save.savedAt = nowMs(); storedRev = save.rev; localStorage.setItem(SAVE_KEY, JSON.stringify(save)); cloudSchedule(); navSapShow();
   } catch (e) {}
 }
@@ -3492,7 +3498,7 @@ function updateHub(id) {
   if (r) { // v0.32.0 review (the judge's mockup): one header row on top of every hub screen, the tab's name (the logo on Spelen), your sap and, on Spelen, the gear
     const T = NAV_TAB[r[0]], play = T.k === 'play', nt = $('#nav-title'); nt.textContent = play ? "Don't Slice Me!" : navLabel(T.name); nt.classList.toggle('logo', play); $('#btn-gear').hidden = !play; $('#plus-pill').hidden = !(play && plusActive()); navSapShow();
     $('#nav-subs').innerHTML = T.subs.map(S => { const on = S.k === r[1], x = !on && B[S.k] && (B[S.k].n || B[S.k].dot) ? B[S.k] : null, dot = x && !x.n ? x : null, num = x && x.n ? x : null; // a dot sits on the label (never over its last letter), a number on the corner
-      return `<button type="button" role="tab" aria-selected="${on}" data-sub="${S.k}"${on ? ' class="on"' : ''}><span class="lw"><span class="lb">${navLabel(S.name)}</span>${dot ? navMarkHTML(dot) : ''}</span>${S.k === 'duels' ? `<i class="q">${duelsLeft()}/${DUEL_PER_HOUR}</i>` : ''}${dot ? '' : navMarkHTML(num)}</button>`; }).join('');
+      return `<button type="button" role="tab" aria-selected="${on}" data-sub="${S.k}"${on ? ' class="on"' : ''}><span class="lw"><span class="lb">${navLabel(S.name)}</span>${dot ? navMarkHTML(dot) : ''}</span>${S.k === 'duels' ? `<i class="q">${duelsLeft()}/${DUEL_FREE_DAY}</i>` : ''}${dot ? '' : navMarkHTML(num)}</button>`; }).join('');
   } else $('#nav-subs').innerHTML = '';
   subnav.hidden = !r; $('#ui').classList.toggle('subnav', !!r);
   const fb = $('#fruit-badge'); if (fb) fb.hidden = !(B.fruit && (B.fruit.n || B.fruit.dot));
@@ -3534,7 +3540,7 @@ subnav.addEventListener('click', e => { const b = e.target.closest ? e.target.cl
 navBuild();
 // Sheets that slide up from the bottom (the gear's settings, the kitchen perks). Opening one adds a history entry, so the back
 // button closes it instead of leaving the game; every screen change closes it.
-const SHEETS = ['gearbox', 'perkbox', 'stkbox', 'showbox'], MODALS = ['gearbox', 'perkbox', 'stkbox', 'showbox', 'prevbox', 'langbox', 'stormbox', 'confirm']; // v0.32.1: the sticker sheet and Aanpassen
+const SHEETS = ['gearbox', 'perkbox', 'stkbox', 'showbox'], MODALS = ['gearbox', 'perkbox', 'stkbox', 'showbox', 'prevbox', 'langbox', 'stormbox', 'confirm', 'askbox']; // v0.32.1: the sticker sheet and Aanpassen; v0.32.3: the in-game question
 function navPushModal() { // v0.32.0 review: a pop-up you open (a sheet, a preview, the language box, Level verlaten?, the storm cards) gets a history entry, a stacked one too
   const n = MODALS.filter(m => { const el = $('#' + m); return !!el && !el.hidden; }).length; try { const st = history.state; if (n && !(st && st.sheet >= n)) history.pushState({ s: curScreen, sheet: n }, ''); } catch (e) {}
 }
@@ -3564,7 +3570,7 @@ function menuTodo() {
   const rows = [], cl = claimables('all').filter(x => !x.held), n = claimCounts().all; // v0.32.0 review: the same N as the big bar and the red numbers
   if (n > 0) rows.push({ go: 'today', icon: 'today', t: `${n} beloning${n === 1 ? '' : 'en'} klaar`, s: 'Vandaag · Ontvang alles', tag: String(n) });
   if (!dailyPlayedToday()) rows.push({ go: 'games', icon: 'games', t: 'Mes van de dag', s: 'Spelen · Dagmes, nog niet gespeeld', tag: 'nieuw', y: 1 });
-  const fd = friendDuelsIn(); if (fd.length) rows.push({ go: 'friends:duels', icon: 'friends', t: fd.length === 1 ? `${fd[0].otherName} daagt je uit` : `${fd.length} vrienden dagen je uit`, s: 'Vrienden · Duels' });
+  const fd = friendDuelsIn(); if (fd.length) rows.push({ go: 'friends:duels', icon: 'friends', t: fd.length === 1 ? `${fd[0].otherName} daagt je uit` : `${fd.length} vrienden dagen je uit`, s: 'Vrienden · Duels' }); else if ((save.friendInbox || {}).duel > 0) rows.push({ go: 'friends:duels', icon: 'friends', t: 'Een vriend daagt je uit', s: 'Vrienden · Duels' }); /* v0.32.3: hello counted it, the list comes with friends */
   const t = TS(); if (t.result && !t.result.shown && !cl.some(x => x.kind === 'tourney')) rows.push({ go: 'tourney', icon: 'tourney', t: 'Uitslag van het toernooi', s: 'Spelen · Toernooi' });
   return rows.slice(0, 3);
 }
@@ -3588,6 +3594,7 @@ function navBack() {
   if (G.state === 'dying') { try { history.pushState({ s: 'play' }, ''); } catch (e) {} return; }
   if (G.state === 'ad') { if (adBack) { const b = adBack; adBack = null; adThen = null; G.state = b.state; showScreen(b.screen); } else { try { history.pushState({ s: 'scr-ad' }, ''); } catch (e) {} } return; }
   if (G.state === 'play') { pause(); return; }
+  if (!$('#askbox').hidden) { askDone(false); return; } // v0.32.3: an in-game question closes first (Annuleer)
   if (!$('#reward').hidden) { closeReward(); return; }
   if (!$('#langbox').hidden || !$('#confirm').hidden) { $('#langbox').hidden = true; $('#confirm').hidden = true; return; } // in a paused run you stay paused
   if (!$('#stormbox').hidden) { $('#stormbox').hidden = true; return; }
@@ -3706,21 +3713,37 @@ function duelBot(seedId) { const rng = mulberry(hashStr((seedId || dayKey()) + '
 function botPos(o, t) { const [p1, p2, a, b] = o.p, s = t / 1000; return { x: W / 2 + Math.sin(s * a * .9 + p1) * W * .3 + Math.sin(s * 2.3 + p2) * 18, y: H * .55 + Math.cos(s * b * .7 + p2) * H * .2 + Math.cos(s * 1.7 + p1) * 14 }; }
 function ghostPos(o, t) { if (o.bot) return botPos(o, t); const g = o.path; if (!g || g.length < 4) return null; const n = g.length / 2 - 1, i = clamp(t / GHOST_STEP, 0, n), i0 = Math.floor(i), i1 = Math.min(n, i0 + 1), k = i - i0; return { x: lerp(g[i0 * 2], g[i1 * 2], k), y: lerp(g[i0 * 2 + 1], g[i1 * 2 + 1], k) }; }
 const duelPlayedToday = () => save.duel.day === dayKey() && !!save.duel.played;
-// v0.32 duels per hour and the Friends tab (Pieter): five duels an hour in total, against friends and random players together; an
-// hour after the first duel of a window all five are back. A duel is charged when it starts, so stopping never refunds it. Every
-// duel has its own knives: a seed id (the opponent's, the day's for the first duel against De Chef, else a fresh one) that is
-// remembered, so no seed is replayed. A win pays DUEL_WIN_SAP the first DUEL_PAID_DAY times a day; later wins still count for
-// stats and stickers. Fair (duelFair): in a duel no sap doubler, kit or fruit sap bonus counts and no fruit gives an extra shell.
-const DUEL_PER_HOUR = 5, DUEL_HOUR_MS = 3600000, DUEL_PAID_DAY = 5, DUEL_FIND_MS = 4000, DUEL_FIND_CH_MS = 10000, DUEL_SEEDS_KEEP = 60, CHALLENGE_H = 24;
-const DUEL_FAIR = 'in een duel tellen sapverdubbelaar, uitrusting, fruitbonussen voor sap en een extra schil niet: elk fruit verdient evenveel sap per klontje. Wat je fruit zelf kan (grootte, snelheid, partjes) blijft wel.';
+// v0.32.3 duels per day (Pieter, 9 November 2026: "laat duels tussen vrienden ook oneindig zijn, aangezien het toch voor ranking is, laat
+// openbare duels 5 pogingen per dag zijn, met 2 extra pogingen per dag, als je dan 2x een filmpje bekijkt"; duel tickets only for full
+// albums). Public (random) duels: DUEL_FREE_DAY a game day (new ones at 07:00), at most DUEL_AD_DAY more after a video each, and duel
+// tickets for at most DUEL_TICKET_DAY more, so never above DUEL_DAY_MAX a day; once the free ones are played the player picks a video or
+// a ticket, and a ticket is only taken when the duel really starts. Friend duels (a challenge you send or play) are unlimited, never use
+// a ticket and bank no sap at all, not the win prize and not the run's own sap (two friends could farm it). A public duel is charged when it starts, so stopping never refunds it. Every duel
+// has its own knives: a seed id (the opponent's, the day's for the first duel against De Chef, else a fresh one) that is remembered, so
+// no seed is replayed. A public win pays DUEL_WIN_SAP the first DUEL_PAID_DAY times a day; later wins still count for stats and
+// stickers. Fair (duelFair): in a duel no sap doubler, kit or fruit sap bonus counts and no fruit gives an extra shell. This replaces
+// v0.32's five duels an hour for friends and random players together (the old hourly field is dropped on load).
+const DUEL_FREE_DAY = 5, DUEL_AD_DAY = 2, DUEL_TICKET_DAY = 8, DUEL_DAY_MAX = DUEL_FREE_DAY + DUEL_AD_DAY + DUEL_TICKET_DAY, DUEL_PAID_DAY = 5, DUEL_FIND_MS = 4000, DUEL_FIND_CH_MS = 10000, DUEL_SEEDS_KEEP = 60, CHALLENGE_H = 24;
+const DUEL_FAIR = 'in een duel tellen sapverdubbelaar, uitrusting, fruitbonussen (meer sap en rustigere messen) en een extra schil niet: elk fruit verdient evenveel sap per klontje en krijgt dezelfde messen. Wat je fruit zelf kan (grootte, snelheid, partjes) blijft wel.';
+const FRIEND_FREE = 'Vriendenduels zijn onbeperkt en geven geen sap: wat je verzamelt telt alleen als score, zodat niemand sap kan sparen met een vriend.';
 const duelFair = () => G.mode === 'duel';
-// v0.32 review: duelHour.at holds the start time of every duel of the current window, so two devices merge without losing duels
-// (a union) and a clock that went back never gives duels back: a window ahead of the clock stays open until the clock passes it.
-function duelAt(w) { return w && typeof w === 'object' ? (Array.isArray(w.at) ? w.at.filter(t => Number.isFinite(t) && t > 0) : w.n > 0 && w.start > 0 ? Array(Math.min(50, Math.floor(w.n))).fill(w.start) : []) : []; }
-function duelWindow() { const now = nowMs(), at = duelAt(save.duelHour).sort((a, b) => a - b); let start = 0, n = 0; for (const t of at) { if (!n || t >= start + DUEL_HOUR_MS) { start = t; n = 0; } n++; } if (!n || now >= start + DUEL_HOUR_MS) { start = 0; n = 0; } save.duelHour = { start, n, at: n ? at.filter(t => t >= start) : [] }; return save.duelHour; }
-function duelsLeft() { return Math.max(0, DUEL_PER_HOUR - duelWindow().n); }
-function duelResetMs() { const w = duelWindow(); return w.n ? Math.max(0, w.start + DUEL_HOUR_MS - nowMs()) : 0; }
-function duelCountText() { const left = duelsLeft(), min = Math.max(1, Math.ceil(duelResetMs() / 60000)); return left >= DUEL_PER_HOUR ? `${DUEL_PER_HOUR} duels klaar` : left > 0 ? `Nog ${left} van ${DUEL_PER_HOUR} duels dit uur · nieuwe over ${min} min` : `Je ${DUEL_PER_HOUR} duels van dit uur zijn op · nieuwe over ${min} min`; }
+const duelNoSap = () => G.mode === 'duel' && !!G.duel && !!G.duel.next && !!(G.duel.next.to || G.duel.next.challenge); // v0.32.3 review: a friend duel (sent or played) banks no sap at all: what you collect is only the score (gainSap, the steps, the Plus bonus)
+function duelDay() { // today's public duels: n free ones played, ad videos watched, adc of those not played yet, tk tickets used; a later day (the clock went back) keeps its count
+  const d = dayKey(), x = save.duelDay; if (x && typeof x === 'object' && x.n >= 0 && x.ad >= 0 && x.adc >= 0 && x.tk >= 0 && (x.day === d || String(x.day || '') > d)) return x;
+  save.duelDay = { day: d, n: 0, ad: 0, adc: 0, tk: 0 }; return save.duelDay;
+}
+const duelsLeft = () => Math.max(0, DUEL_FREE_DAY - duelDay().n); // the free public duels left today (the k of the Duels k/5 pill)
+const duelAdLeft = () => Math.max(0, DUEL_AD_DAY - duelDay().ad); // videos that can still give a duel today
+const duelTickets = () => Math.max(0, Math.floor(+save.duelTickets) || 0);
+const duelTicketRoom = () => Math.max(0, DUEL_TICKET_DAY - duelDay().tk); // tickets that may still be used today
+const duelTicketUsable = () => Math.min(duelTickets(), duelTicketRoom());
+const duelCanPublic = pay => duelsLeft() > 0 || duelDay().adc > 0 || (pay === 'ticket' && duelTicketUsable() > 0); // a free duel, a watched video, or the ticket the player chose
+function duelCountText() { // Nog 3 van 5 duels vandaag · +2 met een filmpje · 12 dueltickets (each part translates on its own)
+  const d = duelDay(), free = duelsLeft(), ad = duelAdLeft(), t = duelTickets(), parts = [free > 0 ? `Nog ${free} van ${DUEL_FREE_DAY} duels vandaag` : `Je ${DUEL_FREE_DAY} duels van vandaag zijn gespeeld`];
+  if (d.adc > 0) parts.push(`${d.adc} extra duel klaar (filmpje bekeken)`); if (ad > 0) parts.push(`+${ad} met een filmpje`); if (t > 0) parts.push(`${t} duelticket${t === 1 ? '' : 's'}`);
+  if (free <= 0 && !d.adc && !ad && !duelTicketUsable()) { if (t > 0) parts.push(`vandaag al ${DUEL_TICKET_DAY} dueltickets gebruikt`); parts.push(`morgen om 7 uur weer ${DUEL_FREE_DAY}`); }
+  return parts.join(' · ');
+}
 function duelPayDay() { const d = dayKey(), p = save.duelPay; if (p && typeof p === 'object' && p.n >= 0 && (p.day === d || String(p.day || '') > d)) return p; save.duelPay = { day: d, n: 0 }; return save.duelPay; } // a later day (the clock went back) keeps its count
 function duelPaidLeft() { return Math.max(0, DUEL_PAID_DAY - duelPayDay().n); }
 function duelPayText() { const n = duelPaidLeft(); return n > 0 ? `Winnen: +${DUEL_WIN_SAP} sap · nog ${n} van ${DUEL_PAID_DAY} keer vandaag` : `Je ${DUEL_PAID_DAY} betaalde winsten van vandaag zijn op; winnen telt nog voor je stickers.`; }
@@ -3731,15 +3754,19 @@ function duelSeedFor() { // the seed id of the duel that starts now
   const L = duelSeedList(), day = dayKey(); if (!L.includes(day) && !(duelNext && duelNext.fresh)) return day; // the first duel of the day against De Chef keeps the day's knives (a challenge never: the friend may have played them)
   let id = 'B' + nowMs().toString(36), k = 0; while (L.includes(id)) id = 'B' + nowMs().toString(36) + '.' + (++k); return id;
 }
-function duelCharge(seed) { const w = duelWindow(), t = w.n ? Math.max(nowMs(), w.start) : nowMs(); save.duelHour = { start: w.n ? w.start : t, n: w.n + 1, at: w.at.concat([t]) }; const L = duelSeedList(); if (seed && !L.includes(seed)) { L.push(seed); if (L.length > DUEL_SEEDS_KEEP) L.splice(0, L.length - DUEL_SEEDS_KEEP); } store(); }
+function duelCharge(seed, nx) { // v0.32.3: a public duel is charged when it starts: a free one, else a watched video, else the ticket the player chose; a friend duel never; the seed is remembered either way
+  nx = nx || {}; if (!(nx.to || nx.challenge)) { const d = duelDay(); if (d.n < DUEL_FREE_DAY) d.n++; else if (nx.pay === 'ticket' && duelTicketUsable() > 0) { d.tk++; save.duelTickets = duelTickets() - 1; } else if (d.adc > 0) d.adc--; else d.n++; } // the last: a duel started past the buttons still counts
+  const L = duelSeedList(); if (seed && !L.includes(seed)) { L.push(seed); if (L.length > DUEL_SEEDS_KEEP) L.splice(0, L.length - DUEL_SEEDS_KEEP); } store();
+}
 let duelSearch = null, duelSeq = 0, duelNext = null, duelNote = '', duelFrom = 'games', duelView = 'duels'; // the one opponent search in flight (single flight), what the coming duel is for, the note under Duels on Vrienden, where the duel was started
 const duelBusy = () => ['play', 'dying', 'pause', 'continue', 'ad'].includes(G.state);
 const duelWait = (p, ms) => new Promise(ok => { const t = setTimeout(() => ok(null), ms); Promise.resolve(p).then(v => { clearTimeout(t); ok(v); }, () => { clearTimeout(t); ok(null); }); });
 function duelLeave(id) { if (duelSearch && (id !== duelSearch.scr || viewOf(id) !== duelSearch.view)) duelSearch = null; } // leaving the screen cancels the search
-function duelBtnState() { return duelSearch ? { dis: true, label: 'Tegenstander zoeken…' } : duelsLeft() <= 0 ? { dis: true, label: 'Op voor dit uur' } : { dis: false, label: 'Speel' }; }
-function duelPaint() { // the duel buttons and counters on the open screen follow the search and the clock
+function duelBtnState() { return duelSearch ? { dis: true, label: 'Tegenstander zoeken…' } : duelsLeft() > 0 ? { dis: false, label: 'Speel' } : duelDay().adc > 0 ? { dis: false, label: 'Speel je extra duel' } : { dis: true, label: 'Op voor vandaag' }; }
+function duelPaint() { // the duel buttons and counters on the open screen follow the search and the clock; friend duels (duelfr) and the video and ticket buttons (duelx) only wait for a search
   const st = duelBtnState();
-  document.querySelectorAll('.duelgo').forEach(b => { b.disabled = st.dis || b.dataset.dis === '1'; const lbl = b.id === 'btn-duel' ? st.label : b.id === 'btn-friends-duel' ? (st.label === 'Speel' ? 'Speel een duel' : st.label) : ''; if (lbl && b.dataset.nl !== lbl) { b.dataset.nl = lbl; b.textContent = lbl; } b.classList.toggle('primary', !b.disabled); });
+  document.querySelectorAll('.duelgo').forEach(b => { b.disabled = st.dis || b.dataset.dis === '1'; const lbl = b.id === 'btn-duel' ? st.label : ''; if (lbl && b.dataset.nl !== lbl) { b.dataset.nl = lbl; b.textContent = lbl; } b.classList.toggle('primary', !b.disabled); });
+  document.querySelectorAll('.duelfr, .duelx').forEach(b => { b.disabled = !!duelSearch || b.dataset.ok !== '1'; b.classList.toggle('primary', !b.disabled); });
   document.querySelectorAll('.duelcount').forEach(el => { const t = duelCountText(); if (el.dataset.nl !== t) { el.dataset.nl = t; el.textContent = t; } });
 }
 setInterval(() => { try { if (document.querySelector('.duelcount')) duelPaint(); } catch (e) {} }, 5000);
@@ -3758,27 +3785,28 @@ async function duelFind(opts) { // -> { opp } (a recent ghost of your level from
 }
 function duelHome() { openFriends(duelFrom === 'friends' ? duelView : 'duels'); } // v0.32 review: back to where the duel was started; v0.32.0: Vrienden > Duels (or a friend's card under Vrienden)
 const duelBackLabel = () => duelFrom === 'friends' && duelView === 'vrienden' ? 'Naar Vrienden' : 'Naar Duels';
-function startDuel(opts) { // v0.32: one search at a time; a reply that comes back late, or after you left the screen, starts nothing
-  opts = opts || {}; if (duelSearch || duelBusy() || duelsLeft() <= 0) return Promise.resolve(false);
-  duelOpp = null; duelNext = null; duelNote = ''; const friendly = !!(opts.to || opts.challenge), from = G.state === 'friends' ? 'friends' : 'games', fview = G.state === 'friends' ? friendsView : 'duels';
-  if (!NET.on() || !save.name) { if (friendly) return Promise.resolve(false); duelFrom = from; duelView = fview; startRun(save.fruit, true, 'duel'); return Promise.resolve(true); } // offline: De Chef at once
-  if (opts.to) { duelFrom = from; duelView = fview; duelNext = { to: opts.to, toName: opts.toName || '', challenge: '', fromName: '', fresh: true }; startRun(save.fruit, true, 'duel'); return Promise.resolve(true); } // v0.32 review: a challenge is played on fresh knives against De Chef, so your friend never gets knives they already played
+function startDuel(opts) { // v0.32: one search at a time; a reply that comes back late, or after you left the screen, starts nothing. v0.32.3: a friend duel (opts.to: you challenge, opts.challenge: you play one) is unlimited; a public one needs a free duel, a watched video or the ticket you chose (opts.pay)
+  opts = opts || {}; const friendly = !!(opts.to || opts.challenge), pay = friendly ? '' : String(opts.pay || ''); if (duelSearch || duelBusy() || (!friendly && !duelCanPublic(pay))) return Promise.resolve(false);
+  duelOpp = null; duelNext = null; duelNote = ''; const from = G.state === 'friends' ? 'friends' : 'games', fview = G.state === 'friends' ? friendsView : 'duels';
+  if (!NET.on() || !save.name) { if (friendly) return Promise.resolve(false); duelFrom = from; duelView = fview; duelNext = { to: '', toName: '', challenge: '', fromName: '', pay }; startRun(save.fruit, true, 'duel'); return Promise.resolve(true); } // offline: De Chef at once
+  if (opts.to) { duelFrom = from; duelView = fview; duelNext = { to: opts.to, toName: opts.toName || '', challenge: '', fromName: '', fresh: true }; startRun(save.fruit, true, 'duel'); return Promise.resolve(true); } // v0.32.3 (Pieter): a challenge is your own run on fresh knives with your friend's name on screen and no opponent (never De Chef): you set the score your friend then plays against
   const s = duelSearch = { id: ++duelSeq, state: G.state, scr: curScreen, view: viewOf(curScreen) }; duelPaint();
   return (async () => {
     let res = null; try { res = await duelWait(duelFind(opts), (opts.challenge ? DUEL_FIND_CH_MS : DUEL_FIND_MS) + 1000); } catch (e) {}
     if (duelSearch !== s) return false; duelSearch = null;
-    if (G.state !== s.state || curScreen !== s.scr || viewOf(curScreen) !== s.view || duelBusy() || duelsLeft() <= 0 || document.hidden) { duelPaint(); return false; } // v0.32 review: never start (and charge) a duel while the app is in the background
+    if (G.state !== s.state || curScreen !== s.scr || viewOf(curScreen) !== s.view || duelBusy() || (!friendly && !duelCanPublic(pay)) || document.hidden) { duelPaint(); return false; } // v0.32 review: never start (and charge) a duel while the app is in the background
     const opp = res && res.opp && res.opp.name ? res.opp : null;
     if (opts.challenge && !opp) { duelNote = !res || res.err ? 'De server antwoordt traag. Tik nog eens op Speel.' : res.playing ? 'Je speelde deze uitdaging al; de uitslag volgt.' : 'Deze uitdaging is verlopen of al gespeeld.'; if (G.state === 'friends') renderFriends(); else duelPaint(); return false; }
-    duelOpp = opp; duelFrom = from; duelView = fview; duelNext = { to: '', toName: '', challenge: opts.challenge || '', fromName: opts.fromName || '' };
+    duelOpp = opp; duelFrom = from; duelView = fview; duelNext = { to: '', toName: '', challenge: opts.challenge || '', fromName: opts.fromName || '', pay };
     startRun(save.fruit, true, 'duel'); return true;
   })();
 }
-function duelInit() {
-  const o = duelOpp && duelOpp.name ? Object.assign({}, duelOpp) : duelBot(G.duelSeed); duelOpp = null; duelSearch = null; duelCharge(G.duelSeed);
-  if (!o.bot) { o.path = String(o.ghost || '').split(',').map(Number).filter(v => !isNaN(v)); if (!(o.t > 0)) o.t = o.path.length / 2 * GHOST_STEP; o.score = Math.max(0, Math.floor(o.score || 0)); if (!FRUITS[o.fruit]) o.fruit = 'appel'; }
-  G.duel = { opp: o, rec: [], acc: 0, oppDead: false, stake: 0, seed: G.duelSeed, next: duelNext || {} }; duelNext = null; // v0.30.4: no stake (the field stays)
-  G.note = G.duel.next.to ? `Uitdaging voor ${G.duel.next.toName || 'je vriend'} · 90 s · score = sap` : `Duel tegen ${o.name} · 90 s · score = sap`; G.noteT = 4500; // v0.32: short enough for a phone; a challenge says for whom
+function duelInit() { // v0.32.3: a challenge you send has no opponent (o.solo): your friend's name and your score; a public duel is charged here, when it really starts
+  const nx = duelNext || {}, solo = !!nx.to;
+  const o = solo ? { uid: '', solo: true, name: nx.toName || 'je vriend', fruit: 'appel', level: DUEL_LEVEL, score: 0, t: DUEL_MS + 1 } : duelOpp && duelOpp.name ? Object.assign({}, duelOpp) : duelBot(G.duelSeed); duelOpp = null; duelSearch = null; duelCharge(G.duelSeed, nx);
+  if (!o.bot && !o.solo) { o.path = String(o.ghost || '').split(',').map(Number).filter(v => !isNaN(v)); if (!(o.t > 0)) o.t = o.path.length / 2 * GHOST_STEP; o.score = Math.max(0, Math.floor(o.score || 0)); if (!FRUITS[o.fruit]) o.fruit = 'appel'; }
+  G.duel = { opp: o, rec: [], acc: 0, oppDead: false, stake: 0, seed: G.duelSeed, next: nx }; duelNext = null; // v0.30.4: no stake (the field stays)
+  G.note = solo ? `Uitdaging voor ${o.name}: zet een score neer` : `Duel tegen ${o.name} · 90 s · score = sap`; G.noteT = solo ? 6000 : 4500; // v0.32: short enough for a phone; a challenge says for whom
 }
 function duelRecord(dt) { const d = G.duel; if (!d) return; d.acc += dt; while (d.acc >= GHOST_STEP) { d.acc -= GHOST_STEP; if (d.rec.length < (DUEL_MS / GHOST_STEP + 4) * 2) d.rec.push(Math.round(G.px), Math.round(G.py)); } }
 function duelUpdate(dt) {
@@ -3787,46 +3815,49 @@ function duelUpdate(dt) {
   if (G.modeT >= DUEL_MS) { G.cleared = true; finishMode(false); }
 }
 function duelDraw() { // the opponent's ghost, translucent, with its name
-  if (G.mode !== 'duel' || !G.duel || !['play', 'dying', 'pause'].includes(G.state)) return; const d = G.duel; if (d.oppDead || G.t >= d.opp.t) return; const p = ghostPos(d.opp, G.t); if (!p) return;
+  if (G.mode !== 'duel' || !G.duel || !['play', 'dying', 'pause'].includes(G.state)) return; const d = G.duel; if (d.oppDead || d.opp.solo || G.t >= d.opp.t) return; const p = ghostPos(d.opp, G.t); if (!p) return;
   const k = FRUITS[d.opp.fruit] ? d.opp.fruit : 'appel', r = FRUITS[k].r; ctx.save(); ctx.globalAlpha = .42; drawShadow(p.x, p.y, r); drawFruit(k, p.x, p.y, r, 0, undefined, { look: [0, 0], scared: 0, hat: 'none' });
   ctx.globalAlpha = .85; ctx.font = `800 10px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.strokeText(d.opp.name, p.x, p.y + r + 6); ctx.fillStyle = '#e6c8ff'; ctx.fillText(d.opp.name, p.x, p.y + r + 6); ctx.restore();
 }
-function duelFinish(quit, died) { // the verdict, remember the duel, send the entry with the ghost. v0.30.4: no stake; v0.32: a win pays DUEL_WIN_SAP the first DUEL_PAID_DAY times a day
-  const d = G.duel; if (!d || G.duelOut) return; const my = G.sapRun, o = d.opp, won = my > o.score, tie = my === o.score, pay = won && duelPaidLeft() > 0, pot = pay ? DUEL_WIN_SAP : 0, next = d.next || {};
+function duelFinish(quit, died) { // the verdict, remember the duel, send the entry with the ghost. v0.30.4: no stake; v0.32: a win pays DUEL_WIN_SAP the first DUEL_PAID_DAY times a day; v0.32.3: only in public duels, and a challenge you send has no verdict yet
+  const d = G.duel; if (!d || G.duelOut) return; const my = G.sapRun, o = d.opp, next = d.next || {}, friendly = !!(next.to || next.challenge), solo = !!o.solo, won = !solo && my > o.score, tie = !solo && my === o.score, pay = won && !friendly && duelPaidLeft() > 0, pot = pay ? DUEL_WIN_SAP : 0;
   if (pay) { save.sap += DUEL_WIN_SAP; duelPayDay().n++; }
   save.stats.duels = (save.stats.duels || 0) + 1; if (won) save.stats.duelWins = (save.stats.duelWins || 0) + 1;
-  save.duel = { day: dayKey(), played: true, score: my, vs: o.uid || '', vsName: o.name, vsScore: o.score, result: won ? 'win' : tie ? 'tie' : 'loss', pot, stake: 0 };
-  G.duelOut = { won, tie, stake: 0, pot, name: o.name, score: o.score, t: o.t, bot: !!o.bot, quit: !!quit, died: !!died, at: Math.round(G.t), to: next.to ? next.toName || 'je vriend' : '', challenge: next.challenge ? next.fromName || o.name : '' }; track('duel', { won, my, theirs: o.score });
+  save.duel = { day: dayKey(), played: true, score: my, vs: o.uid || '', vsName: o.name, vsScore: o.score, result: solo ? 'sent' : won ? 'win' : tie ? 'tie' : 'loss', pot, stake: 0 };
+  G.duelOut = { won, tie, stake: 0, pot, name: o.name, score: o.score, t: o.t, bot: !!o.bot, solo, friendly, chal: '', quit: !!quit, died: !!died, at: Math.round(G.t), to: next.to ? next.toName || 'je vriend' : '', challenge: next.challenge ? next.fromName || o.name : '' }; track('duel', { won, my, theirs: o.score });
   duelPost(d, my, o, next, !!quit);
 }
 function duelPost(d, my, o, next, quit) { // v0.32: a server with duel2 keeps every duel as a ghost with its seed; an older one keeps one entry a day on the day's knives
-  if (!NET.on() || !save.name) { if (next.to) { duelNote = 'Je uitdaging is niet verstuurd: je bent offline.'; store(); } if (next.challenge) duelReply(null, Object.assign({}, next, { to: '' }), quit, my); return; }
+  if (!NET.on() || !save.name) { if (next.to) { duelNote = 'Je uitdaging is niet verstuurd: je bent offline.'; chalLine(duelNote); store(); } if (next.challenge) duelReply(null, Object.assign({}, next, { to: '' }), quit, my); return; }
   const v2 = NET.has('duel2'), seed = d.seed || dayKey(); if (!v2 && (seed !== dayKey() || quit)) return;
   const p = NET.call('duel', { day: dayKey(), seed, score: my, seconds: Math.max(1, Math.round(G.t / 1000)), level: save.level, fruit: G.fruit, name: save.name, ghost: quit ? '' : d.rec.join(','), t: Math.round(G.t), vs: o.uid || '', vsScore: o.score, vsGhost: o.id || '', quit, challenge: next.challenge || '', challengeTo: next.to || '' }, true);
   if (p && typeof p.then === 'function') p.then(r => duelReply(r, next, quit, my)).catch(() => {});
 }
+function chalLine(t) { const o = G.duelOut; if (!o || !o.solo) return; o.chal = t; const el = curScreen === 'scr-over' && G.mode === 'duel' ? $('#over-chal') : null; if (el) el.textContent = t; } // v0.32.3: the first line of a challenge's game-over follows the server's answer
 function duelReply(r, next, quit, my) { // v0.32 review: the notes go under Duels on Vrienden; a friend duel is only done when the server settled it
   if (next.to) {
-    if (r && r.ok && r.challenge) { const L = friendDuelList(), i = L.findIndex(c => c.id === r.challenge), c = { id: r.challenge, mine: 'from', other: next.to, otherName: next.toName || '', score: my, status: 'open', created: nowMs(), expires: nowMs() + CHALLENGE_H * 3600000 }; if (i >= 0) L[i] = c; else L.push(c); duelNote = `Uitdaging verstuurd! ${next.toName} speelt jouw messen tegen jouw schim.`; }
-    else duelNote = quit ? 'Je stopte je duel, dus je uitdaging is niet verstuurd.' : r && (r.limit || r.error === 'limit') ? 'Je uitdaging is niet verstuurd: je duels van dit uur zijn op.' : r && r.error === 'already' ? `${next.toName} heeft al een open uitdaging van jou.` : r && r.error === 'oldapp' ? `${next.toName} moet eerst de game bijwerken; daarna kun je uitdagen.` : r && r.error === 'seen' ? `${next.toName} speelde deze messen al; je uitdaging is niet verstuurd.` : r && r.error === 'notfriend' ? 'Jullie zijn geen vrienden meer.' : 'Je uitdaging is niet verstuurd; probeer straks opnieuw.';
+    const nm = next.toName || 'je vriend';
+    if (r && r.ok && r.challenge) { const L = friendDuelList(), i = L.findIndex(c => c.id === r.challenge), c = { id: r.challenge, mine: 'from', other: next.to, otherName: next.toName || '', score: my, status: 'open', created: nowMs(), expires: nowMs() + CHALLENGE_H * 3600000 }; if (i >= 0) L[i] = c; else L.push(c); duelNote = `Uitdaging verstuurd! ${nm} speelt nu jouw messen. Je krijgt bericht als ${nm} gespeeld heeft.`; chalLine(`${nm} speelt nu jouw messen. Je krijgt bericht als ${nm} gespeeld heeft.`); }
+    else { duelNote = quit ? 'Je stopte je duel, dus je uitdaging is niet verstuurd.' : r && (r.limit || r.error === 'limit') ? 'Je uitdaging is niet verstuurd: de server telt vriendenduels nog mee in de oude duellimiet. Probeer het straks opnieuw.' : r && r.error === 'already' ? `${nm} heeft al een open uitdaging van jou.` : r && r.error === 'oldapp' ? `${nm} moet eerst de game bijwerken; daarna kun je uitdagen.` : r && r.error === 'seen' ? `${nm} speelde deze messen al; je uitdaging is niet verstuurd.` : r && r.error === 'notfriend' ? 'Jullie zijn geen vrienden meer.' : 'Je uitdaging is niet verstuurd; probeer straks opnieuw.'; chalLine(duelNote); }
     store();
   }
   if (next.challenge) { const c = friendDuelList().find(x => x.id === next.challenge); if (c) { c.status = r && r.ok && r.settled ? 'done' : 'playing'; if (c.status === 'done' && save.friendInbox && save.friendInbox.duel > 0) save.friendInbox.duel--; store(); } if (!(r && r.ok && r.settled)) duelNote = 'Je uitdaging is gespeeld; de uitslag volgt zodra de server hem heeft.'; }
   if (G.state === 'friends') renderFriends(); else updateHub(curScreen);
 }
-function duelQuitNote() { const o = G.duelOut; if (!o || !o.quit) return; showReward(o.pot ? { sap: o.pot } : { note: 'Duel' }, 'Duel gestopt', `Je duel telt met ${G.sapRun} sap · ${o.name}: ${o.score} sap. ${o.won ? (o.pot ? `Gewonnen: +${o.pot} sap` : 'Gewonnen') : o.tie ? 'Gelijkspel' : 'Verloren'}.`); }
+function duelQuitNote() { const o = G.duelOut; if (!o || !o.quit) return; if (o.solo) { showReward({ note: 'Duel' }, 'Uitdaging gestopt', `Je stopte, dus ${o.name} krijgt geen uitdaging. Daag opnieuw uit wanneer je wilt: vriendenduels zijn onbeperkt.`); return; } showReward(o.pot ? { sap: o.pot } : { note: 'Duel' }, 'Duel gestopt', `Je duel telt met ${G.sapRun} sap · ${o.name}: ${o.score} sap. ${o.won ? (o.pot ? `Gewonnen: +${o.pot} sap` : 'Gewonnen') : o.tie ? 'Gelijkspel' : 'Verloren'}.`); }
 const wornHat = () => (save.loserHatUntil || 0) > nowMs() ? LOSER_HAT : save.hat; // the pan of shame overrides your own hat for a day
 const todayChallenges = () => (save.challenges && save.challenges.day === dayKey() && Array.isArray(save.challenges.list)) ? save.challenges.list : [];
-const canChallenge = f => NET.on() && !!save.name && (NET.has('duel2') ? f.v2 === true && duelsLeft() > 0 && !friendDuelOpen(f.uid) : !todayChallenges().some(c => c.from === f.uid || c.to === f.uid)); // v0.32: a friend duel v2 is one of your duels this hour; a friend on an older app cannot play it (f.v2 from the server)
+const canChallenge = f => NET.on() && !!save.name && (NET.has('duel2') ? f.v2 === true && !(NET.has('duel3') ? friendDuelOut(f.uid) : friendDuelOpen(f.uid)) : !todayChallenges().some(c => c.from === f.uid || c.to === f.uid)); // v0.32.3: friend duels are unlimited, one open challenge per direction (a v0.32 server: per pair); a friend on an older app cannot play one (f.v2 from the server)
 function applyNotes(notes) { // what the server tells me once: duel results, challenges, picks, rivals I passed or who passed me.
   // v0.30.4: duel and challenge notes move no sap (x.sap is ignored; the deployed server sends it until v0.32b); a tip pays at most TIP_COST
   let n = 0; for (const x of notes || []) { if (!x || !x.type) continue; n++;
-    if (x.type === 'duel') {
-      if (x.tie) showReward({ note: 'Gelijk' }, `Duel tegen ${x.vs}: gelijkspel`, `${x.score} tegen ${x.theirs} sap. Niemand draagt het Pannetje.`);
-      else if (x.won) showReward({ note: 'Gewonnen' }, `Duel gewonnen van ${x.vs}`, `${x.score} tegen ${x.theirs} sap. ${x.vs} draagt een dag lang het Pannetje.`);
-      else { save.loserHatUntil = nowMs() + LOSER_HAT_MS; showReward({ hat: LOSER_HAT }, `Duel verloren van ${x.vs}`, `${x.score} tegen ${x.theirs} sap. Je draagt een dag lang het Pannetje.`); }
+    if (x.type === 'duel') { // v0.32.3: the challenger's result note (ch: 'from') says the friend played your challenge
+      const head = x.ch === 'from' ? `${x.vs} speelde je uitdaging` : '';
+      if (x.tie) showReward({ note: 'Gelijk' }, head ? `${head}: gelijkspel` : `Duel tegen ${x.vs}: gelijkspel`, `${x.score} tegen ${x.theirs} sap. Niemand draagt het Pannetje.`);
+      else if (x.won) showReward({ note: 'Gewonnen' }, head ? `${head}: jij wint` : `Duel gewonnen van ${x.vs}`, `${x.score} tegen ${x.theirs} sap. ${x.vs} draagt een dag lang het Pannetje.`);
+      else { save.loserHatUntil = nowMs() + LOSER_HAT_MS; showReward({ hat: LOSER_HAT }, head ? `${head}: ${x.vs} wint` : `Duel verloren van ${x.vs}`, `${x.score} tegen ${x.theirs} sap. Je draagt een dag lang het Pannetje.`); }
     }
-    else if (x.type === 'challenge') { markFresh('duels'); showReward({ note: 'Duel!' }, `${x.by} daagt je uit`, x.v === 2 ? `Speel binnen ${CHALLENGE_H} uur onder Vrienden › Duels: dezelfde messen tegen de schim van ${x.by}. De verliezer draagt een dag lang het Pannetje.` : 'Speel vandaag het Duel van de dag (Vrienden › Duels). De verliezer draagt een dag lang het Pannetje.'); }
+    else if (x.type === 'challenge') { markFresh('duels'); const c = x.v === 2 ? friendDuelsIn().find(y => x.id ? y.id === x.id : y.otherName === x.by) : null; if (c) chalCard(c); else if (!(x.id && chalCarded.has(x.id))) showReward({ note: 'Duel!' }, `${x.by} daagt je uit`, x.v === 2 ? `Speel binnen ${CHALLENGE_H} uur onder Vrienden › Duels: dezelfde messen tegen de schim van ${x.by}. De verliezer draagt een dag lang het Pannetje.` : 'Speel vandaag het Duel van de dag (Vrienden › Duels). De verliezer draagt een dag lang het Pannetje.'); } // v0.32.3: a challenge that is open shows its card with Speel and Later
     else if (x.type === 'request') { markFresh('vrienden'); showReward({ note: 'Vriend?' }, `${x.by} wil je vriend worden`, 'Accepteer of weiger onder Vrienden › Vrienden.'); }
     else if (x.type === 'accepted') { markFresh('vrienden'); showReward({ note: 'Vrienden' }, `${x.by} is nu je vriend`, 'Jullie zien elkaar onder Vrienden › Vrienden.'); }
     else if (x.type === 'ghostsum') { const nn = Math.max(0, Math.floor(Number(x.n)) || 0), w = Math.min(nn, Math.max(0, Math.floor(Number(x.won)) || 0)); if (nn) showReward({ note: 'Schim' }, `Je schim speelde ${nn} duel${nn === 1 ? '' : 's'}`, `${w} gewonnen, ${nn - w} verloren.`); }
@@ -4062,13 +4093,13 @@ function startRun(type, free, mode) {
 function gainSap(v, bar) { // v0.31: v goes to the wallet, bar (default v) to the level bar
   if (G.inter) { if (G.inter.phase === 'play') { G.inter.score += v; G.inter.n++; } return; } // inside a minigame v is raw points (interPts); it pays out at its end, nothing else counts meanwhile
   if (bar === undefined) bar = v;
-  save.sap += v; G.sapRun += v; G.levelSap += bar; track('sap', v);
+  if (!duelNoSap()) save.sap += v; G.sapRun += v; G.levelSap += bar; track('sap', v);
   if (G.mode === 'rain' || G.mode === 'exam' || G.mode === 'knife' || G.mode === 'sapstorm' || G.mode === 'estafette') return; // the weekend games and the storm/relay have no levels
   for (;;) {
     const goal = goalFor(G.level), steps = runSteps(G.level);
     if (G.levelSap < goal) { // a step inside the level: a breather like an old level-up, the level number stays
       if (G.stepIn + 1 >= steps || G.levelSap < stepMark(G.level, G.stepIn + 1)) break;
-      G.stepIn++; G.stepRun++; stepDone(); save.sap += 5; G.sapRun += 5; addText(G.px, G.py - curR() - 26, `Stap ${G.stepIn}/${steps} · +5 sap`, '#ffd54a'); SFX.go(); continue; // like an old level-up: +5 sap in the wallet, one step of in-run knife heat
+      G.stepIn++; G.stepRun++; stepDone(); if (!duelNoSap()) save.sap += 5; G.sapRun += 5; addText(G.px, G.py - curR() - 26, `Stap ${G.stepIn}/${steps} · +5 sap`, '#ffd54a'); SFX.go(); continue; // like an old level-up: +5 sap in the wallet, one step of in-run knife heat
     }
     if (G.mode === 'normal') stamp(G.level, G.fruit); // level completed with this fruit: a stamp on the Fruitkaart
     if (G.mode === 'normal' && G.level >= save.level && plusActive() && G.fruit === fruitOfMonth() && !save.owned.includes(G.fruit)) { // Plus: ten levels at your top with the fruit of the month and it is yours for good (replays do not count)
@@ -4089,7 +4120,7 @@ function gainSap(v, bar) { // v0.31: v goes to the wallet, bar (default v) to th
       const pk = perkAt(Math.floor((G.level - 1) / 5) + (save.perkKeys || 0)); if (pk && G.mode === 'normal') { G.perkBanner = 5500; G.perkName = pk.name; G.perkInfo = pk.info; track('kitchen', Math.floor((G.level - 1) / 5)); }
     } else G.levelNote = '';
     save.stats.kitchens[themeIndex(G.level)] = 1; track('levelup', G.level);
-    save.sap += 5; G.sapRun += 5; addText(G.px, G.py - curR() - 26, `Level ${G.level}! +5 sap`, '#ffd54a'); if (!jingled) SFX.go();
+    if (!duelNoSap()) save.sap += 5; G.sapRun += 5; addText(G.px, G.py - curR() - 26, `Level ${G.level}! +5 sap`, '#ffd54a'); if (!jingled) SFX.go();
   }
   keepBar();
 }
@@ -4198,7 +4229,7 @@ function nemesisLine() { // the game-over screen no longer shows the nemesis (v0
   return s;
 }
 function difficulty() {
-  const n = G.level + (G.mode === 'normal' ? (G.stepRun || 0) : 0), k = clamp(G.levelT / 60000, 0, 1), calm = fruitCalm(G.fruit);
+  const n = G.level + (G.mode === 'normal' ? (G.stepRun || 0) : 0), k = clamp(G.levelT / 60000, 0, 1), calm = duelFair() ? 1 : fruitCalm(G.fruit); /* v0.32.3 duel fairness: dearer fruit gives no calmer knives in a duel */
   const chefDelay = hasPerk(11) ? 10000 : 0, ease = coached() ? 1.35 : 1; // the first two runs breathe slower
   const d = { interval: PACE.interval(n) * ease * (1 - .2 * k), tele: PACE.tele(n) * ease * calm * (1 + .05 * (soloRun() ? kitLevel('zicht') : 0)) * (1 - .12 * k) * (hasPerk(2) ? 1.1 : 1) * (1 + .15 * (G.kiwiStack || 0)), dur: PACE.dur(n) * calm * (1 + .15 * (G.kiwiStack || 0)), level: n, levelT: G.levelT,
     knives: G.levelT >= PACE.fiveAt(n) + chefDelay ? 5 : G.levelT >= PACE.fourAt(n) + chefDelay ? 4 : G.levelT >= PACE.threeAt(n) + chefDelay ? 3 : G.levelT >= PACE.twoAt(n) + chefDelay ? 2 : 1 };
@@ -4598,7 +4629,7 @@ function updateMode(dt) {
 }
 function finishMode(died) {
   G.state = 'over'; const m = G.mode; let prize = false, bestDay = false;
-  G.plusBonus = plusActive() ? Math.floor(G.sapRun * .25) : 0; save.sap += G.plusBonus;
+  G.plusBonus = plusActive() && !duelNoSap() ? Math.floor(G.sapRun * .25) : 0; save.sap += G.plusBonus;
   if (m === 'rain') { G.score = G.sapRun; G.cleared = G.score >= WEEKEND.rain.goal; }
   if (m === 'duel') duelFinish(false, died); if (m === 'chef') prize = chefFinish();
   if (m === 'daily') {
@@ -4616,16 +4647,20 @@ function finishMode(died) {
 }
 function openOverSpecial(m, prize, died) { // the duel's verdict or the chapter's result
   const f = fruitDef(); let title, time, badge = '', rec = '', level = '', share;
-  if (m === 'duel') {
+  if (m === 'duel' && (G.duelOut || {}).solo) { // v0.32.3: a challenge you sent: your score and what happens next (the first line follows the server's answer: chalLine)
+    const o = G.duelOut, s = Math.max(1, Math.round((o.at || G.t) / 1000)); title = 'Duel'; time = `${G.sapRun} sap`; badge = `Uitdaging voor ${o.name}`;
+    rec = `Jouw score voor ${o.name}: ${G.sapRun} sap.`; level = [o.chal || 'Je uitdaging wordt verstuurd…'];
+    if (o.died) level.push(`Jij werd gesneden na ${s} s: je score telt met ${G.sapRun} sap.`);
+    level.push(FRIEND_FREE); share = `Don't Slice Me! Ik daag ${o.name} uit: ${G.sapRun} sap in een duel. Jij?`;
+  } else if (m === 'duel') {
     const o = G.duelOut || {}, s = Math.max(1, Math.round((o.at || G.t) / 1000)); title = 'Duel'; time = `${G.sapRun} sap`; badge = o.won ? 'Gewonnen!' : o.tie ? 'Gelijkspel' : o.died ? `Gesneden na ${s} s` : '';
     rec = `${o.name}: ${o.score} sap${o.t < DUEL_MS ? ` (gesneden na ${Math.round(o.t / 1000)} s)` : ' (overleefde de 90 s)'}.`;
     level = [o.won ? (o.pot ? `Gewonnen: +${o.pot} sap.` : 'Gewonnen.') : o.tie ? 'Gelijkspel.' : 'Verloren.']; // v0.32: one sentence a line part, so each one translates
     if (o.died) level.push(`Jij werd gesneden na ${s} s: je duel telt met ${G.sapRun} sap.`);
-    if (o.won && !o.pot) level.push(`Je ${DUEL_PAID_DAY} betaalde winsten van vandaag zijn op.`);
-    if (o.to) level.push(`Uitdaging voor ${o.to}: die speelt nu jouw messen tegen jouw schim.`);
+    if (o.won && !o.pot && !o.friendly) level.push(`Je ${DUEL_PAID_DAY} betaalde winsten van vandaag zijn op.`);
     if (o.challenge) level.push(o.won ? `Je won de uitdaging van ${o.challenge}: ${o.challenge} draagt een dag lang het Pannetje.` : o.tie ? `Gelijkspel tegen ${o.challenge}: niemand draagt het Pannetje.` : `Je verloor de uitdaging van ${o.challenge}: jij draagt een dag lang het Pannetje.`); // v0.32 review: say who wears it
     const open = NET.has('duel2') ? [] : todayChallenges().filter(c => !c.resolved); if (open.length) level.push(`Je vriendenduel${open.length > 1 ? 's worden' : ' wordt'} beslist zodra ${open.map(c => c.mine === 'from' ? c.toName : c.fromName).join(' en ')} ook gespeeld heeft.`);
-    level.push(duelCountText() + '.');
+    level.push(o.friendly ? FRIEND_FREE : duelCountText() + '.');
     share = `Don't Slice Me! Duel van de dag: ${G.sapRun} sap tegen ${o.name}. Jij?`;
   } else {
     const ch = G.chefChapter || 1, S = seasonById(G.chefSeason), C = S.chapters[ch - 1], s = save.season, mine = !!(s && s.id === S.id && Array.isArray(s.cleared)), form = Math.min(SEASON_WEEKS, mine ? formOf(s) : ((save.seasonForms && save.seasonForms[S.id]) || 0)); title = 'De Chef'; time = `${Math.min(CHEF_MS / 1000, Math.floor(G.modeT / 1000))} s`; badge = prize ? 'Hoofdstuk gehaald' : '';
@@ -4633,7 +4668,7 @@ function openOverSpecial(m, prize, died) { // the duel's verdict or the chapter'
     level = G.chefLate ? 'Het seizoen is intussen voorbij; dit hoofdstuk telt niet meer.' : G.cleared ? (prize ? `+${CHAPTER_SAP} sap. ${FRUITS[S.fruit].name} is nu ${FORM_NAMES[form]} (vorm ${form}/${SEASON_WEEKS})${mine && s.done && form >= SEASON_WEEKS ? ` en voor altijd van jou: +${SEASON_SAP} sap en de titel Seizoensheld!` : '.'}` : 'Dit hoofdstuk had je al gehaald. Goed bezig.') : `Overleef ${CHEF_MS / 1000} s om het hoofdstuk te halen. Je haalde ${Math.floor(G.modeT / 1000)} s.`;
     share = `Don't Slice Me! De Chef, hoofdstuk ${ch}: ${G.cleared ? 'gehaald' : `${Math.floor(G.modeT / 1000)} s overleefd`}. Jij?`;
   }
-  $('#over-title').textContent = title; $('#over-time').textContent = time; $('#over-badge').hidden = !badge; $('#over-badge').textContent = badge; $('#over-rec').textContent = rec; if (Array.isArray(level)) $('#over-level').innerHTML = level.map(x => `<span>${escH(x)}</span>`).join(' '); else $('#over-level').textContent = level;
+  $('#over-title').textContent = title; $('#over-time').textContent = time; $('#over-badge').hidden = !badge; $('#over-badge').textContent = badge; $('#over-rec').textContent = rec; if (Array.isArray(level)) $('#over-level').innerHTML = level.map(x => `<span>${escH(x)}</span>`).join(' '); else $('#over-level').textContent = level; if (m === 'duel' && G.duelOut && G.duelOut.solo) { const sp = $('#over-level span'); if (sp) sp.id = 'over-chal'; }
   $('#over-nemesis').hidden = true; $('#over-tip').hidden = true; $('#over-hearts').innerHTML = heartsHTML(); $('#over-heart-timer').textContent = heartsLine(); $('#btn-over-cont').hidden = true; $('#btn-over-double').hidden = true;
   $('#over-cubes').textContent = `${G.cubesRun} suikerklontjes · ${G.near}× net niet${G.plusBonus ? ` · Plus +25%: +${G.plusBonus} sap` : ''}`;
   const img = $('#over-snap'); img.className = 'snap'; img.hidden = !(died && G.snapshotUrl); if (died && G.snapshotUrl) img.src = G.snapshotUrl;
@@ -5649,10 +5684,10 @@ function updateTricks(dt) {
   if (G.decoy) { G.decoy.t -= dt; if (G.decoy.t <= 0) G.decoy = null; }
   if (f.star) { G.starT -= dt; if (G.starT <= 0) { G.starT = 20000; addZone(G.px, G.py, 34, 15000, 'ster'); addText(G.px, G.py - curR() - 26, 'Ster gelegd: één snee veilig', '#ffe14a'); SFX.jingle(); } } // the star fruit leaves a star that takes one cut
   if (G.passT > 0) { G.passT -= dt; if (G.passT <= 0) setBodies(); } // passion fruit: the shrink after a burst ends
-  if (f.rainbow) { G.rainbowT -= dt; if (G.rainbowT <= 0) { G.rainbowT = 20000; G.rainbow = (G.rainbow + 1) % 4; const names = ['schil', 'magneet', 'stroop', 'klein']; if (G.rainbow === 0) G.armor = Math.max(G.armor, 1); if (G.rainbow === 1) G.magnetT = Math.max(G.magnetT || 0, 20000); setBodies(); addText(G.px, G.py - curR() - 26, `Regenboog: ${names[G.rainbow]}`, '#ff6ad5'); SFX.jingle(); } }
+  if (f.rainbow) { G.rainbowT -= dt; if (G.rainbowT <= 0) { G.rainbowT = 20000; G.rainbow = (G.rainbow + 1) % 4; const names = ['schil', 'magneet', 'stroop', 'klein']; if (G.rainbow === 0 && !duelFair()) G.armor = Math.max(G.armor, 1); if (G.rainbow === 1) G.magnetT = Math.max(G.magnetT || 0, 20000); setBodies(); addText(G.px, G.py - curR() - 26, `Regenboog: ${names[G.rainbow]}`, '#ff6ad5'); SFX.jingle(); } }
   if (f.decoy) { G.decoyT -= dt; if (G.decoyT <= 0) { G.decoyT = 20000; G.decoy = { x: G.px, y: G.py, t: 3000 }; addText(G.px, G.py - curR() - 26, 'Schil gelost: lokaas!', '#ff9f1c'); SFX.pop(); } }
   if (f.peel) { G.peelT -= dt; if (G.peelT <= 0) { G.peelT = 20000; addZone(G.px, G.py, 44, 12000, 'banaan'); addText(G.px, G.py - curR() - 26, 'Schil gelost!', '#ffd33d'); } }
-  if (f.regrow && G.armor < f.armor) { G.regrowT -= dt; if (G.regrowT <= 0) { G.regrowT = 30000; G.armor++; addText(G.px, G.py - curR() - 26, f.regrowText || 'Kroon gegroeid: +1 schil', '#ffd54a'); SFX.collect(); } } else G.regrowT = 30000;
+  if (f.regrow && !duelFair() && G.armor < f.armor) { G.regrowT -= dt; if (G.regrowT <= 0) { G.regrowT = 30000; G.armor++; addText(G.px, G.py - curR() - 26, f.regrowText || 'Kroon gegroeid: +1 schil', '#ffd54a'); SFX.collect(); } } else G.regrowT = 30000;
   if (f.spit) { G.spitT -= dt; if (G.spitT <= 0) { const sl = G.slashes.find(x => x.phase === 'tele' && !x.spat); if (sl) { G.spitT = 15000; sl.spat = true; sl.tele += 1000; burst((sl.ax + sl.bx) / 2, (sl.ay + sl.by) / 2, 10, ['#1a1a1a', '#ffffff'], 200); addText(G.px, G.py - curR() - 26, 'Pit gespuwd: mes wacht 1 s', '#fff'); SFX.pop(); } } }
   if (f.fire && G.fireCharges > 0) { const sl = G.slashes.find(x => x.phase === 'tele' && x.t > 0); if (sl) { G.fireCharges--; G.slashes = G.slashes.filter(x => x !== sl); burst((sl.ax + sl.bx) / 2, (sl.ay + sl.by) / 2, 30, ['#ff6a00', '#ffd54a', '#333333'], 320); addText(G.px, G.py - curR() - 26, 'Vuur! Mes verbrand', '#ff6a00'); SFX.squirt(); G.shake = 4; } }
   if (f.shrink) { const st = shrinkStage(); if (st !== G.shrinkStage) { G.shrinkStage = st; setBodies(); addText(G.px, G.py - curR() - 26, st >= 3 ? 'Rozijn! Het mes mikt grof' : 'Gekrompen!', '#e0c6ff'); } }
@@ -6408,7 +6443,7 @@ function drawHud() {
   else if (G.mode === 'exam') { line = `Chefs examen · golf ${Math.min(G.wave + 1, EXAM.length)} van ${EXAM.length}`; frac = G.wave / EXAM.length; }
   else if (G.mode === 'knife') { line = `Jij bent het mes · nog ${Math.max(0, Math.ceil((60000 - G.modeT) / 1000))} s · ${G.score}/${WEEKEND.knife.goal} fruitjes`; frac = G.score / WEEKEND.knife.goal; }
   else if (G.mode === 'daily') line = `${dayRuleNames() || 'Mes van de dag'} · level ${G.level} · ${G.levelSap}/${goal} sap`;
-  else if (G.mode === 'duel') { line = `Duel · nog ${Math.max(0, Math.ceil((DUEL_MS - G.modeT) / 1000))} s · ${G.sapRun} sap${G.duel ? ` · ${G.duel.opp.name}${G.duel.oppDead ? ': gesneden' : ''}` : ''}`; frac = G.modeT / DUEL_MS; }
+  else if (G.mode === 'duel') { const ds = Math.max(0, Math.ceil((DUEL_MS - G.modeT) / 1000)); line = G.duel && G.duel.opp.solo ? `Uitdaging voor ${G.duel.opp.name} · nog ${ds} s · ${G.sapRun} sap` : `Duel · nog ${ds} s · ${G.sapRun} sap${G.duel ? ` · ${G.duel.opp.name}${G.duel.oppDead ? ': gesneden' : ''}` : ''}`; frac = G.modeT / DUEL_MS; } /* v0.32.3: a challenge you send names your friend all through the run */
   else if (G.mode === 'chef') { line = `De Chef · hoofdstuk ${G.chefChapter || 1} · nog ${Math.max(0, Math.ceil((CHEF_MS - G.modeT) / 1000))} s`; frac = G.modeT / CHEF_MS; }
   else if (G.mode === 'sapstorm') { line = `Sapstorm · nog ${Math.max(0, Math.ceil((STORM_ROUND - G.modeT) / 1000))} s · ${G.sapRun} sap`; frac = G.modeT / STORM_ROUND; }
   else if (G.mode === 'nacht') { line = `Lange Nacht · level ${G.level} · ${Math.floor(G.t / 1000) + 100 * G.levelsGained} punten${G.lantern > 0 ? ` · lantaarn ${Math.ceil(G.lantern / 1000)} s` : ''}`; frac = G.levelSap / goal; }
@@ -6508,7 +6543,7 @@ function buildFruitGrid() {
   const f = FRUITS[menuSel], own = owned(menuSel);
   renderIcon($('#detail-icon').getContext('2d'), menuSel, 76, !own, { hat: save.hat, gold: isGold(menuSel) });
   const lv = xpLevel(menuSel), xp = save.xp[menuSel] || 0, fl = fruitLevels(menuSel), md = fruitMedal(menuSel);
-  $('#detail-name').textContent = f.name; const tb = fruitSapBonus(menuSel); $('#detail-trait').textContent = (tb ? `Fruitbonus: +${tb}% sap na elke poging en messen ${Math.round((fruitCalm(menuSel) - 1) * 100)}% rustiger. ` : '') + f.trait;
+  $('#detail-name').textContent = f.name; const tb = fruitSapBonus(menuSel); $('#detail-trait').textContent = (tb ? `Fruitbonus: +${tb}% sap na elke poging en messen ${Math.round((fruitCalm(menuSel) - 1) * 100)}% rustiger (niet in duels). ` : '') + f.trait;
   $('#detail-xp').textContent = own ? `Niveau ${lv}${lv >= 5 ? ' (eigenschap versterkt)' : ` · ${xp}/${xpForLevel(lv + 1)} s tot sterker`} · ${fl} level${fl === 1 ? '' : 's'} uitgespeeld${md ? ` · ${md}` : ' · brons bij 10'}` : 'Speeltijd versterkt de eigenschap (niveau 5); uitgespeelde levels geven medailles, goud bij 50.';
   const pd = $('#detail-pedia'), cs = $('#detail-cs'); pd.hidden = cs.hidden = !own; // v0.32.0: the Fruitpedia line (from the Album), play time in minutes, and the cross-section
   if (own) { pd.textContent = `${save.stats.cutsBy[menuSel] || 0}× gesneden · record ${fmtTime(save.bestBy[menuSel] || 0)} · ${Math.floor(xp / 60)} min gespeeld`; drawCrossTo(cs, menuSel); }
@@ -6611,7 +6646,7 @@ function openHelp() { // v0.32.0: the gear's sheet on Spelen > Levels: Geluid, M
     `<div class="sec"><h3>Bonusvoorwerpen</h3><div class="small">Vallen soms tijdens een level: 10% kans op level 1, oplopend tot 35%, en vanaf level 41 vaak een tweede. Hoe hoger je level, hoe groter en feller ze zijn, hoe trager ze drijven en hoe langer en sterker ze werken: op level 81 duren ze dubbel zo lang. Op level 1:</div>${powers}</div>` +
     `<div class="sec"><h3>Tussenspel</h3><div class="small">Om de acht levels (9, 17, 25, ...) een spelletje van 15 seconden, met 3 seconden uitleg vooraf. Alles pak je gewoon door erover te zweven; je kunt er niet in doodgaan; elk punt wordt sap dat meegroeit met je level. Elk level heeft een plafond, dat oploopt tot 3.000 sap op level 200 (een los spelletje met een munt: tot 600 sap). Hoe dichter bij het plafond, hoe minder een extra punt nog oplevert, maar elk punt telt.</div>${inter}</div>` +
     `<div class="sec"><h3>Fruit Fever en de Aartsvijand</h3><div class="small">Elke "Net niet!" telt mee. Vier kort na elkaar, zonder snee ertussen, en er begint <b>Fruit Fever</b>: acht seconden waarin de wereld vertraagt, elk nieuw klontje goud is, de klontjes dubbel zo snel komen en alles dubbel telt. Het mes of keukengevaar dat jou het vaakst raakte, wordt je <b>aartsvijand</b>: het krijgt een naam en een paarse waarschuwingslijn. Ontwijk zijn patroon drie keer in één poging en je neemt wraak: 200 sap, een sticker en een tragere aartsvijand voor de rest van die poging.</div></div>` +
-    `<div class="sec"><h3>Duels, rivalen en het seizoen</h3><div class="small"><b>Duels</b> (onder Vrienden › Duels): 90 seconden, score = sap, elk duel nieuwe messen. Je speelt tegen de schim van een speler van jouw niveau of tegen De Chef; geen inzet, de winnaar krijgt ${DUEL_WIN_SAP} sap (de eerste ${DUEL_PAID_DAY} keer per dag). ${DUEL_PER_HOUR} duels per uur, vrienden en willekeurige spelers samen; geen betaald of fruitvoordeel. <b>Vriendenduel:</b> daag ze uit vanaf hun kaartje onder Vrienden; de verliezer draagt een dag lang het Pannetje. <b>Rivalen:</b> elke week twee spelers net boven je; haal ze in voor 300 sap. <b>Seizoen:</b> zes weken, elke week een hoofdstuk tegen De Chef en zijn hakbijl (60 s overleven). Elk gehaald hoofdstuk laat het seizoensfruit een vorm evolueren; alle zes en het blijft van jou. Daarna begint meteen het volgende seizoen, met een ander seizoensfruit en nieuwe regels.</div></div>` +
+    `<div class="sec"><h3>Duels, rivalen en het seizoen</h3><div class="small"><b>Duels</b> (onder Vrienden › Duels): 90 seconden, score = sap, elk duel nieuwe messen. Je speelt tegen de schim van een speler van jouw niveau of tegen De Chef; geen inzet, de winnaar krijgt ${DUEL_WIN_SAP} sap (de eerste ${DUEL_PAID_DAY} keer per dag, alleen in openbare duels). ${DUEL_FREE_DAY} openbare duels per dag, plus ${DUEL_AD_DAY} na een filmpje en dueltickets (die krijg je alleen voor volle albums), samen hoogstens ${DUEL_DAY_MAX}; geen betaald of fruitvoordeel. <b>Vriendenduel:</b> daag ze uit vanaf hun kaartje onder Vrienden: onbeperkt en zonder sap. De verliezer draagt een dag lang het Pannetje. <b>Rivalen:</b> elke week twee spelers net boven je; haal ze in voor 300 sap. <b>Seizoen:</b> zes weken, elke week een hoofdstuk tegen De Chef en zijn hakbijl (60 s overleven). Elk gehaald hoofdstuk laat het seizoensfruit een vorm evolueren; alle zes en het blijft van jou. Daarna begint meteen het volgende seizoen, met een ander seizoensfruit en nieuwe regels.</div></div>` +
     `<div class="sec"><h3>Jouw Keuken</h3><div class="small">Je eigen keuken (Vandaag › Keuken) heeft vier toestellen: snijplank, oven, koelkast en vitrine, elk vijf niveaus, te koop met sap. Ze maken sap terwijl je weg bent, tot acht uur lang: kom langs en haal op. Je totale niveau bepaalt je status: Keuken, Bistro (5), Restaurant (10), Sterrenzaak (15); elke stap geeft een bordskin om mee te spelen (Winkel). De vitrine toont je fruit met hoedje en telt +10% per niveau. Elke week hangen chefs drie bestellingen op: kleine opdrachten met sap als beloning, alle drie klaar geeft 1.000 extra. Vrienden bezoeken elkaars keuken en geven een fooi (jij betaalt 50, zij krijgen 50); de mooiste keuken is Keuken van de week.</div></div>` +
     `<div class="sec"><h3>Hartjes en spelvormen</h3><div class="small">Een gewone poging kost een hartje; elk uur komt er een bij. Zonder hartjes kun je niet verder: wachten, een filmpje kijken of bijkopen (met sap hoogstens 5 hartjes per dag, vanaf 300 sap, of met geld). Na een snee kun je één keer per poging verder na een filmpje (Verder op het eindscherm). Mes van de dag en de weekendspelen kosten geen hartje. Onderaan staan vijf tabbladen: Verzamel (fruit, stempels, album en kast), Vandaag (dagreeks en opdrachten, je keuken, het rad en de Fruitpas), Spelen (levels, dagmes, toernooi en seizoen), Vrienden (duels, vrienden en rivalen) en Winkel. Bovenaan elk scherm kies je een subtabblad; tik nog eens op een tabblad en je bent terug bij het eerste. Stempels is de Fruitkaart: elk level met elk fruit uitspelen geeft beloningen. De Fruitpas heeft 30 seizoenstreden. Je keukenbonussen staan onder Spelen › Levels. Een bolletje of getal op een tabblad betekent: daar staat iets klaar of iets nieuws.</div><div class="small">Ontvang alles (bovenaan Vandaag, de Fruitpas en je Keuken) haalt alles op wat klaarstaat, met één kaart als resultaat. Tik op een prijs om vooraf te zien wat het is en wat het doet; een hoedje pas je op je fruit.</div></div>` +
     `<div class="sec"><h3>Winkel</h3><div class="small">Alles is met sap te verdienen; geld maakt het alleen sneller en er zit nooit toeval in. Dagdeal: elke dag één item voor de helft. Keukensleutel: je volgende keukenbonus nu al. Startboost: begin een poging met een bonusvoorwerp (voor sap: tot je er 2 hebt). Sapverdubbelaar: een uur dubbel sap; de uren tellen op tot max 5 uur. Fruitmanden: een hele familie in één keer. Laatste stempel: de laatste één of twee vakjes van een rij op de Fruitkaart. Spelletjesmunten: een los tussenspel vanuit Vandaag. Don't Slice Me! Plus: een abonnement (hier een simulatie) zonder reclame, met onbeperkte hartjes, +25% sap, dubbele beloningen voor dagreeks en opdrachten, een wekelijkse Plus-kist, elke maand een fruit dat na 10 levels van jou blijft, Fruitpas premium en elk seizoen een exclusief hoedje. Opzeggen kan altijd.</div></div>` +
@@ -6620,9 +6655,9 @@ function openHelp() { // v0.32.0: the gear's sheet on Spelen > Levels: Geluid, M
     `<div class="sec" id="help-sync"><h3>Je voortgang meenemen</h3><div class="small">Je voortgang wordt in deze browser bewaard en, zodra je online bent, ook bij je spelersprofiel. Speel je op meerdere toestellen of in meerdere browsers? Koppel ze: maak hier een koppelcode (10 minuten geldig) en typ ze op het andere toestel bij "Ik heb een koppelcode". Vanaf dan delen ze dezelfde voortgang, vrienden en toernooi. Een opslagcode kopiëren en plakken blijft ook werken.</div><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><button class="btn primary" id="btn-link-new">Koppel een ander toestel</button><button class="btn" id="btn-link-use">Ik heb een koppelcode</button></div><div class="small" id="link-msg"></div><div class="row" style="justify-content:flex-start;gap:6px"><button class="btn" id="btn-save-copy">Kopieer opslagcode</button><button class="btn ghost" id="btn-save-paste">Plak opslagcode</button></div><div class="small" id="save-msg" style="word-break:break-all"></div></div>`;
   $('#btn-help-intro').addEventListener('click', () => { SFX.click(); openIntro(); });
   $('#btn-link-new').addEventListener('click', async () => { SFX.click(); if (!NET.on()) { $('#link-msg').textContent = 'Koppelen werkt alleen online.'; return; } if (!save.name) { ensureName(); return; } $('#link-msg').textContent = 'Even geduld…'; const c = await linkCodeNew(); $('#link-msg').textContent = c ? `Typ op je andere toestel bij het tandwiel > Ik heb een koppelcode: ${fmtLinkCode(c)} (10 minuten geldig).` : 'Geen verbinding; probeer straks opnieuw.'; if (lang === 'en') trTree($('#link-msg')); });
-  $('#btn-link-use').addEventListener('click', async () => { SFX.click(); if (!NET.on()) { $('#link-msg').textContent = 'Koppelen werkt alleen online.'; return; } const v = prompt(tr('Typ de koppelcode van je andere toestel:')); if (v === null || !String(v).trim()) return; $('#link-msg').textContent = 'Even geduld…'; const r = await linkWith(v); $('#link-msg').textContent = !r ? 'Geen verbinding; probeer straks opnieuw.' : r.ok ? 'Gekoppeld! Je voortgang is samengevoegd.' : r.error === 'self' ? 'Dat is dit toestel zelf.' : 'Die koppelcode bestaat niet of is verlopen.'; if (lang === 'en') trTree($('#link-msg')); });
+  $('#btn-link-use').addEventListener('click', async () => { SFX.click(); if (!NET.on()) { $('#link-msg').textContent = 'Koppelen werkt alleen online.'; return; } const v = await askBox({ title: 'Ik heb een koppelcode', text: 'Typ de koppelcode van je andere toestel:', input: { ph: 'ABCD-EFGH', max: 9, caps: true }, yes: 'Koppel', no: 'Annuleer' }); if (v === null || !String(v).trim()) return; /* v0.32.3: an in-game question */ $('#link-msg').textContent = 'Even geduld…'; const r = await linkWith(v); $('#link-msg').textContent = !r ? 'Geen verbinding; probeer straks opnieuw.' : r.ok ? 'Gekoppeld! Je voortgang is samengevoegd.' : r.error === 'self' ? 'Dat is dit toestel zelf.' : 'Die koppelcode bestaat niet of is verlopen.'; if (lang === 'en') trTree($('#link-msg')); });
   $('#btn-save-copy').addEventListener('click', async () => { SFX.click(); const code = exportSave(); try { await navigator.clipboard.writeText(code); $('#save-msg').textContent = 'Opslagcode gekopieerd. Bewaar ze in een notitie of plak ze op je andere telefoon.'; } catch (e) { $('#save-msg').textContent = code; } });
-  $('#btn-save-paste').addEventListener('click', () => { SFX.click(); const code = prompt('Plak hier je opslagcode:'); if (code === null) return; if (importSave(code)) { $('#save-msg').textContent = 'Gelukt! Het spel herstart met die voortgang.'; setTimeout(() => location.reload(), 600); } else $('#save-msg').textContent = 'Dat is geen geldige opslagcode.'; });
+  $('#btn-save-paste').addEventListener('click', async () => { SFX.click(); const code = await askBox({ title: 'Plak opslagcode', text: 'Plak hier je opslagcode. Let op: de voortgang op dit toestel wordt vervangen door die van de code.', input: { area: true, ph: 'FV1.…' }, yes: 'Laad deze voortgang', no: 'Annuleer' }); if (code === null) return; /* v0.32.3: an in-game question */ if (importSave(code)) { $('#save-msg').textContent = 'Gelukt! Het spel herstart met die voortgang.'; setTimeout(() => location.reload(), 600); } else $('#save-msg').textContent = 'Dat is geen geldige opslagcode.'; });
   $('#help-body').querySelectorAll('.sec').forEach(s => { if (s.id === 'help-sync') return; s.classList.add('fold'); const h = s.querySelector('h3'); if (!h) return; h.setAttribute('role', 'button'); h.tabIndex = 0; h.addEventListener('click', () => s.classList.toggle('open')); h.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); s.classList.toggle('open'); } }); });
   openSheet('gearbox'); pauseBtn.hidden = true;
 }
@@ -6658,7 +6693,7 @@ const endDrag = e => {
 canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag);
 document.addEventListener('touchmove', e => { if (G.state === 'play') e.preventDefault(); }, { passive: false });
 document.addEventListener('pointerdown', () => AU.init(), { capture: true });
-document.addEventListener('visibilitychange', () => { if (document.hidden) { if (G.state === 'play') pause(); MUS.stop(true); cloudPush(true); } else if (save.music3) MUS.start(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) { if (G.state === 'play') pause(); MUS.stop(true); cloudPush(true); } else { if (save.music3) MUS.start(); if (!HOOK.pollOff) netPoll(true); } }); // v0.32.3: back in the foreground, what waits on the server comes in as in-game cards
 // The system back button (Android, installed app) closes a screen or pauses a run instead of leaving the game. v0.30.4: pressed
 // again on the pause screen it stops the run and records it, like Stoppen; leaving a game-over settles the run first.
 window.addEventListener('popstate', navBack); // v0.32.0: sheet, sub-tab, first sub-tab, Spelen > Levels (navBack)
@@ -6849,6 +6884,7 @@ const ADS = {
     kitchen:    { kind: 'rewarded', what: 'een schild bij een nieuwe keuken', reserved: true },
     tourney:    { kind: 'rewarded', what: 'een extra toernooiticket' },
     unlimited:  { kind: 'rewarded', what: `${UNL_BLOCK} minuten onbeperkte hartjes` },
+    duel:       { kind: 'rewarded', what: 'een extra openbaar duel' }, // v0.32.3: at most DUEL_AD_DAY a day
     gameover:   { kind: 'interstitial', every: 3, minGapMs: 180000, afterRuns: 5 },
   },
   log: [], lastInterstitial: 0, runsSince: 0,
@@ -6932,6 +6968,7 @@ function rewardItems(r) {
   if (r.shield) add(`+${r.shield} reeksschild`, (c, css) => { rwCenter(c, css); drawShieldIcon(c, 0, 0, 46); });
   if (r.munt) add(`+${r.munt} Toernooimunt${r.munt > 1 ? 'en' : ''}`, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 26, '#ffcc33'); });
   if (r.tickets) add(`+${r.tickets} ticket${r.tickets > 1 ? 's' : ''}`, (c, css) => { rwCenter(c, css); c.fillStyle = '#ff9a5a'; c.beginPath(); roundBox(-26, -14, 52, 28, 6); c.fill(); c.fillStyle = '#fff4e4'; c.font = `900 13px ${FU}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('TICKET', 0, 1); });
+  if (r.duel) add(`+${r.duel} duelticket${r.duel > 1 ? 's' : ''}`, (c, css) => { rwCenter(c, css); c.fillStyle = '#9b5cff'; c.beginPath(); roundBox(-26, -14, 52, 28, 6); c.fill(); c.strokeStyle = '#fff4e4'; c.lineWidth = 1.5; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(-12, -14); c.lineTo(-12, 14); c.stroke(); c.setLineDash([]); c.fillStyle = '#fff4e4'; c.font = `900 11px ${FU}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('DUEL', 6, 1); }); // v0.32.3 duel tickets (only from full album sets)
   if (r.fragment && r.fruitKey) add(`fragment ${FRUITS[r.fruitKey].name}`, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 26, '#b78cff'); });
   if (r.weekpas) add('Weekpas: onbeperkt tickets tot zondag 23 u', (c, css) => { rwCenter(c, css); c.fillStyle = '#ffcc33'; c.beginPath(); roundBox(-26, -14, 52, 28, 6); c.fill(); c.fillStyle = '#2a1208'; c.font = `900 11px ${FU}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('WEEKPAS', 0, 1); });
   if (r.minutes) add(`+${r.minutes} min onbeperkt`, (c, css) => { rwCenter(c, css); drawClockIcon(c, 0, 0, 24); });
@@ -6986,6 +7023,7 @@ function giveReward(r, title, sub) { // sub: an optional line under the pop-up t
   if (r.shield) { save.shields += r.shield; txt.push(`+${r.shield} reeksschild`); }
   if (r.munt) { TS().munten += r.munt; txt.push(`+${r.munt} Toernooimunt${r.munt > 1 ? 'en' : ''}`); }
   if (r.tickets) { TS().kept += r.tickets; txt.push(`+${r.tickets} ticket${r.tickets > 1 ? 's' : ''}`); }
+  if (r.duel) { save.duelTickets = duelTickets() + Math.max(0, Math.floor(r.duel)); txt.push(`+${r.duel} duelticket${r.duel > 1 ? 's' : ''}`); } // v0.32.3: duel tickets (a full album set)
   if (r.fragment && r.fruitKey) { addFragment(r.fruitKey, r.fragment); txt.push(`fragment ${FRUITS[r.fruitKey].name} (${Math.min(3, TS().fragments[r.fruitKey] || 0)}/3)`); }
   if (r.board) { if (!save.boards.includes(r.board)) { save.boards.push(r.board); markFresh('kast'); save.board = r.board; txt.push('bordskin: ' + THEMES[skinIndex(r.board)].name); } else { save.sap += 500; delete eff.board; eff.dupBoard = r.board; txt.push('+500 sap (bordskin had je al)'); } }
   if (r.title) { if (!save.titles.includes(r.title)) { save.titles.push(r.title); markFresh('kast'); txt.push('titel: ' + r.title); } else { delete eff.title; eff.dupTitle = r.title; } }
@@ -6993,15 +7031,15 @@ function giveReward(r, title, sub) { // sub: an optional line under the pop-up t
   if (r.fx && ALBUM_FX[r.fx]) { if (!save.albumFx[r.fx]) { save.albumFx[r.fx] = dayKey(); markFresh('kast'); } txt.push(ALBUM_FX[r.fx].name); }
   store(); if (G.state !== 'play') showReward(eff, title, sub); return txt.join(' · ');
 }
-const rewardText = r => [r.sap ? `${r.sap} sap` : '', r.heart ? `${r.heart} hartje${r.heart > 1 ? 's' : ''}` : '', r.munt ? `${r.munt} Toernooimunt${r.munt > 1 ? 'en' : ''}` : '', r.fragment && r.fruitKey ? `fragment ${FRUITS[r.fruitKey].name}` : '', r.tickets ? `${r.tickets} ticket${r.tickets > 1 ? 's' : ''}` : '', r.hat ? `hoedje ${HATS[r.hat] ? HATS[r.hat].name : r.hat}` : '', r.shield ? `${r.shield} reeksschild` : '', r.minutes ? `${r.minutes} min onbeperkt` : '', r.board ? `bordskin ${THEMES[skinIndex(r.board)] ? THEMES[skinIndex(r.board)].name : r.board}` : '', r.title ? `titel "${r.title}"` : ''].filter(Boolean).join(' + ');
+const rewardText = r => [r.sap ? `${r.sap} sap` : '', r.heart ? `${r.heart} hartje${r.heart > 1 ? 's' : ''}` : '', r.munt ? `${r.munt} Toernooimunt${r.munt > 1 ? 'en' : ''}` : '', r.fragment && r.fruitKey ? `fragment ${FRUITS[r.fruitKey].name}` : '', r.tickets ? `${r.tickets} ticket${r.tickets > 1 ? 's' : ''}` : '', r.duel ? `${r.duel} duelticket${r.duel > 1 ? 's' : ''}` : '', r.hat ? `hoedje ${HATS[r.hat] ? HATS[r.hat].name : r.hat}` : '', r.shield ? `${r.shield} reeksschild` : '', r.minutes ? `${r.minutes} min onbeperkt` : '', r.board ? `bordskin ${THEMES[skinIndex(r.board)] ? THEMES[skinIndex(r.board)].name : r.board}` : '', r.title ? `titel "${r.title}"` : ''].filter(Boolean).join(' + ');
 // ---- v0.32 Ontvang alles and prize previews. Pieter: one button on top of the daily rewards, and know beforehand exactly what
 // a prize is and what it does, everywhere. While rwBatch is set (claimAll, rwGroup) every pop-up is collected and one card shows
 // the merged result. claimables(scope) lists what waits, in claim order; claimAll(scope) claims it through each reward's own guard,
 // so every reward lands exactly once. prizeTile draws a prize with its icon, exact amount, when and source; a tap on anything with
 // data-pv opens #prevbox with a big preview (a hat on your fruit, a board in portrait, a fruit with its trait). No new save fields.
-const RW_SUM = ['sap', 'coins', 'heart', 'shield', 'munt', 'tickets', 'minutes', 'hours', 'key', 'heartFull'];
-const RW_ORDER = ['sap', 'coins', 'heart', 'heartFull', 'shield', 'munt', 'tickets', 'fragment', 'minutes', 'hours', 'key', 'boost', 'hat', 'dupHat', 'board', 'dupBoard', 'fx', 'title', 'title2', 'dupTitle', 'card', 'pin', 'fruit', 'fruits', 'stickers', 'stk', 'note', 'weekpas', 'pass', 'plus'];
-const RW_MAIN = ['hat', 'dupHat', 'board', 'dupBoard', 'fx', 'card', 'pin', 'fruit', 'fragment', 'fruits', 'title', 'title2', 'dupTitle', 'stk', 'weekpas', 'pass', 'plus', 'munt', 'minutes', 'shield', 'heart', 'heartFull', 'tickets', 'coins', 'key', 'hours', 'boost', 'stickers', 'sap', 'note'];
+const RW_SUM = ['sap', 'coins', 'heart', 'shield', 'munt', 'tickets', 'duel', 'minutes', 'hours', 'key', 'heartFull'];
+const RW_ORDER = ['sap', 'coins', 'heart', 'heartFull', 'shield', 'munt', 'tickets', 'duel', 'fragment', 'minutes', 'hours', 'key', 'boost', 'hat', 'dupHat', 'board', 'dupBoard', 'fx', 'title', 'title2', 'dupTitle', 'card', 'pin', 'fruit', 'fruits', 'stickers', 'stk', 'note', 'weekpas', 'pass', 'plus'];
+const RW_MAIN = ['hat', 'dupHat', 'board', 'dupBoard', 'fx', 'card', 'pin', 'fruit', 'fragment', 'fruits', 'title', 'title2', 'dupTitle', 'stk', 'weekpas', 'pass', 'plus', 'munt', 'minutes', 'shield', 'heart', 'heartFull', 'duel', 'tickets', 'coins', 'key', 'hours', 'boost', 'stickers', 'sap', 'note'];
 const rwPart = (r, k) => { const o = { [k]: r[k] }; if (k === 'fragment') o.fruitKey = r.fruitKey; if (k === 'boost') o.n = r.n; return o; };
 const mainPart = r => { for (const k of RW_MAIN) if (r && r[k]) return rwPart(r, k); return r || {}; };
 const splitReward = r => RW_ORDER.filter(k => r && r[k]).map(k => rwPart(r, k)).filter(o => rewardItems(o).length);
@@ -7107,6 +7145,7 @@ const PRIZE_WHAT = {
   minutes: `Minuten gaan in je voorraad onbeperkte hartjes: elke dag ${UNL_BLOCK} minuten spelen zonder hartjes te verliezen, na een filmpje.`,
   munt: 'Toernooimunt: te ruilen in de Toernooiwinkel voor hoedjes, bordskins, titels en fragmenten.',
   tickets: 'Ticket: één toernooironde; kost geen hartje.',
+  get duel() { return `Duelticket: 1 extra openbaar duel boven je ${DUEL_FREE_DAY} per dag. Je krijgt ze alleen voor volle albums: ${duelTicketHow()}. Ze blijven bewaard tot je ze gebruikt.`; }, // v0.32.3 (a getter: the album sets come later in the file)
   fragment: 'Fragment: drie fragmenten van hetzelfde fruit maken het evenementsfruit.',
   hat: 'Hoedje: puur voor de sier, geen invloed op het spel.',
   dupHat: 'Dit hoedje had je al: je kreeg 250 sap in de plaats.',
@@ -7666,12 +7705,12 @@ const STICKERS = [
 const PLUSSER_SEAL = 'plusser'; // save.stickers.plusser stays: a Bedankt-zegel for its owners, no reward, never counted
 // The six sets (sap per set: 250 for the quick first one, 500 for the others) and the milestones (claimed stickers)
 const ALBUM_SETS = [
-  { k: 'hapjes', name: 'Eerste hapjes', col: '#ffb3c7', ids: ['first', 'combo3', 'fever10', 'inter10', 'medal'], fx: 'etiket', title: 'Proever', sap: 250 },
-  { k: 'opweg', name: 'Op weg naar boven', col: '#9ee37d', ids: ['level10', 'level25', 'kitchens', 'level50', 'level100'], fx: 'drop', title: 'Hoogvlieger', sap: 500 },
-  { k: 'elkedag', name: 'Elke dag', col: '#ffcf6b', ids: ['streak7', 'daily10', 'missions20', 'runs100', 'solo5'], fx: 'ontbijt', title: 'Vaste klant', sap: 500 },
-  { k: 'lef', name: 'Lef en wedstrijd', col: '#ff8a6b', ids: ['near30', 'wraak', 'duel10', 'weekend', 'rivaal'], fx: 'vonken', title: 'Waaghals', sap: 500 },
-  { k: 'chef', name: 'Chef en keuken', col: '#f4e2c4', ids: ['eigenkeuken', 'chef3', 'orders10', 'seizoen', 'sterren'], fx: 'diploma', title: 'Souschef', sap: 500 },
-  { k: 'kaart', name: 'Fruitkaart', col: '#8fd3ff', ids: ['stamps100', 'families10', 'gold', 'rows10', 'allfruit'], fx: 'foto', title: 'Fruitkenner', sap: 500 },
+  { k: 'hapjes', name: 'Eerste hapjes', col: '#ffb3c7', ids: ['first', 'combo3', 'fever10', 'inter10', 'medal'], fx: 'etiket', title: 'Proever', sap: 250, phase: 1 }, // v0.32.3 phase: 1 the first phase of the game (levels 1-200), 2 the second (from 200, the Toppad era)
+  { k: 'opweg', name: 'Op weg naar boven', col: '#9ee37d', ids: ['level10', 'level25', 'kitchens', 'level50', 'level100'], fx: 'drop', title: 'Hoogvlieger', sap: 500, phase: 1 },
+  { k: 'elkedag', name: 'Elke dag', col: '#ffcf6b', ids: ['streak7', 'daily10', 'missions20', 'runs100', 'solo5'], fx: 'ontbijt', title: 'Vaste klant', sap: 500, phase: 1 },
+  { k: 'lef', name: 'Lef en wedstrijd', col: '#ff8a6b', ids: ['near30', 'wraak', 'duel10', 'weekend', 'rivaal'], fx: 'vonken', title: 'Waaghals', sap: 500, phase: 1 },
+  { k: 'chef', name: 'Chef en keuken', col: '#f4e2c4', ids: ['eigenkeuken', 'chef3', 'orders10', 'seizoen', 'sterren'], fx: 'diploma', title: 'Souschef', sap: 500, phase: 1 },
+  { k: 'kaart', name: 'Fruitkaart', col: '#8fd3ff', ids: ['stamps100', 'families10', 'gold', 'rows10', 'allfruit'], fx: 'foto', title: 'Fruitkenner', sap: 500, phase: 1 },
 ];
 const ALBUM_MILES = [{ n: 3, r: { card: 1 } }, { n: 10, r: { pin: 2, sap: 500 } }, { n: 20, r: { pin: 3, sap: 1000 } }, { n: 30, r: { fx: 'levend', title: 'Albumkoning', title2: 'Albumkoningin', sap: 2000 } }];
 // The looks the album gives. live: it works in this version (only the Fruitetiket); the others are recorded as yours and arrive next version.
@@ -7695,7 +7734,9 @@ const albumPins = () => save.albumMiles[20] ? 3 : save.albumMiles[10] ? 2 : save
 const stkState = id => save.stkClaimed[id] ? 'got' : save.stickers[id] ? 'ready' : 'lock';
 const stkXpOk = id => !!(save.stkCtx[id] && typeof save.stkCtx[id] === 'object'); // earned after the update: only then +25 Fruitpas-XP
 const stkReward = s => Object.assign({ sap: s.sap }, s.fx ? { fx: s.fx } : {});
-const setReward = S => ({ sap: S.sap, title: S.title, fx: S.fx });
+const setDuelTickets = S => S.phase === 2 ? 30 : 10; // v0.32.3 (Pieter): duel tickets come only from a full album set, 10 in the first phase and 30 in the second; the amount belongs to the set, not to your level when you claim it
+const duelTicketHow = () => `${setDuelTickets({ phase: 1 })} per album${ALBUM_SETS.some(S => S.phase === 2) ? `, ${setDuelTickets({ phase: 2 })} in de tweede fase` : ''}`, duelTicketHowEn = () => `${setDuelTickets({ phase: 1 })} per album${ALBUM_SETS.some(S => S.phase === 2) ? `, ${setDuelTickets({ phase: 2 })} in the second phase` : ''}`;
+const setReward = S => ({ sap: S.sap, title: S.title, fx: S.fx, duel: setDuelTickets(S) });
 function stkProg(id) { // [now, goal] for the bar under a locked sticker; an earned sticker is full
   const s = STK[id]; let p = [0, 1]; try { p = s.prog(save); } catch (e) {} const goal = Math.max(1, +p[1] || 1), cur = save.stickers[id] ? goal : Math.max(0, Math.min(goal, Math.floor(+p[0] || 0)));
   return [cur, goal];
@@ -7728,7 +7769,7 @@ function claimSticker(id, o) {
 }
 function claimSet(k) {
   const S = ALBUM_SETS.find(x => x.k === k); if (!S || save.setClaimed[k] || !S.ids.every(id => save.stkClaimed[id])) return false;
-  save.setClaimed[k] = dayKey(); albumGive(setReward(S), 'Set vol!', S.name);
+  save.setClaimed[k] = dayKey(); (save.duelPaid || (save.duelPaid = {}))[k] = setDuelTickets(S); albumGive(setReward(S), 'Set vol!', S.name);
   if (S.fx === 'etiket' && !save.show.label) save.show.label = S.ids.find(id => save.stkClaimed[id]) || ''; // review: the Fruitetiket goes on your fruit at once (Aanpassen changes it, the Kast switches it off)
   track('claim', 'albumset'); store(); return true;
 }
@@ -7746,7 +7787,7 @@ function albumClaimables() { // what waits in the album, in claim order: sticker
 function albumChip(x) { // one chip on the album's own bar: what it is and its sap
   const [k, v] = x.ak.split(':');
   if (k === 'stk') return `${STK[v].name} +${STK[v].sap}`;
-  if (k === 'set') { const S = ALBUM_SETS.find(y => y.k === v); return `Set ${S.name}: ${ALBUM_FX[S.fx].name} +${S.sap}`; }
+  if (k === 'set') { const S = ALBUM_SETS.find(y => y.k === v); return `Set ${S.name}: ${ALBUM_FX[S.fx].name}, ${setDuelTickets(S)} dueltickets +${S.sap}`; }
   const M = ALBUM_MILES.find(y => y.n === +v); return M.r.sap ? `Mijlpaal ${M.n}: +${fmtSap(M.r.sap)}` : `Mijlpaal ${M.n}: je kaartje`;
 }
 function albumChips(list) { // the album's own bar: a chip per item, or for a long list (an old save) one chip for the stickers, at most three gold ones and "+N meer" (five chips)
@@ -7835,12 +7876,12 @@ function albumCardHTML() { // Zo zien vrienden je: your fruit with its Fruitetik
 }
 function setPrizeHTML(S, got) { // the row under a set: its prize; a tap opens the preview (with Ontvang when the set is full)
   const can = !save.setClaimed[S.k] && got === 5, done = !!save.setClaimed[S.k];
-  return `<button type="button" class="al-prize${can ? ' can' : ''}" data-setpv="${S.k}"><span class="pt">${embSvg(S.fx)}</span><span class="t"><span>${done ? 'Ontvangen:' : can ? 'Klaar:' : 'Set vol:'}</span> <b>${ALBUM_FX[S.fx].name}</b><span> + titel "${S.title}" + ${S.sap} sap</span></span><span class="go">›</span></button>`;
+  return `<button type="button" class="al-prize${can ? ' can' : ''}" data-setpv="${S.k}"><span class="pt">${embSvg(S.fx)}</span><span class="t"><span>${done ? 'Ontvangen:' : can ? 'Klaar:' : 'Set vol:'}</span> <b>${ALBUM_FX[S.fx].name}</b><span> + titel "${S.title}" + ${S.sap} sap + ${setDuelTickets(S)} dueltickets</span></span><span class="go">›</span></button>`;
 }
 function renderAlbum() {
   const body = $('#album-body'); if (!body) return;
   const sets = ALBUM_SETS.map(S => { const got = S.ids.filter(id => save.stkClaimed[id]).length;
-    if (save.setClaimed[S.k] && !albumOpenSets.has(S.k)) return `<button type="button" class="al-fold" data-unfold="${S.k}"><span class="pt">${embSvg(S.fx)}</span><span class="t"><span>${escH(S.name)}</span> · 5/5<small>${ALBUM_FX[S.fx].name}, titel en ${S.sap} sap ontvangen · tik om te openen</small></span><span class="ok">✓</span></button>`;
+    if (save.setClaimed[S.k] && !albumOpenSets.has(S.k)) return `<button type="button" class="al-fold" data-unfold="${S.k}"><span class="pt">${embSvg(S.fx)}</span><span class="t"><span>${escH(S.name)}</span> · 5/5<small>${ALBUM_FX[S.fx].name}, titel, ${S.sap} sap en ${setDuelTickets(S)} dueltickets ontvangen · tik om te openen</small></span><span class="ok">✓</span></button>`;
     return `<div class="sec al-set${got === 5 ? ' done' : ''}" id="set-${S.k}"><h3>${escH(S.name)}<small>${got === 5 ? '5/5 · vol!' : `${got}/5`}</small></h3><div class="al-stk">${S.ids.map(id => stkBtn(STK[id])).join('')}</div>${setPrizeHTML(S, got)}</div>`; }).join('');
   const seal = save.stickers[PLUSSER_SEAL] ? `<div class="sec al-seal" id="album-seal"><span class="sk got" style="--c:#c9a7ff"><span class="disc">${embSvg('plusser')}</span></span><span class="t"><b>Bedankt-zegel</b><small>Je probeerde Don't Slice Me! Plus. Dank je wel! Dit zegel telt niet mee voor het album en geeft niets.</small></span></div>` : '';
   body.innerHTML = '<div class="claimall" id="album-all" hidden></div>' + albumCardHTML() + sets + seal + '<div class="small" id="album-moved">De cijfers en de doorsnede van elk fruit vind je nu bij Fruit (tik op een fruit); je titels draag je in de Kast.</div>';
@@ -7932,8 +7973,8 @@ function openAlbumPv(kind, key) {
   const lines = [], acts = [], line = t => lines.push(`<div>${escH(t)}</div>`); let title = '', fx = '';
   if (kind === 'set') {
     const S = ALBUM_SETS.find(x => x.k === key); if (!S) return false; const got = S.ids.filter(id => save.stkClaimed[id]).length, done = save.setClaimed[S.k]; fx = S.fx; title = ALBUM_FX[fx].name;
-    lines.push(`<b><span>${ALBUM_FX[fx].name}</span><span> · </span><span>titel "${S.title}"</span><span> · </span><span>+${S.sap} sap</span></b>`);
-    line(`Wat het doet: ${ALBUM_FX[fx].what}`); line('Puur uiterlijk, ook in duels.'); if (!ALBUM_FX[fx].live) line(FX_NEXT);
+    lines.push(`<b><span>${ALBUM_FX[fx].name}</span><span> · </span><span>titel "${S.title}"</span><span> · </span><span>+${S.sap} sap</span><span> · </span><span>+${setDuelTickets(S)} dueltickets</span></b>`);
+    line(`Wat het doet: ${ALBUM_FX[fx].what}`); line('Puur uiterlijk, ook in duels.'); line(`Dueltickets: elk 1 extra openbaar duel boven je ${DUEL_FREE_DAY} per dag; ze blijven bewaard tot je ze gebruikt.`); if (!ALBUM_FX[fx].live) line(FX_NEXT);
     line(done ? `Ontvangen op ${fmtDay(done)}.` : `Set ${S.name}: ${got} van 5 stickers in je album.`);
     if (!done && got === 5) acts.push(['aclaim', 'Ontvang']); else if (done && ALBUM_FX[fx].live) acts.push(['ause', 'Gebruik nu']);
   } else if (kind === 'stk') {
@@ -8351,7 +8392,7 @@ const NET = {
   },
   async hello() {
     this.capsFail = 0; const r = await this.call('hello', {}, false, 5000);
-    if (r && r.ok) { this.capsV = Array.isArray(r.caps) ? r.caps.map(String) : []; if (r.inbox && typeof r.inbox === 'object') friendInbox(r.inbox); }
+    if (r && r.ok) { this.capsV = Array.isArray(r.caps) ? r.caps.map(String) : []; if (r.inbox && typeof r.inbox === 'object') { friendInbox(r.inbox); inboxNotes = Math.max(0, Math.floor(Number(r.inbox.notes)) || 0); } } /* v0.32.3: notes that wait (a challenge, a result) */
     else if (this.lastErr && this.lastErr.action === 'hello' && this.lastErr.status >= 400 && this.lastErr.status < 500 && this.lastErr.status !== 401) this.capsV = [];
     else { this.capsFail = nowMs(); return null; } // no answer (offline, timeout, server down): the Friends tab says so; the next openFriends asks again
     this.capsAt = nowMs(); return this.capsV;
@@ -8369,7 +8410,7 @@ async function cloudPush(keepalive) {
   try { const rev = save.rev; const r = await NET.call('save', { data: exportSave(), rev, level: save.level, runs: save.runs }, keepalive); if (r && r.ok) cloudPushedRev = Math.max(cloudPushedRev, rev); return r; } catch (e) { return null; } finally { cloudBusy = false; }
 }
 function adoptSave(d) { // merge a save that is ahead of this one into the running game
-  const merged = mergeSaves(d, save); for (const k of Object.keys(merged)) save[k] = merged[k]; loadSave(true); storedRev = 0; store(); refreshHearts(); convertUnlBank(); if (G.state === 'menu') openMenu();
+  const merged = mergeSaves(d, save); for (const k of Object.keys(merged)) save[k] = merged[k]; loadSave(true); storedRev = 0; store(); refreshHearts(); convertUnlBank(); duelBackPay(); if (G.state === 'menu') openMenu();
 }
 async function cloudPull() {
   if (!NET.on()) return null; const r = await NET.call('load'); if (!r || !r.ok) return null; const d = r.data ? parseSave(r.data) : null; if (!d) return r;
@@ -8405,7 +8446,7 @@ function friendDuelOpen(uid) { const now = nowMs(); return friendDuelList().some
 function friendInbox(x) { const n = { req: Math.max(0, Math.floor(Number(x.req)) || 0), duel: Math.max(0, Math.floor(Number(x.duel)) || 0) }, old = save.friendInbox || {}; if (n.req > (old.req || 0)) markFresh('vrienden'); if (n.duel > (old.duel || 0)) markFresh('duels'); save.friendInbox = n; }
 function friendsBadge() { const ib = save.friendInbox || {}; return friendReqs().in.length > 0 || friendDuelsIn().length > 0 || ib.req > 0 || ib.duel > 0 || (!NET.has('duel2') && todayChallenges().some(c => c.mine === 'to' && !c.resolved && !c.toPlayed)); }
 const escH = v => String(v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const profilePayload = () => { const t = TS(), wk = weekKey(); return { findable: save.findable !== false, fruit: save.fruit, name: save.name || '', level: save.level, best: save.best, fruits: save.owned.slice(), hat: wornHat(), kitchen: kitchenPayload(), streak: save.streak, runs: save.runs, stamps: 0, division: tourneyDivision(), weekKey: wk, weekEv: curEvent(), weekScore: t.week === wk ? tourneyScoreNow() : 0 }; };
+const profilePayload = () => { const t = TS(), wk = weekKey(); return { findable: save.findable !== false, fruit: save.fruit, name: save.name || '', level: save.level, best: save.best, fruits: save.owned.slice(), hat: wornHat(), kitchen: kitchenPayload(), streak: save.streak, runs: save.runs, stamps: 0, division: tourneyDivision(), weekKey: wk, weekEv: curEvent(), weekScore: t.week === wk ? tourneyScoreNow() : 0, pv: 33 }; }; // v0.32.3: pv 33 = this client polls for challenges and shows them as in-game cards
 const profileSignature = () => [save.name, save.findable !== false, save.level, save.best, save.owned.length, save.streak, wornHat(), kitchenLevels(), save.fruit, save.runs, TS().best, TS().vorken, weekKey()].join('|');
 let profileSig = '', netBusy = false, netLast = 0, friendNote = '', friendOpen = '', friendQ = '', friendCodeIn = '', friendFind = { list: null, msg: '', busy: false };
 async function syncProfile(force) {
@@ -8428,13 +8469,13 @@ async function fetchFriends() {
   if (r.requests && typeof r.requests === 'object') { const arr = v => (Array.isArray(v) ? v : []).filter(p => p && p.ref).slice(0, 30), had = new Set(friendReqs().in.map(p => p.ref)); save.friendReqs = { at: nowMs(), in: arr(r.requests.in), out: arr(r.requests.out) }; if (save.friendReqs.in.some(p => !had.has(p.ref))) markFresh('vrienden'); } // v0.32
   if (Array.isArray(r.duels2)) { const had = new Set(friendDuelsIn().map(c => c.id)); save.friendDuels = { at: nowMs(), list: r.duels2.filter(c => c && c.id).slice(0, 40) }; if (friendDuelsIn().some(c => !had.has(c.id))) markFresh('duels'); } // v0.32.0: a new challenge lights Vrienden > Duels
   if (r.requests && Array.isArray(r.duels2)) save.friendInbox = { req: friendReqs().in.length, duel: friendDuelsIn().length }; // v0.32 review: the badge follows what really waits
-  applyNotes(r.notes);
+  inboxNotes = 0; applyNotes(r.notes); chalCards(); // v0.32.3: an open challenge without a card yet shows one (Speel / Later)
   for (const rw of r.rewards || []) { if (rw && rw.sap > 0) { save.sap += rw.sap; showReward({ sap: rw.sap }, `Nieuwe vriend: ${rw.from || '?'}`, 'Vriendenbonus: jullie krijgen allebei sap'); } }
   store(); return r;
 }
 function netTick() { // when the menu opens: a cheap, throttled profile sync plus any pending invite
   if (!NET.on() || !save.name || netBusy) return; if (nowMs() - netLast < 20000 && !save.pendingFriend) return; netLast = nowMs(); netBusy = true;
-  (async () => { try { NET.caps(); await syncProfile(); if (save.pendingFriend) await tryBefriend(); if (!save.rivals || save.rivals.week !== weekKey()) await fetchRivals(); } catch (e) {} finally { netBusy = false; } })();
+  (async () => { try { NET.caps(); await syncProfile(); if (save.pendingFriend) await tryBefriend(); if (!save.rivals || save.rivals.week !== weekKey()) await fetchRivals(); } catch (e) {} finally { netBusy = false; } if (!HOOK.pollOff) netPoll(true); })(); // v0.32.3: then what waits on the server
 }
 const agoText = ms => { if (!(ms > 0)) return ''; const d = Math.floor((nowMs() - ms) / 86400000); return d <= 0 ? 'vandaag' : d === 1 ? 'gisteren' : `${d} dagen geleden`; };
 function friendRow(f, top) {
@@ -8444,7 +8485,7 @@ function friendRow(f, top) {
   const line = (label, a, b) => `<div class="mrow"><div class="mt">${label}</div><div class="small">jij ${a} · ${nm}: ${b}</div></div>`;
   return head + `<div style="padding:4px 8px 8px;margin:0 0 6px 6px;border-left:2px solid #ffd54a">` + line('Level', save.level, f.level) + line('Record', fmtTime(save.best), fmtTime(f.best || 0)) + line('Fruit', save.owned.length, theirs.length) + line('Dagreeks', save.streak, f.streak || 0) + line('Pogingen', save.runs, f.runs || 0) +
     (f.division && DIV_NAME[f.division] ? line('Divisie', DIV_NAME[tourneyDivision()], DIV_NAME[f.division]) : '') +
-    `<div class="small">${missing.length ? `${nm} heeft al: ${missing.join(', ')}` : `Jij hebt al het fruit dat ${nm} heeft.`}</div><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><button class="btn primary${NET.has('duel2') ? ' duelgo' : ''}" data-challenge="${escH(f.uid)}" data-dis="${canChallenge(f) ? '0' : '1'}" ${canChallenge(f) && !(NET.has('duel2') && duelSearch) ? '' : 'disabled'}>Daag uit voor een duel</button><button class="btn ghost" data-unfriend="${escH(f.uid)}">Verwijderen</button></div>${NET.has('duel2') && f.v2 !== true ? `<div class="small">${nm} heeft nog een oudere versie van de game; uitdagen kan zodra ${nm} bijwerkt.</div>` : ''}</div>`;
+    `<div class="small">${missing.length ? `${nm} heeft al: ${missing.join(', ')}` : `Jij hebt al het fruit dat ${nm} heeft.`}</div><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><button class="btn primary${NET.has('duel2') ? ' duelfr' : ''}" data-challenge="${escH(f.uid)}" data-ok="${canChallenge(f) ? '1' : '0'}" ${canChallenge(f) && !(NET.has('duel2') && duelSearch) ? '' : 'disabled'}>Daag uit voor een duel</button><button class="btn ghost" data-unfriend="${escH(f.uid)}">Verwijderen</button></div>${NET.has('duel2') && f.v2 !== true ? `<div class="small">${nm} heeft nog een oudere versie van de game; uitdagen kan zodra ${nm} bijwerkt.</div>` : NET.has('duel2') && NET.has('duel3') && friendDuelOut(f.uid) ? `<div class="small">Je uitdaging voor ${nm} staat open; zodra ${nm} gespeeld heeft, kun je opnieuw uitdagen.</div>` : NET.has('duel2') && !NET.has('duel3') && friendDuelOpen(f.uid) ? '<div class="small">Er staat een uitdaging open tussen jullie; zodra die gespeeld is, kun je opnieuw uitdagen.</div>' : ''}</div>`;
 }
 async function findPlayers(q) { // v0.32: search a username; the server answers with name, level, fruit and a tag only
   const k = nameKey(q); friendQ = String(q || '').slice(0, 16); if (k.length < 2) { friendFind = { list: null, msg: 'Typ minstens 2 letters.', busy: false }; renderFriends(); return null; }
@@ -8500,24 +8541,26 @@ function renderFriends() {
   const week = `<div class="sec" id="fsec-week" data-fv="rivalen"><h3>${ico('games')}Vriendenladder deze week</h3><div class="small">${E.name}</div>${ladder.length ? ladder.map((r, i) => `<div class="mrow${r.me ? ' on' : ''}"><div class="mt"><b>${i + 1}.</b> ${r.me ? `<b>${escH(r.name)}</b> (jij)${wornTitle() ? ` · ${escH(wornTitle())}` : ''}` : escH(r.name)}</div><b>${r.score} ${E.unit}</b></div>`).join('') : '<div class="small">Nog niemand van jullie speelde deze week een ronde.</div>'}</div>`;
   const ch = v2 ? [] : todayChallenges(), st = duelBtnState(), now = nowMs(), fdl = friendDuelList().filter(c => c && c.id);
   const fdRows = fdl.map(c => { const left = Math.max(1, Math.ceil(((c.expires || 0) - now) / 3600000)), gone = c.status === 'expired' || (c.status === 'open' && c.expires > 0 && c.expires < now);
-    if (c.mine === 'to' && c.status === 'open' && !gone) return `<div class="mrow"><div class="mt">${escH(c.otherName)} daagt je uit<div class="small">${Math.max(0, Math.floor(Number(c.score)) || 0)} sap te kloppen · nog ${left} u</div></div><button class="btn${st.dis ? '' : ' primary'} duelgo" data-duel-ch="${escH(c.id)}" data-from="${escH(c.otherName)}" ${st.dis ? 'disabled' : ''}>Speel</button></div>`;
+    if (c.mine === 'to' && c.status === 'open' && !gone) return `<div class="mrow"><div class="mt">${escH(c.otherName)} daagt je uit<div class="small">${Math.max(0, Math.floor(Number(c.score)) || 0)} sap te kloppen · nog ${left} u</div></div><button class="btn${duelSearch ? '' : ' primary'} duelfr" data-ok="1" data-duel-ch="${escH(c.id)}" data-from="${escH(c.otherName)}" ${duelSearch ? 'disabled' : ''}>Speel</button></div>`;
     const who = c.mine === 'from' ? `Jij daagde ${c.otherName} uit` : `${c.otherName} daagt je uit`, stt = gone ? 'Verlopen: niemand draagt het Pannetje' : c.status === 'open' ? `wacht op ${c.otherName}` : c.status === 'playing' ? (c.mine === 'from' ? `${c.otherName} speelt nu` : 'gespeeld · uitslag volgt') : 'beslist';
     return `<div class="mrow"><div class="mt">${escH(who)}</div><div class="small">${escH(stt)}</div></div>`; }).join('');
-  const dl = save.duel, last = dl && dl.played && dl.vsName ? `Laatste duel: ${dl.score} sap · ${dl.result === 'win' ? 'gewonnen' : dl.result === 'tie' ? 'gelijk' : 'verloren'} tegen ${dl.vsName}.` : '', notes = [duelPayText(), last].filter(Boolean).map(x => `<span>${escH(x)}</span>`).join('<br>');
-  const countRow = `<div class="mrow"><div class="mt"><b class="duelcount" data-nl="${duelCountText()}">${duelCountText()}</b><div class="small">${notes}</div></div><button class="btn${st.dis ? '' : ' primary'} duelgo" id="btn-duel" data-nl="${st.label}" ${st.dis ? 'disabled' : ''}>${st.label}</button></div>`, prizes = `${prizeStrip([duelWinTile()], 'Te winnen:')}${prizeStrip([PAN_TILE], 'Verlies je een vriendenduel:')}`; // v0.32.0: the duel card of the old Spellen view, the counter first (the Pannetje is a penalty, not a prize)
-  const duels = `<div class="sec" id="fsec-duels" data-fv="duels" style="border-color:rgba(199,125,255,.5)"><h3>${ico('games')}Duels</h3><div class="duelcard" id="sec-duel">${countRow}<h4>Uitdagingen van vrienden</h4><div class="small">${ns === 'offline' ? 'Uitdagen kan zodra je online bent. Een duel tegen De Chef kan altijd.' : ns === 'noname' ? 'Kies eerst een naam, dan kun je vrienden uitdagen. Een duel tegen De Chef kan altijd.' : NET.capsV === null ? 'Uitdagen kan zodra er verbinding is met de server. Een duel tegen De Chef kan altijd.' : v2 ? 'Daag een vriend uit (open zijn kaartje): je speelt meteen een duel en je vriend speelt daarna dezelfde messen tegen jouw schim. De verliezer draagt een dag lang het Pannetje.' : 'Daag een vriend uit (open zijn kaartje): jullie eerste duel van vandaag telt, op dezelfde messen; de verliezer draagt een dag lang het Pannetje.'}</div>${duelNote ? `<div class="small" id="duel-note">${escH(duelNote)}</div>` : ''}` + fdRows +
+  const dl = save.duel, last = dl && dl.played && dl.vsName ? (dl.result === 'sent' ? `Laatste duel: ${dl.score} sap · uitdaging voor ${dl.vsName}.` : `Laatste duel: ${dl.score} sap · ${dl.result === 'win' ? 'gewonnen' : dl.result === 'tie' ? 'gelijk' : 'verloren'} tegen ${dl.vsName}.`) : '', notes = [duelPayText(), last].filter(Boolean).map(x => `<span>${escH(x)}</span>`).join('<br>');
+  const countRow = `<div class="mrow"><div class="mt"><b class="duelcount" data-nl="${duelCountText()}">${duelCountText()}</b><div class="small">${notes}</div></div><button class="btn${st.dis ? '' : ' primary'} duelgo" id="btn-duel" data-nl="${st.label}" ${st.dis ? 'disabled' : ''}>${st.label}</button></div>${duelExtraHTML()}`, prizes = `${prizeStrip([duelWinTile()], 'Te winnen:')}${prizeStrip([PAN_TILE], 'Verlies je een vriendenduel:')}`; // v0.32.0: the duel card of the old Spellen view, the counter first (the Pannetje is a penalty, not a prize)
+  const duels = `<div class="sec" id="fsec-duels" data-fv="duels" style="border-color:rgba(199,125,255,.5)"><h3>${ico('games')}Duels</h3><div class="duelcard" id="sec-duel">${countRow}<h4>Uitdagingen van vrienden</h4><div class="small">${ns === 'offline' ? 'Uitdagen kan zodra je online bent. Een duel tegen De Chef kan altijd.' : ns === 'noname' ? 'Kies eerst een naam, dan kun je vrienden uitdagen. Een duel tegen De Chef kan altijd.' : NET.capsV === null ? 'Uitdagen kan zodra er verbinding is met de server. Een duel tegen De Chef kan altijd.' : v2 ? 'Daag een vriend uit (open zijn kaartje): je zet meteen een score neer op nieuwe messen en je vriend speelt daarna dezelfde messen tegen jouw schim. Vriendenduels zijn onbeperkt en geven geen sap; de verliezer draagt een dag lang het Pannetje.' : 'Daag een vriend uit (open zijn kaartje): jullie eerste duel van vandaag telt, op dezelfde messen; de verliezer draagt een dag lang het Pannetje.'}</div>${duelNote ? `<div class="small" id="duel-note">${escH(duelNote)}</div>` : ''}` + fdRows +
     ch.map(c => { const mineFrom = c.mine === 'from', other = mineFrom ? c.toName : c.fromName, otherPlayed = mineFrom ? c.toPlayed : c.fromPlayed; const s2 = c.resolved ? 'beslist' : otherPlayed ? (duelPlayedToday() ? 'uitslag volgt' : `${other} speelde al · speel jouw duel`) : `wacht op ${other}`; return `<div class="mrow"><div class="mt">${escH(mineFrom ? `Jij daagde ${other} uit` : `${other} daagt je uit`)}</div><div class="small">${escH(s2)}</div></div>`; }).join('') +
-    (!fdRows && !ch.length ? '<div class="small">Geen open uitdagingen.</div>' : '') + `${prizes}<details class="how"><summary>Hoe werkt het?</summary><div class="rules"><b>Hoe:</b> 90 seconden vanaf level 10; score = sap. Elk duel nieuwe messen: je speelt tegen de schim van een speler van jouw niveau die dezelfde messen kreeg, of tegen De Chef als er niemand is.<br><b>Hoeveel:</b> ${DUEL_PER_HOUR} duels per uur, tegen vrienden en willekeurige spelers samen. Een uur na je eerste duel zijn ze alle ${DUEL_PER_HOUR} terug. Kost geen hartje.<br><b>Prijs:</b> geen inzet; win je, dan krijg je ${DUEL_WIN_SAP} sap (de eerste ${DUEL_PAID_DAY} winsten per dag).<br><b>Eerlijk:</b> ${DUEL_FAIR}<br><b>Vrienden:</b> daag ze uit vanaf hun kaartje onder Vrienden; de verliezer draagt een dag lang het Pannetje.</div></details></div></div>`;
+    (!fdRows && !ch.length ? '<div class="small">Geen open uitdagingen.</div>' : '') + `${prizes}<details class="how"><summary>Hoe werkt het?</summary><div class="rules"><b>Hoe:</b> 90 seconden vanaf level 10; score = sap. Elk duel nieuwe messen: je speelt tegen de schim van een speler van jouw niveau die dezelfde messen kreeg, of tegen De Chef als er niemand is.<br><b>Hoeveel:</b> ${DUEL_FREE_DAY} openbare duels per dag (nieuwe om 7 uur), plus ${DUEL_AD_DAY} na een filmpje en dueltickets: samen hoogstens ${DUEL_DAY_MAX} per dag. Kost geen hartje.<br><b>Dueltickets:</b> 1 extra openbaar duel per ticket, hoogstens ${DUEL_TICKET_DAY} per dag. Je krijgt ze alleen voor volle albums: ${duelTicketHow()} (Verzamel › Album). Ze blijven bewaard tot je ze gebruikt.<br><b>Prijs:</b> geen inzet; win je, dan krijg je ${DUEL_WIN_SAP} sap (de eerste ${DUEL_PAID_DAY} winsten per dag, alleen in openbare duels).<br><b>Eerlijk:</b> ${DUEL_FAIR}<br><b>Vrienden:</b> daag ze uit vanaf hun kaartje onder Vrienden: onbeperkt en zonder sap, zodat niemand sap kan sparen met een vriend. De verliezer draagt een dag lang het Pannetje.</div></details></div></div>`;
   const rv = save.rivals && save.rivals.week === weekKey() ? save.rivals : { list: [], passed: [] }, rivals = `<div class="sec" id="fsec-rivals" data-fv="rivalen"><h3>${ico('games')}Rivalen van de week</h3><div class="small">Twee spelers die net boven je staan. Haal ze in en je krijgt ${RIVAL_SAP} sap; zij krijgen het te horen. Elke maandag nieuwe rivalen.</div>${prizeStrip([{ r: { sap: RIVAL_SAP }, when: 'per ingehaalde rivaal' }], 'Te winnen:')}` +
     (rv.list.length ? rv.list.map(r => { const left = r.level - save.level + 1; return `<div class="mrow"><div class="mt"><b>${escH(r.name)}</b><div class="small">Level ${r.level} · record ${fmtTime(r.best || 0)}</div></div><div class="small">${rv.passed.includes(r.uid) || save.level > r.level ? 'ingehaald ✓' : `nog ${left} level${left === 1 ? '' : 's'}`}</div></div>`; }).join('') : `<div class="small">${online ? 'Nog geen rivalen gevonden: speel verder, ze komen eraan.' : 'Rivalen verschijnen zodra je online bent.'}</div>`) + `</div>`;
   const body = $('#friends-body'); body.innerHTML = add + reqs + duels + `<div class="sec" id="fsec-list" data-fv="vrienden"><h3>${ico('kaart')}Vrienden (${list.length})</h3>${chase}${rows}</div>` + rivals + week;
   body.querySelectorAll('[data-fv]').forEach(sec => { sec.hidden = sec.dataset.fv !== friendsView; }); // v0.32.0: one screen, three sub-tabs; only the open one's parts show
   body.querySelectorAll('canvas[data-ficon]').forEach(cv => { try { renderIcon(cv.getContext('2d'), cv.dataset.ficon, 36, false); } catch (e) {} }); paintPrizes(body); // v0.32 review: the prizes of Vrienden as tiles with a preview
-  const fd = $('#btn-duel'); if (fd) fd.addEventListener('click', () => { if (duelSearch || duelsLeft() <= 0) return; SFX.click(); startDuel(); }); // v0.32: the button follows the search (duelPaint)
-  body.querySelectorAll('[data-duel-ch]').forEach(el => el.addEventListener('click', () => { if (duelSearch || duelsLeft() <= 0) return; SFX.click(); startDuel({ challenge: el.dataset.duelCh, fromName: el.dataset.from }); }));
+  const fd = $('#btn-duel'); if (fd) fd.addEventListener('click', () => { if (duelSearch || !duelCanPublic()) return; SFX.click(); startDuel(duelsLeft() > 0 ? {} : { pay: 'ad' }); }); // v0.32: the button follows the search (duelPaint); v0.32.3: or plays a watched video's duel
+  const fdA = $('#btn-duel-ad'); if (fdA) fdA.addEventListener('click', () => { if (duelSearch || duelAdLeft() <= 0) return; SFX.click(); duelAd(); });
+  const fdT = $('#btn-duel-tk'); if (fdT) fdT.addEventListener('click', () => { if (duelSearch || duelTicketUsable() <= 0) return; SFX.click(); startDuel({ pay: 'ticket' }); }); // a ticket is only taken when the duel really starts
+  body.querySelectorAll('[data-duel-ch]').forEach(el => el.addEventListener('click', () => { if (duelSearch) return; SFX.click(); startDuel({ challenge: el.dataset.duelCh, fromName: el.dataset.from }); })); // v0.32.3: friend duels are unlimited
   body.querySelectorAll('[data-challenge]').forEach(el => el.addEventListener('click', () => { SFX.click(); const f = save.friends.list.find(x => x.uid === el.dataset.challenge); if (!f) return;
-    if (NET.has('duel2')) { if (duelSearch || duelsLeft() <= 0) return; if (!confirm(tr(`${f.name} uitdagen? Je speelt nu een duel (1 van je ${DUEL_PER_HOUR} dit uur); ${f.name} speelt daarna dezelfde messen tegen jouw schim. De verliezer draagt een dag lang het Pannetje.`))) return; startDuel({ to: f.uid, toName: f.name }); return; }
-    if (!confirm(tr('Deze vriend uitdagen? De verliezer draagt een dag lang het Pannetje.'))) return; challengeFriend(el.dataset.challenge); }));
+    if (NET.has('duel2')) { if (!duelSearch) challengeAsk(f.uid); return; } // v0.32.3: a fresh look whether the friend can play it, then an in-game question (never a browser dialog)
+    askBox({ title: `${f.name} uitdagen?`, text: 'Jullie eerste duel van vandaag telt, op dezelfde messen. De verliezer draagt een dag lang het Pannetje.', yes: 'Daag uit', no: 'Annuleer' }).then(ok => { if (ok) challengeFriend(f.uid); }); }));
   const share = $('#btn-friend-share'); if (share) share.addEventListener('click', async () => { SFX.click(); const text = inviteText(); try { if (navigator.share) { await navigator.share({ title: "Don't Slice Me!", text }); return; } } catch (e) { return; } try { await navigator.clipboard.writeText(text); friendNote = 'Uitnodiging gekopieerd.'; } catch (e) { friendNote = text; } renderFriends(); });
   const qIn = $('#friend-q'); if (qIn) { qIn.addEventListener('input', () => { friendQ = qIn.value; }); qIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); findPlayers(qIn.value); } }); }
   const qBtn = $('#btn-friend-find'); if (qBtn) qBtn.addEventListener('click', () => { SFX.click(); findPlayers(qIn ? qIn.value : friendQ); });
@@ -8529,7 +8572,8 @@ function renderFriends() {
   body.querySelectorAll('[data-req-yes]').forEach(el => el.addEventListener('click', () => { SFX.click(); answerFriend(el.dataset.reqYes, true); }));
   body.querySelectorAll('[data-req-no]').forEach(el => el.addEventListener('click', () => { SFX.click(); answerFriend(el.dataset.reqNo, false); }));
   body.querySelectorAll('[data-friend]').forEach(el => el.addEventListener('click', () => { SFX.click(); friendOpen = friendOpen === el.dataset.friend ? '' : el.dataset.friend; renderFriends(); }));
-  body.querySelectorAll('[data-unfriend]').forEach(el => el.addEventListener('click', () => { SFX.click(); if (!confirm(tr('Deze vriend verwijderen?'))) return; const uid = el.dataset.unfriend; save.friends.list = save.friends.list.filter(f => f.uid !== uid); friendOpen = ''; friendNote = 'Vriend verwijderd.'; store(); renderFriends(); NET.call('unfriend', { uid }); }));
+  body.querySelectorAll('[data-unfriend]').forEach(el => el.addEventListener('click', () => { SFX.click(); const uid = el.dataset.unfriend, f = save.friends.list.find(x => x.uid === uid);
+    askBox({ title: f ? `${f.name} verwijderen?` : 'Deze vriend verwijderen?', text: 'Jullie zien elkaar dan niet meer onder Vrienden en kunnen elkaar niet meer uitdagen. Opnieuw vrienden worden kan altijd, met je link of code.', yes: 'Verwijderen', no: 'Annuleer' }).then(ok => { if (!ok) return; save.friends.list = save.friends.list.filter(x => x.uid !== uid); friendOpen = ''; friendNote = 'Vriend verwijderd.'; store(); if (G.state === 'friends') renderFriends(); NET.call('unfriend', { uid }); }); })); // v0.32.3: an in-game question
   if (lang === 'en') trTree(body);
   if (focus) { const el = $('#' + focus); if (el) { try { el.focus(); const L = el.value.length; el.setSelectionRange(L, L); } catch (e) {} } }
 }
@@ -8540,9 +8584,103 @@ function openFriends(view) { // v0.32.0: Vrienden > Duels, Vrienden or Rivalen; 
   return (async () => { try { await NET.caps(); if (G.state === 'friends') renderFriends(); await syncProfile(); const r = await fetchFriends(); await fetchRivals(); checkRivals(); if (G.state === 'friends') { renderFriends(); updateHub('scr-friends'); } return r; } catch (e) { return null; } })();
 }
 
+// ---- v0.32.3 in-game questions (Pieter, 9 November 2026: "dit zou een in-game notificatie moeten zijn en mag nooit een android pop-up
+// notificatie zijn"). No browser confirm, alert or prompt dialog anywhere: askBox asks in the game's own card (#askbox) and never blocks
+// the page. It returns a promise: true (or the typed text) for the main button, null for Annuleer, the back button or a tap beside it.
+// o: { title, text, note (a warning line), input: { ph, max, caps, area, value }, yes, no, info (only the main button) }.
+let askCur = null;
+function askBox(o) {
+  o = o || {}; if (askCur) askDone(false);
+  const box = $('#askbox'), inp = $('#ask-input'), area = $('#ask-area'), I = o.input || null, field = I ? (I.area ? area : inp) : null, tx = $('#ask-text');
+  const nt = $('#ask-note'); nt.textContent = o.note || ''; nt.hidden = !o.note; // v0.32.3 review: an optional warning line under the text (its own string, so it translates on its own)
+  $('#ask-title').textContent = o.title || ''; tx.textContent = o.text || ''; tx.hidden = !o.text; inp.hidden = !(I && !I.area); area.hidden = !(I && I.area);
+  if (field) { field.value = I.value || ''; field.__nlAttr = null; field.setAttribute('placeholder', I.ph || ''); if (I.max) field.setAttribute('maxlength', String(I.max)); else field.removeAttribute('maxlength'); field.classList.toggle('caps', !!I.caps); }
+  const yes = $('#ask-yes'), no = $('#ask-no'); yes.textContent = o.yes || 'Oké'; no.textContent = o.no || 'Annuleer'; no.hidden = !!o.info;
+  const card = box.firstElementChild; card.style.animation = 'none'; box.hidden = false; void card.offsetWidth; card.style.animation = ''; if (lang === 'en') trTree(box); navPushModal();
+  if (field) { try { field.focus(); } catch (e) {} }
+  return new Promise(ok => { askCur = { ok, field }; });
+}
+function askDone(yes) { const a = askCur; askCur = null; $('#askbox').hidden = true; if (!a) return; a.ok(!yes ? null : a.field ? String(a.field.value || '') : true); }
+const askOpen = () => !$('#askbox').hidden;
+$('#ask-yes').addEventListener('click', e => { e.stopPropagation(); SFX.click(); askDone(true); });
+$('#ask-no').addEventListener('click', e => { e.stopPropagation(); SFX.click(); askDone(false); });
+$('#askbox').addEventListener('click', e => { if (e.target.id === 'askbox') askDone(false); });
+$('#ask-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); askDone(true); } });
+
+// ---- v0.32.3 friend challenges (Pieter: "ik speelde tegen de chef (de ghost speler dus), mijn vriendin heeft ook geen update gehad dat
+// ik een duel wou met haar"). The challenger plays his own run on fresh knives with the friend's name on screen (startDuel opts.to, no
+// opponent), after a fresh look whether the friend can play it at all, said before the run. The friend learns it in the game itself:
+// netPoll asks hello when the game starts, comes back to the foreground and every few minutes while it is open; when something waits
+// (a challenge, a result, a request: inbox.notes from the v0.32.3 server) it asks friends, whose notes become in-game cards (a challenge
+// with Speel and Later), the yellow dot on Vrienden > Duels and a row in Nu te doen. Never a phone or browser notification.
+let chalBusy = false, pollAt = 0, pollBusy = false, inboxNotes = 0;
+const POLL_MS = 3 * 60000, POLL_MIN_MS = 30000, chalCarded = new Set(); // the challenges that showed their card in this session
+function friendDuelOut(uid) { const now = nowMs(); return friendDuelList().some(c => c && c.other === uid && c.mine === 'from' && c.status === 'open' && !(c.expires > 0 && c.expires < now)); } // my open challenge to this friend
+async function challengeAsk(uid) { // Daag uit (server v2): a fresh friends list first (their app, what is open), then the in-game question
+  let f = save.friends.list.find(x => x.uid === uid); if (!f || duelSearch || chalBusy || duelBusy()) return false; const nm = f.name;
+  chalBusy = true; friendNote = `Even kijken of ${nm} kan spelen…`; if (G.state === 'friends') renderFriends();
+  let r = null; try { r = await fetchFriends(); } catch (e) {} finally { chalBusy = false; }
+  if (friendNote === `Even kijken of ${nm} kan spelen…`) friendNote = ''; if (G.state === 'friends') renderFriends();
+  if (G.state !== 'friends' || duelSearch || duelBusy()) return false; f = save.friends.list.find(x => x.uid === uid);
+  const info = (title, text) => { askBox({ title, text, info: true, yes: 'Oké' }); return false; };
+  if (!r) return info('Geen verbinding', 'De server antwoordt niet. Uitdagen kan zodra er weer verbinding is.');
+  if (!f) return info(`${nm} is geen vriend meer`, 'Jullie zijn geen vrienden meer, dus uitdagen kan niet.');
+  if (f.v2 !== true) return info(`${nm} moet eerst bijwerken`, `${nm} speelt nog met een oudere versie van de game en kan je uitdaging niet spelen. Uitdagen kan zodra ${nm} de game bijwerkt (de pagina opnieuw laden of de app bijwerken).`);
+  if (friendDuelOut(uid)) return info('Er staat al een uitdaging open', `${nm} heeft je vorige uitdaging nog niet gespeeld. Zodra ${nm} gespeeld heeft, kun je opnieuw uitdagen.`);
+  if (!NET.has('duel3') && friendDuelOpen(uid)) return info('Er staat al een uitdaging open', 'Er staat een uitdaging open tussen jullie. Speel ze eerst (Vrienden › Duels), daarna kun je opnieuw uitdagen.'); // a v0.32 server keeps one challenge per pair
+  const late = NET.has('duel3') && f.v3 !== true; // v0.32.3 review: a friend on v0.32.0-v0.32.2 can play it but gets no in-game card (no polling): said before the run, he may send it anyway
+  const ok = await askBox({ title: `${nm} uitdagen?`, text: `Je speelt nu 90 seconden op nieuwe messen en zet een score neer. ${nm} speelt daarna binnen ${CHALLENGE_H} uur dezelfde messen tegen jouw schim. Vriendenduels zijn onbeperkt en geven geen sap; de verliezer draagt een dag lang het Pannetje.`,
+    note: late ? `Let op: ${nm} heeft nog een oudere versie van de game en krijgt je uitdaging niet als melding in de game. ${nm} ziet ze pas onder Vrienden › Duels, of zodra ${nm} de game bijwerkt (de pagina opnieuw laden of de app bijwerken).` : '', yes: late ? 'Toch uitdagen' : 'Speel nu', no: 'Annuleer' });
+  if (!ok || G.state !== 'friends' || duelSearch || duelBusy()) return false;
+  return startDuel({ to: f.uid, toName: f.name });
+}
+function chalCard(c) { // a friend's challenge as an in-game card: Speel (plays it now) or Later (the dot and Nu te doen stay)
+  if (!c || !c.id || chalCarded.has(c.id)) return false; chalCarded.add(c.id);
+  const nm = c.otherName || 'Een vriend', h = Math.max(1, Math.min(CHALLENGE_H, Math.ceil(((c.expires || 0) - nowMs()) / 3600000) || CHALLENGE_H)), sc = Math.max(0, Math.floor(Number(c.score)) || 0);
+  return showAction({ note: 'Duel!' }, `${nm} daagt je uit!`, `Speel binnen ${h} uur dezelfde messen. ${sc} sap te kloppen; de verliezer draagt een dag lang het Pannetje.`, [['Speel', () => chalPlay(c.id, nm), true], ['Later', () => {}]]);
+}
+function chalPlay(id, nm) { if (duelSearch || duelBusy()) return false; openFriends('duels'); return startDuel({ challenge: id, fromName: nm }); } // from wherever the card showed: Vrienden > Duels, then the challenge
+function chalCards() { // a card for every open challenge that had none in this session (on Vrienden > Duels the list itself shows them)
+  if (duelBusy()) return 0; const open = friendDuelsIn(); if (G.state === 'friends' && friendsView === 'duels') { for (const c of open) chalCarded.add(c.id); return 0; }
+  let n = 0; for (const c of open) if (chalCard(c)) n++; return n;
+}
+async function netPoll(force) { // force: at start and back in the foreground (at most every 30 s); else every POLL_MS
+  if (!NET.on() || !save.name || pollBusy || duelBusy() || document.hidden) return null; const gap = nowMs() - pollAt; if (gap >= 0 && gap < (force ? POLL_MIN_MS : POLL_MS)) return null;
+  pollBusy = true; pollAt = nowMs();
+  try {
+    const caps = await NET.hello(); if (!caps) return null; const ib = save.friendInbox || {}, waitOut = friendDuelList().some(c => c && c.mine === 'from' && (c.status === 'open' || c.status === 'playing'));
+    const need = inboxNotes > 0 || (ib.duel || 0) > friendDuelsIn().length || (ib.req || 0) > friendReqs().in.length || (NET.has('duel2') && !NET.has('duel3') && waitOut); // a v0.32 server does not count notes: ask while a challenge waits for its result
+    let fetched = false; if (need && !duelBusy()) { await fetchFriends(); fetched = true; } else chalCards();
+    if (!duelBusy()) { if (G.state === 'menu') renderTodo(); else if (G.state === 'friends' && fetched) renderFriends(); if (curScreen in HUB_SCREENS) updateHub(curScreen); }
+    return { fetched, need };
+  } catch (e) { return null; } finally { pollBusy = false; }
+}
+setInterval(() => { if (!HOOK.pollOff) netPoll(); }, 30000);
+
+// ---- v0.32.3 public duels: a video or a duel ticket once the five free duels of the day are played (side by side, the player chooses)
+function duelAd() { // a video for one more public duel (at most DUEL_AD_DAY a day); the duel starts right after it; one that does not start waits (Speel je extra duel)
+  if (duelAdLeft() <= 0 || duelSearch || duelBusy()) return false; const view = G.state === 'friends' ? friendsView : 'duels';
+  ADS.show('duel', () => { const d = duelDay(); if (d.ad < DUEL_AD_DAY) { d.ad++; d.adc++; } store(); openFriends(view); startDuel({ pay: 'ad' }); }); return true;
+}
+function duelExtraHTML() { // under the counter: the two ways to one more public duel once the free ones are played, and where tickets come from
+  const t = duelTickets(), how = t <= 0 ? '<div class="small" id="duel-tk-how">Dueltickets krijg je voor elk vol album (Verzamel › Album).</div>' : '';
+  if (duelsLeft() > 0 || duelDay().adc > 0) return how;
+  const ad = duelAdLeft(), room = duelTicketRoom(), aOk = ad > 0, tOk = t > 0 && room > 0, dis = !!duelSearch;
+  return `<div class="row duelx-row"><button class="btn${aOk && !dis ? ' primary' : ''} duelx" id="btn-duel-ad" data-ok="${aOk ? '1' : '0'}" ${aOk && !dis ? '' : 'disabled'}>${aOk ? `Filmpje: +1 duel (nog ${ad} vandaag)` : `Filmpjes van vandaag gebruikt (${DUEL_AD_DAY})`}</button>` +
+    `<button class="btn${tOk && !dis ? ' primary' : ''} duelx" id="btn-duel-tk" data-ok="${tOk ? '1' : '0'}" ${tOk && !dis ? '' : 'disabled'}>${t <= 0 ? 'Geen dueltickets' : room <= 0 ? `Vandaag al ${DUEL_TICKET_DAY} dueltickets gebruikt` : `Duelticket gebruiken (je hebt ${t})`}</button></div>` + how;
+}
+function duelBackPay() { // album sets claimed without their duel tickets (before this version, or on a device that never had them: a merge or a link
+  // brings those claims along) pay them once each, with an in-game card. save.duelPaid holds the tickets each set paid (claimSet writes it too);
+  // save.duelBack only says the catch-up ran (legacy flag). At start, after adoptSave and after a merge from another tab (never inside a run).
+  const P = save.duelPaid && typeof save.duelPaid === 'object' && !Array.isArray(save.duelPaid) ? save.duelPaid : (save.duelPaid = {}), due = ALBUM_SETS.filter(S => save.setClaimed[S.k] && !(P[S.k] > 0));
+  const first = !save.duelBack; save.duelBack = true; if (!due.length) { if (first) store(); return 0; }
+  let n = 0; for (const S of due) { const t = setDuelTickets(S); P[S.k] = t; n += t; }
+  save.duelTickets = duelTickets() + n; showReward({ duel: n }, 'Dueltickets', `Je volle albums leveren je ${n} dueltickets op.`); store(); return n;
+}
 const HOOK = window.dontsliceme = {
+  difficulty, updateTricks,
   LVSND,
-  version: '0.32.2', freeze: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, PLUS_SEASON_HATS, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, wornHat, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, LOSER_HAT, LOSER_HAT_MS, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.32.3', freeze: false, pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, PLUS_SEASON_HATS, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, wornHat, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, LOSER_HAT, LOSER_HAT_MS, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   get SEASON() { return curSeason(); }, // v0.30.3: the current season of the series
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
@@ -8562,7 +8700,8 @@ const HOOK = window.dontsliceme = {
   lampOn, mispelOn, lampCap, lampKeep, lampGo, lampHud, interOwn, lampSlot, lampPaper, lampUi, sandFull, sandNear, mispelRewind, hazReset, stepDone, finishInter, loadSave, drawLantern, lateLook2, LAMP_WAIT, SAND_NEAR, RW_MS, RW_INV, RW_TELE, RW_WAIT, RW_HUSH, onTrack: fn => { trackHooks.push(fn); return () => { const i = trackHooks.indexOf(fn); if (i >= 0) trackHooks.splice(i, 1); }; }, // v0.32 late fruit part 2
   gain: v => gainSap(v), diff: () => difficulty(), POWERS, levelGoal, stepGoal, levelSec, LEVEL_SEC_200, barRate, BAR_RATE, levelSteps, stepMark, stepNo, runSteps, interDue, interKindOf, interKindAt, dropChance,
 };
-Object.assign(HOOK, { DUEL_PER_HOUR, DUEL_HOUR_MS, DUEL_PAID_DAY, DUEL_FIND_MS, duelWindow, duelsLeft, duelResetMs, duelCountText, duelPaidLeft, duelPayText, duelSeedList, duelSeedFor, duelFinish, duelBtnState, duelPaint, duelSearch: () => duelSearch, duelCancel: () => { duelSearch = null; }, duelNote: () => duelNote, duelFrom: () => duelFrom, duelAt, duelWinTile, DUEL_FIND_CH_MS, duelFair, quitRun, findPlayers, askFriend, answerFriend, friendReqs, friendDuelList, friendDuelsIn, friendsBadge, nameKey, INVITE_URL, webSite, friendQ: v => { if (v !== undefined) friendQ = v; return friendQ; }, friendNote: () => friendNote }); // v0.32 duels per hour and the Friends tab
+Object.assign(HOOK, { DUEL_FREE_DAY, DUEL_AD_DAY, DUEL_TICKET_DAY, DUEL_DAY_MAX, DUEL_PAID_DAY, DUEL_FIND_MS, duelDay, duelsLeft, duelAdLeft, duelTickets, duelTicketRoom, duelTicketUsable, duelCanPublic, duelCountText, duelExtraHTML, duelAd, duelPaidLeft, duelPayText, duelSeedList, duelSeedFor, duelFinish, duelBtnState, duelPaint, duelSearch: () => duelSearch, duelCancel: () => { duelSearch = null; }, duelNote: () => duelNote, duelFrom: () => duelFrom, duelWinTile, DUEL_FIND_CH_MS, duelFair, quitRun, findPlayers, askFriend, answerFriend, friendReqs, friendDuelList, friendDuelsIn, friendDuelOut, friendsBadge, nameKey, INVITE_URL, webSite, friendQ: v => { if (v !== undefined) friendQ = v; return friendQ; }, friendNote: () => friendNote }); // v0.32 the Friends tab; v0.32.3 duels per day
+Object.assign(HOOK, { askBox, askDone, askOpen, challengeAsk, chalCard, chalCards, chalPlay, netPoll, pollReset: () => { pollAt = 0; pollBusy = false; }, chalCarded: () => [...chalCarded], inboxNotes: () => inboxNotes, duelBackPay, setDuelTickets, rewardText, FRIEND_FREE, duelNoSap, profilePayload }); // v0.32.3 in-game questions, friend challenges in the game, duel tickets
 Object.assign(EN, { // v0.32.0 navigation content
   "Dagmes": "Daily knife", "Los spelletje": "Single minigame", "Seizoen": "Season", "Rivalen": "Rivals", "Duels spelen": "Play duels", "Vrienden › Duels": "Friends › Duels", "Uitdagingen van vrienden": "Challenges from friends", "Naar Duels": "To Duels",
   "daag ze uit vanaf hun kaartje onder Vrienden; de verliezer draagt een dag lang het Pannetje.": "challenge them from their card under Friends; the loser wears the Little pan for a day.",
@@ -8680,13 +8819,13 @@ Object.assign(HOOK, { openKast, wornTitle, TITLE_HOW, navSeen, claimCounts, clai
 Object.assign(HOOK, { NAV_TABS, NAV_TAB, NAV_SUB, NAV_EN, HUB_SCREENS, GOTO, goTo, navGo, tabTap, navBack, navRouteFor, navBadges, navSum, navMarkHTML, navCur: () => navCur, navLast: () => Object.assign({}, navLast), navLabel, openSheet, closeSheets, openPerks, perkNextLevel, perkLine, menuTodo, renderTodo, navHintCheck, updateHub, tourneyFocus: () => tourneyFocus, navPushModal, navSapShow, MODALS, adBack: () => adBack, openStormCards, openLangBox });
 Object.assign(HOOK, { MISSION_REWARDS, claimAll, claimables, claimBar, claimChips, mergeRewards, previewRewards, splitReward, rwGroup, showRewardList, prizeTile, prizeStrip, paintPrizes, openPrize, closePrize, prizeWhat, soloTop, PRIZE_WHAT, ORDER_ALL_SAP, MILE_REWARDS, heldText, boardHow, PAN_NOTE, pvFruit: () => pvFruit }); // v0.32 claim all and prize previews
 Object.assign(EN, { // v0.32 duels per hour and the Friends tab
-  'Duel': 'Duel', 'Hoeveel:': 'How many:', 'Eerlijk:': 'Fair:', 'Op voor dit uur': 'Used up this hour', 'Speel een duel': 'Play a duel', [`${DUEL_PER_HOUR} duels klaar`]: `${DUEL_PER_HOUR} duels ready`,
+  'Duel': 'Duel', 'Hoeveel:': 'How many:', 'Eerlijk:': 'Fair:', 'Op voor vandaag': 'Used up for today', 'Speel een duel': 'Play a duel',
   [`90 seconden vanaf level 10; score = sap. Elk duel nieuwe messen: je speelt tegen de schim van een speler van jouw niveau die dezelfde messen kreeg, of tegen De Chef als er niemand is.`]: 'Ninety seconds from level 10; score = juice. New knives every duel: you play against the ghost of a player of your level who got the same knives, or against The Chef when there is nobody.',
-  [`${DUEL_PER_HOUR} duels per uur, tegen vrienden en willekeurige spelers samen. Een uur na je eerste duel zijn ze alle ${DUEL_PER_HOUR} terug. Kost geen hartje.`]: `${DUEL_PER_HOUR} duels an hour, against friends and random players together. An hour after your first duel all ${DUEL_PER_HOUR} are back. Costs no heart.`,
-  [`geen inzet; win je, dan krijg je ${DUEL_WIN_SAP} sap (de eerste ${DUEL_PAID_DAY} winsten per dag).`]: `no stake; if you win you get ${DUEL_WIN_SAP} juice (the first ${DUEL_PAID_DAY} wins a day).`,
-  [DUEL_FAIR]: 'in a duel the juice doubler, equipment, fruit juice bonuses and an extra shell do not count: every fruit earns the same juice per cube. What your fruit itself can do (size, speed, segments) does stay.',
+  [`${DUEL_FREE_DAY} openbare duels per dag (nieuwe om 7 uur), plus ${DUEL_AD_DAY} na een filmpje en dueltickets: samen hoogstens ${DUEL_DAY_MAX} per dag. Kost geen hartje.`]: `${DUEL_FREE_DAY} public duels a day (new ones at 7:00), plus ${DUEL_AD_DAY} after a video and duel tickets: at most ${DUEL_DAY_MAX} a day in all. Costs no heart.`,
+  [`geen inzet; win je, dan krijg je ${DUEL_WIN_SAP} sap (de eerste ${DUEL_PAID_DAY} winsten per dag, alleen in openbare duels).`]: `no stake; if you win you get ${DUEL_WIN_SAP} juice (the first ${DUEL_PAID_DAY} wins a day, public duels only).`,
+  [DUEL_FAIR]: 'in a duel the juice doubler, equipment, fruit bonuses (more juice and calmer knives) and an extra shell do not count: every fruit earns the same juice per cube and gets the same knives. What your fruit itself can do (size, speed, segments) does stay.',
   'Naar Vrienden': 'To Friends', 'De server antwoordt traag. Tik nog eens op Speel.': 'The server is slow to answer. Tap Play again.', 'Je speelde deze uitdaging al; de uitslag volgt.': 'You played this challenge already; the result follows.',
-  'Je uitdaging is niet verstuurd: je duels van dit uur zijn op.': 'Your challenge was not sent: your duels of this hour are used up.', 'Je uitdaging is gespeeld; de uitslag volgt zodra de server hem heeft.': 'Your challenge is played; the result follows once the server has it.',
+  'Je uitdaging is niet verstuurd: de server telt vriendenduels nog mee in de oude duellimiet. Probeer het straks opnieuw.': 'Your challenge was not sent: the server still counts friend duels in the old duel limit. Try again later.', 'Je uitdaging is gespeeld; de uitslag volgt zodra de server hem heeft.': 'Your challenge is played; the result follows once the server has it.',
   'Geen verbinding met de server. Je link en code werken zodra er weer verbinding is.': 'No connection with the server. Your link and code work once the connection is back.',
   'per nieuwe vriend · max 10 keer': 'per new friend · at most 10 times', 'per ingehaalde rivaal': 'per rival passed', 'gespeeld · uitslag volgt': 'played · result follows',
   'Uitdagen kan zodra je online bent. Een duel tegen De Chef kan altijd.': 'Challenging works once you are online. A duel against The Chef always works.',
@@ -8716,11 +8855,9 @@ Object.assign(EN, { // v0.32 duels per hour and the Friends tab
   'Daag een vriend uit (open zijn kaartje): je speelt meteen een duel en je vriend speelt daarna dezelfde messen tegen jouw schim. De verliezer draagt een dag lang het Pannetje.': 'Challenge a friend (open their card): you play a duel right away and your friend then plays the same knives against your ghost. The loser wears the Little pan for a day.',
   'Verlopen: niemand draagt het Pannetje': 'Expired: nobody wears the Little pan', 'Geen open uitdagingen.': 'No open challenges.', 'Nog geen vrienden. Zoek er een op naam of deel je uitnodiging!': 'No friends yet. Search one by name or share your invitation!',
   '25 duels gewonnen.': 'Won 25 duels.',
-  [`(onder Vrienden › Duels): 90 seconden, score = sap, elk duel nieuwe messen. Je speelt tegen de schim van een speler van jouw niveau of tegen De Chef; geen inzet, de winnaar krijgt ${DUEL_WIN_SAP} sap (de eerste ${DUEL_PAID_DAY} keer per dag). ${DUEL_PER_HOUR} duels per uur, vrienden en willekeurige spelers samen; geen betaald of fruitvoordeel.`]: `(under Friends › Duels): 90 seconds, score = juice, new knives every duel. You play against the ghost of a player of your level or against The Chef; no stake, the winner gets ${DUEL_WIN_SAP} juice (the first ${DUEL_PAID_DAY} times a day). ${DUEL_PER_HOUR} duels an hour, friends and random players together; no paid or fruit advantage.`,
+  [`(onder Vrienden › Duels): 90 seconden, score = sap, elk duel nieuwe messen. Je speelt tegen de schim van een speler van jouw niveau of tegen De Chef; geen inzet, de winnaar krijgt ${DUEL_WIN_SAP} sap (de eerste ${DUEL_PAID_DAY} keer per dag, alleen in openbare duels). ${DUEL_FREE_DAY} openbare duels per dag, plus ${DUEL_AD_DAY} na een filmpje en dueltickets (die krijg je alleen voor volle albums), samen hoogstens ${DUEL_DAY_MAX}; geen betaald of fruitvoordeel.`]: `(under Friends › Duels): 90 seconds, score = juice, new knives every duel. You play against the ghost of a player of your level or against The Chef; no stake, the winner gets ${DUEL_WIN_SAP} juice (the first ${DUEL_PAID_DAY} times a day, public duels only). ${DUEL_FREE_DAY} public duels a day, plus ${DUEL_AD_DAY} after a video and duel tickets (you only get those for full albums), at most ${DUEL_DAY_MAX} in all; no paid or fruit advantage.`,
 });
 EN_RX.unshift( // v0.32 duels per hour and the Friends tab
-  [/^Nog (\d+) van (\d+) duels dit uur · nieuwe over (\d+) min(\.?)$/, m => `${m[1]} of ${m[2]} duels left this hour · new ones in ${m[3]} min${m[4]}`],
-  [/^Je (\d+) duels van dit uur zijn op · nieuwe over (\d+) min(\.?)$/, m => `Your ${m[1]} duels of this hour are used up · new ones in ${m[2]} min${m[3]}`], [/^(\d+) duels klaar(\.?)$/, m => `${m[1]} duels ready${m[2]}`],
   [/^Winnen: \+(\d+) sap · nog (\d+) van (\d+) keer vandaag$/, m => `Winning: +${m[1]} juice · ${m[2]} of ${m[3]} times left today`], [/^Gewonnen: \+(\d+) sap\.$/, m => `Won: +${m[1]} juice.`],
   [/^Laatste duel: (\d+) sap · (gewonnen|gelijk|verloren) tegen (.+)\.$/, m => `Last duel: ${m[1]} juice · ${{ gewonnen: 'won', gelijk: 'draw', verloren: 'lost' }[m[2]]} against ${tr(m[3])}.`],
   [/^(\d+) vriendenduels open\.$/, m => `${m[1]} friend duels open.`], [/^(\d+) uitdagingen van vrienden wachten \(Vrienden\)\.$/, m => `${m[1]} challenges from friends are waiting (Friends).`],
@@ -8742,7 +8879,6 @@ EN_RX.unshift( // v0.32 duels per hour and the Friends tab
   [/^(.+) heeft nog een oudere versie van de game; uitdagen kan zodra (.+) bijwerkt\.$/, m => `${m[1]} still has an older version of the game; challenging works once ${m[2]} updates.`],
   [/^Uitnodiging ontvangen \(code (\S+)\): zodra er verbinding is, worden jullie vrienden\.$/, m => `Invitation received (code ${m[1]}): once there is a connection, you become friends.`],
   [/^Uitdaging voor (.+) · 90 s · score = sap$/, m => `Challenge for ${m[1]} · 90 s · score = juice`], [/^(.{1,16}) speelt nu$/, m => `${m[1]} is playing now`], [/^als je wint · nog (\d+) van (\d+) vandaag$/, m => `if you win · ${m[1]} of ${m[2]} left today`], [/^(\d+) van (\d+) gehaald · morgen weer$/, m => `${m[1]} of ${m[2]} won · again tomorrow`],
-  [/^(.+) uitdagen\? Je speelt nu een duel \(1 van je (\d+) dit uur\); (.+) speelt daarna dezelfde messen tegen jouw schim\. De verliezer draagt een dag lang het Pannetje\.$/, m => `Challenge ${m[1]}? You play a duel now (1 of your ${m[2]} this hour); ${m[3]} then plays the same knives against your ghost. The loser wears the Little pan for a day.`],
   [/^Je bent offline\. Je vriendenlijst is van (.+); toevoegen en uitdagen kan zodra je online bent\. Duels tegen De Chef kan altijd\.$/, m => `You are offline. Your friend list is from ${tr(m[1])}; adding and challenging work once you are online. Duels against The Chef always work.`],
   [/^Speel Don't Slice Me! met mij en word mijn vriend in het spel: (\S+) · of typ mijn code (\S+) bij Vrienden$/, m => `Play Don't Slice Me! with me and become my friend in the game: ${m[1]} · or type my code ${m[2]} under Friends`],
 );
@@ -8826,6 +8962,53 @@ Object.assign(EN, { // v0.32.1 album
 }
 Object.assign(HOOK, { ALBUM_SETS, ALBUM_MILES, ALBUM_FX, ALBUM_SAP, STK, STK_SET, EMB, STK_XP, PLUSSER_SEAL, FX_NEXT, claimSticker, claimSet, claimMile, albumCatchUp, albumGot, albumPins, stkProg, stkState, stkXpOk, stkReward, etiketKey, ETK, ETK_SPOT, openStk, openShow, openAlbumPv, renderAlbum, albumChip, albumSummary, stkPin, stkLabel, stkDiary, fmtDay, showAction, stkPopup, stkNm, drawEmblem, kastAlbumHTML, ensurePass, albumChips, albumGetLine, stkFlush, stkRunNote, stkPend: () => stkPend.map(p => p.id + (p.noted ? '+' : '')).join(), stkCatch: () => stkCatch, albumOpenSets: () => albumOpenSets, stkOpen: () => stkOpen }); // v0.32.1 album
 
+Object.assign(EN, { // v0.32.3 duels: in-game questions, friend challenges in the game, duels per day, duel tickets
+  'Annuleer': 'Cancel', 'Antwoord': 'Answer', 'Opslagcode': 'Save code', 'Speel nu': 'Play now', 'Later': 'Later', 'Daag uit': 'Challenge', 'Koppel': 'Link', 'Laad deze voortgang': 'Load this progress',
+  'Geen verbinding': 'No connection', 'De server antwoordt niet. Uitdagen kan zodra er weer verbinding is.': 'The server does not answer. Challenging works once the connection is back.',
+  'Jullie zijn geen vrienden meer, dus uitdagen kan niet.': 'You are no longer friends, so challenging is not possible.', 'Er staat al een uitdaging open': 'A challenge is open already',
+  'Er staat een uitdaging open tussen jullie. Speel ze eerst (Vrienden › Duels), daarna kun je opnieuw uitdagen.': 'There is an open challenge between you. Play it first (Friends › Duels), then you can challenge again.',
+  'Er staat een uitdaging open tussen jullie; zodra die gespeeld is, kun je opnieuw uitdagen.': 'There is an open challenge between you; once it is played, you can challenge again.',
+  'Jullie eerste duel van vandaag telt, op dezelfde messen. De verliezer draagt een dag lang het Pannetje.': 'Your first duel of today counts, on the same knives. The loser wears the Little pan for a day.',
+  'Jullie zien elkaar dan niet meer onder Vrienden en kunnen elkaar niet meer uitdagen. Opnieuw vrienden worden kan altijd, met je link of code.': 'You will no longer see each other under Friends and cannot challenge each other any more. You can always become friends again, with your link or code.',
+  'Plak hier je opslagcode. Let op: de voortgang op dit toestel wordt vervangen door die van de code.': 'Paste your save code here. Note: the progress on this device is replaced by the code’s.',
+  'Je uitdaging wordt verstuurd…': 'Sending your challenge…', [FRIEND_FREE]: 'Friend duels are unlimited and give no juice: what you collect only counts as your score, so nobody can farm juice with a friend.', 'Toch uitdagen': 'Challenge anyway',
+  'Uitdaging gestopt': 'Challenge stopped', 'Op voor vandaag': 'Used up for today', 'Speel je extra duel': 'Play your extra duel', 'Geen dueltickets': 'No duel tickets',
+  'Dueltickets krijg je voor elk vol album (Verzamel › Album).': 'You get duel tickets for every full album (Collect › Album).', 'Dueltickets': 'Duel tickets', 'Dueltickets:': 'Duel tickets:', 'Een vriend daagt je uit': 'A friend challenges you',
+  'Daag een vriend uit (open zijn kaartje): je zet meteen een score neer op nieuwe messen en je vriend speelt daarna dezelfde messen tegen jouw schim. Vriendenduels zijn onbeperkt en geven geen sap; de verliezer draagt een dag lang het Pannetje.': 'Challenge a friend (open their card): you set a score on fresh knives right away and your friend then plays the same knives against your ghost. Friend duels are unlimited and give no juice; the loser wears the Little pan for a day.',
+  [`1 extra openbaar duel per ticket, hoogstens ${DUEL_TICKET_DAY} per dag. Je krijgt ze alleen voor volle albums: ${duelTicketHow()} (Verzamel › Album). Ze blijven bewaard tot je ze gebruikt.`]: `1 extra public duel per ticket, at most ${DUEL_TICKET_DAY} a day. You only get them for full albums: ${duelTicketHowEn()} (Collect › Album). They are kept until you use them.`,
+  'daag ze uit vanaf hun kaartje onder Vrienden: onbeperkt en zonder sap, zodat niemand sap kan sparen met een vriend. De verliezer draagt een dag lang het Pannetje.': 'challenge them from their card under Friends: unlimited and without juice, so nobody can farm juice with a friend. The loser wears the Little pan for a day.',
+  'daag ze uit vanaf hun kaartje onder Vrienden: onbeperkt en zonder sap. De verliezer draagt een dag lang het Pannetje.': 'challenge them from their card under Friends: unlimited and without juice. The loser wears the Little pan for a day.',
+  [`Duelticket: 1 extra openbaar duel boven je ${DUEL_FREE_DAY} per dag. Je krijgt ze alleen voor volle albums: ${duelTicketHow()}. Ze blijven bewaard tot je ze gebruikt.`]: `Duel ticket: 1 extra public duel on top of your ${DUEL_FREE_DAY} a day. You only get them for full albums: ${duelTicketHowEn()}. They are kept until you use them.`,
+  [`Dueltickets: elk 1 extra openbaar duel boven je ${DUEL_FREE_DAY} per dag; ze blijven bewaard tot je ze gebruikt.`]: `Duel tickets: each 1 extra public duel on top of your ${DUEL_FREE_DAY} a day; they are kept until you use them.`,
+  'een extra openbaar duel': 'one extra public duel', 'Je stopte je duel, dus je uitdaging is niet verstuurd.': 'You stopped your duel, so your challenge was not sent.',
+});
+EN_RX.unshift( // v0.32.3 duels (the parts of the counter first, then the counter itself, split on its dots)
+  [/^Nog (\d+) van (\d+) duels vandaag(\.?)$/, m => `${m[1]} of ${m[2]} duels left today${m[3]}`], [/^Je (\d+) duels van vandaag zijn gespeeld(\.?)$/, m => `Your ${m[1]} duels of today are played${m[2]}`],
+  [/^(\d+) extra duel klaar \(filmpje bekeken\)$/, m => `${m[1]} extra duel ready (video watched)`], [/^\+(\d+) met een filmpje$/, m => `+${m[1]} with a video`], [/^(\d+) dueltickets?$/, m => `${m[1]} duel ticket${m[1] === '1' ? '' : 's'}`],
+  [/^vandaag al (\d+) dueltickets gebruikt$/, m => `${m[1]} duel tickets used today already`], [/^morgen om 7 uur weer (\d+)(\.?)$/, m => `${m[1]} again tomorrow at 7:00${m[2]}`],
+  [/^((?:Nog \d+ van \d+ duels vandaag|Je \d+ duels van vandaag zijn gespeeld) · .+?)(\.?)$/, m => m[1].split(' · ').map(p => tr(p)).join(' · ') + m[2]],
+  [/^\+(\d+) dueltickets?$/, m => `+${m[1]} duel ticket${m[1] === '1' ? '' : 's'}`], [/^Filmpje: \+1 duel \(nog (\d+) vandaag\)$/, m => `Video: +1 duel (${m[1]} left today)`], [/^Filmpjes van vandaag gebruikt \((\d+)\)$/, m => `Today's videos used (${m[1]})`],
+  [/^Vandaag al (\d+) dueltickets gebruikt$/, m => `${m[1]} duel tickets used today already`], [/^Duelticket gebruiken \(je hebt (\d+)\)$/, m => `Use a duel ticket (you have ${m[1]})`],
+  [/^Uitdaging voor (.+): zet een score neer$/, m => `Challenge for ${m[1]}: set a score`], [/^Uitdaging voor (.+) · nog (\d+) s · (\d+) sap$/, m => `Challenge for ${m[1]} · ${m[2]} s left · ${m[3]} juice`],
+  [/^Uitdaging voor ([^:·]+)$/, m => `Challenge for ${m[1]}`], [/^Jouw score voor (.+): (\d+) sap\.$/, m => `Your score for ${m[1]}: ${m[2]} juice.`], [/^Jij werd gesneden na (\d+) s: je score telt met (\d+) sap\.$/, m => `You were cut after ${m[1]} s: your score counts with ${m[2]} juice.`],
+  [/^Uitdaging verstuurd! (.+) speelt nu jouw messen\. Je krijgt bericht als (.+) gespeeld heeft\.$/, m => `Challenge sent! ${m[1]} now plays your knives. You get a message once ${m[2]} has played.`], // v0.32.3 review: before the general rule below, which would take 'Uitdaging verstuurd! Evy' as the name
+  [/^(.+) speelt nu jouw messen\. Je krijgt bericht als (.+) gespeeld heeft\.$/, m => `${m[1]} now plays your knives. You get a message once ${m[2]} has played.`],
+  [/^Don't Slice Me! Ik daag (.+) uit: (\d+) sap in een duel\. Jij\?$/, m => `Don't Slice Me! I challenge ${m[1]}: ${m[2]} juice in a duel. You?`],
+  [/^Je stopte, dus (.+) krijgt geen uitdaging\. Daag opnieuw uit wanneer je wilt: vriendenduels zijn onbeperkt\.$/, m => `You stopped, so ${m[1]} gets no challenge. Challenge again whenever you like: friend duels are unlimited.`],
+  [/^Laatste duel: (\d+) sap · uitdaging voor (.+)\.$/, m => `Last duel: ${m[1]} juice · challenge for ${m[2]}.`],
+  [/^(.+) speelde je uitdaging: gelijkspel$/, m => `${m[1]} played your challenge: a draw`], [/^(.+) speelde je uitdaging: jij wint$/, m => `${m[1]} played your challenge: you win`], [/^(.+) speelde je uitdaging: (.+) wint$/, m => `${m[1]} played your challenge: ${m[2]} wins`],
+  [/^(.+) daagt je uit!$/, m => `${m[1]} challenges you!`], [/^Speel binnen (\d+) uur dezelfde messen\. (\d+) sap te kloppen; de verliezer draagt een dag lang het Pannetje\.$/, m => `Play the same knives within ${m[1]} hour${m[1] === '1' ? '' : 's'}. ${m[2]} juice to beat; the loser wears the Little pan for a day.`],
+  [/^Even kijken of (.+) kan spelen…$/, m => `Checking whether ${m[1]} can play…`], [/^(.+) is geen vriend meer$/, m => `${m[1]} is no longer a friend`], [/^(.+) moet eerst bijwerken$/, m => `${m[1]} has to update first`],
+  [/^(.+) speelt nog met een oudere versie van de game en kan je uitdaging niet spelen\. Uitdagen kan zodra (.+) de game bijwerkt \(de pagina opnieuw laden of de app bijwerken\)\.$/, m => `${m[1]} still plays an older version of the game and cannot play your challenge. Challenging works once ${m[2]} updates the game (reload the page or update the app).`],
+  [/^(.+) heeft je vorige uitdaging nog niet gespeeld\. Zodra (.+) gespeeld heeft, kun je opnieuw uitdagen\.$/, m => `${m[1]} has not played your previous challenge yet. Once ${m[2]} has played, you can challenge again.`],
+  [/^Je uitdaging voor (.+) staat open; zodra (.+) gespeeld heeft, kun je opnieuw uitdagen\.$/, m => `Your challenge for ${m[1]} is open; once ${m[2]} has played, you can challenge again.`],
+  [/^Je speelt nu 90 seconden op nieuwe messen en zet een score neer\. (.+) speelt daarna binnen (\d+) uur dezelfde messen tegen jouw schim\. Vriendenduels zijn onbeperkt en geven geen sap; de verliezer draagt een dag lang het Pannetje\.$/, m => `You now play 90 seconds on fresh knives and set a score. ${m[1]} then plays the same knives against your ghost within ${m[2]} hours. Friend duels are unlimited and give no juice; the loser wears the Little pan for a day.`],
+  [/^Let op: (.+) heeft nog een oudere versie van de game en krijgt je uitdaging niet als melding in de game\. (.+) ziet ze pas onder Vrienden › Duels, of zodra (.+) de game bijwerkt \(de pagina opnieuw laden of de app bijwerken\)\.$/, m => `Note: ${m[1]} still has an older version of the game and gets no in-game message about your challenge. ${m[2]} only sees it under Friends › Duels, or once ${m[3]} updates the game (reload the page or update the app).`],
+  [/^(.+) uitdagen\?$/, m => `Challenge ${m[1]}?`], [/^(.+) verwijderen\?$/, m => `Remove ${m[1]}?`], [/^Je volle albums leveren je (\d+) dueltickets op\.$/, m => `Your full albums give you ${m[1]} duel tickets.`],
+  [/^\+ titel "(.+)" \+ (\d+) sap \+ (\d+) dueltickets$/, m => `+ title "${tr(m[1])}" + ${m[2]} juice + ${m[3]} duel tickets`], [/^(.+), titel, (\d+) sap en (\d+) dueltickets ontvangen · tik om te openen$/, m => `${tr(m[1])}, title, ${m[2]} juice and ${m[3]} duel tickets received · tap to open`],
+  [/^Set (.+): (.+), (\d+) dueltickets \+([\d.]+)$/, m => `Set ${tr(m[1])}: ${tr(m[2])}, ${m[3]} duel tickets +${m[4]}`],
+);
+
 let last = performance.now();
 function frame(now) { const real = Math.min(50, now - last); last = now; if (!HOOK.freeze) update(real); render(); requestAnimationFrame(frame); }
 
@@ -8837,7 +9020,7 @@ function boot(hot) {
   const m = /^#dag(\d{4})(\d{2})(\d{2})$/.exec(location.hash || ''); if (m) pendingDaily = `${m[1]}-${m[2]}-${m[3]}`;
   const inv = parseInvite(location.href); if (inv) { save.pendingFriend = inv; store(); try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {} }
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {}); // offline play when served from a site
-  G.px = G.tx = W / 2; G.py = G.ty = H * .6; convertUnlBank(); albumCatchUp(true); if (!save.seen.intro && !save.runs && !pendingDaily) openIntro(); else openMenu(); if (pendingDaily) openToday('games'); requestAnimationFrame(frame);
+  G.px = G.tx = W / 2; G.py = G.ty = H * .6; convertUnlBank(); albumCatchUp(true); duelBackPay(); if (!save.seen.intro && !save.runs && !pendingDaily) openIntro(); else openMenu(); if (pendingDaily) openToday('games'); requestAnimationFrame(frame);
   initLang(); // the saved language wins once the save is in
   if (NET.on()) setTimeout(() => { cloudPull(); }, 300);
 }

@@ -57,6 +57,12 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.2
+
+- Bij de instellingen staat nu de echte versie (er stond altijd "v0.30").
+- "Ontvang alles" neemt ook stickers mee die je tijdens het ophalen verdient.
+- De server bewaart per dag een kopie van je voortgang, 7 dagen lang, zodat een kapotte opslag terug te zetten is.
+
 ## Nieuw in v0.32.1: een album dat je kunt aantikken
 
 - Het **Album** (Verzamel > Album) heeft 30 stickers in 6 sets van 5. Tik op een sticker en je ziet wat hij vraagt, hoe ver

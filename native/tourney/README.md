@@ -64,6 +64,19 @@ Deploy again: `firebase deploy --only functions,firestore` (or `npm run deploy`,
 - New collections (function only, deny-all rules): `ghosts`, `duelwin`, `limits`, `requests/{uid}/in|out|refused`, `challenges`, `duelsum`, `pairs`.
 - Optional hardening for the owner: Firebase App Check on the function makes scripted anonymous accounts much harder.
 
+## Save history (v0.32.2)
+
+Next to the one cloud save per player (`saves/{uid}`), the `save` action keeps one copy per day: the first save of each UTC
+day goes to `saves/{uid}/history/{YYYY-MM-DD}` (`data`, `rev`, `level`, `runs`, `savedMs`), and copies older than the last 7
+days are deleted. Cost: one extra write (and one small list) per player per day.
+
+Restoring a broken save by hand (Firebase console > Firestore):
+1. Find the player's uid: `profiles` (by `name`) or `codes/{friend code}`.
+2. Open `saves/{uid}/history` and pick the last day before the problem; copy its `data` (it starts with `FV1.`).
+3. Put that `data` into `saves/{uid}` (field `data`) and set its `rev` to the copy's `rev`, so the server and the device agree.
+4. Send the same `FV1.` code to the player: tandwiel > Je voortgang meenemen > opslagcode plakken. The game restarts with it.
+Deleting a player on request (privacy.html section 14) includes `saves/{uid}/history`.
+
 ## Costs
 
 Firestore reads are the main cost: one ladder read per screen open (≤ 50 documents). At 10,000 players that is a few euros a month on the Blaze plan; the Spark plan covers the first tests.

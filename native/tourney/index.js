@@ -34,6 +34,7 @@ const bandOf = level => Math.floor(Math.max(1, Number(level) || 1) / 15);
 // other player accepts; a repeated request sends no new note, a refused one waits a week, requests expire after two weeks.
 // FRIEND_SAP is paid once per pair.
 const crypto = require('crypto');
+const SAVE_HISTORY_DAYS = 7; // v0.32.2: one copy of the save per day, the last 7 days (saves/{uid}/history/{YYYY-MM-DD})
 const SERVER_V = 32, CLIENT_V = 32, CAPS = ['find', 'request', 'duel2'], DUEL_PER_HOUR = 5, HOUR_MS = 3600000, GHOST_KEEP = 20, GHOST_DAYS = 3, GHOST_RECENT_MS = 48 * HOUR_MS;
 const CHALLENGE_MS = 24 * HOUR_MS, CHALLENGE_GRACE_MS = 20000, CHALLENGE_PLAY_MS = 3 * 60000, DUEL_T_MAX = 95000;
 const FIND_MAX = 20, FIND_IP_MAX = 60, FIND_WINDOW_MS = 10 * 60000, REQ_IN_MAX = 20, REQ_OUT_DAY = 20, REQ_TTL_MS = 14 * 86400000, REFUSED_MS = 7 * 86400000, MAX_JOIN_REWARDS = 10, SEED_RX = /^[A-Za-z0-9.\-]{4,40}$/;
@@ -329,7 +330,14 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true }, async (req, 
       const data = String(body.data || ''); if (!data.startsWith('FV1.') || data.length > 300000) { res.status(400).json({ error: 'data' }); return; }
       const rev = clampInt(body.rev, 0, 1e9), level = clampInt(body.level, 1, 500), runs = clampInt(body.runs, 0, 1e6), ref = db.doc(`saves/${uid}`), cur = (await ref.get()).data() || {};
       if ((cur.rev || 0) > rev && (cur.level || 0) >= level && (cur.runs || 0) >= runs) { res.json({ ok: true, rev: cur.rev, kept: true }); return; }
-      await ref.set({ data, rev, level, runs, updatedMs: Date.now(), updated: admin.firestore.FieldValue.serverTimestamp() }); res.json({ ok: true, rev });
+      const histDay = new Date(Date.now()).toISOString().slice(0, 10);
+      await ref.set({ data, rev, level, runs, histDay, updatedMs: Date.now(), updated: admin.firestore.FieldValue.serverTimestamp() });
+      if (cur.histDay !== histDay) { // v0.32.2 save history: the first save of a new day is kept as that day's copy; days beyond SAVE_HISTORY_DAYS go
+        await db.doc(`saves/${uid}/history/${histDay}`).set({ data, rev, level, runs, savedMs: Date.now() });
+        const hs = await db.collection(`saves/${uid}/history`).get(); const old = hs.docs.map(d => d.id).sort().reverse().slice(SAVE_HISTORY_DAYS);
+        for (const id of old) await db.doc(`saves/${uid}/history/${id}`).delete();
+      }
+      res.json({ ok: true, rev });
     } else if (action === 'load') { // -> the stored save of this identity, if any
       const cur = (await db.doc(`saves/${uid}`).get()).data(); res.json({ ok: true, data: cur ? cur.data : null, rev: cur ? cur.rev || 0 : 0, level: cur ? cur.level || 0 : 0 });
     } else if (action === 'linkcode') { // -> a code, valid ten minutes, that lets another device join this identity

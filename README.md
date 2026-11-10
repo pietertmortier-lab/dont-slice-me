@@ -57,6 +57,32 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.4: geen cosmetica meer
+
+- **Alles wat alleen uiterlijk was, is weg:** de 20 hoedjes (ook het Pannetje), de 8 bordskins, alle titels, de Kast, het
+  Fruitetiket, het kaartje "Zo zien vrienden je" en de beloofde albumlooks. Het snijbord volgt altijd de keuken van je level.
+- **Je krijgt er iets voor terug.** Op Vandaag ligt bij "Ontvang alles" één keer een kaart **Vergoeding** klaar. Met sap
+  gekocht: je sap terug. Met munten gekocht: je munten terug. Uit Plus of de Fruitpas: 2.000 sap. Verdiend met spelen: wat
+  die plek nu geeft. Tik op "Vergoeding: bekijk elke regel" om elke regel te zien.
+- **Eén keer per speler.** Je krijgt de vergoeding één keer: op het toestel waar je ze ophaalt. Speel je op twee toestellen, haal
+  ze dan op het toestel waar je je sap wilt hebben. Het andere toestel krijgt het gereedschap en de Keukensleutel mee, niet
+  het sap. Je sap verhuist naar een andere telefoon met je opslagcode, niet met de koppelcode.
+- **Elke plek geeft nu iets wat je gebruikt:**
+  - Dagreeks: dag 7 een startboost (Schild) en 750 sap, dag 30 vijf hartjes en 1.000 sap.
+  - Elke 7 Chefstempels: 1.000 sap en 3 hartjes. Level 100: 5 hartjes.
+  - Fruitkaart: hartjes bij de volle rij van level 10, 20, 25, 30, 40, 50 en 100.
+  - Medailles goud en diamant: 850 en 1.750 sap.
+  - Vier toernooiweken op rij: 2.000 sap en 2 Toernooimunten. In de toernooiwinkel: 3 hartjes voor 2 Toernooimunten.
+- **Je keuken doet iets per stap:** de Bistro bewaart 12 uur in plaats van 8 (de Keukenwekker), het Restaurant maakt 10% meer
+  sap, de Sterrenzaak 20%.
+- **Het album geeft spullen:** de Opdrachtwissel (één dagopdracht per dag wisselen), Sapzeef I, 3 reeksschilden, Scherper
+  zicht I, een Keukensleutel en Grotere mand I. Heb je het al, dan krijg je sap. Een vol album geeft een **Hoedbon**: bewaar
+  hem, of ruil hem in voor 6.000 sap (Winkel > Spullen).
+- **Fruitpas, trede 30:** gereedschap. Heb je het al, of heb je de pas alleen via Plus, dan krijg je 5 hartjes en 1.000 sap.
+- **Instellingen > Muziek:** kies zelf welke muziek je hoort tijdens het spelen.
+- De Keukensleutel en de startboosts zijn niet meer voor geld te koop. Met sap kan het nog altijd.
+- Hartjes die niet passen, krijg je als sap: 300 sap per hartje.
+
 ## Nieuw in v0.32.2
 
 - Bij de instellingen staat nu de echte versie (er stond altijd "v0.30").

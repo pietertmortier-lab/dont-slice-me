@@ -25,5 +25,11 @@ service cloud.firestore {
     match /challenges/{id} { allow read, write: if false; }
     match /duelsum/{uid} { allow read, write: if false; }
     match /pairs/{id} { allow read, write: if false; }
+    // v0.32.5 live duels: invites, lobbies (and their live documents), push subscriptions, records and counted wins: only through the function.
+    match /ldinv/{id} { allow read, write: if false; }
+    match /ldlobby/{id}/{document=**} { allow read, write: if false; }
+    match /ldpush/{uid} { allow read, write: if false; }
+    match /h2h/{id} { allow read, write: if false; }
+    match /duelstats/{uid} { allow read, write: if false; }
   }
 }

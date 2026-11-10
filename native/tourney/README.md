@@ -103,6 +103,106 @@ Restoring a broken save by hand (Firebase console > Firestore):
 4. Send the same `FV1.` code to the player: tandwiel > Je voortgang meenemen > opslagcode plakken. The game restarts with it.
 Deleting a player on request (privacy.html section 14) includes `saves/{uid}/history`.
 
+## Live friend duels and push (v0.32.5)
+
+A friend invites a friend to a live 1-on-1 duel: an in-game card (or a push when the friend's app is closed), a small lobby, 2 minutes to
+come back for whoever is not there (with one push; the 2 minutes count from that push), a 15 s countdown or the host's [Start nu], a start
+fixed 6 s ahead on the server clock (so both phones show the whole 3-2-1),
+both play the same round at the same moment and see each other's fruit (5 s behind) and score, and the server decides the winner. No
+realtime listeners and no scheduler: the lobby state is derived from timestamps (the 2-minute rule holds even when nobody polls) and is
+written by whoever calls next. Friend duels stay unlimited and give no sap; the head-to-head record and the counted wins are status.
+
+### Actions (POST, `Authorization: Bearer <id token>`; every `ld*` reply has `now`, the server time in ms)
+
+| action | body | reply / notes |
+|---|---|---|
+| `hello` | - | adds `caps` `live`, `push` (only when the secret is set and `web-push` loads), `ldpow` (when a duel power exists; none yet) and `vapid` (the public key); writes `firstMs` once from Firebase Auth |
+| `ldpoll` | `busy, lang, hide` | `{ inv, out, lobby }`: presence (written at most every 25 s), the invite for me, my own invite (a refusal or expiry once), my lobby (read-only evaluation; a closed or finished one once); settles a duel nobody reports any more (110 s after its start) |
+| `ldfriends` | - | `{ on: [{ uid, lv, on, busy, pu }] }`: the green dots, friends only, never for a player who hides it |
+| `ldinvite` | `to, again` | `{ id, exp, here, pushed }` or `error`: `notfriend, oldapp, theyasked, inlobby, open, offline, busy, noday, soon (why no / same / miss), slow`; one transaction. `miss`: two invites in a row to the same friend stayed unanswered, the next one 30 minutes after the last. For a friend who hides her online status the reply is always `here: false` (and `pushed: 1` when her game is open) |
+| `ldcancel` | `id` | `{ cancelled }`; one transaction |
+| `ldanswer` | `id, yes, fruit, v, pw` | yes: `{ lobby }` (a second tap or device gets the same lobby; the inviter's hourly invite count goes down by one); no: `{ refused: true }`; `gone, cancel, busy, inlobby`; one transaction |
+| `ldlobby` | `id, fruit, leave, start, act, v, pw` | `{ lobby }`; `gone` (with the view only for a seat that was removed: `kickedMe`; nothing for anybody else), `otherdevice`; joining needs `act` (a tap); a joined seat's poll keeps the presence fresh (every 25 s); the push decision; one transaction |
+| `ldset` | `id, powers, fruit` | host only, before the start: `nopowers` while no power exists, `fruit` 'any' or 'same:<fruit>' |
+| `ldbeat` / `ldend` / `ldres` | `id, t, s, k0, p, dead, pz, pause, lag, ev` (+ `quit, died, ghost, gt`) | `{ startAt, started, o, evOk, evNo, res, wait }`; `early, late, left, gone, otherdevice`; positions at most once a second, `t` bounded by server time, `s` by 15 sap a second + 50, frozen after the cut; one final; the beats keep the presence fresh (every 25 s, busy); `ldres` only asks for the result (the game-over calls it every 3 s) |
+| `ldpush` | `kind 'web' / 'fcm', sub / tok, lang, inv, off, tz` | `{ n }`; `endpoint` (only known push services), `token` |
+| `friends` | - | each friend also `rec { w, l, d }, lv, on, busy, pu`; top level `ld` (my counted wins) |
+| `duel` | - | a settled 24 h challenge writes the record and the counted wins; the reply has `ld` (my stats, `r`, `rec`, `counted`, `why`) |
+| `duelfind` v2 | - | a challenge made from a live no-show has `opp.same: 1` (the client plays the same round) |
+
+The duel powers are reserved, not built: events in the beats (`ev: [{ i, k, lead, dur, to }]`) are stamped by the server on the shared
+duel clock (`at = now - startAt + lead`) and relayed to the other phone, but only when the lobby has `opts.powers`, the kind exists in
+`LD_POWERS` (empty) and in every seat's `pw`, and `ldPowerOk` (a stub that returns false) agrees.
+
+### Documents (all function-only; `expireAt` has a TTL policy)
+
+| document | what | kept |
+|---|---|---|
+| `profiles/{uid}` | new fields `lv, ldSeen, ldBusy, ldHide, ldIn, ldOut, ldLast, ldNo, ldMiss, ldLobby, ldDone, ldPuUntil, ldTz, firstMs, actDay, actBits, actFrom` | with the profile |
+| `ldinv/{id}` | the invite (`from, to, names, exp, state, lobby`) | about a day after it ends (TTL) |
+| `ldlobby/{id}` and `ldlobby/{id}/live/{uid}` | the lobby (seats, times, seed, result) and each player's run (positions, score, events, final, ghost) | about a day (TTL) |
+| `ldpush/{uid}` | at most 4 push subscriptions (web endpoint and keys, or an FCM token; language, time zone, until, `fail`) | 60 days after the last refresh (TTL); at once on 404/410; after 5 pushes in a row that the push service refused |
+| `h2h/{a_b}` | the record of a pair of friends and their counted wins today | as long as the players exist |
+| `duelstats/{uid}` | counted wins (`won`), wins, losses, draws, played, distinct friends | as long as the player exists |
+| `friends/{uid}/of/{other}` | `w, l, d`: a mirror of the record on the friendship | with the friendship |
+| `limits/ldinv_{uid}`, `limits/ldpushin_{uid}` | 10 invites an hour that nobody accepted (an accepted invite gives its count back, so rematches are unlimited), 3 invite pushes an hour to one player | as the other limits |
+
+A win counts for the later milestone ladder only when the server decided a 1-on-1 friend duel (live or 24 h challenge) and none of these
+holds for the loser: a draw, a forfeit, stopped or dropped out, played less than 30 s, less than 5 sap, friends for less than 24 h, an
+account younger than 7 days (Firebase Auth), below level 15, played on fewer than 3 game days of the last 14; and at most 3 a day per pair
+and 10 a day per player (the game day starts at 07:00 Belgian time). The played days are recorded only from this version on (`actFrom`
+is the first recorded game day of a profile): on a profile's first and second recorded day 1 and 2 played days are enough, so wins count
+from the day of the update; from the third day on the rule is 3 of the last 14.
+
+### Deploy (Windows, in the repo; the key pair never lands in a file)
+
+Step 1, ONLY THE VERY FIRST TIME: make the Web Push key pair and store it straight in Google Secret Manager.
+
+```
+cd prototypes\dont-slice-me\native\tourney
+npx web-push@3.6.7 generate-vapid-keys --json | firebase functions:secrets:set LIVEDUEL_VAPID --data-file -
+```
+
+Never run that line again: a new key pair makes every existing web subscription useless (the push services answer 403), so nobody gets
+a notification until each player's game has noticed the new key (it then subscribes again by itself, at the latest the next time the
+game is opened; the server drops a subscription after 5 refused pushes in a row). The function declares the secret, so a deploy stops
+without it.
+
+Step 2, every deploy:
+
+```
+cd prototypes\dont-slice-me\native\tourney
+npm install
+firebase deploy --only functions,firestore
+```
+
+The deploy adds the rules, the four TTL policies (`ldinv`, `ldlobby`, `live`, `ldpush`) and gives the function access to the secret.
+Never put the keys in `index.html`, `bridge.js` or a commit. Then publish the game (`index.html`, `sw.js`).
+
+The Android app later (nothing on the server): add an Android app in the Firebase console (package `com.dontsliceme.app`), put
+`google-services.json` in `native\android\app\`, `cd prototypes\dont-slice-me\native` and `npm install @capacitor/push-notifications@6`,
+set `const FCM_READY = true;` in `native\bridge.js`, then `npm run sync` and build. Until then the app behaves like a browser without push.
+
+### Cost (measured on the mock, billed like Firestore, the device lookup of every call included)
+
+| scenario | reads | writes | calls |
+|---|---|---|---|
+| one live duel, both play 90 s (20 s waiting, about 20 s lobby, the run, the result) | 360 | 104 | 98 |
+| one live duel, one player cut at 10 s (his game-over asks for the result every 3 s: 4 reads a call) | 360 | 74 | 98 |
+| Vrienden open for 2 minutes with 50 friends (green dots every 60 s above 20 friends) | 329 | 5 | 16 |
+| one minute on a menu (presence every 10 s) | 12 | 2 | 6 |
+
+At 0.03-0.06 dollar per 100,000 reads and 0.09-0.18 per 100,000 writes one live duel costs about 0.02-0.04 dollar cent. With 800 players a
+day (10 minutes on menus, one live duel per five players) that is about 3 to 6 dollar a month; nothing costs anything when nobody plays.
+Levers if needed: the menu poll every 20 s instead of 10 s, beats every 4 s.
+
+### Deleting a player's data on request (privacy.html section 14)
+
+Besides the existing list: the live-duel fields of `profiles/{uid}` (above); `ldpush/{uid}`; `duelstats/{uid}`; the `h2h` documents whose
+`a` or `b` is the uid (console: filter `a == uid`, then `b == uid`); `limits/ldinv_{uid}` and `limits/ldpushin_{uid}`. The mirrors on
+`friends/*/of/{uid}` go with the friendships. Invites, lobbies and live documents expire by themselves within about one to two days
+(Firestore TTL deletes typically within 24 hours after `expireAt`).
+
 ## Costs
 
 Firestore reads are the main cost: one ladder read per screen open (≤ 50 documents). At 10,000 players that is a few euros a month on the Blaze plan; the Spark plan covers the first tests.

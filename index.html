@@ -443,6 +443,117 @@ canvas.pvthumb{width:44px;height:44px;flex:0 0 44px;border-radius:10px;backgroun
 #rw-acts .btn{flex:1 1 120px;font-size:16px;padding:10px 14px}
 #askbox{z-index:12}#askbox .rw-card{display:flex;flex-direction:column;gap:10px}#askbox .rw-title{font-size:20px;line-height:1.15}#ask-text{margin:0;font-size:14px;color:var(--ink);text-align:left}#ask-note{margin:0;font-size:13px;font-weight:700;color:var(--ink);text-align:left;background:rgba(255,200,60,.22);border-left:4px solid #f0a020;border-radius:8px;padding:7px 9px}#askbox .finput{width:100%;flex:0 0 auto}#ask-area{min-height:84px;resize:none;font-size:13px;word-break:break-all}#askbox .finput.caps{text-transform:uppercase;letter-spacing:.08em}#askbox .row{margin-top:2px}#askbox .row .btn{flex:1 1 110px;font-size:17px;padding:11px 14px}
 .duelx-row{gap:6px;margin:6px 0 2px;justify-content:stretch}.duelx-row .btn{flex:1 1 140px;font-size:14px;padding:9px 10px;line-height:1.2}
+/* icons-big v1: bigger menu icons. Nothing below selects canvas#game, #playbar or .snap. */
+:root{--fruit-hero:224px;--prize-hero:128px;--fruit-xl:128px;--fruit-l:76px;--fruit-m:64px;--fruit-row:56px;--fruit-s:56px;--fruit-xs:28px;--rw-hero:112px;--rw:92px;--rw-many:80px;--prize:64px;--thumb:64px;--icon-xl:54px;--icon-l:30px;--icon-m:26px;--emblem:44px;--badge:22px;--dot:15px;--heart-xl:52px;--heart-l:30px;--heart-m:26px;--step-w:132px;--stk:64px;--stk-big:112px}
+@media (max-width:359px){:root{--fruit-l:72px;--emblem:40px;--heart-m:24px;--step-w:110px;--stk:60px}}
+@media (min-width:360px) and (max-width:389px){:root{--step-w:120px}}
+@media (min-width:420px){:root{--stk:60px}}
+/* the tall sheets (prize preview, reward pop-up, sticker sheet) take the biggest size that fits their content: pvFit, rwFit, openStk */
+#stkbox .sheet.tight{--stk-big:86px}
+#hub button{padding:4px 1px 2px;gap:3px}
+#hub button.play{gap:1px}
+#hub button svg{width:var(--icon-l);height:var(--icon-l)}
+#hub button.play .disc{width:var(--icon-xl);height:var(--icon-xl);margin-top:calc(34px - var(--icon-xl))}
+#hub button.play .disc svg{width:calc(var(--icon-xl)*.48);height:calc(var(--icon-xl)*.48)}
+#hub .hb,#subnav .hb{min-width:var(--badge);height:var(--badge);padding:0 6px;top:-12px;font:900 13px/var(--badge) var(--font-ui)}
+#hub .hb.dot,#subnav .hb.dot{width:var(--dot);height:var(--dot);top:-6px;right:7px}
+#hub .play .hb{top:calc(40px - var(--icon-xl)*.854 - var(--badge)/2);right:calc(50% - var(--icon-xl)*.354 - var(--badge)/2)}
+#hub .play .hb.dot{top:calc(40px - var(--icon-xl)*.854 - var(--dot)/2);right:calc(50% - var(--icon-xl)*.354 - var(--dot)/2)}
+#subnav .hb{top:-8px;right:0}
+#subnav .lw .hb.dot{top:-6px;right:-12px;width:12px;height:12px}
+#subnav .lw:has(+ .q) .hb.dot{top:-14px}
+#subnav .sappill{padding:3px 8px 3px 5px;gap:4px}
+@media (max-width:359px){#subnav .sappill{padding:3px 8px 3px 4px}#subnav .navhead{gap:5px}}
+#subnav .sappill canvas{width:var(--icon-m);height:var(--icon-m);flex:0 0 var(--icon-m)}
+#subnav .navhead{min-height:44px;margin:0 auto 2px}
+#subnav .navhead .iconbtn{width:44px;height:44px;flex-basis:44px;margin:-2px}
+.iconbtn svg{width:var(--icon-m);height:var(--icon-m)}
+.hearts{letter-spacing:0}
+.hearts .h{display:inline-block;width:1.1em;text-align:center}
+.heartline{row-gap:4px}
+.heartline .hearts{flex:1 1 calc(var(--hn,5)*27.5px);max-width:calc(var(--hn,5)*1.1*var(--heart-l));min-width:0;white-space:nowrap;text-align:center;container-type:inline-size}
+.heartline .hearts .h{font-size:min(var(--heart-l),calc(100cqw/var(--hn,5)/1.1))}
+.hlbtn{min-height:44px}
+.hlbtn .hearts{flex-basis:calc(var(--hn,5)*22.5px);max-width:calc(var(--hn,5)*1.1*var(--heart-m))}
+.hlbtn .hearts .h{font-size:min(var(--heart-m),calc(100cqw/var(--hn,5)/1.1))}
+.hearts.big{display:flex;justify-content:center;margin:0 -14px;font-size:min(var(--heart-xl),calc((min(100vw,432px) - 40px)/var(--hn,5)))}
+.hearts.big .h{width:1em}
+.pickrow{padding:4px 12px 4px 8px}
+.pickrow canvas{width:var(--fruit-m);height:var(--fruit-m);flex:0 0 var(--fruit-m)}
+.pickrow .chev{font-size:34px}
+.badge-n.dot{width:var(--dot);height:var(--dot);top:-5px;right:7px}
+#lv-minus,#lv-plus{width:44px;height:44px;font-size:26px}
+.linkrow svg{width:var(--icon-m);height:var(--icon-m);flex:0 0 var(--icon-m)}
+.linkrow .chev{font-size:26px}
+/* 44 px tap rows that keep their old footprint: the hit box reaches into the card padding and the gaps around it */
+.sec.fold>h3{min-height:44px;margin:-11px -12px -8px;padding:0 12px}
+.sec.fold>h3::after{font-size:26px;margin-top:-3px;margin-bottom:-3px}
+.how summary{min-height:44px;margin:-8px 0 -12px}
+.how[open] summary{margin-bottom:-6px}
+.how summary::after{font-size:24px;margin-top:-3px;margin-bottom:-3px}
+.al-prize .go{font-size:24px;line-height:1}
+.sec h3 svg{width:var(--icon-m);height:var(--icon-m);margin:-3px 5px -3px -3px}
+.step{grid-template-columns:var(--step-w) 1fr}
+.step canvas{width:var(--step-w);height:calc(var(--step-w)*75/110)}
+#fruit-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+#fruit-list .fcard{padding:6px 1px 5px}
+@media (min-width:420px){#fruit-list{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:4px}#fruit-list .fcard{padding-left:0;padding-right:0}}
+@media (max-width:359px){#fruit-list{column-gap:4px}#fruit-list .fcard{padding-left:0;padding-right:0;letter-spacing:-.3px}}
+#fruit-list .fcard canvas{width:var(--fruit-l);height:var(--fruit-l)}
+.detail{display:grid;grid-template-columns:var(--fruit-xl) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto auto minmax(0,1fr);gap:0 12px;align-items:start}
+.detail .dicons,.detail .detail-txt{display:contents}
+#detail-name{grid-column:1/-1;grid-row:1;margin-bottom:2px}
+#detail-icon{grid-column:1;grid-row:2/7;align-self:center;width:var(--fruit-xl);height:var(--fruit-xl)}
+#detail-price{grid-column:2;grid-row:3}
+.detail .btn{grid-column:1/-1;justify-self:stretch;min-height:44px;margin-top:6px}
+#btn-choose{grid-row:7}
+#btn-keep{grid-row:8}
+#detail-trait{grid-column:1/-1;grid-row:9;margin-top:8px}
+#detail-xp{grid-column:1/-1;grid-row:10;margin-top:4px}
+.detail #detail-cs{grid-column:2;grid-row:4;justify-self:start;width:var(--fruit-s);height:var(--fruit-s);margin:4px 0}
+#detail-pedia{grid-column:2;grid-row:5}
+@media (max-width:359px){#detail-price{grid-column:1/-1;grid-row:9;margin-top:8px}#detail-trait{grid-row:10}#detail-xp{grid-row:11}.detail:has(#detail-cs[hidden]) #detail-icon{grid-column:1/-1;justify-self:center}}
+.rw-icon{width:calc(var(--rw-s,64px) + 28px)}
+.rw-icon canvas{width:var(--rw-s,64px);height:var(--rw-s,64px)}
+.rw-icons{max-height:max(52vh,calc(100vh - 288px))}
+.ptile{padding:4px 3px 4px}
+.ptile canvas{width:var(--prize);height:var(--prize)}
+canvas.pvthumb{width:var(--thumb);height:var(--thumb);flex:0 0 var(--thumb)}
+#tsec-shop .mrow>.mt{overflow-wrap:break-word}
+@media (max-width:359px){#tsec-shop .mrow{display:grid;grid-template-columns:var(--thumb) minmax(0,1fr);column-gap:10px;row-gap:5px;align-items:start}#tsec-shop .mrow>canvas.pvthumb{grid-row:1/3}#tsec-shop .mrow>.mt,#tsec-shop .mrow>.btn{grid-column:2}#tsec-shop .mrow>.btn{justify-self:start}#tsec-shop .mrow+.mrow{border-top:1px solid rgba(255,220,180,.1);padding-top:8px}}
+.ptile.done::after{font-size:17px}
+.claimall{gap:4px;padding:7px 12px}
+.dots i{width:17px;height:17px}
+.krow>div{display:contents}
+.krow>b{grid-column:1;grid-row:1}
+.krow>div>.small{grid-column:2;grid-row:1}
+.krow>.btn{grid-column:3;grid-row:1}
+.krow .cells{grid-column:1/-1;grid-row:2}
+.cells img,.cells .ki{flex:0 0 auto;width:min(var(--fruit-xs),calc((100% - 18.5px)/10));height:auto;aspect-ratio:1/1}
+@media (max-width:359px){.cells img,.cells .ki{width:min(var(--fruit-xs),calc((100% - 14.5px)/8))}}
+@media (min-width:360px) and (max-width:389px){.krow .cells{gap:1px;margin:0 -5px}.cells img,.cells .ki{width:min(var(--fruit-xs),calc((100% - 9.5px)/10))}}
+.cells i.lsep{height:auto;align-self:stretch}
+.fowimg{width:var(--fruit-s);height:var(--fruit-s);flex:0 0 var(--fruit-s)}
+@media (max-width:419px){.al-stk{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:10px}}
+.sk .disc{width:var(--stk);height:var(--stk);flex:0 0 var(--stk)}
+.sk .disc svg{width:calc(var(--stk)*.53);height:calc(var(--stk)*.53)}
+.sk.got .disc::after{width:19px;height:19px;background-size:14px}
+.sk.lock .disc::before{inset:5px}
+.al-miles b{width:18px;height:18px;margin:-9px 0 0 -9px}
+.al-prize .pt,.al-fold .pt{width:var(--emblem);height:var(--emblem);flex:0 0 var(--emblem)}
+.al-prize .pt svg,.al-fold .pt svg{width:calc(var(--emblem)*.59);height:calc(var(--emblem)*.59)}
+.al-fold .ok{font-size:18px}
+.stkbig{width:var(--stk-big);height:var(--stk-big);flex:0 0 var(--stk-big)}
+.stkbig svg{width:calc(var(--stk-big)*.52);height:calc(var(--stk-big)*.52)}
+.fres canvas{width:var(--fruit-row);height:var(--fruit-row);flex:0 0 var(--fruit-row);margin:-4px 0}
+.fres .mt{overflow-wrap:anywhere}
+.fres .mt>.small>span:last-child{white-space:nowrap}
+@media (max-width:359px){.fres>.small{width:min-content}}
+.fcheck{min-height:44px;margin:-8px 0}
+.fcheck input{width:22px;height:22px}
+.flag{width:34px;height:24px;border-radius:5px}
+.linkbtn .flag{width:26px;height:18px;border-radius:4px}
+.crown{font-size:17px;line-height:0}
 </style>
 </head>
 <body>
@@ -2945,7 +3056,7 @@ const nextHeartIn = () => save.hearts >= maxHearts() ? 0 : Math.max(0, save.hear
 const unlUsedToday = () => save.unlDay === dayKey(), unlReady = () => !unlUsedToday(); // v0.31.12 (Pieter): no stock any more; once a day (game day), always available
 const heartsUnlimited = () => plusActive() || nowMs() < (save.unlimitedUntil || 0); // Plus members never wait for a heart
 const fmtClock = ms => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
-function heartsHTML() { let h = ''; for (let i = 0; i < maxHearts(); i++) h += `<span class="h${i < save.hearts || heartsUnlimited() ? ' on' : ''}">♥</span>`; return h; }
+function heartsHTML() { let h = ''; try { const n = maxHearts(); if (heartsHTML.n !== n) { heartsHTML.n = n; document.documentElement.style.setProperty('--hn', n); } } catch (e) {} for (let i = 0; i < maxHearts(); i++) h += `<span class="h${i < save.hearts || heartsUnlimited() ? ' on' : ''}">♥</span>`; return h; }
 const doubling = () => nowMs() < (save.doubleUntil || 0);
 const KEY_SAP = 3000, SHIELD_SAP = 300, HATBON_SAP = 6000; // v0.32.4: a Hoedbon is worth 6.000 sap whenever you want; // v0.31.12: a Keukensleutel for sap (was 800; EUR 0,99 = 3.000 sap); a Reeksschild for sap only below SAP_STOCK_MAX
 const DOUBLER_SAP = 30000, DOUBLER_MAX_H = 5, BOOST_SAP_CAP = 2, SAP_STOCK_MAX = BOOST_SAP_CAP; // v0.31.9 (Pieter): a doubler hour costs 30.000 sap, at most 5 hours in stock; a start boost for sap only below 2
@@ -3930,7 +4041,7 @@ function drawKitchenScene(c2, k, fruit, hat, tier) { // a small cross-section: w
   if (lv.koelkast > 0) { c2.fillStyle = tier >= 2 ? '#aeb8c0' : '#f4f4f8'; c2.beginPath(); c2.roundRect(192, 22, 54, 86, 5); c2.fill(); c2.fillStyle = 'rgba(0,0,0,.1)'; c2.fillRect(192, 54, 54, 2); c2.fillStyle = '#7f8a93'; c2.fillRect(236, 30, 4, 18); c2.fillRect(236, 62, 4, 30); for (let i = 1; i < lv.koelkast; i++) { c2.fillStyle = ['#ff5a5a', '#5ad26e', '#ffd54a', '#5aa0ff'][i - 1]; c2.beginPath(); c2.roundRect(198 + (i % 2) * 14, 64 + Math.floor((i - 1) / 2) * 14, 10, 10, 2); c2.fill(); } } else empty(192, 22, 54, 86, 'koelkast');
   // showcase with the fruit
   if (lv.vitrine > 0) { c2.fillStyle = 'rgba(190,230,255,.28)'; c2.beginPath(); c2.roundRect(258, 48, 66, 60, 4); c2.fill(); c2.strokeStyle = 'rgba(255,255,255,.7)'; c2.lineWidth = 1.5; c2.strokeRect(258, 48, 66, 60); c2.fillStyle = tier >= 2 ? '#c9a35a' : '#b8864a'; c2.fillRect(258, 104, 66, 4);
-    const ic = document.createElement('canvas'); ic.width = ic.height = 96; const x2 = ic.getContext('2d'); try { renderIcon(x2, FRUITS[fruit] ? fruit : 'appel', 48, false, { hat: hat || 'none' }); } catch (e) {} c2.drawImage(ic, 267, 54, 48, 48);
+    const kb = hat && hat !== 'none' ? 48 : 56, ic = document.createElement('canvas'); ic.width = ic.height = kb * 2; const x2 = ic.getContext('2d'); try { menuIcon(x2, FRUITS[fruit] ? fruit : 'appel', kb, false, { hat: hat || 'none' }); } catch (e) {} c2.drawImage(ic, 291 - kb / 2, 90 - kb * .75, kb, kb);
     c2.fillStyle = '#ffd54a'; for (let i = 0; i < lv.vitrine; i++) { const x = 262 + i * 12, y = 44; c2.beginPath(); for (let kk = 0; kk < 10; kk++) { const a = -Math.PI / 2 + kk * Math.PI / 5, rr = kk % 2 ? 1.6 : 3.6; c2[kk ? 'lineTo' : 'moveTo'](x + Math.cos(a) * rr, y + Math.sin(a) * rr); } c2.closePath(); c2.fill(); } } else empty(258, 48, 66, 60, 'vitrine');
   // the plaque
   c2.fillStyle = 'rgba(0,0,0,.35)'; c2.beginPath(); c2.roundRect(w / 2 - 54, 8, 108, 20, 6); c2.fill(); c2.fillStyle = tier >= 1 ? '#ffd54a' : '#fff4e4'; c2.font = `800 11px ${FU}`; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.fillText(KITCHEN_TIERS[tier].name.toUpperCase(), w / 2, 18);
@@ -3950,7 +4061,7 @@ function openKitchen(uid) {
     const rows = APPLIANCE_KEYS.map(a => { const A = APPLIANCES[a], lv = k.lv[a] || 0, cost = lv < APPLIANCE_MAX ? A.cost[lv] : 0; return `<div class="mrow"><div class="mt"><b>${A.name}</b> · niveau ${lv}/${APPLIANCE_MAX}<div class="small">${A.info}</div></div>${lv >= APPLIANCE_MAX ? '<button class="btn" disabled>Max</button>' : `<button class="btn${save.sap >= cost ? ' primary' : ''}" data-buy="${a}" ${save.sap >= cost ? '' : 'disabled'}>${lv ? 'Verbeter' : 'Koop'} · ${fmtSap(cost)}</button>`}</div>`; }).join('');
     const orders = k.orders.list.map((o, i) => `<div class="mrow"><div class="mt">${esc(o.text)}<div class="small">${esc(o.chef)} · beloning: ${rewardText(ORDER_REWARDS[i] || { sap: 400 })}</div><div class="mbar"><i style="width:${Math.round(100 * Math.min(1, o.prog / o.goal))}%"></i></div></div><button class="btn${o.done && !o.claimed ? ' primary' : ''}" data-order="${i}" ${o.done && !o.claimed ? '' : 'disabled'}>${o.claimed ? 'Ontvangen' : o.done ? 'Ontvang' : `${Math.min(o.prog, o.goal)}/${o.goal}`}</button></div>`).join('');
     const withK = save.friends.list.filter(f => f.kitchen && f.kitchen.lv).map(f => ({ uid: f.uid, name: f.name, score: kitchenScore(f.kitchen), k: f.kitchen })); withK.push({ uid: '', name: save.name || 'Jij', score: kitchenScore(kitchenPayload()), me: true }); withK.sort((a, b) => b.score - a.score);
-    const visits = `<div class="sec"><h3>${ico('friends')}Keuken van de week</h3><div class="small">Wie van jullie heeft de mooiste keuken? Score: toestelniveaus × 10, plus fooien (tot 50). Bezoek een vriend en laat een fooi achter.</div>${withK.length > 1 ? withK.map((r, i) => `<div class="mrow${r.me ? ' on' : ''}"><div class="mt"><b>${i + 1}.</b> ${r.me ? `<b>${esc(r.name)}</b> (jij)` : esc(r.name)}${i === 0 ? ' \u{1F451}' : ''}<div class="small">${r.score} punten</div></div>${r.me ? '' : `<button class="btn" data-visit="${esc(r.uid)}">Bezoek</button>`}</div>`).join('') : `<div class="small">${save.friends.list.length ? 'Je vrienden hebben nog geen keuken gebouwd.' : 'Nodig vrienden uit (Vrienden) om elkaars keuken te bezoeken.'}</div>`}</div>`;
+    const visits = `<div class="sec"><h3>${ico('friends')}Keuken van de week</h3><div class="small">Wie van jullie heeft de mooiste keuken? Score: toestelniveaus × 10, plus fooien (tot 50). Bezoek een vriend en laat een fooi achter.</div>${withK.length > 1 ? withK.map((r, i) => `<div class="mrow${r.me ? ' on' : ''}"><div class="mt"><b>${i + 1}.</b> ${r.me ? `<b>${esc(r.name)}</b> (jij)` : esc(r.name)}${i === 0 ? ' <span class="crown">\u{1F451}</span>' : ''}<div class="small">${r.score} punten</div></div>${r.me ? '' : `<button class="btn" data-visit="${esc(r.uid)}">Bezoek</button>`}</div>`).join('') : `<div class="small">${save.friends.list.length ? 'Je vrienden hebben nog geen keuken gebouwd.' : 'Nodig vrienden uit (Vrienden) om elkaars keuken te bezoeken.'}</div>`}</div>`;
     body = scene + `<div class="sec"><h3>${ico('keuken')}${T.name} · ${n}/20</h3><div class="small">${rate > 0 ? `Je keuken maakt <b>${rate} sap per uur</b>, tot ${kitchenCapH() === 12 ? 'twaalf' : 'acht'} uur lang, ook als je weg bent.` : 'Koop een toestel: vanaf dan maakt je keuken sap, ook als je weg bent (tot acht uur).'}${next ? ` Nog ${next.at - n} niveau${next.at - n === 1 ? '' : 's'} tot ${next.name} (${next.fnName}).` : ' Hoger kan niet: dit is de top.'}</div><div class="mrow"><div class="mt">Klaar om op te halen: <b>${ready} sap</b></div><button class="btn${ready > 0 ? ' primary' : ''}" id="btn-collect" ${ready > 0 ? '' : 'disabled'}>Haal op</button></div><div class="small">Tot nu toe opgehaald: ${fmtSap(k.got || 0)} sap · fooien gekregen: ${k.tips || 0}.</div></div>` +
       `<div class="sec"><h3>${ico('shop')}Toestellen</h3>${rows}</div>` +
       `<div class="sec"><h3>${ico('album')}Bestellingen van deze week</h3><div class="small">Drie briefjes van chefs, elke maandag nieuw. Alle drie klaar: +${ORDER_ALL_SAP} sap extra.</div>${orders}</div>` + visits;
@@ -6440,14 +6551,28 @@ function render() {
 }
 
 // ---- Menu: a grid of all fruits, a detail row for the one you tap, and the play button.
-function renderIcon(c2, type, css, dim, extra) {
+/* icons-big v1: menu icon sizes come from the CSS tokens; the run never calls these helpers */
+const iconPx = (n, d) => { let v = 0; try { v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--' + n)); } catch (e) {} return v > 0 ? Math.round(v) : d; };
+const iconCanvas = (c, px) => { if (c.width !== px * 2 || c.height !== px * 2) { c.width = c.height = px * 2; } return c.getContext('2d'); };
+const MENU_FILL = 1.25, MENU_FILL_CAP = { durian: 1.2, lampionvrucht: 1, nachtbes: 1.2 }, MENU_FADE = { nachtbes: 1 };
+const menuFill = (type, extra) => extra && extra.hat && extra.hat !== 'none' ? 1 : Math.min(MENU_FILL, MENU_FILL_CAP[type] || MENU_FILL);
+/* a fruit with a glow (Nachtbes) fades it out before the square edge of its canvas, so the bigger fruit shows no square */
+const menuFade = (c2, type, css) => { if (!MENU_FADE[type]) return; c2.save(); c2.setTransform(2, 0, 0, 2, 0, 0); c2.globalCompositeOperation = 'destination-in'; const g = c2.createRadialGradient(css / 2, css / 2, css * .36, css / 2, css / 2, css / 2); g.addColorStop(0, '#000'); g.addColorStop(1, 'rgba(0,0,0,0)'); c2.fillStyle = g; c2.fillRect(0, 0, css, css); c2.restore(); };
+function menuIcon(c2, type, css, dim, extra) { renderIcon(c2, type, css, dim, extra, menuFill(type, extra)); menuFade(c2, type, css); }
+/* the prize preview takes the biggest of token, middle step and today's size for which its buttons end inside the card, unscrolled (the card's glow makes scrollHeight useless) */
+function pvFit(n, d) { const cv = $('#pv-canvas'), card = cv.parentElement, top = iconPx(n, d), mid = Math.round((top + d) / 16) * 8; if (lang === 'en') trTree(card); const pad = parseFloat(getComputedStyle(card).paddingBottom) || 0, last = card.lastElementChild; for (const s of [top, mid, d]) { if (s > top || s < d) continue; cv.style.width = cv.style.height = s + 'px'; if (last.offsetTop + last.offsetHeight + pad <= card.clientHeight + 1) return s; } return d; }
+/* the reward pop-up steps its tiles down (80, then 64 = today) only while its tiles scroll or its card is taller than the screen */
+function rwFit(fill, top) { const box = $('#reward'), ic = $('#rw-icons'), card = box.firstElementChild, fits = () => ic.scrollHeight <= ic.clientHeight + 1 && card.offsetHeight <= box.clientHeight - 31; if (lang === 'en') trTree(box); let px = top; while (px > 64 && !fits()) { px = px > 80 ? 80 : 64; fill(px); } if (px !== top && typeof rwMore === 'function') rwMore(); }
+let iconSig = null;
+function iconResize() { pvFrame.hp = 0; const sig = l => l.map(n => iconPx(n, 0)).join(), g = sig(['fruit-l', 'fruit-xl', 'fruit-s']), s = sig(['step-w']), old = iconSig; iconSig = { g, s }; if (!old || G.state === 'play') return; try { if (g !== old.g && G.state === 'fruit') buildFruitGrid(); if (s !== old.s && G.state === 'intro') drawIntroCards(); } catch (e) {} }
+function renderIcon(c2, type, css, dim, extra, fill) {
   const saved = ctx; ctx = c2; c2.setTransform(2, 0, 0, 2, 0, 0); c2.clearRect(0, 0, css, css); c2.globalAlpha = dim ? .5 : 1;
-  const r = css * .27, cx = css / 2, cy = css / 2 + css * .04, o = Object.assign({ look: [0, .2] }, extra || {});
+  const r = css * .27 * (fill || 1), cx = css / 2, cy = css / 2 + css * .04, o = Object.assign({ look: [0, .2] }, extra || {});
   if (type === 'kersen') { const rr = r * .62; ctx.strokeStyle = '#4f8a3a'; ctx.lineWidth = rr * .22; ctx.lineCap = 'round'; for (const sx of [-1, 1]) { ctx.beginPath(); ctx.moveTo(cx + sx * rr * .95, cy); ctx.quadraticCurveTo(cx + sx * rr * .4, cy - rr * 1.6, cx, cy - rr * 1.9); ctx.stroke(); } ctx.fillStyle = '#5cae4a'; ctx.beginPath(); ctx.ellipse(cx + rr * .5, cy - rr * 1.95, rr * .5, rr * .22, -.5, 0, TAU); ctx.fill(); for (const sx of [-1, 1]) { drawShadow(cx + sx * rr * .95, cy + rr * .3, rr); drawFruit('kersen', cx + sx * rr * .95, cy + rr * .3, rr, 0, 0, { look: [0, .2] }); } }
   else { drawShadow(cx, cy, r * (type === 'banaan' ? .6 : 1)); drawFruit(type, cx, cy, r, type === 'banaan' ? -.3 : 0, 0, o); }
   c2.globalAlpha = 1; ctx = saved;
 }
-function renderSapIcon() { const c = $('#menu-sap-icon'); if (!c) return; const saved = ctx; ctx = c.getContext('2d'); ctx.setTransform(2, 0, 0, 2, 0, 0); ctx.clearRect(0, 0, 20, 20); drawSugar(10, 10, 7.5, false, -.15); ctx = saved; }
+function renderSapIcon() { const c = $('#menu-sap-icon'); if (!c) return; const saved = ctx; const p = iconPx('icon-m', 20); ctx = iconCanvas(c, p); ctx.setTransform(2, 0, 0, 2, 0, 0); ctx.clearRect(0, 0, p, p); drawSugar(p / 2, p / 2, p * .375, false, -.15); ctx = saved; }
 function buildMenu() {
   ensurePlusDaily(); if (!owned(save.fruit)) save.fruit = 'appel'; const pill = $('#plus-pill'); if (pill) pill.hidden = !plusActive();
   $('#menu-best').textContent = fmtTime(save.best); $('#menu-sap').textContent = fmtSap(save.sap); $('#gear-hint').hidden = !!save.seen.gear; $('#menu-runs').textContent = String(save.runs); $('#menu-level').textContent = String(save.level);
@@ -6461,23 +6586,23 @@ function drawCrossTo(cv, k) { // a fruit's cross-section on a small canvas (the 
 }
 function buildFruitGrid() {
   if (!FRUITS[menuSel]) menuSel = save.fruit;
-  const list = $('#fruit-list'); list.innerHTML = '';
+  const list = $('#fruit-list'), gp = iconPx('fruit-l', 44); list.innerHTML = '';
   for (const key of ORDER_ALL) {
     const f = FRUITS[key], own = owned(key);
     const card = document.createElement('button'); card.type = 'button'; card.className = 'fcard' + (save.fruit === key ? ' sel' : '') + (menuSel === key ? ' view' : '') + (own ? '' : ' locked') + (!own && save.sap >= f.price ? ' can' : ''); card.dataset.fruit = key;
-    const c = document.createElement('canvas'); c.width = c.height = 88; renderIcon(c.getContext('2d'), key, 44, !own); card.append(c);
+    const c = document.createElement('canvas'); c.width = c.height = gp * 2; menuIcon(c.getContext('2d'), key, gp, !own); card.append(c);
     const nm = document.createElement('span'); nm.textContent = f.name; card.append(nm);
     const st = document.createElement('span'); st.className = 'st' + (own && fruitMedal(key) ? ' medal ' + fruitMedal(key) : ''); st.textContent = own ? (!save.owned.includes(key) && !HOOK.testAll ? (plusActive() && key === fruitOfMonth() ? 'Plus · deze maand' : 'Seizoensfruit') : (fruitMedal(key) || (save.fruit === key ? 'gekozen' : 'vrij'))) : f.event ? `Toernooi ${Math.min(3, TS().fragments[key] || 0)}/3` : levelLocked(key) ? `Level ${f.minLevel}` : (save.sap >= f.price ? `Koop! ${f.price}` : `${fmtSap(f.price)} sap`); card.append(st);
     card.addEventListener('click', () => { SFX.click(); menuSel = key; buildFruitGrid(); });
     list.append(card);
   }
   const f = FRUITS[menuSel], own = owned(menuSel);
-  renderIcon($('#detail-icon').getContext('2d'), menuSel, 76, !own);
+  const dp = iconPx('fruit-xl', 76); menuIcon(iconCanvas($('#detail-icon'), dp), menuSel, dp, !own);
   const lv = xpLevel(menuSel), xp = save.xp[menuSel] || 0, fl = fruitLevels(menuSel), md = fruitMedal(menuSel);
   $('#detail-name').textContent = f.name; const tb = fruitSapBonus(menuSel); $('#detail-trait').textContent = (tb ? `Fruitbonus: +${tb}% sap na elke poging en messen ${Math.round((fruitCalm(menuSel) - 1) * 100)}% rustiger (niet in duels). ` : '') + f.trait;
   $('#detail-xp').textContent = own ? `Niveau ${lv}${lv >= 5 ? ' (eigenschap versterkt)' : ` · ${xp}/${xpForLevel(lv + 1)} s tot sterker`} · ${fl} level${fl === 1 ? '' : 's'} uitgespeeld${md ? ` · ${md}` : ' · brons bij 10'}` : 'Speeltijd versterkt de eigenschap (niveau 5); uitgespeelde levels geven medailles, goud bij 50.';
   const pd = $('#detail-pedia'), cs = $('#detail-cs'); pd.hidden = cs.hidden = !own; // v0.32.0: the Fruitpedia line (from the Album), play time in minutes, and the cross-section
-  if (own) { pd.textContent = `${save.stats.cutsBy[menuSel] || 0}× gesneden · record ${fmtTime(save.bestBy[menuSel] || 0)} · ${Math.floor(xp / 60)} min gespeeld`; drawCrossTo(cs, menuSel); }
+  if (own) { pd.textContent = `${save.stats.cutsBy[menuSel] || 0}× gesneden · record ${fmtTime(save.bestBy[menuSel] || 0)} · ${Math.floor(xp / 60)} min gespeeld`; iconCanvas(cs, iconPx('fruit-s', 40)); drawCrossTo(cs, menuSel); }
   $('#detail-price').textContent = f.event && !own ? `Alleen via het Keukentoernooi: ${TEVENT[f.event].name}. Fragmenten: ${Math.min(3, TS().fragments[menuSel] || 0)}/3 (de vijfde mijlpaal, de Weekpas of de Toernooiwinkel).` : own && !save.owned.includes(menuSel) && !HOOK.testAll ? (plusActive() && menuSel === fruitOfMonth() ? `Fruit van de maand: gratis te spelen zolang je Plus hebt (nog tot ${fmtDate(save.plus.until)}).` : `Seizoensfruit: je speelt ermee zolang Seizoen ${curSeason().n} loopt. Haal alle zes hoofdstukken en het blijft voor altijd van jou.`) : own ? (f.price ? `Ontgrendeld (${fmtSap(f.price)} sap).` : 'Gratis startfruit.') : levelLocked(menuSel) ? `Te koop vanaf level ${f.minLevel} (jij zit op ${save.level}). Kost ${fmtSap(f.price)} sap.` : f.late ? `Kost ${fmtSap(f.price)} sap ${eurHint(f.price)}${save.sap < f.price ? `, je hebt er ${fmtSap(save.sap)}` : ''}. Alleen voor sap.` : (save.sap < f.price ? `Kost ${fmtSap(f.price)} sap, je hebt er ${fmtSap(save.sap)}. Later ook ${f.eur}.` : `Kost ${fmtSap(f.price)} sap. Later ook ${f.eur}.`);
   const b = $('#btn-choose'); b.className = 'btn' + (own && save.fruit === menuSel ? ' primary' : '');
   b.textContent = own ? (save.fruit === menuSel ? 'Gekozen' : 'Kies') : f.event ? `Toernooi · ${Math.min(3, TS().fragments[menuSel] || 0)}/3 fragmenten` : levelLocked(menuSel) ? `Vanaf level ${f.minLevel}` : `Koop · ${fmtSap(f.price)} sap${f.late ? ' ' + eurHint(f.price).replace(' ', ' ') : ''}`; b.disabled = !own && (!!f.event || save.sap < f.price || levelLocked(menuSel));
@@ -6496,7 +6621,7 @@ $('#btn-choose').addEventListener('click', () => {
 const levelLocked = k => !!(FRUITS[k].minLevel && save.level < FRUITS[k].minLevel); // late fruit waits for the level, not only the sap
 function unlockable() { return ORDER.concat(LATE).some(k => !owned(k) && !levelLocked(k) && save.sap >= FRUITS[k].price); }
 function renderPick() {
-  const f = FRUITS[save.fruit]; renderIcon($('#pick-icon').getContext('2d'), save.fruit, 40, false);
+  const f = FRUITS[save.fruit]; const pp = iconPx('fruit-m', 40); menuIcon(iconCanvas($('#pick-icon'), pp), save.fruit, pp, false);
   const hero = $('#hero-icon'); if (hero) renderIcon(hero.getContext('2d'), save.fruit, 96, false);
   $('#pick-name').textContent = f.name; const pl = $('#pick-lv'); if (pl) pl.textContent = `niveau ${xpLevel(save.fruit)}`; // v0.32.0 review: 'Kiwi · niveau 10'; an affordable fruit is no news, so the line under it only shows a really new fruit or a ready start boost
   const boost = save.armBoost && (save.boostStock[save.armBoost] || 0) > 0 ? `Startboost klaar: ${POWERS[save.armBoost].name}.` : '', ps = $('#pick-sub'); ps.innerHTML = [save.fresh.fruit ? 'Nieuw fruit! Tik om te kijken.' : '', boost].filter(Boolean).map(t => `<span>${escH(t)}</span>`).join(' '); ps.hidden = !ps.innerHTML; $('#fruit-badge').hidden = !save.fresh.fruit;
@@ -6506,7 +6631,7 @@ function renderPick() {
 // the first sugar cube.
 function drawIntroCards() {
   const saved = ctx;
-  const on = (id, fn) => { const c = $('#' + id); if (!c) return; ctx = c.getContext('2d'); ctx.setTransform(2, 0, 0, 2, 0, 0); ctx.clearRect(0, 0, 110, 75); fn(); };
+  const on = (id, fn) => { const c = $('#' + id); if (!c) return; const w = iconPx('step-w', 110); if (c.width !== w * 2) { c.width = w * 2; c.height = Math.round(w * 75 / 110) * 2; } ctx = c.getContext('2d'); ctx.setTransform(w / 55, 0, 0, w / 55, 0, 0); ctx.clearRect(0, 0, 110, 75); fn(); };
   on('intro-1', () => {
     ctx.fillStyle = '#f1c7a6'; ctx.beginPath(); ctx.ellipse(55, 68, 11, 16, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.ellipse(52, 62, 3, 6, -.3, 0, TAU); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(55, 52); ctx.lineTo(55, 34); ctx.stroke(); ctx.setLineDash([]);
@@ -6834,13 +6959,13 @@ function tourArrive(level) {
 // Plus gifts, stickers, a new fruit) is shown big in the middle, with the icon of the thing itself and its name,
 // so a player never has to guess what just came in. Tap anywhere (or wait) to continue; several queue up.
 const rwQueue = []; let rwTimer = 0, rwBatch = null; // v0.32: while rwBatch is set, pop-ups are collected and shown as one card
-function rewardCanvas(draw) {
-  const c = document.createElement('canvas'), css = 64; c.width = c.height = css * 2; const c2 = c.getContext('2d');
+function rewardCanvas(draw, css) {
+  css = css || 64; const c = document.createElement('canvas'); c.width = c.height = css * 2; const c2 = c.getContext('2d');
   const saved = ctx; ctx = c2; try { c2.setTransform(2, 0, 0, 2, 0, 0); draw(c2, css); } finally { ctx = saved; } return c;
 }
 function playReveal(cv, fn, delay) { // a short animation on a reward icon (the late fruit's unlock reveal)
   const c2 = cv.getContext('2d'), t0 = performance.now() + (delay || 0) * 1000 + 300;
-  const tick = now => { if (!cv.isConnected) return; const t = Math.max(0, now - t0), saved = ctx; ctx = c2; try { fn(c2, 64, Math.min(t, 1900)); } finally { ctx = saved; } if (t < 1900) requestAnimationFrame(tick); };
+  const tick = now => { if (!cv.isConnected) return; const t = Math.max(0, now - t0), saved = ctx; ctx = c2; try { fn(c2, cv.width / 2, Math.min(t, 1900)); } finally { ctx = saved; } if (t < 1900) requestAnimationFrame(tick); };
   requestAnimationFrame(tick);
 }
 function lateReveal(k, css, t) { // Zoetzuur (sour, a sugar ring, miracle, a lick) or Vooruitblik (glasses down, a blue ring, squint, nod, glasses up)
@@ -6858,7 +6983,7 @@ function lateReveal(k, css, t) { // Zoetzuur (sour, a sugar ring, miracle, a lic
   }
   drawShadow(cx, cy, r); drawFruit(k, cx + dx, cy + dy, r, 0, 0, o);
 }
-const rwCenter = (c, css) => c.setTransform(2, 0, 0, 2, css, css); // the 2x canvas: origin in the middle
+const rwCenter = (c, css) => c.setTransform(css / 32, 0, 0, css / 32, css, css); // the 2x canvas: origin in the middle
 function drawCoinIcon(c, x, y, s) {
   c.fillStyle = '#9a6b08'; c.beginPath(); c.arc(x + 2, y + 3, s, 0, TAU); c.fill();
   const g = c.createRadialGradient(x - s * .3, y - s * .3, s * .1, x, y, s); g.addColorStop(0, '#fff3b0'); g.addColorStop(1, '#f0b429'); c.fillStyle = g; c.beginPath(); c.arc(x, y, s, 0, TAU); c.fill();
@@ -6890,8 +7015,8 @@ function rewardItems(r) {
   if (r.swap) add('Opdrachtwissel', (c, css) => { rwCenter(c, css); c.strokeStyle = '#9ee37d'; c.lineWidth = 4; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(-18, -8); c.lineTo(14, -8); c.moveTo(7, -15); c.lineTo(14, -8); c.lineTo(7, -1); c.moveTo(18, 8); c.lineTo(-14, 8); c.moveTo(-7, 1); c.lineTo(-14, 8); c.lineTo(-7, 15); c.stroke(); });
   if (r.kfn && KITCHEN_TIERS[r.kfn]) add(KITCHEN_TIERS[r.kfn].fnName, (c, css) => { rwCenter(c, css); if (r.kfn === 1) drawClockIcon(c, 0, 0, 24); else { c.fillStyle = '#ffd54a'; c.beginPath(); c.arc(0, 0, 24, 0, TAU); c.fill(); c.fillStyle = '#2a1208'; c.font = `900 14px ${FU}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(`+${KITCHEN_TIERS[r.kfn].pct}%`, 0, 1); } });
   if (r.boost && POWERS[r.boost]) add(`${POWERS[r.boost].name} ×${r.n || 1}`, (c, css) => disc(c, css, POWERS[r.boost].col, r.boost));
-  if (r.fruit && FRUITS[r.fruit]) { add(FRUITS[r.fruit].name, (c, css) => renderIcon(c, r.fruit, css, false)); if (FRUITS[r.fruit].late) it[it.length - 1].anim = (c, css, t) => lateReveal(r.fruit, css, t); } // late fruit: the unlock reveal plays its own animation
-  if (r.fruits) { for (const k of r.fruits.slice(0, 6)) if (FRUITS[k]) add(FRUITS[k].name, (c, css) => renderIcon(c, k, css, false)); if (r.fruits.length > 6) add(`+${r.fruits.length - 6} meer`, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 24); }); }
+  if (r.fruit && FRUITS[r.fruit]) { add(FRUITS[r.fruit].name, (c, css) => (FRUITS[r.fruit].late ? renderIcon : menuIcon)(c, r.fruit, css, false)); if (FRUITS[r.fruit].late) it[it.length - 1].anim = (c, css, t) => lateReveal(r.fruit, css, t); } // late fruit: the unlock reveal plays its own animation
+  if (r.fruits) { for (const k of r.fruits.slice(0, 6)) if (FRUITS[k]) add(FRUITS[k].name, (c, css) => menuIcon(c, k, css, false)); if (r.fruits.length > 6) add(`+${r.fruits.length - 6} meer`, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 24); }); }
   if (r.stickers) for (const n of r.stickers) add(n, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 26); });
   if (r.stk) { const cap = r.stkMax || 6; for (const id of r.stk.slice(0, cap)) if (STK[id]) add(STK[id].name, (c, css) => { rwCenter(c, css); c.fillStyle = stkCol(id); c.beginPath(); c.arc(0, 0, 24, 0, TAU); c.fill(); drawEmblem(c, id, 0, 0, 28, '#2a1208', 2.4); }); if (r.stk.length > cap) add(`+${r.stk.length - cap} meer`, (c, css) => { rwCenter(c, css); drawStarIcon(c, 0, 0, 24); }); } // v0.32.1: a sticker with its own emblem (stkMax: fewer on a small phone)
   if (r.note) add(r.note, (c, css) => { rwCenter(c, css); c.fillStyle = '#c77dff'; c.beginPath(); c.arc(0, 0, 22, 0, TAU); c.fill(); c.fillStyle = '#fff'; c.font = `900 26px ${FU}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('!', 0, 2); });
@@ -6908,9 +7033,10 @@ function showReward(r, title, sub) {
 function nextReward() {
   const box = $('#reward'), q = rwQueue.shift(); clearTimeout(rwTimer); if (!q) { box.hidden = true; return; }
   $('#rw-title').textContent = q.title; const txt = $('#rw-text'); txt.textContent = q.sub; txt.hidden = !q.sub; const ic = $('#rw-icons'); ic.innerHTML = '';
-  q.items.forEach((it, i) => { const d = document.createElement('div'); d.className = 'rw-icon'; d.style.animationDelay = `${.15 + i * .12}s`; const cv = rewardCanvas(it.draw); d.appendChild(cv); if (it.anim) playReveal(cv, it.anim, .15 + i * .12); const b = document.createElement('b'); b.textContent = it.label; d.appendChild(b); ic.appendChild(d); });
+  const rwN = q.items.length, rwTop = iconPx(rwN === 1 ? 'rw-hero' : rwN > 4 ? 'rw-many' : 'rw', 64), rwFill = px => { ic.innerHTML = ''; ic.style.setProperty('--rw-s', px + 'px');
+  q.items.forEach((it, i) => { const d = document.createElement('div'); d.className = 'rw-icon'; d.style.animationDelay = `${.15 + i * .12}s`; const cv = rewardCanvas(it.draw, px); d.appendChild(cv); if (it.anim) playReveal(cv, it.anim, .15 + i * .12); const b = document.createElement('b'); b.textContent = it.label; d.appendChild(b); ic.appendChild(d); }); }; rwFill(rwTop);
   const card = box.firstElementChild; card.style.animation = 'none'; box.hidden = false; void card.offsetWidth; card.style.animation = ''; // the card pops again for each reward in the queue
-  rwMore(); rwActs(q); SFX.jingle(); if (!q.acts) rwTimer = setTimeout(nextReward, 6000 + q.items.length * 700); // a card with buttons waits for you
+  rwMore(); rwActs(q); rwFit(rwFill, rwTop); SFX.jingle(); if (!q.acts) rwTimer = setTimeout(nextReward, 6000 + q.items.length * 700); // a card with buttons waits for you
 }
 function rwActs(q) { // v0.32.1: a card may carry its own buttons (a sticker: Ontvang +X, Bekijk in album); a tap beside them still closes it
   const row = $('#rw-acts'), ok = $('#rw-ok'), hint = $('#reward .rw-hint'); if (!row) return; row.innerHTML = ''; row.hidden = !q.acts; ok.hidden = !!q.acts; if (hint) hint.hidden = !!q.acts;
@@ -7106,7 +7232,7 @@ function prizeTile(r, o) { // o: { when, src, odds, what, on, done, plain (no ow
 const prizeStrip = (list, head) => list.length ? `${head ? `<div class="small pvhead">${head}</div>` : ''}<div class="prizes">${list.map(e => prizeTile(e.r, e)).join('')}</div>` : '';
 function paintPrize(cv, spec) { // the tile or thumbnail icon: the main part of the reward, drawn like the pop-up draws it
   const r = spec.r || {}, m = mainPart(r), it = rewardItems(m)[0]; if (!it) return; const c2 = cv.getContext('2d'), saved = ctx; ctx = c2;
-  try { c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, cv.width, cv.height); c2.setTransform(2, 0, 0, 2, 0, 0); if (spec.medal) { rwCenter(c2, 64); drawStarIcon(c2, 0, 0, 26, MEDAL_COL[spec.medal] || '#ffd54a'); } else if (m.fruit || (spec.frag && FRUITS[spec.frag] && !m.fragment)) renderIcon(c2, m.fruit || spec.frag, 64, false); else it.draw(c2, 64); } finally { ctx = saved; }
+  try { c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, cv.width, cv.height); c2.setTransform(2, 0, 0, 2, 0, 0); if (spec.medal) { rwCenter(c2, 64); drawStarIcon(c2, 0, 0, 26, MEDAL_COL[spec.medal] || '#ffd54a'); } else if (m.fruit || (spec.frag && FRUITS[spec.frag] && !m.fragment)) menuIcon(c2, m.fruit || spec.frag, 64, false); else it.draw(c2, 64); } finally { ctx = saved; }
 }
 function paintPrizes(root) { if (root) root.querySelectorAll('.ptile canvas, canvas.pvthumb').forEach(cv => { const host = cv.closest('[data-pv]'); let spec = null; try { spec = JSON.parse(host.dataset.pv); } catch (e) {} if (spec) paintPrize(cv, spec); }); }
 // The preview dialog. A hat is tried on your fruit (Ander fruit switches between the fruit you own), a board shows in portrait
@@ -7117,11 +7243,11 @@ function pvFrame(t) {
   const spec = pvSpec; if (!spec) return; const { m, fruit } = pvKeys(spec), cv = $('#pv-canvas'), c2 = cv.getContext('2d'), look = [Math.sin(t / 650) * .7, .2 + Math.sin(t / 900) * .15];
   const size = (w, h) => { if (cv.width !== w * 2 || cv.height !== h * 2) { cv.width = w * 2; cv.height = h * 2; } cv.style.width = w + 'px'; cv.style.height = h + 'px'; };
   if (fruit && FRUITS[fruit]) {
-    size(160, 160); const late = FRUITS[fruit].late, tt = t % 3400;
-    if (late && t > 0 && tt < 1900) { const saved = ctx; ctx = c2; try { lateReveal(fruit, 160, tt); } finally { ctx = saved; } }
-    else renderIcon(c2, fruit, 160, false, { look }); return;
+    const hp = pvFrame.hp || (pvFrame.hp = pvFit('fruit-hero', 160)); size(hp, hp); const late = FRUITS[fruit].late, tt = t % 3400;
+    if (late && t > 0 && tt < 1900) { const saved = ctx; ctx = c2; try { lateReveal(fruit, hp, tt); } finally { ctx = saved; } }
+    else (late ? renderIcon : menuIcon)(c2, fruit, hp, false, { look }); return;
   }
-  if (t > 0) return; const it = rewardItems(m)[0]; size(96, 96); if (cv.width !== 128) { cv.width = cv.height = 128; } const saved = ctx; ctx = c2; try { c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, 128, 128); c2.setTransform(2, 0, 0, 2, 0, 0); if (it) it.draw(c2, 64); } finally { ctx = saved; }
+  if (t > 0) return; const it = rewardItems(m)[0]; const op = pvFrame.hp || (pvFrame.hp = pvFit('prize-hero', 96)); size(op, op); const saved = ctx; ctx = c2; try { c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, op * 2, op * 2); c2.setTransform(2, 0, 0, 2, 0, 0); if (it) it.draw(c2, op); } finally { ctx = saved; }
 }
 function pvRefresh() { const fn = { shop: openShop, today: () => openToday(), pass: openPass, tourney: () => openTourney(), keuken: () => openKitchen(kitchenView), kaart: openKaart, album: openAlbum }[G.state]; if (fn) fn(); }
 function closePrize() { $('#prevbox').hidden = true; pvSpec = null; cancelAnimationFrame(pvRaf); }
@@ -7146,7 +7272,7 @@ function openPrize(spec) {
   const forms = $('#pv-forms'); forms.hidden = true; forms.innerHTML = ''; // v0.32.4: season forms show nothing any more
   $('#pv-lines').innerHTML = lines.join('');
   acts.push(['close', 'Sluiten']); $('#pv-acts').innerHTML = acts.map(([k, t], i) => `<button class="btn${i === acts.length - 1 ? ' primary' : ''}" data-pa="${k}">${t}</button>`).join('');
-  $('#prevbox').hidden = false; navPushModal(); pvFrame(0);
+  $('#prevbox').hidden = false; navPushModal(); pvFrame.hp = 0; pvFrame(0);
   const t0 = performance.now(), tick = now => { if (pvSpec !== spec || $('#prevbox').hidden) return; pvFrame(Math.max(1, now - t0)); pvRaf = requestAnimationFrame(tick); }; pvRaf = requestAnimationFrame(tick);
   return true;
 }
@@ -7289,10 +7415,10 @@ function drawWheelPrize(c, r) {
   c.fillStyle = '#2a1208'; c.textBaseline = 'middle';
   const num = (t, iconW) => { c.font = `800 30px ${FU}`; c.textAlign = 'left'; const tw = c.measureText(t).width, tot = tw + 8 + iconW; c.fillText(t, -tot / 2, 2); return -tot / 2 + tw + 8 + iconW / 2; };
   const cap = (t, y) => { c.font = `800 14px ${FU}`; c.textAlign = 'center'; c.fillStyle = '#2a1208'; c.fillText(t, 0, y); };
-  if (r.sap) drawSugar(num(String(r.sap), 28), 1, 14, false, 0, c);
-  else if (r.heart) drawHeartIcon(c, num(String(r.heart), 28), 1, 12);
-  else if (r.shield) { drawShieldIcon(c, 0, -8, 26); cap('schild', 20); }
-  else if (r.minutes) { drawClockIcon(c, 0, -9, 13); cap(`${r.minutes} min ∞`, 20); }
+  if (r.sap) drawSugar(num(String(r.sap), 36), 1, 18, false, 0, c);
+  else if (r.heart) drawHeartIcon(c, num(String(r.heart), 36), 1, 15.5);
+  else if (r.shield) { drawShieldIcon(c, 0, -11, 33); cap('schild', 23); }
+  else if (r.minutes) { drawClockIcon(c, 0, -12, 17); cap(`${r.minutes} min ∞`, 23); }
 }
 function drawWheel() {
   const c = $('#wheel'); if (!c) return; const c2 = c.getContext('2d'), n = WHEEL.length, seg = TAU / n, S = c.width, R0 = S / 2 - 25;
@@ -7455,12 +7581,12 @@ function rowHint() { // the most nearly full incomplete row this run touched, fo
   return `Nog ${miss.length} voor je Fruitmand van level ${best.n}: ${miss.slice(0, 3).join(', ')}${miss.length > 3 ? ', …' : ''}.`;
 }
 let iconCache = {};
-function fruitIconUrl(k) { if (iconCache[k]) return iconCache[k]; const c = document.createElement('canvas'); c.width = c.height = 48; renderIcon(c.getContext('2d'), k, 24, false); try { iconCache[k] = c.toDataURL(); } catch (e) { iconCache[k] = ''; } return iconCache[k]; }
+function fruitIconUrl(k, css, fill) { css = css || 24; const key = css === 24 && !fill ? k : k + '@' + css + '@' + fill; if (iconCache[key]) return iconCache[key]; const c = document.createElement('canvas'); c.width = c.height = css * 2; renderIcon(c.getContext('2d'), k, css, false, null, fill); if (fill) menuFade(c.getContext('2d'), k, css); try { iconCache[key] = c.toDataURL(); } catch (e) { iconCache[key] = ''; } return iconCache[key]; }
 let kaartFilter = false;
 function kaartIconCss() { // v0.31.6: one rule per fruit holds its icon, so a Fruitkaart cell is a small <i> instead of a data URL
   const keys = ORDER.concat(LATE); let el = document.getElementById('ki-css'); if (el && el.dataset.keys === keys.join(',')) return;
   if (!el) { el = document.createElement('style'); el.id = 'ki-css'; document.head.appendChild(el); }
-  el.dataset.keys = keys.join(','); el.textContent = keys.map(k => { const u = fruitIconUrl(k); return u ? `.ki-${k}{background-image:url("${u}")}` : ''; }).join('\n');
+  el.dataset.keys = keys.join(','); el.textContent = keys.map(k => { const u = fruitIconUrl(k, 28, Math.min(1.15, menuFill(k))); return u ? `.ki-${k}{background-image:url("${u}")}` : ''; }).join('\n');
 }
 let kaartPick = 0; // v0.31.12: the level a Fruitkaart Speel button chose; the run that starts there is a Fruitkaart replay (G.kaartLevel)
 function kaartPlan(N, from) { // the next owned classic fruit without a stamp on level N, in ORDER after `from` (wrapping); else what is left to buy; a full row moves to the nearest row that is not full
@@ -7488,7 +7614,7 @@ function openKaart() {
   const medals = ORDER.concat(LATE).filter(k => fruitMedal(k)).map(k => `<span class="medal ${fruitMedal(k)}">${FRUITS[k].name} ${fruitMedal(k)}</span>`).join(' · ');
   $('#kaart-body').innerHTML =
     `<div class="sec"><h3>${totalStamps()} / ${save.level * ORDER.length} stempels · ${fullRows()} volle rij${fullRows() === 1 ? '' : 'en'}</h3><div class="small">Een stempel = een level uitgespeeld met dat fruit. Kies hieronder een level om het met een ander fruit te herspelen (het gekozen fruit is ${FRUITS[save.fruit].name}).</div>` +
-    `<div class="mrow"><img src="${fruitIconUrl(fow)}" alt="" style="width:32px;height:32px"><div class="mt"><b>Fruit van de week: ${FRUITS[fow].name}</b><div class="small">Stempels met dit fruit geven dubbel sap, een volle rij ermee +100 sap.</div></div></div>` +
+    `<div class="mrow"><img class="fowimg" src="${fruitIconUrl(fow, 56, menuFill(fow))}" alt=""><div class="mt"><b>Fruit van de week: ${FRUITS[fow].name}</b><div class="small">Stempels met dit fruit geven dubbel sap, een volle rij ermee +100 sap.</div></div></div>` +
     `<div class="mrow"><div class="mt"><b>Premie van de dag:</b> ${b.n ? `level ${b.n} met ${FRUITS[b.k].name} · 2 hartjes + 200 sap${b.claimed ? ' · binnen!' : ''}` : 'alles al gestempeld, morgen een nieuwe'}</div>${b.n && !b.claimed ? `<button class="btn primary" data-kl="${b.n}" data-kf="${b.k}">Speel</button>` : ''}</div>` +
     `<div class="small">Medailles per fruit: brons 10 levels, zilver 25, goud 50, diamant 100. Families: Rood, Tropisch, Klein, Zuur (+60 sap per level).${medals ? '<br>' + medals : ''}</div>` +
     `<label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="kaart-filter" ${kaartFilter ? 'checked' : ''}> Alleen onvolledige rijen</label></div>` +
@@ -7798,7 +7924,7 @@ function stkBody(id) {
     + `<div class="stkbar"><i style="width:${Math.round(100 * cur / goal)}%"></i></div><div class="stknum"><span>${cur} van ${goal}</span><span>${left > 0 ? `nog ${left}` : 'klaar!'}</span></div>`
     + (day ? `<p class="small stkday">${escH(day)}</p>` : '') + chips + notes + stkSetLine(s) + `<div class="row stkacts">${btns}</div>`;
 }
-function openStk(id) { if (!STK[id]) return false; stkOpen = id; $('#stk-body').innerHTML = stkBody(id); $('#stkbox').firstElementChild.className = 'sheet stksheet ' + stkState(id); openSheet('stkbox'); return true; }
+function openStk(id) { if (!STK[id]) return false; stkOpen = id; $('#stk-body').innerHTML = stkBody(id); $('#stkbox').firstElementChild.className = 'sheet stksheet ' + stkState(id); openSheet('stkbox'); { const sh = $('#stkbox').firstElementChild; if (sh.scrollHeight > sh.clientHeight + 1) sh.classList.add('tight'); } return true; }
 $('#stk-body').addEventListener('click', e => {
   const b = e.target.closest ? e.target.closest('button') : null; if (!b) return; SFX.click(); const d = b.dataset;
   if (d.close) { closeSheets(); return; }
@@ -7836,8 +7962,8 @@ function albumPvAct(k) {
   if (curScreen === 'scr-album') renderAlbum(); updateHub(curScreen); if (stkOpen && !$('#stkbox').hidden) openStk(stkOpen);
 }
 function albumPvFrame() { // the big picture of a prize: its main part, drawn like its tile
-  const a = pvSpec && pvSpec.album; if (!a) return; const cv = $('#pv-canvas'), c = cv.getContext('2d'), it = rewardItems(mainPart(rwResolve(a.r || {})))[0]; cv.width = cv.height = 128; cv.style.width = cv.style.height = '96px';
-  const saved = ctx; ctx = c; try { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, 128, 128); c.setTransform(2, 0, 0, 2, 0, 0); if (it) it.draw(c, 64); } finally { ctx = saved; }
+  const a = pvSpec && pvSpec.album; if (!a) return; const cv = $('#pv-canvas'), c = cv.getContext('2d'), it = rewardItems(mainPart(rwResolve(a.r || {})))[0]; const op = pvFit('prize-hero', 96); cv.width = cv.height = op * 2; cv.style.width = cv.style.height = op + 'px';
+  const saved = ctx; ctx = c; try { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, op * 2, op * 2); c.setTransform(2, 0, 0, 2, 0, 0); if (it) it.draw(c, op); } finally { ctx = saved; }
 }
 
 // ---- Fruitpas: a monthly season of 30 tiers, 100 pass-XP each, with a free and a (simulated) paid track.
@@ -8263,7 +8389,7 @@ function netTick() { // when the menu opens: a cheap, throttled profile sync plu
 const agoText = ms => { if (!(ms > 0)) return ''; const d = Math.floor((nowMs() - ms) / 86400000); return d <= 0 ? 'vandaag' : d === 1 ? 'gisteren' : `${d} dagen geleden`; };
 function friendRow(f, top) {
   const theirs = (f.fruits || []).filter(k => FRUITS[k]), mine = new Set(save.owned), missing = theirs.filter(k => !mine.has(k)).map(k => FRUITS[k].name), nm = escH(f.name);
-  const head = `<div class="mrow" data-friend="${escH(f.uid)}" style="cursor:pointer"><div class="mt"><b>${nm}</b>${top && f.uid === top.uid ? ' \u{1F451}' : ''}${ldDot(f)}${ldRecHTML(f)}<div class="small">Level ${f.level} · record ${fmtTime(f.best || 0)} · ${theirs.length}/${ORDER_ALL.length} fruit · reeks ${f.streak || 0}</div></div><div class="small">${agoText(f.last)}</div></div>`;
+  const head = `<div class="mrow" data-friend="${escH(f.uid)}" style="cursor:pointer"><div class="mt"><b>${nm}</b>${top && f.uid === top.uid ? ' <span class="crown">\u{1F451}</span>' : ''}${ldDot(f)}${ldRecHTML(f)}<div class="small">Level ${f.level} · record ${fmtTime(f.best || 0)} · ${theirs.length}/${ORDER_ALL.length} fruit · reeks ${f.streak || 0}</div></div><div class="small">${agoText(f.last)}</div></div>`;
   if (friendOpen !== f.uid) return head;
   const line = (label, a, b) => `<div class="mrow"><div class="mt">${label}</div><div class="small">jij ${a} · ${nm}: ${b}</div></div>`;
   return head + `<div style="padding:4px 8px 8px;margin:0 0 6px 6px;border-left:2px solid #ffd54a">` + line('Level', save.level, f.level) + line('Record', fmtTime(save.best), fmtTime(f.best || 0)) + line('Fruit', save.owned.length, theirs.length) + line('Dagreeks', save.streak, f.streak || 0) + line('Pogingen', save.runs, f.runs || 0) +
@@ -8336,7 +8462,7 @@ function renderFriends() {
     (rv.list.length ? rv.list.map(r => { const left = r.level - save.level + 1; return `<div class="mrow"><div class="mt"><b>${escH(r.name)}</b><div class="small">Level ${r.level} · record ${fmtTime(r.best || 0)}</div></div><div class="small">${rv.passed.includes(r.uid) || save.level > r.level ? 'ingehaald ✓' : `nog ${left} level${left === 1 ? '' : 's'}`}</div></div>`; }).join('') : `<div class="small">${online ? 'Nog geen rivalen gevonden: speel verder, ze komen eraan.' : 'Rivalen verschijnen zodra je online bent.'}</div>`) + `</div>`;
   const body = $('#friends-body'); body.innerHTML = add + reqs + ldSection() + duels + `<div class="sec" id="fsec-list" data-fv="vrienden"><h3>${ico('kaart')}Vrienden (${list.length})</h3>${chase}${rows}</div>` + rivals + week;
   body.querySelectorAll('[data-fv]').forEach(sec => { sec.hidden = sec.dataset.fv !== friendsView; }); // v0.32.0: one screen, three sub-tabs; only the open one's parts show
-  body.querySelectorAll('canvas[data-ficon]').forEach(cv => { try { renderIcon(cv.getContext('2d'), cv.dataset.ficon, 36, false); } catch (e) {} }); paintPrizes(body); // v0.32 review: the prizes of Vrienden as tiles with a preview
+  body.querySelectorAll('canvas[data-ficon]').forEach(cv => { try { const fp = iconPx('fruit-row', 36); menuIcon(iconCanvas(cv, fp), cv.dataset.ficon, fp, false); } catch (e) {} }); paintPrizes(body); // v0.32 review: the prizes of Vrienden as tiles with a preview
   const fd = $('#btn-duel'); if (fd) fd.addEventListener('click', () => { if (duelSearch || !duelCanPublic()) return; SFX.click(); startDuel(duelsLeft() > 0 ? {} : { pay: 'ad' }); }); // v0.32: the button follows the search (duelPaint); v0.32.3: or plays a watched video's duel
   const fdA = $('#btn-duel-ad'); if (fdA) fdA.addEventListener('click', () => { if (duelSearch || duelAdLeft() <= 0) return; SFX.click(); duelAd(); });
   const fdT = $('#btn-duel-tk'); if (fdT) fdT.addEventListener('click', () => { if (duelSearch || duelTicketUsable() <= 0) return; SFX.click(); startDuel({ pay: 'ticket' }); }); // a ticket is only taken when the duel really starts
@@ -8578,7 +8704,7 @@ async function ldAnswer(id, yes) {
   ldEnter(r.lobby.id, r.lobby, true); return true;
 }
 // -- the lobby (one in-game box for the waiting screen, the lobby and the countdown)
-const LD_CSS = '#ldbox{z-index:10}#ldbox .rw-card{display:flex;flex-direction:column;gap:8px;max-height:94%;overflow:auto;width:min(360px,100%)}#ld-rules{margin:0;opacity:.85}.ld-seat{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.06)}.ld-seat canvas{width:36px;height:36px;flex:none}.ld-seat .nm{flex:1;text-align:left;font-weight:800;min-width:0;overflow-wrap:anywhere}.ld-pill{font-size:12px;font-weight:800;padding:3px 8px;border-radius:999px;background:#3a6b2f;color:#fff;white-space:nowrap}.ld-pill.away{background:#a8681a}#ld-status{font-weight:800;font-size:15px;margin:2px 0}#ld-note{margin:0}#ld-fruits{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}#ld-fruits button{background:rgba(255,255,255,.06);border:2px solid transparent;border-radius:10px;padding:2px;min-height:44px}#ld-fruits button.on{border-color:#ffd54a;background:rgba(255,213,74,.18)}#ld-fruits button:disabled{opacity:.45}#ld-fruits button.on:disabled{opacity:1}#ld-fruits canvas{width:36px;height:36px}#ld-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:110px;font-weight:900;color:#ffd54a;text-shadow:0 4px 0 rgba(0,0,0,.4);pointer-events:none;background:rgba(23,16,11,.72);border-radius:22px}#ld-acts{flex-wrap:nowrap;gap:6px}#ld-acts .btn{flex:1 1 0;min-width:0;padding-left:10px;padding-right:10px;font-size:18px;line-height:1.15}#ld-pow-row .btn{font-size:16px;padding:8px 14px}@media (max-height:720px){#ldbox .rw-card{gap:5px;padding-top:12px;padding-bottom:12px}#ldbox .rw-title{font-size:20px}.ld-seat{padding:3px 8px}.ld-seat canvas{width:30px;height:30px}#ld-fruits button{min-height:36px;padding:1px}#ld-fruits canvas{width:28px;height:28px}#ld-acts .btn{padding-top:10px;padding-bottom:10px}}.ld-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#46c04a;margin-left:6px;vertical-align:middle;box-shadow:0 0 0 2px rgba(70,192,74,.25)}.ld-dot.busy{background:#e0a030;box-shadow:0 0 0 2px rgba(224,160,48,.25)}#scr-pause.ld-cover{background:#17100b}#scr-over.ld-over #btn-retry,#scr-over.ld-over #btn-menu{white-space:nowrap;font-size:min(17px,4.6vw);padding-left:min(10px,2.5vw);padding-right:min(10px,2.5vw);flex:1 1 0;min-width:0}';
+const LD_CSS = '/* icons-big v1 lobby */:root{--ld-seat:var(--fruit-row,36px);--ld-pick:48px}@media (max-width:389px){:root{--ld-pick:44px}}@media (max-width:359px){:root{--ld-seat:44px;--ld-pick:38px}}@media (max-height:760px){:root{--ld-seat:44px;--ld-pick:40px}}@media (max-height:760px) and (max-width:359px){:root{--ld-pick:38px}}@media (max-height:720px){:root{--ld-seat:36px;--ld-pick:36px}}@media (max-height:720px) and (max-width:359px){:root{--ld-seat:32px;--ld-pick:30px}}#ldbox{z-index:10}#ldbox .rw-card{display:flex;flex-direction:column;gap:8px;max-height:94%;overflow:auto;width:min(360px,100%)}#ld-rules{margin:0;opacity:.85}.ld-seat{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.06)}.ld-seat canvas{width:var(--ld-seat);height:var(--ld-seat);flex:none}.ld-seat .nm{flex:1;text-align:left;font-weight:800;min-width:0;overflow-wrap:anywhere}.ld-pill{font-size:12px;font-weight:800;padding:3px 8px;border-radius:999px;background:#3a6b2f;color:#fff;white-space:nowrap}.ld-pill.away{background:#a8681a}#ld-status{font-weight:800;font-size:15px;margin:2px 0}#ld-note{margin:0}#ld-fruits{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}#ld-fruits button{background:rgba(255,255,255,.06);border:2px solid transparent;border-radius:10px;padding:2px;min-height:44px}#ld-fruits button.on{border-color:#ffd54a;background:rgba(255,213,74,.18)}#ld-fruits button:disabled{opacity:.45}#ld-fruits button.on:disabled{opacity:1}#ld-fruits canvas{width:var(--ld-pick);height:var(--ld-pick)}#ld-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:110px;font-weight:900;color:#ffd54a;text-shadow:0 4px 0 rgba(0,0,0,.4);pointer-events:none;background:rgba(23,16,11,.72);border-radius:22px}#ld-acts{flex-wrap:nowrap;gap:6px}#ld-acts .btn{flex:1 1 0;min-width:0;padding-left:10px;padding-right:10px;font-size:18px;line-height:1.15}#ld-pow-row .btn{font-size:16px;padding:8px 14px}@media (max-height:720px){#ldbox .rw-card{gap:5px;padding-top:12px;padding-bottom:12px}#ldbox .rw-title{font-size:20px}.ld-seat{padding:3px 8px}#ld-fruits button{min-height:36px;padding:1px}#ld-acts .btn{padding-top:10px;padding-bottom:10px}}.ld-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#46c04a;margin-left:6px;vertical-align:middle;box-shadow:0 0 0 2px rgba(70,192,74,.25)}.ld-dot.busy{background:#e0a030;box-shadow:0 0 0 2px rgba(224,160,48,.25)}#scr-pause.ld-cover{background:#17100b}#scr-over.ld-over #btn-retry,#scr-over.ld-over #btn-menu{white-space:nowrap;font-size:min(17px,4.6vw);padding-left:min(10px,2.5vw);padding-right:min(10px,2.5vw);flex:1 1 0;min-width:0}';
 const LD_HTML = '<div id="ldbox" class="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ld-title"><div class="rw-card" style="position:relative"><div class="rw-title" id="ld-title">Live duel</div><p class="small" id="ld-rules"></p><div id="ld-seats" class="stack"></div><div id="ld-status"></div><p class="small" id="ld-note"></p><div class="small" id="ld-pick"></div><div id="ld-fruits"></div><div class="row" id="ld-pow-row" hidden><button class="btn ghost" id="ld-pow" type="button"></button></div><div class="row" id="ld-acts"><button class="btn primary" id="ld-a" type="button"></button><button class="btn ghost" id="ld-b" type="button"></button></div><div id="ld-count" hidden></div></div></div>';
 function ldMount() { if ($('#ldbox')) return; const st = document.createElement('style'); st.textContent = LD_CSS; document.head.appendChild(st); $('#askbox').insertAdjacentHTML('beforebegin', LD_HTML);
   $('#ld-a').addEventListener('click', e => { e.stopPropagation(); SFX.click(); ldAct('a'); }); $('#ld-b').addEventListener('click', e => { e.stopPropagation(); SFX.click(); ldAct('b'); });
@@ -8630,10 +8756,10 @@ function ldPaint(full) {
   if (!L) { set('ld-status', 'Even verbinden…'); set('ld-note', ''); A.hidden = true; set('ld-b', 'Verlaat lobby'); B.hidden = false; pw.hidden = true; return; }
   const go = L.state === 'go', meS = L.m.find(s => s.me) || {}, other = L.m.find(s => !s.me) || { name: '?' }, host = L.m.find(s => s.role === 'host') || other, myFruit = go && ldFruitOk(meS.fruit) ? meS.fruit : ldFruitPick, tap = ldNeedTap(L);
   const seatHTML = L.m.map(s => `<div class="ld-seat"><canvas width="72" height="72" data-ldicon="${escH(s.me ? myFruit : s.fruit || 'appel')}"></canvas><span class="nm"><span>${escH(s.me ? `${s.name} (jij)` : s.name)}</span>${s.role === 'host' ? '<span> · host</span>' : ''}</span><span class="ld-pill${s.in ? '' : ' away'}">${escH(s.in ? 'in de lobby' : s.me && tap ? 'tik om mee te doen' : `komt eraan · ${ldMmss(s.away - now)}`)}</span></div>`).join('');
-  const sk = L.m.map(s => [s.name, s.me ? myFruit : s.fruit, s.in, s.in ? 0 : Math.ceil((s.away - now) / 1000)].join('|')).join(';') + lang + (tap ? 'T' : '');
-  if (seats.dataset.k !== sk) { seats.dataset.k = sk; seats.innerHTML = seatHTML; if (lang === 'en') trTree(seats); seats.querySelectorAll('canvas[data-ldicon]').forEach(cv => { try { renderIcon(cv.getContext('2d'), FRUITS[cv.dataset.ldicon] ? cv.dataset.ldicon : 'appel', 36, false); } catch (e) {} }); }
-  const fk = myFruit + (go ? 'L' : '') + lang;
-  if (full || fr.dataset.k !== fk) { fr.dataset.k = fk; fr.innerHTML = ORDER.map(k => `<button type="button" data-ldf="${k}" class="${k === myFruit ? 'on' : ''}" ${go ? 'disabled' : ''} aria-label="${escH(tr(FRUITS[k].name))}"><canvas width="72" height="72" data-ldicon="${k}"></canvas></button>`).join(''); fr.querySelectorAll('canvas[data-ldicon]').forEach(cv => { try { renderIcon(cv.getContext('2d'), cv.dataset.ldicon, 36, false); } catch (e) {} }); }
+  const sk = L.m.map(s => [s.name, s.me ? myFruit : s.fruit, s.in, s.in ? 0 : Math.ceil((s.away - now) / 1000)].join('|')).join(';') + lang + (tap ? 'T' : '') + '@' + iconPx('ld-seat', 36);
+  if (seats.dataset.k !== sk) { seats.dataset.k = sk; seats.innerHTML = seatHTML; if (lang === 'en') trTree(seats); const sp = iconPx('ld-seat', 36); seats.querySelectorAll('canvas[data-ldicon]').forEach(cv => { try { menuIcon(iconCanvas(cv, sp), FRUITS[cv.dataset.ldicon] ? cv.dataset.ldicon : 'appel', sp, false); } catch (e) {} }); }
+  const fk = myFruit + (go ? 'L' : '') + lang + '@' + iconPx('ld-pick', 36);
+  if (full || fr.dataset.k !== fk) { fr.dataset.k = fk; fr.innerHTML = ORDER.map(k => `<button type="button" data-ldf="${k}" class="${k === myFruit ? 'on' : ''}" ${go ? 'disabled' : ''} aria-label="${escH(tr(FRUITS[k].name))}"><canvas width="72" height="72" data-ldicon="${k}"></canvas></button>`).join(''); const kp = iconPx('ld-pick', 36); fr.querySelectorAll('canvas[data-ldicon]').forEach(cv => { try { menuIcon(iconCanvas(cv, kp), cv.dataset.ldicon, kp, false); } catch (e) {} }); }
   set('ld-pick', go ? `Je speelt met ${FRUITS[myFruit].name}` : `Jouw fruit: ${FRUITS[myFruit].name} · tik er een om te wisselen`);
   const away = L.m.find(s => !s.in && !s.me);
   if (L.state === 'wait') { set('ld-status', tap ? (other.in ? `${other.name} is er! Tik om mee te doen` : 'Tik om mee te doen') : away ? `Wachten op ${away.name} · nog ${ldMmss(away.away - now)}` : 'Even wachten…');
@@ -8974,7 +9100,7 @@ $('#gear-music').addEventListener('click', e => { const b = e.target.closest ? e
 const HOOK = window.dontsliceme = {
   difficulty, updateTricks,
   LVSND,
-  version: '0.32.5', freeze: false, /* v0.32.5 live duel */ /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.32.6', freeze: false, /* v0.32.6 big menu icons */ /* v0.32.5 live duel */ /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   get SEASON() { return curSeason(); }, // v0.30.3: the current season of the series
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
@@ -9446,7 +9572,7 @@ function frame(now) { const real = Math.min(50, now - last); last = now; if (!HO
 function boot(hot) {
   $('#ver').textContent = `Prototype v${HOOK.version} · geen echte aankopen`; /* v0.32.2: the real version in the settings (it said v0.30) */
   loadSave(); if (hot && hot.save && typeof hot.save === 'object') { Object.assign(save, hot.save); loadSave(); }
-  resize(); window.addEventListener('resize', resize); if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
+  resize(); window.addEventListener('resize', resize); iconResize(); window.addEventListener('resize', iconResize); if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
   try { if (document.fonts && document.fonts.load) { document.fonts.load(`700 34px ${FD}`).then(() => { board = null; }).catch(() => {}); } } catch (e) {}
   const m = /^#dag(\d{4})(\d{2})(\d{2})$/.exec(location.hash || ''); if (m) pendingDaily = `${m[1]}-${m[2]}-${m[3]}`;
   ldBoot(); // v0.32.5 live duel: before the invite link clears the address (?ld= / ?li= from a push)

@@ -57,6 +57,21 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.6: grotere icoontjes in de menu's
+
+- **Alles in de menu's is groter, het fruit het meest.** Zo zie je de stoned gezichtjes echt. Het fruit vult ook meer van
+  zijn vakje (een kwart groter). Een paar voorbeelden op een gewone telefoon: de fruitkaartjes bij Verzamel > Fruit van 44
+  naar 76 pixels (3 per rij), het grote fruit bij een fruit van 76 naar 128, "Je speelt als" van 40 naar 64, het fruit in
+  een beloning van 64 naar 112 (bij 2 tot 4 beloningen 92, bij meer 80), een fruit in het prijsvoorbeeld van 160 naar 224,
+  het fruit bij een vriend van 36 naar 56. Ook de knoppen onderaan, de hartjes, de stickers in het album, de prijsvakjes,
+  de stempels en het tandwiel zijn groter.
+- **Ook in de lobby van het live duel.** Het fruit van jou en je vriend is 56 pixels (was 36), de 20 fruitjes om uit te
+  kiezen 48 (was 36). Op een kleine of lage telefoon wat kleiner, zodat de knoppen onderaan zichtbaar blijven.
+- **Op een kleine telefoon** past alles nog: waar het niet past (een beloning met veel prijzen, het prijsvoorbeeld) kiest
+  de game zelf de grootste maat die past.
+- **Het spel zelf blijft precies hetzelfde.** Je fruit, de messen, het bord, de knopjes tijdens een ronde en het
+  doorzichtige fruit van je vriend in een live duel: geen pixel veranderd, en je fruit is even groot als altijd.
+
 ## Nieuw in v0.32.5: live vriendenduel
 
 - **Speel tegelijk met een vriend.** Bij Vrienden > Vrienden zie je een groen bolletje als je vriend nu online is. Tik op

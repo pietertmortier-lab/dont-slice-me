@@ -4,7 +4,7 @@
 <style>body{font:16px/1.55 system-ui,sans-serif;max-width:720px;margin:0 auto;padding:24px 16px;color:#222;background:#fff}h1,h2{line-height:1.2}hr{margin:32px 0;border:0;border-top:1px solid #ddd}.draft{border:2px dashed #c00;padding:10px 14px;background:#fff5f5}ul{padding-left:22px}</style></head>
 <body>
 <h1>Don't Slice Me! - Privacybeleid</h1>
-<p><em>Laatst bijgewerkt: 9 november 2026 (spelversie 0.32.2).</em></p>
+<p><em>Laatst bijgewerkt: 10 november 2026 (spelversie 0.32.5).</em></p>
 
 <h2>1. Wie is verantwoordelijk</h2>
 <p>Verwerkingsverantwoordelijke: Pieter T'Mortier, België. Contact voor alle vragen en verzoeken over je gegevens: <a href="mailto:dont.slice.me@gmail.com">dont.slice.me@gmail.com</a>.</p>
@@ -24,6 +24,12 @@
 
 <h2>6. Duels en toernooi</h2>
 <p>Speel je een duel, dan bewaren we je inzending: spelersnaam, score, speeltijd, level, fruit, de messen van dat duel en het pad van je fruit (de "schim"). Andere spelers van ongeveer jouw level kunnen later tegen die schim spelen; ze zien dan je naam, je fruit, je level en je score. Een schim bewaren we hoogstens 3 dagen, en per speler hoogstens 20. De naam van een schim op de server is een code, niet je id. Daag je een vriend uit, dan bewaren we het duel tot het beslist is. Toernooiscores bewaren we met je spelersnaam, level en divisie.</p>
+
+<h2>6a. Live vriendenduels</h2>
+<p>Speel je een live duel met een vriend, dan ziet die vriend tijdens het duel je fruit bewegen en je score, ongeveer 5 seconden vertraagd. Daarvoor stuurt je app elke 3 seconden je positie op het speelveld en je score naar de server; we bewaren die gegevens, de uitnodiging en de lobby ongeveer een tot twee dagen. Om te vaak uitnodigen tegen te gaan onthouden we bij je profiel per vriend wanneer je die het laatst uitnodigde en of die antwoordde. Je vrienden (en alleen je vrienden) zien een groen bolletje als je de game de laatste 90 seconden open had; daarvoor bewaren we het tijdstip waarop je app zich laatst meldde en of je een ronde speelde. Wil je dat niet, zet dan bij Instellingen "Vrienden zien dat ik online ben" uit. Van elk vriendenduel (live en de uitdaging van 24 uur) bewaren we de uitslag per vriendenpaar (gewonnen, verloren, gelijk) en hoeveel duels je won; dat zien alleen jij en die vriend. Om eerlijk te tellen bewaren we ook wanneer je account gemaakt is en op welke dagen van de laatste twee weken je speelde. Er is geen chat: je ziet van een ander alleen naam, fruit en score.</p>
+
+<h2>6b. Meldingen</h2>
+<p>Alleen als je het zelf aanzet (de game vraagt het eerst in een kaartje, daarna vraagt je toestel toestemming), stuurt de game een melding als een vriend je uitdaagt voor een live duel of in de lobby op je wacht. We bewaren daarvoor per toestel het adres dat je browser of toestel voor meldingen geeft (bij de app een token van Firebase Cloud Messaging), je taal en het tijdsverschil van je toestel. Tussen 21 en 8 uur (op je eigen toestel) sturen we geen uitnodigingen als melding, en hoogstens 3 per uur. Een melding bevat alleen de naam van je vriend en een willekeurige code, nooit je id. Meldingen lopen via de dienst van de maker van je browser of toestel (Google, Mozilla, Apple of Microsoft); op het web zijn ze versleuteld. Je zet ze uit bij Instellingen &rsaquo; Meldingen live duel, of in je browser of toestel; een adres dat niet meer werkt, of dat je app 60 dagen niet vernieuwde, verwijderen we.</p>
 
 <h2>7. Koppelcodes</h2>
 <p>Een koppelcode om een ander toestel te koppelen is 10 minuten geldig en daarna onbruikbaar. Na het koppelen bewaren we welk anoniem toestel-id bij welk profiel hoort.</p>
@@ -45,10 +51,10 @@
 <p>We verwerken je gegevens om het spel en zijn online functies (opslag, vrienden, duels, toernooi, koppelen) te leveren: artikel 6.1.b AVG. Voor gepersonaliseerde advertenties in de app vragen we je toestemming: artikel 6.1.a AVG. Die toestemming kun je altijd intrekken. Een knop daarvoor in de app komt later; tot dan kan het zo: wis in de instellingen van je toestel de gegevens van de app (kopieer eerst je opslagcode, want daarmee wis je ook je voortgang op het toestel). Bij de volgende start vraagt de app je keuze dan opnieuw. Je kunt ook in de instellingen van je toestel (Google &gt; Advertenties) je advertentie-ID opnieuw instellen of verwijderen. Vragen hierover kun je mailen naar <a href="mailto:dont.slice.me@gmail.com">dont.slice.me@gmail.com</a>.</p>
 
 <h2>13. Hoe lang we bewaren</h2>
-<p>Zolang je profiel bestaat, tot je vraagt om het te verwijderen. Koppelcodes vervallen na 10 minuten. Duelschimmen hoogstens 3 dagen; vriendschapsverzoeken vervallen na 2 weken. Van je online opslag bewaren we daarnaast per dag één kopie, hoogstens 7 dagen, zodat we een opslag die stukging kunnen terugzetten. Een vaste bewaartermijn voor profielen die niet meer gebruikt worden, bestaat nog niet; die komt er samen met een verwijderknop in het spel.</p>
+<p>Zolang je profiel bestaat, tot je vraagt om het te verwijderen. Koppelcodes vervallen na 10 minuten. Duelschimmen hoogstens 3 dagen; vriendschapsverzoeken vervallen na 2 weken. Van je online opslag bewaren we daarnaast per dag één kopie, hoogstens 7 dagen, zodat we een opslag die stukging kunnen terugzetten. Een vaste bewaartermijn voor profielen die niet meer gebruikt worden, bestaat nog niet; die komt er samen met een verwijderknop in het spel. Live duels, uitnodigingen en lobby's: ongeveer een tot twee dagen. Meldingsadressen: tot je ze uitzet, ze niet meer werken, of na 60 dagen zonder gebruik. Uitslagen tussen vrienden en je getelde overwinningen: zolang je profiel bestaat.</p>
 
 <h2>14. Verwijderen</h2>
-<p>Mail naar <a href="mailto:dont.slice.me@gmail.com">dont.slice.me@gmail.com</a> en vermeld je spelersnaam en je vriendencode. We verwijderen dan je profiel, je online opslag, je vriendschappen, je duelinzendingen en je toernooiscores. Een verwijderknop in het spel is er nog niet. Wat op je toestel staat, wis je zelf door de app te verwijderen of de browseropslag te wissen.</p>
+<p>Mail naar <a href="mailto:dont.slice.me@gmail.com">dont.slice.me@gmail.com</a> en vermeld je spelersnaam en je vriendencode. We verwijderen dan je profiel, je online opslag, je vriendschappen, je duelinzendingen, je toernooiscores, je meldingsadressen, je live duels, je uitslagen tegen vrienden en je getelde overwinningen. Een verwijderknop in het spel is er nog niet. Wat op je toestel staat, wis je zelf door de app te verwijderen of de browseropslag te wissen.</p>
 
 <h2>15. Leeftijd</h2>
 <p>Don't Slice Me! is bedoeld voor spelers van 13 jaar en ouder.</p>
@@ -62,7 +68,7 @@
 <hr>
 
 <h1>Don't Slice Me! - Privacy policy</h1>
-<p><em>Last updated: 9 November 2026 (game version 0.32.2).</em></p>
+<p><em>Last updated: 10 November 2026 (game version 0.32.5).</em></p>
 
 <h2>1. Who is responsible</h2>
 <p>Controller: Pieter T'Mortier, Belgium. Contact for every question or request about your data: <a href="mailto:dont.slice.me@gmail.com">dont.slice.me@gmail.com</a>.</p>
@@ -82,6 +88,12 @@
 
 <h2>6. Duels and the tournament</h2>
 <p>When you play a duel, we store your entry: player name, score, playing time, level, fruit, the knives of that duel and the path of your fruit (the "ghost"). Other players of about your level can later play against that ghost; they then see your name, your fruit, your level and your score. A ghost is kept for 3 days at most, and at most 20 per player. A ghost's name on the server is a code, not your id. When you challenge a friend, the duel is kept until it is decided. Tournament scores are stored with your player name, level and division.</p>
+
+<h2>6a. Live friend duels</h2>
+<p>When you play a live duel with a friend, that friend sees your fruit move and your score during the duel, about 5 seconds behind. Your app sends your position on the board and your score to the server every 3 seconds; we keep that data, the invite and the lobby for about one to two days. To prevent inviting too often we remember with your profile, per friend, when you last invited them and whether they answered. Your friends (only your friends) see a green dot when you had the game open in the last 90 seconds; for that we keep the time your app last checked in and whether you were playing a round. If you do not want that, switch off "Friends see when I'm online" in Settings. For every friend duel (live and the 24-hour challenge) we keep the result per pair of friends (won, lost, draw) and how many duels you won; only you and that friend see it. To count fairly we also keep when your account was made and on which days of the last two weeks you played. There is no chat: you only see another player's name, fruit and score.</p>
+
+<h2>6b. Notifications</h2>
+<p>Only if you switch them on (the game asks in a card first, then your device asks for permission) does the game notify you when a friend challenges you to a live duel or waits for you in the lobby. For that we keep, per device, the address your browser or device gives for notifications (in the app a Firebase Cloud Messaging token), your language and your device's time zone offset. Between 9 pm and 8 am (on your own device) we send no invites as notifications, and at most 3 an hour. A notification contains only your friend's name and a random code, never your id. Notifications go through the service of your browser's or device's maker (Google, Mozilla, Apple or Microsoft); on the web they are encrypted. Switch them off under Settings &rsaquo; Live duel notifications, or in your browser or device; an address that no longer works, or that your app did not renew for 60 days, is deleted.</p>
 
 <h2>7. Link codes</h2>
 <p>A link code for connecting another device is valid for 10 minutes and useless afterwards. After linking we store which anonymous device id belongs to which profile.</p>
@@ -103,10 +115,10 @@
 <p>We process your data to provide the game and its online features (saving, friends, duels, the tournament, linking): article 6.1.b GDPR. For personalised ads in the app we ask your consent: article 6.1.a GDPR. You can withdraw that consent at any time. A button for this in the app comes later; until then you can do it like this: clear the app's data in your device settings (copy your save code first, because this also wipes your progress on the device). At the next start the app asks for your choice again. You can also reset or delete your advertising ID in your device settings (Google &gt; Ads). Questions about this can be e-mailed to <a href="mailto:dont.slice.me@gmail.com">dont.slice.me@gmail.com</a>.</p>
 
 <h2>13. How long we keep it</h2>
-<p>As long as your profile exists, until you ask us to delete it. Link codes expire after 10 minutes. Duel ghosts 3 days at most; friend requests expire after 2 weeks. Of your online save we also keep one copy per day, for 7 days at most, so a save that broke can be restored. There is no fixed retention period yet for profiles that are no longer used; it will come together with a delete button in the game.</p>
+<p>As long as your profile exists, until you ask us to delete it. Link codes expire after 10 minutes. Duel ghosts 3 days at most; friend requests expire after 2 weeks. Of your online save we also keep one copy per day, for 7 days at most, so a save that broke can be restored. There is no fixed retention period yet for profiles that are no longer used; it will come together with a delete button in the game. Live duels, invites and lobbies: about one to two days. Notification addresses: until you switch them off, they stop working, or after 60 days without use. Results between friends and your counted wins: as long as your profile exists.</p>
 
 <h2>14. Deletion</h2>
-<p>E-mail <a href="mailto:dont.slice.me@gmail.com">dont.slice.me@gmail.com</a> with your player name and your friend code. We then delete your profile, your online save, your friendships, your duel entries and your tournament scores. There is no delete button in the game yet. What is on your device you delete yourself by removing the app or clearing the browser storage.</p>
+<p>E-mail <a href="mailto:dont.slice.me@gmail.com">dont.slice.me@gmail.com</a> with your player name and your friend code. We then delete your profile, your online save, your friendships, your duel entries, your tournament scores, your notification addresses, your live duels, your results against friends and your counted wins. There is no delete button in the game yet. What is on your device you delete yourself by removing the app or clearing the browser storage.</p>
 
 <h2>15. Age</h2>
 <p>Don't Slice Me! is meant for players aged 13 and up.</p>

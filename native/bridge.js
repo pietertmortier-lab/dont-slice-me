@@ -33,3 +33,23 @@
 
 // ---- Online features (tournament submissions, the player profile, friends) are handled by the game itself: see NET in
 // index.html, which signs in anonymously to Firebase and talks to the function in native/tourney. Nothing to configure here.
+
+// v0.32.5 live duel: push notifications in the app (Firebase Cloud Messaging through @capacitor/push-notifications). OFF until Pieter has
+// added google-services.json and the plugin (native/tourney/README.md, "Live friend duels and push"); then he sets FCM_READY = true and
+// rebuilds. This block has its own global window.FV_PUSH and never creates or changes the ad and purchase bridge above: the game treats
+// that object as "the store is ready".
+(async () => {
+  const FCM_READY = false; // Pieter: true only after google-services.json is in android/app and @capacitor/push-notifications is installed
+  const C = window.Capacitor; if (!FCM_READY || !C || !C.isNativePlatform || !C.isNativePlatform() || !(C.isPluginAvailable && C.isPluginAvailable('PushNotifications'))) return;
+  let PN = null; try { PN = (await import('@capacitor/push-notifications')).PushNotifications; } catch (e) { return; } if (!PN) return;
+  let token = '', reg = null; const waiters = [], got = v => { token = v || ''; waiters.splice(0).forEach(w => w(token)); if (!token) reg = null; };
+  PN.addListener('registration', t => got(t && t.value)); PN.addListener('registrationError', () => got(''));
+  PN.addListener('pushNotificationActionPerformed', a => { const d = (a && a.notification && a.notification.data) || {}, v = { k: String(d.k || ''), id: String(d.id || '') }; window.FV_PUSH_OPEN = v; window.dispatchEvent(new CustomEvent('fvpushopen', { detail: v })); });
+  PN.addListener('pushNotificationReceived', () => { window.dispatchEvent(new CustomEvent('fvpushopen', { detail: { k: 'poll' } })); }); // the app is open: no system notification, the game asks the server now and shows its own card
+  const register = () => reg || (reg = new Promise(ok => { waiters.push(ok); setTimeout(() => { ok(token); if (!token) reg = null; }, 10000); PN.register().catch(() => got('')); })); // a failed or slow registration may be tried again
+  try { await PN.createChannel({ id: 'liveduel', name: 'Live duels', description: 'Een vriend daagt je uit of wacht in de lobby', importance: 4, visibility: 1, vibration: true }); } catch (e) {}
+  window.FV_PUSH = { supported: true,
+    async enable() { try { let p = await PN.checkPermissions(); if (p.receive === 'prompt' || p.receive === 'prompt-with-rationale') p = await PN.requestPermissions(); return p.receive === 'granted' ? await register() : ''; } catch (e) { return ''; } }, // after the game's own card
+    async token() { try { const p = await PN.checkPermissions(); return p.receive === 'granted' ? await register() : ''; } catch (e) { return ''; } } }; // silent: never asks
+  try { if ((await PN.checkPermissions()).receive === 'granted') register(); } catch (e) {} // after a restart: the token exists again, so refresh and off keep working
+})();

@@ -57,6 +57,40 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.5: live vriendenduel
+
+- **Speel tegelijk met een vriend.** Bij Vrienden > Vrienden zie je een groen bolletje als je vriend nu online is. Tik op
+  zijn kaartje op **Live duel**. Je vriend krijgt meteen een kaartje in de game: **Speel**, **Niet nu** of **Nee, bedankt**.
+  Is zijn game dicht en zette hij meldingen aan, dan krijgt hij een melding. Een uitnodiging blijft 10 minuten staan.
+- **De lobby.** Tikt je vriend Speel, dan zit hij in de lobby. Jouw game opent de lobby vanzelf: tik op **Ik ben er** (of
+  ergens op het scherm). Is je game dicht en staan je meldingen aan, dan krijg je de melding "Lotte zit in de lobby!".
+  Speel je net een ronde, dan zie je bovenaan "Lotte wacht in de lobby · nog 1:42", en in de pauze staat de knop **Naar de
+  lobby**. Wie er na 2 minuten niet is, valt af en de lobby sluit.
+- **De start.** Zitten jullie er allebei, dan telt de lobby 15 seconden af (tijd om een fruit te kiezen: elk van de 20
+  gewone fruitsoorten mag, ook een die je nog niet hebt), of de host tikt **Start nu**. Na 3-2-1 spelen jullie tegelijk
+  dezelfde ronde: 90 seconden, level 10, dezelfde messen.
+- **Je ziet je vriend live.** Zijn fruit beweegt doorzichtig over jouw bord, met zijn naam en een lichtblauw randje,
+  ongeveer 5 seconden later dan echt. Zijn score staat bovenaan. Wordt hij gesneden, dan zie je dat ook.
+- **Pauze:** hoogstens 3 keer en samen 60 seconden; het bord is dan bedekt. Tijdens een ronde springt er nooit een kaartje
+  open: het wacht tot je ronde voorbij is.
+- **De server beslist** wie wint (meeste sap) en houdt jullie stand bij ("jij 3 – 1 Lotte"), ook bij de uitdaging van 24
+  uur. Startte je vriend niet op tijd, dan wordt jouw ronde een uitdaging van 24 uur voor hem. Met **Nog een keer** nodig je
+  hem meteen opnieuw uit.
+- **Vrienden > Duels** toont "Vriendenduels gewonnen: N · daarvan tellen mee: M". Een winst telt mee als de verliezer
+  minstens 30 seconden speelde, 5 sap haalde en niet stopte, jullie minstens 24 uur vrienden zijn, zijn account minstens een
+  week oud is, hij level 15 haalde en de laatste twee weken op minstens 3 dagen speelde (in de eerste dagen na deze versie
+  is 1 of 2 dagen genoeg). Hoogstens 3 per vriend per dag en 10 per dag in totaal; de dag begint om 7 uur. Prijzen hangen er
+  nog niet aan.
+- Live duels zijn onbeperkt en zonder sap. Kan je vriend niet, dan blijft **Daag uit (24 u)**.
+- **Meldingen:** de game vraagt het één keer in een kaartje; aan- en uitzetten bij Instellingen ("Meldingen live duel").
+  Geen uitnodigingen als melding tussen 21 en 8 uur, hoogstens 3 per uur. Op een iPhone alleen als de game op je
+  beginscherm staat. In de Android-app komen meldingen later.
+- **Online:** bij Instellingen kies je of vrienden zien dat je online bent.
+- Na "Nee, bedankt" wacht je 30 minuten voor je dezelfde vriend opnieuw uitnodigt, na twee keer nee tot de volgende dag. Na
+  twee uitnodigingen zonder antwoord aan dezelfde vriend kan de volgende pas 30 minuten later.
+- De server voor het live duel staat al online. Het privacybeleid zegt wat er bewaard wordt.
+- Testlijst voor twee telefoons: TESTLIJST-v0.32.5.md.
+
 ## Nieuw in v0.32.4: geen cosmetica meer
 
 - **Alles wat alleen uiterlijk was, is weg:** de 20 hoedjes (ook het Pannetje), de 8 bordskins, alle titels, de Kast, het

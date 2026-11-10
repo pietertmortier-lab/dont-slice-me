@@ -2875,7 +2875,7 @@ const SAVE_DEFAULTS = {
   videoDay: { day: '', n: {} }, sap: 0, best: 0, bestBy: {}, owned: ['appel'], fruit: 'appel', sound: true, music3: true, runs: 0, cubes: 0, level: 1, hearts: 5, heartsAt: 0, heartSlots: 0, shareDay: '', lang: '', kit: { zicht: 0, schil: 0, zeef: 0, hartjes: 0, mand: 0 }, unlimitedUntil: 0, simEur: 0,
   streak: 0, streakLast: '', streakClaimed: '', shields: 0, firstRunDay: '',
   missions: { day: '', list: [] }, daily: { day: '', played: false, best: 0, goals: '' }, chefStamps: 0, weekend: { week: '', cleared: false, best: 0, game: '' },
-  friendCode: '', pendingFriend: '', friends: { at: 0, list: [] }, profileAt: 0, duel: { day: '', played: false, score: 0, vs: '', vsName: '', vsScore: 0, result: '', pot: 0, stake: 0 }, challenges: { day: '', list: [] }, duelDay: { day: '', n: 0, ad: 0, adc: 0, tk: 0 }, duelTickets: 0, duelBack: false, duelPaid: {}, duelSeeds: [], duelPay: { day: '', n: 0 }, findable: true, friendReqs: { at: 0, in: [], out: [] }, friendDuels: { at: 0, list: [] }, rivals: { week: '', list: [], passed: [] }, season: { id: '', cleared: [], best: {}, done: false, prev: null }, seasonForms: {}, loserHatUntil: 0, kitchen: { lv: { plank: 0, oven: 0, koelkast: 0, vitrine: 0 }, at: 0, got: 0, tips: 0, tipped: {}, orders: { week: '', list: [] } }, unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
+  friendCode: '', pendingFriend: '', friends: { at: 0, list: [] }, profileAt: 0, duel: { day: '', played: false, score: 0, vs: '', vsName: '', vsScore: 0, result: '', pot: 0, stake: 0 }, challenges: { day: '', list: [] }, duelDay: { day: '', n: 0, ad: 0, adc: 0, tk: 0 }, duelTickets: 0, duelBack: false, duelPaid: {}, duelSeeds: [], duelPay: { day: '', n: 0 }, findable: true, friendReqs: { at: 0, in: [], out: [] }, friendDuels: { at: 0, list: [] }, ldStats: { won: 0, wins: 0, losses: 0, draws: 0, played: 0, distinct: 0, at: 0 }, ldAsked: false, ldHide: false, ldLast: { id: '', name: '', my: 0, their: 0, r: '', at: 0 }, ldPend: null, rivals: { week: '', list: [], passed: [] }, season: { id: '', cleared: [], best: {}, done: false, prev: null }, seasonForms: {}, loserHatUntil: 0, kitchen: { lv: { plank: 0, oven: 0, koelkast: 0, vitrine: 0 }, at: 0, got: 0, tips: 0, tipped: {}, orders: { week: '', list: [] } }, unlimitedBank: 0, xp: {}, hats: ['none'], hat: 'none', stickers: {}, pass: { season: '', xp: 0, premium: false, claimedFree: [], claimedPrem: [] }, noAds: false,
   stats: { bestCombo: 0, nearRun: 0, chefRun: 0, kitchens: {}, cutsBy: {}, cutBy: {}, fevers: 0, feverRun: 0, revenge: 0, duels: 0, duelWins: 0, rivalsPassed: 0, chapters: 0, kitchenSap: 0, ordersDone: 0, weekendWins: 0, missionsDone: 0, dailyPlayed: 0, bestStreak: 0, interDone: 0, solo: 0, ladderTop10: 0, revengeBest: 0 },
   stamps: {}, families: {}, titles: [], boards: [], board: '', startLevel: 0, bounty: { day: '', n: 0, k: '', claimed: false }, wheel: { day: '', result: '', ad: false },
   spins: 0, spinSalesOn: false, paidSpins: 0, seen: {}, fresh: {}, seenDay: {}, show: { title: '', pins: [], label: '' }, stkClaimed: {}, setClaimed: {}, albumMiles: {}, stkCtx: {}, albumFx: {}, albumFxOff: [], albumSince: '',
@@ -2904,7 +2904,7 @@ function loadSave(keep) { // keep: normalise the save in memory without reading 
   if (!Array.isArray(save.lampions)) save.lampions = []; save.lampions = save.lampions.filter(x => x && typeof x === 'object' && interOwn(x.k) && x.lv >= 1).map(x => Object.assign({ k: x.k, lv: Math.floor(x.lv) }, x.m > 0 && x.m < 1e3 ? { m: +x.m } : {})).slice(0, 3); // v0.32: the Lampionvrucht's saved minigames (a merge keeps the newer save's list); only real minigame keys (not 'constructor'); m: the sap multiplier of the run that saved it
   if (!save.friends || typeof save.friends !== 'object' || !Array.isArray(save.friends.list)) save.friends = { at: 0, list: [] }; if (typeof save.friendCode !== 'string') save.friendCode = ''; if (typeof save.pendingFriend !== 'string') save.pendingFriend = '';
   { const ob = v => !!v && typeof v === 'object' && !Array.isArray(v); // v0.32: new fields with defaults; a broken value (null, a string) gets the default
-    save.duelSeeds = Array.isArray(save.duelSeeds) ? save.duelSeeds.filter(x => typeof x === 'string').slice(-60) : []; delete save.duelHour; if (!ob(save.duelDay) || typeof save.duelDay.day !== 'string' || !(save.duelDay.n >= 0 && save.duelDay.ad >= 0 && save.duelDay.adc >= 0 && save.duelDay.tk >= 0)) save.duelDay = { day: '', n: 0, ad: 0, adc: 0, tk: 0 }; save.duelTickets = Math.max(0, Math.floor(+save.duelTickets) || 0); if (typeof save.duelBack !== 'boolean') save.duelBack = false; if (!ob(save.duelPaid)) save.duelPaid = {}; for (const k of Object.keys(save.duelPaid)) { const v = Math.floor(+save.duelPaid[k]) || 0; if (v > 0) save.duelPaid[k] = v; else delete save.duelPaid[k]; } /* v0.32.3: duels per day (the hourly window is gone), duel tickets and their catch-up (duelPaid: the tickets each album set paid, per set) */ if (!ob(save.duelPay) || !(save.duelPay.n >= 0)) save.duelPay = { day: '', n: 0 }; if (typeof save.findable !== 'boolean') save.findable = true;
+    save.duelSeeds = Array.isArray(save.duelSeeds) ? save.duelSeeds.filter(x => typeof x === 'string').slice(-60) : []; delete save.duelHour; if (!ob(save.duelDay) || typeof save.duelDay.day !== 'string' || !(save.duelDay.n >= 0 && save.duelDay.ad >= 0 && save.duelDay.adc >= 0 && save.duelDay.tk >= 0)) save.duelDay = { day: '', n: 0, ad: 0, adc: 0, tk: 0 }; save.duelTickets = Math.max(0, Math.floor(+save.duelTickets) || 0); if (typeof save.duelBack !== 'boolean') save.duelBack = false; if (!ob(save.duelPaid)) save.duelPaid = {}; for (const k of Object.keys(save.duelPaid)) { const v = Math.floor(+save.duelPaid[k]) || 0; if (v > 0) save.duelPaid[k] = v; else delete save.duelPaid[k]; } /* v0.32.3: duels per day (the hourly window is gone), duel tickets and their catch-up (duelPaid: the tickets each album set paid, per set) */ if (!ob(save.duelPay) || !(save.duelPay.n >= 0)) save.duelPay = { day: '', n: 0 }; if (typeof save.findable !== 'boolean') save.findable = true; { const S = save.ldStats && typeof save.ldStats === 'object' && !Array.isArray(save.ldStats) ? save.ldStats : {}; save.ldStats = {}; for (const k of ['won', 'wins', 'losses', 'draws', 'played', 'distinct', 'at']) save.ldStats[k] = Math.max(0, Math.floor(+S[k]) || 0); if (typeof save.ldAsked !== 'boolean') save.ldAsked = false; if (typeof save.ldHide !== 'boolean') save.ldHide = false; const L = save.ldLast; if (!L || typeof L !== 'object' || typeof L.name !== 'string') save.ldLast = { id: '', name: '', my: 0, their: 0, r: '', at: 0 }; else if (typeof L.id !== 'string') L.id = ''; const P = save.ldPend; if (!P || typeof P !== 'object' || typeof P.id !== 'string' || !/^[A-Z0-9]{12}$/.test(P.id)) save.ldPend = null; } /* v0.32.5 live duel: stats from the server, the opt-in card asked once, online status hidden or not, the last live duel, a final that has not arrived yet */
     if (!ob(save.friendReqs) || !Array.isArray(save.friendReqs.in) || !Array.isArray(save.friendReqs.out)) save.friendReqs = { at: 0, in: [], out: [] }; if (!ob(save.friendDuels) || !Array.isArray(save.friendDuels.list)) save.friendDuels = { at: 0, list: [] }; }
   if (!(save.hearts >= 0 && save.hearts <= maxHearts())) save.hearts = maxHearts();
   if (!(save.heartsAt > 0)) save.heartsAt = 0; if (!(save.unlimitedUntil > 0)) save.unlimitedUntil = 0; if (typeof save.unlDay !== 'string') save.unlDay = ''; if (!save.sapDay || typeof save.sapDay.day !== 'string' || !(save.sapDay.n >= 0)) save.sapDay = { day: '', n: 0 }; if (typeof save.dealPick !== 'string') save.dealPick = ''; if (typeof save.dealBought !== 'string') save.dealBought = ''; if (!(save.simEur >= 0)) save.simEur = 0;
@@ -3022,6 +3022,7 @@ function mergeSaves(base, other) { // base is the newer save and wins on setting
   { const okP = v => !!v && typeof v === 'object' && !Array.isArray(v), pb = okP(other.duelPaid) ? other.duelPaid : null; if (other.duelBack === true) base.duelBack = true; // v0.32.3: the duel tickets each album set paid, a union per set (never a set twice)
     if (pb) { const P = okP(base.duelPaid) ? base.duelPaid : (base.duelPaid = {}); let extra = 0; for (const k of Object.keys(pb)) { const v = Math.floor(+pb[k]) || 0; if (v > 0 && !(+P[k] > 0)) { P[k] = v; extra += v; } }
       if (extra) base.duelTickets = Math.max(0, Math.floor(+base.duelTickets) || 0) + Math.min(extra, Math.max(0, Math.floor(+other.duelTickets) || 0)); } } // tickets the other device got for sets this save never paid come along (at most what it still holds); otherwise tickets are like the wallet (the newer save's); a claimed set paid on neither pays at the next catch-up (duelBackPay)
+  { const a = base.ldStats, b = other.ldStats; if (b && typeof b === 'object') { if (!a || typeof a !== 'object') base.ldStats = Object.assign({}, b); else for (const k of ['won', 'wins', 'losses', 'draws', 'played', 'distinct', 'at']) a[k] = Math.max(+a[k] || 0, +b[k] || 0); } if (other.ldAsked === true) base.ldAsked = true; if (other.ldHide === true) base.ldHide = true; if (other.ldLast && (other.ldLast.at || 0) > ((base.ldLast && base.ldLast.at) || 0)) base.ldLast = other.ldLast; if (!base.ldPend && other.ldPend) base.ldPend = other.ldPend; } // v0.32.5 live duel: the counts never go down; the newer last duel wins
   if (Array.isArray(other.duelSeeds)) base.duelSeeds = Array.from(new Set([...(Array.isArray(base.duelSeeds) ? base.duelSeeds : []), ...other.duelSeeds])).slice(-60);
   { const a = base.duelPay, b = other.duelPay; if (b && typeof b === 'object' && b.day) { if (!a || typeof a !== 'object' || String(b.day) > String(a.day || '')) base.duelPay = { day: b.day, n: b.n || 0 }; else if (a.day === b.day) a.n = Math.max(a.n || 0, b.n || 0); } }
   { const ob = v => !!v && typeof v === 'object' && !Array.isArray(v); // v0.32.1 album: a union of the claimed keys (earliest day) and the looks; the diary lines of both
@@ -3316,7 +3317,7 @@ function perkKitchen() {
   if (inRun && G.mode !== 'normal') return 0;
   return Math.floor((Math.max(save.level, inRun ? G.level : 0) - 1) / 5) + (save.perkKeys || 0); // + keys bought in the shop
 }
-const hasPerk = k => perkKitchen() >= k;
+const hasPerk = k => !ldNoPerk() && perkKitchen() >= k; // v0.32.5: no kitchen perk counts in a same-round duel run (the hearts on its game-over stay as they are)
 const maxHearts = () => 5 + (save.heartSlots || 0) + (hasPerk(6) ? 1 : 0) + (hasPerk(10) ? 1 : 0) + (plusActive() ? 1 : 0);
 // ---- Don't Slice Me! Plus (simulated subscription): one switch, many small advantages, nothing a free player
 // cannot also earn. Month or year (no trial); cancelling keeps the hat and the skin.
@@ -3503,7 +3504,7 @@ subnav.addEventListener('click', e => { const b = e.target.closest ? e.target.cl
 navBuild();
 // Sheets that slide up from the bottom (the gear's settings, the kitchen perks). Opening one adds a history entry, so the back
 // button closes it instead of leaving the game; every screen change closes it.
-const SHEETS = ['gearbox', 'perkbox', 'stkbox', 'compbox'], MODALS = ['gearbox', 'perkbox', 'stkbox', 'compbox', 'prevbox', 'langbox', 'stormbox', 'confirm', 'askbox']; // v0.32.1: the sticker sheet and Aanpassen; v0.32.3: the in-game question
+const SHEETS = ['gearbox', 'perkbox', 'stkbox', 'compbox'], MODALS = ['gearbox', 'perkbox', 'stkbox', 'compbox', 'prevbox', 'langbox', 'stormbox', 'confirm', 'askbox', 'ldbox']; // v0.32.1: the sticker sheet and Aanpassen; v0.32.3: the in-game question
 function navPushModal() { // v0.32.0 review: a pop-up you open (a sheet, a preview, the language box, Level verlaten?, the storm cards) gets a history entry, a stacked one too
   const n = MODALS.filter(m => { const el = $('#' + m); return !!el && !el.hidden; }).length; try { const st = history.state; if (n && !(st && st.sheet >= n)) history.pushState({ s: curScreen, sheet: n }, ''); } catch (e) {}
 }
@@ -3533,6 +3534,7 @@ function menuTodo() {
   const rows = [], cl = claimables('all').filter(x => !x.held), n = claimCounts().all; // v0.32.0 review: the same N as the big bar and the red numbers
   if (n > 0) rows.push({ go: 'today', icon: 'today', t: `${n} beloning${n === 1 ? '' : 'en'} klaar`, s: 'Vandaag · Ontvang alles', tag: String(n) });
   if (!dailyPlayedToday()) rows.push({ go: 'games', icon: 'games', t: 'Mes van de dag', s: 'Spelen · Dagmes, nog niet gespeeld', tag: 'nieuw', y: 1 });
+  { const ldr = ldTodoRow(); if (ldr) rows.push(ldr); } // v0.32.5: a live invite or a waiting lobby
   const fd = friendDuelsIn(); if (fd.length) rows.push({ go: 'friends:duels', icon: 'friends', t: fd.length === 1 ? `${fd[0].otherName} daagt je uit` : `${fd.length} vrienden dagen je uit`, s: 'Vrienden · Duels' }); else if ((save.friendInbox || {}).duel > 0) rows.push({ go: 'friends:duels', icon: 'friends', t: 'Een vriend daagt je uit', s: 'Vrienden · Duels' }); /* v0.32.3: hello counted it, the list comes with friends */
   const t = TS(); if (t.result && !t.result.shown && !cl.some(x => x.kind === 'tourney')) rows.push({ go: 'tourney', icon: 'tourney', t: 'Uitslag van het toernooi', s: 'Spelen · Toernooi' });
   return rows.slice(0, 3);
@@ -3557,7 +3559,8 @@ function navBack() {
   if (G.state === 'dying') { try { history.pushState({ s: 'play' }, ''); } catch (e) {} return; }
   if (G.state === 'ad') { if (adBack) { const b = adBack; adBack = null; adThen = null; G.state = b.state; showScreen(b.screen); } else { try { history.pushState({ s: 'scr-ad' }, ''); } catch (e) {} } return; }
   if (G.state === 'play') { pause(); return; }
-  if (!$('#askbox').hidden) { askDone(false); return; } // v0.32.3: an in-game question closes first (Annuleer)
+  if (!$('#askbox').hidden) { askDone(false); return; }
+  if ($('#ldbox') && !$('#ldbox').hidden) { ldBack(); return; } // v0.32.5: the live-duel box (waiting: closes; lobby: Lobby verlaten?) // v0.32.3: an in-game question closes first (Annuleer)
   if (!$('#reward').hidden) { closeReward(); return; }
   if (!$('#langbox').hidden || !$('#confirm').hidden) { $('#langbox').hidden = true; $('#confirm').hidden = true; return; } // in a paused run you stay paused
   if (!$('#stormbox').hidden) { $('#stormbox').hidden = true; return; }
@@ -3783,21 +3786,22 @@ function duelDraw() { // the opponent's ghost, translucent, with its name
   ctx.globalAlpha = .85; ctx.font = `800 10px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.strokeText(d.opp.name, p.x, p.y + r + 6); ctx.fillStyle = '#e6c8ff'; ctx.fillText(d.opp.name, p.x, p.y + r + 6); ctx.restore();
 }
 function duelFinish(quit, died) { // the verdict, remember the duel, send the entry with the ghost. v0.30.4: no stake; v0.32: a win pays DUEL_WIN_SAP the first DUEL_PAID_DAY times a day; v0.32.3: only in public duels, and a challenge you send has no verdict yet
-  const d = G.duel; if (!d || G.duelOut) return; const my = G.sapRun, o = d.opp, next = d.next || {}, friendly = !!(next.to || next.challenge), solo = !!o.solo, won = !solo && my > o.score, tie = !solo && my === o.score, pay = won && !friendly && duelPaidLeft() > 0, pot = pay ? DUEL_WIN_SAP : 0;
+  const d = G.duel; if (!d || G.duelOut) return; const my = G.sapRun, o = d.opp, next = d.next || {}, friendly = !!(next.to || next.challenge), solo = !!o.solo, won = !solo && !next.live && my > o.score, tie = !solo && !next.live && my === o.score, pay = won && !friendly && duelPaidLeft() > 0, pot = pay ? DUEL_WIN_SAP : 0;
   if (pay) { save.sap += DUEL_WIN_SAP; duelPayDay().n++; }
   save.stats.duels = (save.stats.duels || 0) + 1; if (won) save.stats.duelWins = (save.stats.duelWins || 0) + 1;
   save.duel = { day: dayKey(), played: true, score: my, vs: o.uid || '', vsName: o.name, vsScore: o.score, result: solo ? 'sent' : won ? 'win' : tie ? 'tie' : 'loss', pot, stake: 0 };
   G.duelOut = { won, tie, stake: 0, pot, name: o.name, score: o.score, t: o.t, bot: !!o.bot, solo, friendly, chal: '', quit: !!quit, died: !!died, at: Math.round(G.t), to: next.to ? next.toName || 'je vriend' : '', challenge: next.challenge ? next.fromName || o.name : '' }; track('duel', { won, my, theirs: o.score });
   duelPost(d, my, o, next, !!quit);
 }
-function duelPost(d, my, o, next, quit) { // v0.32: a server with duel2 keeps every duel as a ghost with its seed; an older one keeps one entry a day on the day's knives
+function duelPost(d, my, o, next, quit) {
+  if (next.live) { ldEnd(quit); return; } // v0.32.5: a live duel's result comes from its own server actions // v0.32: a server with duel2 keeps every duel as a ghost with its seed; an older one keeps one entry a day on the day's knives
   if (!NET.on() || !save.name) { if (next.to) { duelNote = 'Je uitdaging is niet verstuurd: je bent offline.'; chalLine(duelNote); store(); } if (next.challenge) duelReply(null, Object.assign({}, next, { to: '' }), quit, my); return; }
   const v2 = NET.has('duel2'), seed = d.seed || dayKey(); if (!v2 && (seed !== dayKey() || quit)) return;
   const p = NET.call('duel', { day: dayKey(), seed, score: my, seconds: Math.max(1, Math.round(G.t / 1000)), level: save.level, fruit: G.fruit, name: save.name, ghost: quit ? '' : d.rec.join(','), t: Math.round(G.t), vs: o.uid || '', vsScore: o.score, vsGhost: o.id || '', quit, challenge: next.challenge || '', challengeTo: next.to || '' }, true);
   if (p && typeof p.then === 'function') p.then(r => duelReply(r, next, quit, my)).catch(() => {});
 }
 function chalLine(t) { const o = G.duelOut; if (!o || !o.solo) return; o.chal = t; const el = curScreen === 'scr-over' && G.mode === 'duel' ? $('#over-chal') : null; if (el) el.textContent = t; } // v0.32.3: the first line of a challenge's game-over follows the server's answer
-function duelReply(r, next, quit, my) { // v0.32 review: the notes go under Duels on Vrienden; a friend duel is only done when the server settled it
+function duelReply(r, next, quit, my) { ldFromServer(r || {}); ldChalResult(r, next); /* v0.32.5: a settled 24 h challenge brings the counted wins, the record and whether it counts */ // v0.32 review: the notes go under Duels on Vrienden; a friend duel is only done when the server settled it
   if (next.to) {
     const nm = next.toName || 'je vriend';
     if (r && r.ok && r.challenge) { const L = friendDuelList(), i = L.findIndex(c => c.id === r.challenge), c = { id: r.challenge, mine: 'from', other: next.to, otherName: next.toName || '', score: my, status: 'open', created: nowMs(), expires: nowMs() + CHALLENGE_H * 3600000 }; if (i >= 0) L[i] = c; else L.push(c); duelNote = `Uitdaging verstuurd! ${nm} speelt nu jouw messen. Je krijgt bericht als ${nm} gespeeld heeft.`; chalLine(`${nm} speelt nu jouw messen. Je krijgt bericht als ${nm} gespeeld heeft.`); }
@@ -3807,7 +3811,7 @@ function duelReply(r, next, quit, my) { // v0.32 review: the notes go under Duel
   if (next.challenge) { const c = friendDuelList().find(x => x.id === next.challenge); if (c) { c.status = r && r.ok && r.settled ? 'done' : 'playing'; if (c.status === 'done' && save.friendInbox && save.friendInbox.duel > 0) save.friendInbox.duel--; store(); } if (!(r && r.ok && r.settled)) duelNote = 'Je uitdaging is gespeeld; de uitslag volgt zodra de server hem heeft.'; }
   if (G.state === 'friends') renderFriends(); else updateHub(curScreen);
 }
-function duelQuitNote() { const o = G.duelOut; if (!o || !o.quit) return; if (o.solo) { showReward({ note: 'Duel' }, 'Uitdaging gestopt', `Je stopte, dus ${o.name} krijgt geen uitdaging. Daag opnieuw uit wanneer je wilt: vriendenduels zijn onbeperkt.`); return; } showReward(o.pot ? { sap: o.pot } : { note: 'Duel' }, 'Duel gestopt', `Je duel telt met ${G.sapRun} sap · ${o.name}: ${o.score} sap. ${o.won ? (o.pot ? `Gewonnen: +${o.pot} sap` : 'Gewonnen') : o.tie ? 'Gelijkspel' : 'Verloren'}.`); }
+function duelQuitNote() { const o = G.duelOut; if (!o || !o.quit) return; if (o.live) { ldQuitNote(); return; } if (o.solo) { showReward({ note: 'Duel' }, 'Uitdaging gestopt', `Je stopte, dus ${o.name} krijgt geen uitdaging. Daag opnieuw uit wanneer je wilt: vriendenduels zijn onbeperkt.`); return; } showReward(o.pot ? { sap: o.pot } : { note: 'Duel' }, 'Duel gestopt', `Je duel telt met ${G.sapRun} sap · ${o.name}: ${o.score} sap. ${o.won ? (o.pot ? `Gewonnen: +${o.pot} sap` : 'Gewonnen') : o.tie ? 'Gelijkspel' : 'Verloren'}.`); }
 const todayChallenges = () => (save.challenges && save.challenges.day === dayKey() && Array.isArray(save.challenges.list)) ? save.challenges.list : [];
 const canChallenge = f => NET.on() && !!save.name && (NET.has('duel2') ? f.v2 === true && !(NET.has('duel3') ? friendDuelOut(f.uid) : friendDuelOpen(f.uid)) : !todayChallenges().some(c => c.from === f.uid || c.to === f.uid)); // v0.32.3: friend duels are unlimited, one open challenge per direction (a v0.32 server: per pair); a friend on an older app cannot play one (f.v2 from the server)
 function applyNotes(notes) { // what the server tells me once: duel results, challenges, picks, rivals I passed or who passed me.
@@ -4434,7 +4438,7 @@ function openMenu() {
   menuSel = save.fruit; lateNotice(); buildMenu(); showScreen('scr-menu'); navHintCheck(); stkFlush();
 }
 function pause() { if (G.state !== 'play') return; G.state = 'pause'; drag = null; hubConfirm = ''; $('#pause-time').textContent = G.mode === 'duel' ? `Je zit op ${fmtTime(G.t)}. Stop je, dan telt je duel met ${G.sapRun} sap.` : `Je zit op ${fmtTime(G.t)}.`; $('#pause-music').textContent = save.music3 ? `Muziek: ${MUS.cur ? (MUS.FILES[MUS.cur.key] || MUS.cur.key).split('/').pop() + (MUS.cur.a.paused ? ' (gepauzeerd)' : '') : MUS.on ? 'ingebouwd deuntje' : 'geen'}` : 'Muziek: uit'; showScreen('scr-pause'); pauseBtn.hidden = true; }
-function resume() { if (G.state !== 'pause') return; G.state = 'play'; G.inv = Math.max(G.inv, 600); showScreen(null); pauseBtn.hidden = false; }
+function resume() { if (G.state !== 'pause') return; G.state = 'play'; G.inv = Math.max(G.inv, ldLive() ? 0 : 600); showScreen(null); pauseBtn.hidden = false; }
 function quitRun(toHub) { const dq = G.mode === 'duel' && !!G.duel && !G.duelOut; if (dq) duelFinish(true); recordRun(); if (dq && !toHub) duelHome(); else openMenu(); if (dq) duelQuitNote(); } // v0.32: a stopped duel counts with the sap so far and goes back to where it started
 
 // ---- Player. On a touch screen the fruit hangs LIFT units above the finger, so the finger never hides it or
@@ -4516,6 +4520,7 @@ function updateCubes(dt) {
   if (plant) { G.cubes.push({ x: plant.x, y: plant.y, vx: 0, vy: 0, ph: 0, r: 14, gold: true, rot: 0, dead: false, t: -5000, seed: true }); addText(plant.x, plant.y + 20, 'Zaadje geplant', '#4fa84a'); }
 }
 function updateSpawner(dt) {
+  if (ldSame()) { ldSpawn(dt); return; } // v0.32.5 live duel: knives, cubes and hazards from their own streams on the duel clock
   const d = difficulty();
   if (d.knives !== G.phase) { G.phase = d.knives; if (d.knives >= 2) { G.bossText = ['', '', 'Twee', 'Drie', 'Vier', 'Vijf'][d.knives] + ' messen tegelijk'; G.bossBanner = 2200; SFX.boss(); G.shake = 6; G.chefRun++; track('chef', G.chefRun); } }
   if (G.power && G.power.kind === 'rust' || G.mode === 'exam' || G.mode === 'knife') return;
@@ -4607,7 +4612,7 @@ function finishMode(died) {
     }
   }
   else if (WEEKEND[m]) { const wk = weekKey(); if (save.weekend.week !== wk) save.weekend = { week: wk, cleared: false, best: 0, game: m }; save.weekend.best = Math.max(save.weekend.best || 0, G.score); if (G.cleared && !save.weekend.cleared) { save.weekend.cleared = true; { const h0 = save.hearts; save.hearts = Math.min(maxHearts(), save.hearts + WEEKEND_HEARTS); G.weekendHearts = save.hearts - h0; save.sap += (WEEKEND_HEARTS - G.weekendHearts) * HEART_VALUE_SAP; } save.sap += 200; save.stats.weekendWins++; prize = true; track('weekend', m); } }
-  recordRun(); openOverMode(prize, bestDay, died);
+  recordRun(); openOverMode(prize, bestDay, died); if (G.duelOut && G.duelOut.live) ldOverPaint(); // v0.32.5 live duel
 }
 function openOverSpecial(m, prize, died) { // the duel's verdict or the chapter's result
   const f = fruitDef(); let title, time, badge = '', rec = '', level = '', share;
@@ -6369,6 +6374,7 @@ function drawHud() {
   else if (G.mode === 'exam') { line = `Chefs examen · golf ${Math.min(G.wave + 1, EXAM.length)} van ${EXAM.length}`; frac = G.wave / EXAM.length; }
   else if (G.mode === 'knife') { line = `Jij bent het mes · nog ${Math.max(0, Math.ceil((60000 - G.modeT) / 1000))} s · ${G.score}/${WEEKEND.knife.goal} fruitjes`; frac = G.score / WEEKEND.knife.goal; }
   else if (G.mode === 'daily') line = `${dayRuleNames() || 'Mes van de dag'} · level ${G.level} · ${G.levelSap}/${goal} sap`;
+  else if (G.mode === 'duel' && ldLive()) { line = ldHud(); frac = G.modeT / DUEL_MS; } // v0.32.5 live duel
   else if (G.mode === 'duel') { const ds = Math.max(0, Math.ceil((DUEL_MS - G.modeT) / 1000)); line = G.duel && G.duel.opp.solo ? `Uitdaging voor ${G.duel.opp.name} · nog ${ds} s · ${G.sapRun} sap` : `Duel · nog ${ds} s · ${G.sapRun} sap${G.duel ? ` · ${G.duel.opp.name}${G.duel.oppDead ? ': gesneden' : ''}` : ''}`; frac = G.modeT / DUEL_MS; } /* v0.32.3: a challenge you send names your friend all through the run */
   else if (G.mode === 'chef') { line = `De Chef · hoofdstuk ${G.chefChapter || 1} · nog ${Math.max(0, Math.ceil((CHEF_MS - G.modeT) / 1000))} s`; frac = G.modeT / CHEF_MS; }
   else if (G.mode === 'sapstorm') { line = `Sapstorm · nog ${Math.max(0, Math.ceil((STORM_ROUND - G.modeT) / 1000))} s · ${G.sapRun} sap`; frac = G.modeT / STORM_ROUND; }
@@ -6419,7 +6425,7 @@ function render() {
   if (G.state === 'dying' && G.death) { ctx.translate(G.death.x, G.death.y); ctx.scale(G.zoom, G.zoom); ctx.translate(-G.death.x, -G.death.y); }
   const po = plankOffset(); if (po) { ctx.drawImage(board, po, 0, W, H); ctx.drawImage(board, po - Math.sign(po) * W, 0, W, H); } else ctx.drawImage(board, 0, 0, W, H); // the sliding board shows its movement
   drawRoundLayer();
-  drawStains(); drawScars(); drawZones(); tourneyDraw(); duelDraw(); drawHazards(); drawHazardLabels(); drawLateFx(); drawSigns(); drawCherryRail(); /* late fruit: under the lines and knives, so it never hides a warning */ drawCubes(); drawSeekers(); drawDecoy(); drawDrop(); drawSlashes(0);
+  drawStains(); drawScars(); drawZones(); tourneyDraw(); duelDraw(); ldDraw(); drawHazards(); drawHazardLabels(); drawLateFx(); drawSigns(); drawCherryRail(); /* late fruit: under the lines and knives, so it never hides a warning */ drawCubes(); drawSeekers(); drawDecoy(); drawDrop(); drawSlashes(0);
   if (G.state !== 'menu') { if (G.mode === 'knife') drawAI(); else { drawPlayer(); if (G.state === 'play') drawPowerAura(); } }
   drawForkWarning(); // on top of the fruit: the fork strikes where you are, so its warning must not hide under you
   drawDebris(); drawParticles(); drawSlashes(1); drawLateTop(); drawTexts(); drawInset(); drawDayDark();
@@ -8143,7 +8149,7 @@ const NET = {
   },
   async hello() {
     this.capsFail = 0; const r = await this.call('hello', {}, false, 5000);
-    if (r && r.ok) { this.capsV = Array.isArray(r.caps) ? r.caps.map(String) : []; if (r.inbox && typeof r.inbox === 'object') { friendInbox(r.inbox); inboxNotes = Math.max(0, Math.floor(Number(r.inbox.notes)) || 0); } } /* v0.32.3: notes that wait (a challenge, a result) */
+    if (r && r.ok) { this.capsV = Array.isArray(r.caps) ? r.caps.map(String) : []; this.vapid = String(r.vapid || ''); /* v0.32.5: the public Web Push key */ if (r.inbox && typeof r.inbox === 'object') { friendInbox(r.inbox); inboxNotes = Math.max(0, Math.floor(Number(r.inbox.notes)) || 0); } } /* v0.32.3: notes that wait (a challenge, a result) */
     else if (this.lastErr && this.lastErr.action === 'hello' && this.lastErr.status >= 400 && this.lastErr.status < 500 && this.lastErr.status !== 401) this.capsV = [];
     else { this.capsFail = nowMs(); return null; } // no answer (offline, timeout, server down): the Friends tab says so; the next openFriends asks again
     this.capsAt = nowMs(); return this.capsV;
@@ -8221,9 +8227,9 @@ function friendDuelList() { const d = save.friendDuels; if (d && typeof d === 'o
 function friendDuelsIn() { const now = nowMs(); return friendDuelList().filter(c => c && c.mine === 'to' && c.status === 'open' && !(c.expires > 0 && c.expires < now)); }
 function friendDuelOpen(uid) { const now = nowMs(); return friendDuelList().some(c => c && c.other === uid && c.status === 'open' && !(c.expires > 0 && c.expires < now)); }
 function friendInbox(x) { const n = { req: Math.max(0, Math.floor(Number(x.req)) || 0), duel: Math.max(0, Math.floor(Number(x.duel)) || 0) }, old = save.friendInbox || {}; if (n.req > (old.req || 0)) markFresh('vrienden'); if (n.duel > (old.duel || 0)) markFresh('duels'); save.friendInbox = n; }
-function friendsBadge() { const ib = save.friendInbox || {}; return friendReqs().in.length > 0 || friendDuelsIn().length > 0 || ib.req > 0 || ib.duel > 0 || (!NET.has('duel2') && todayChallenges().some(c => c.mine === 'to' && !c.resolved && !c.toPlayed)); }
+function friendsBadge() { const ib = save.friendInbox || {}; return ldBadge() || friendReqs().in.length > 0 || friendDuelsIn().length > 0 || ib.req > 0 || ib.duel > 0 || (!NET.has('duel2') && todayChallenges().some(c => c.mine === 'to' && !c.resolved && !c.toPlayed)); }
 const escH = v => String(v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const profilePayload = () => { const t = TS(), wk = weekKey(); return { findable: save.findable !== false, fruit: save.fruit, name: save.name || '', level: save.level, best: save.best, fruits: save.owned.slice(), kitchen: kitchenPayload(), streak: save.streak, runs: save.runs, stamps: 0, division: tourneyDivision(), weekKey: wk, weekEv: curEvent(), weekScore: t.week === wk ? tourneyScoreNow() : 0, pv: 33 }; }; // v0.32.3: pv 33 = this client polls for challenges and shows them as in-game cards
+const profilePayload = () => { const t = TS(), wk = weekKey(); return { findable: save.findable !== false, fruit: save.fruit, name: save.name || '', level: save.level, best: save.best, fruits: save.owned.slice(), kitchen: kitchenPayload(), streak: save.streak, runs: save.runs, stamps: 0, division: tourneyDivision(), weekKey: wk, weekEv: curEvent(), weekScore: t.week === wk ? tourneyScoreNow() : 0, pv: 33, lv: 1 }; }; // v0.32.5: lv 1 = this client plays live duels // v0.32.3: pv 33 = this client polls for challenges and shows them as in-game cards
 const profileSignature = () => [save.name, save.findable !== false, save.level, save.best, save.owned.length, save.streak, kitchenLevels(), save.fruit, save.runs, TS().best, TS().vorken, weekKey()].join('|');
 let profileSig = '', netBusy = false, netLast = 0, friendNote = '', friendOpen = '', friendQ = '', friendCodeIn = '', friendFind = { list: null, msg: '', busy: false };
 async function syncProfile(force) {
@@ -8246,7 +8252,7 @@ async function fetchFriends() {
   if (r.requests && typeof r.requests === 'object') { const arr = v => (Array.isArray(v) ? v : []).filter(p => p && p.ref).slice(0, 30), had = new Set(friendReqs().in.map(p => p.ref)); save.friendReqs = { at: nowMs(), in: arr(r.requests.in), out: arr(r.requests.out) }; if (save.friendReqs.in.some(p => !had.has(p.ref))) markFresh('vrienden'); } // v0.32
   if (Array.isArray(r.duels2)) { const had = new Set(friendDuelsIn().map(c => c.id)); save.friendDuels = { at: nowMs(), list: r.duels2.filter(c => c && c.id).slice(0, 40) }; if (friendDuelsIn().some(c => !had.has(c.id))) markFresh('duels'); } // v0.32.0: a new challenge lights Vrienden > Duels
   if (r.requests && Array.isArray(r.duels2)) save.friendInbox = { req: friendReqs().in.length, duel: friendDuelsIn().length }; // v0.32 review: the badge follows what really waits
-  inboxNotes = 0; applyNotes(r.notes); chalCards(); // v0.32.3: an open challenge without a card yet shows one (Speel / Later)
+  ldFromServer(r); /* v0.32.5: the server's counted wins win */ inboxNotes = 0; applyNotes(r.notes); chalCards(); // v0.32.3: an open challenge without a card yet shows one (Speel / Later)
   for (const rw of r.rewards || []) { if (rw && rw.sap > 0) { save.sap += rw.sap; showReward({ sap: rw.sap }, `Nieuwe vriend: ${rw.from || '?'}`, 'Vriendenbonus: jullie krijgen allebei sap'); } }
   store(); return r;
 }
@@ -8257,12 +8263,12 @@ function netTick() { // when the menu opens: a cheap, throttled profile sync plu
 const agoText = ms => { if (!(ms > 0)) return ''; const d = Math.floor((nowMs() - ms) / 86400000); return d <= 0 ? 'vandaag' : d === 1 ? 'gisteren' : `${d} dagen geleden`; };
 function friendRow(f, top) {
   const theirs = (f.fruits || []).filter(k => FRUITS[k]), mine = new Set(save.owned), missing = theirs.filter(k => !mine.has(k)).map(k => FRUITS[k].name), nm = escH(f.name);
-  const head = `<div class="mrow" data-friend="${escH(f.uid)}" style="cursor:pointer"><div class="mt"><b>${nm}</b>${top && f.uid === top.uid ? ' \u{1F451}' : ''}<div class="small">Level ${f.level} · record ${fmtTime(f.best || 0)} · ${theirs.length}/${ORDER_ALL.length} fruit · reeks ${f.streak || 0}</div></div><div class="small">${agoText(f.last)}</div></div>`;
+  const head = `<div class="mrow" data-friend="${escH(f.uid)}" style="cursor:pointer"><div class="mt"><b>${nm}</b>${top && f.uid === top.uid ? ' \u{1F451}' : ''}${ldDot(f)}${ldRecHTML(f)}<div class="small">Level ${f.level} · record ${fmtTime(f.best || 0)} · ${theirs.length}/${ORDER_ALL.length} fruit · reeks ${f.streak || 0}</div></div><div class="small">${agoText(f.last)}</div></div>`;
   if (friendOpen !== f.uid) return head;
   const line = (label, a, b) => `<div class="mrow"><div class="mt">${label}</div><div class="small">jij ${a} · ${nm}: ${b}</div></div>`;
   return head + `<div style="padding:4px 8px 8px;margin:0 0 6px 6px;border-left:2px solid #ffd54a">` + line('Level', save.level, f.level) + line('Record', fmtTime(save.best), fmtTime(f.best || 0)) + line('Fruit', save.owned.length, theirs.length) + line('Dagreeks', save.streak, f.streak || 0) + line('Pogingen', save.runs, f.runs || 0) +
     (f.division && DIV_NAME[f.division] ? line('Divisie', DIV_NAME[tourneyDivision()], DIV_NAME[f.division]) : '') +
-    `<div class="small">${missing.length ? `${nm} heeft al: ${missing.join(', ')}` : `Jij hebt al het fruit dat ${nm} heeft.`}</div><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><button class="btn primary${NET.has('duel2') ? ' duelfr' : ''}" data-challenge="${escH(f.uid)}" data-ok="${canChallenge(f) ? '1' : '0'}" ${canChallenge(f) && !(NET.has('duel2') && duelSearch) ? '' : 'disabled'}>Daag uit voor een duel</button><button class="btn ghost" data-unfriend="${escH(f.uid)}">Verwijderen</button></div>${NET.has('duel2') && f.v2 !== true ? `<div class="small">${nm} heeft nog een oudere versie van de game; uitdagen kan zodra ${nm} bijwerkt.</div>` : NET.has('duel2') && NET.has('duel3') && friendDuelOut(f.uid) ? `<div class="small">Je uitdaging voor ${nm} staat open; zodra ${nm} gespeeld heeft, kun je opnieuw uitdagen.</div>` : NET.has('duel2') && !NET.has('duel3') && friendDuelOpen(f.uid) ? '<div class="small">Er staat een uitdaging open tussen jullie; zodra die gespeeld is, kun je opnieuw uitdagen.</div>' : ''}</div>`;
+    `<div class="small">${missing.length ? `${nm} heeft al: ${missing.join(', ')}` : `Jij hebt al het fruit dat ${nm} heeft.`}</div><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap">${ldFriendBtn(f)}<button class="btn primary${NET.has('duel2') ? ' duelfr' : ''}" data-challenge="${escH(f.uid)}" data-ok="${canChallenge(f) ? '1' : '0'}" ${canChallenge(f) && !(NET.has('duel2') && duelSearch) ? '' : 'disabled'}>${ldOn() ? 'Daag uit (24\u00a0u)' : 'Daag uit voor een duel'}</button><button class="btn ghost" data-unfriend="${escH(f.uid)}">Verwijderen</button></div>${ldFriendNote(f)}${NET.has('duel2') && f.v2 !== true ? `<div class="small">${nm} heeft nog een oudere versie van de game; uitdagen kan zodra ${nm} bijwerkt.</div>` : NET.has('duel2') && NET.has('duel3') && friendDuelOut(f.uid) ? `<div class="small">Je uitdaging voor ${nm} staat open; zodra ${nm} gespeeld heeft, kun je opnieuw uitdagen.</div>` : NET.has('duel2') && !NET.has('duel3') && friendDuelOpen(f.uid) ? '<div class="small">Er staat een uitdaging open tussen jullie; zodra die gespeeld is, kun je opnieuw uitdagen.</div>' : ''}</div>`;
 }
 async function findPlayers(q) { // v0.32: search a username; the server answers with name, level, fruit and a tag only
   const k = nameKey(q); friendQ = String(q || '').slice(0, 16); if (k.length < 2) { friendFind = { list: null, msg: 'Typ minstens 2 letters.', busy: false }; renderFriends(); return null; }
@@ -8328,7 +8334,7 @@ function renderFriends() {
     (!fdRows && !ch.length ? '<div class="small">Geen open uitdagingen.</div>' : '') + `${prizes}<details class="how"><summary>Hoe werkt het?</summary><div class="rules"><b>Hoe:</b> 90 seconden vanaf level 10; score = sap. Elk duel nieuwe messen: je speelt tegen de schim van een speler van jouw niveau die dezelfde messen kreeg, of tegen De Chef als er niemand is.<br><b>Hoeveel:</b> ${DUEL_FREE_DAY} openbare duels per dag (nieuwe om 7 uur), plus ${DUEL_AD_DAY} na een filmpje en dueltickets: samen hoogstens ${DUEL_DAY_MAX} per dag. Kost geen hartje.<br><b>Dueltickets:</b> 1 extra openbaar duel per ticket, hoogstens ${DUEL_TICKET_DAY} per dag. Je krijgt ze alleen voor volle albums: ${duelTicketHow()} (Verzamel › Album). Ze blijven bewaard tot je ze gebruikt.<br><b>Prijs:</b> geen inzet; win je, dan krijg je ${DUEL_WIN_SAP} sap (de eerste ${DUEL_PAID_DAY} winsten per dag, alleen in openbare duels).<br><b>Eerlijk:</b> ${DUEL_FAIR}<br><b>Vrienden:</b> daag ze uit vanaf hun kaartje onder Vrienden: onbeperkt en zonder sap, zodat niemand sap kan sparen met een vriend.</div></details></div></div>`;
   const rv = save.rivals && save.rivals.week === weekKey() ? save.rivals : { list: [], passed: [] }, rivals = `<div class="sec" id="fsec-rivals" data-fv="rivalen"><h3>${ico('games')}Rivalen van de week</h3><div class="small">Twee spelers die net boven je staan. Haal ze in en je krijgt ${RIVAL_SAP} sap; zij krijgen het te horen. Elke maandag nieuwe rivalen.</div>${prizeStrip([{ r: { sap: RIVAL_SAP }, when: 'per ingehaalde rivaal' }], 'Te winnen:')}` +
     (rv.list.length ? rv.list.map(r => { const left = r.level - save.level + 1; return `<div class="mrow"><div class="mt"><b>${escH(r.name)}</b><div class="small">Level ${r.level} · record ${fmtTime(r.best || 0)}</div></div><div class="small">${rv.passed.includes(r.uid) || save.level > r.level ? 'ingehaald ✓' : `nog ${left} level${left === 1 ? '' : 's'}`}</div></div>`; }).join('') : `<div class="small">${online ? 'Nog geen rivalen gevonden: speel verder, ze komen eraan.' : 'Rivalen verschijnen zodra je online bent.'}</div>`) + `</div>`;
-  const body = $('#friends-body'); body.innerHTML = add + reqs + duels + `<div class="sec" id="fsec-list" data-fv="vrienden"><h3>${ico('kaart')}Vrienden (${list.length})</h3>${chase}${rows}</div>` + rivals + week;
+  const body = $('#friends-body'); body.innerHTML = add + reqs + ldSection() + duels + `<div class="sec" id="fsec-list" data-fv="vrienden"><h3>${ico('kaart')}Vrienden (${list.length})</h3>${chase}${rows}</div>` + rivals + week;
   body.querySelectorAll('[data-fv]').forEach(sec => { sec.hidden = sec.dataset.fv !== friendsView; }); // v0.32.0: one screen, three sub-tabs; only the open one's parts show
   body.querySelectorAll('canvas[data-ficon]').forEach(cv => { try { renderIcon(cv.getContext('2d'), cv.dataset.ficon, 36, false); } catch (e) {} }); paintPrizes(body); // v0.32 review: the prizes of Vrienden as tiles with a preview
   const fd = $('#btn-duel'); if (fd) fd.addEventListener('click', () => { if (duelSearch || !duelCanPublic()) return; SFX.click(); startDuel(duelsLeft() > 0 ? {} : { pay: 'ad' }); }); // v0.32: the button follows the search (duelPaint); v0.32.3: or plays a watched video's duel
@@ -8433,6 +8439,402 @@ async function netPoll(force) { // force: at start and back in the foreground (a
   } catch (e) { return null; } finally { pollBusy = false; }
 }
 setInterval(() => { if (!HOOK.pollOff) netPoll(); }, 30000);
+// ---- v0.32.5 live friend duel (Pieter, 9 November 2026: "ik wil ook dat een vriendenduel 1 tegen 1 live is ... en dan wil ik Evy zien
+// spelen terwijl ik speel"). You invite a friend from their card; the friend accepts, lets it wait or refuses; on accept both come into a
+// small lobby; whoever is not there gets a push and has 2 minutes, then the lobby closes. Both in: the lobby counts down 15 s (or the host
+// starts), 3-2-1 on the server clock, and both play the same round at the same moment, each seeing the other's fruit live (5 s behind).
+// The server decides the winner from both scores and keeps the head-to-head record and the counted wins. No sap: friend duels are for
+// status. Everything here is new; the old code only calls in at a few marked places. Only in-game cards, except the one opt-in push.
+// No card or question ever opens during a run: every live card goes through ldShow, which queues it until the player is on a menu.
+const LD_LEVEL = DUEL_LEVEL, LD_RUN_MS = DUEL_MS, LD_BEAT_MS = 3000, LD_VIEW_MS = 5000, LD_STALE_MS = 10000, LD_LATE_MS = 12000, LD_PAUSE_MS = 60000, LD_PAUSES = 3, LD_RES_MS = 300000, LD_PEND_MS = 600000, LD_PROTO = 1, LD_PTS = 30, LD_EV_WARN_MS = 1500, LD_RES_GAP_MS = 3000;
+const LD_POLL = { menu: 10000, idle: 60000, run: 30000, want: 10000, wait: 3000, lobby: 2000, after: 3000, friends: 30000, friendsMany: 60000 };
+let ldSkew = 0, ldRtt = 1e9, ldPollAt = 0, ldPollBusy = false, ldTouch = 0, ldBootAt = 0, ldInv = null, ldOut = null, ldLob = null, ldLobId = '', ldLobBusy = false, ldLobFail = 0, ldWantLobby = '', ldWantAway = 0, ldWantName = '', ldRun = null, ldAfter = 0;
+let ldFriendsAt = 0, ldFriendsOk = 0, ldFruitPick = '', ldBoxMode = '', ldSig = '', ldManual = false, ldPermAsk = false, ldPermP = null, ldRefreshAt = 0;
+const ldCarded = new Set(), ldShut = new Set(), ldFlight = new Set(), ldLater = [];
+const ldNow = () => nowMs() + ldSkew; // the server clock
+const ldBusyRun = () => !!ldRun && !ldRun.fin && !ldRun.res; // a live run that is being played
+const ldOn = () => NET.on() && !!save.name && NET.has('live'); // the server knows live duels (HOOK.ldOff only stops the polling loop, for tests)
+function ldSame() { const d = G.mode === 'duel' && G.duel; return !!d && ((!!d.next && !!d.next.live) || (!!d.opp && d.opp.same === 1)); } // the same round for both: a live duel, or the 24 h challenge made from a live no-show
+function ldNoPerk() { return ldSame() && ['play', 'dying', 'continue', 'ad', 'pause'].includes(G.state); } // only during the run itself
+function ldLive() { return G.mode === 'duel' && !!G.duel && !!G.duel.next && !!G.duel.next.live; } // a live duel itself (HUD, live view, pause rule, result)
+const ldMmss = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const ldClean = v => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+const ldFruitOk = k => !!k && !!FRUITS[k] && ORDER.includes(k); // the 20 classic fruits, lent for the round
+const ldPickDefault = () => ldFruitOk(save.fruit) ? save.fruit : 'appel';
+async function ldCall(a, d, ms) { // a live call: never blocked by (and never causing) the 30 s pause other calls take after a network error; every answer sets the clock
+  if (!NET.on()) return null; const keep = NET.failedAt, t0 = nowMs(); NET.failedAt = 0; let r = null;
+  try { r = await NET.call(a, d, false, ms || 5000); } catch (e) { r = null; } finally { NET.failedAt = keep; }
+  const t1 = nowMs(); if (r && r.now > 0) { const rtt = Math.max(1, t1 - t0), est = r.now - (t0 + t1) / 2; ldRtt = Math.min(ldRtt * 1.1, 60000); if (rtt <= ldRtt || Math.abs(est - ldSkew) > rtt / 2 + 1000) { ldRtt = rtt; ldSkew = est; } } // the answer with the shortest round trip wins (half the trip each way); a clock that jumped is taken at once
+  return r;
+}
+// -- the same round for both: own seeded streams per kind, the timer draw first, the pace on the duel clock (level 10, no perks, no nemesis)
+function ldSub(tag, i, fn) { const keep = R; R = mulberry(hashStr(G.duelSeed + ':' + tag + ':' + i)); try { return fn(); } finally { R = keep; } }
+function ldAt(fn) { const L = G.level, T = G.levelT; G.level = LD_LEVEL; G.levelT = G.modeT; try { return fn(); } finally { G.level = L; G.levelT = T; } }
+function ldInitRun() { G.nextSlash = G.nextCube = G.nextHazard = 1e12; G.nemesis = ''; return { k: 0, kAt: 2000, c: 0, cAt: 1500, h: 0, hLeft: 14000, phase: 1, acc: 0, pts: [] }; } // the old spawners never fire; no nemesis (it would slow one player's knives and pay him 200 sap)
+function ldSpawn(dt) { // called by updateSpawner in a same-round run: knives, cubes and hazards, and the path recorder; the state lives on G.duel, which every startRun makes new
+  const L = G.duel.ld || (G.duel.ld = ldInitRun()), t = G.modeT + dt; // modeT moves after the spawner (updateMode): look at the end of this frame
+  const d0 = ldAt(() => difficulty());
+  if (d0.knives !== L.phase) { L.phase = d0.knives; if (d0.knives >= 2) { G.bossText = ['', '', 'Twee', 'Drie', 'Vier', 'Vijf'][d0.knives] + ' messen tegelijk'; G.bossBanner = 2200; SFX.boss(); G.shake = 6; G.chefRun++; track('chef', G.chefRun); } }
+  while (t >= L.kAt) { const i = L.k++; ldSub('k', i, () => ldAt(() => { const d = difficulty(); L.kAt += PACE.interval(LD_LEVEL) * (1 - .2 * clamp(G.modeT / 60000, 0, 1)) * rndR(.78, 1.22); spawnPattern(d, null, 0); })); } // the timer draw first, on the base pace: a power (Stroop, Lepel) changes the blades, never when the next pattern comes
+  while (t >= L.cAt) { const i = L.c++; ldSub('c', i, () => { L.cAt += rndR(2600, 4200) * modeCubeRate() * Math.max(.45, 1 - .0055 * (LD_LEVEL - 1)); const gold = R() < Math.min(.3, .15 + .0015 * (LD_LEVEL - 1)), e = edgeSpawn(rndR(34, 46), 24), rot = rndR(-.3, .3);
+    if (!G.inter && G.cubes.length < cubeCap()) G.cubes.push(Object.assign(e, { ph: Math.random() * TAU, r: gold ? 14 : 11, gold, rot, dead: false, t: 0, ld: i })); }); } // a full board skips this cube; the next one is still the same for both
+  if (!G.hazards.length) { L.hLeft -= dt; if (L.hLeft <= 0) { const i = L.h++; ldSub('h', i, () => ldAt(() => { L.hLeft = Math.max(9000, 16000 - 50 * LD_LEVEL) * rndR(.8, 1.3); spawnHazard(null); })); } }
+  L.acc += dt; while (L.acc >= GHOST_STEP) { L.acc -= GHOST_STEP; if (L.pts.length < 470 * 3) L.pts.push(Math.round(G.px), Math.round(G.py * 1000 / H), G.sapRun); } // x in board units, y in thousandths of the board height, the score
+}
+// -- cards: never during a run, never over the lobby or an open question; they wait in a small queue
+const ldCardOk = () => !duelBusy() && ldBoxMode !== 'lobby' && !askOpen();
+function ldShow(fn, key, ask) { if (key && ldLater.some(q => q.key === key)) return; if (ldCardOk()) { if (!ask && ldBoxMode === 'wait') ldBoxClose(); fn(); } else if (ldLater.length < 8) ldLater.push({ fn, key, ask: !!ask }); } // ask: an askBox card, which sits above #ldbox, so the waiting box may stay open
+// -- presence and the inbox
+function ldTick() {
+  const so = $('#scr-over'); if (so && so.classList.contains('ld-over') && !(curScreen === 'scr-over' && G.duelOut && G.duelOut.live)) so.classList.remove('ld-over'); // the live game-over's button style never reaches another game-over
+  if (!ldOn()) return; const now = nowMs();
+  if (ldLater.length && ldCardOk()) { const q = ldLater.shift(); if (!q.ask && ldBoxMode === 'wait') ldBoxClose(); try { q.fn(); } catch (e) { console.warn('ld card', e); } }
+  if (document.hidden) return;
+  if (now - ldRefreshAt >= 60000) { ldRefreshAt = now; ldPushRefresh(); }
+  const gb = $('#gearbox'); if (gb && !gb.hidden) ldGearPaint();
+  const go = $('#btn-ldgo'); if (go) go.hidden = !(ldWantLobby && G.state === 'pause' && !ldLive());
+  if (ldRun && ldRun.res && !(curScreen === 'scr-over' && G.duelOut && G.duelOut.live)) ldRun = null; // the result was shown: back to presence polling (3 s for a minute: a rematch comes fast)
+  if (ldRun && !ldRun.res) { ldRunTick(now); if (!ldRun || !ldRun.fin) return; } // during the live run only its own calls; after my end the presence goes on
+  if (ldLobId) { if (now - ldPollAt >= LD_POLL.lobby) ldPollLobby(); ldPaint(); return; }
+  if (ldWantLobby) { if (duelBusy()) { G.note = `${ldWantName} wacht in de lobby · nog ${ldMmss(ldWantAway - ldNow())}`; G.noteT = 1200; } else { const id = ldWantLobby; ldWantLobby = ''; ldEnter(id, null, false); return; } }
+  if (ldBoxMode === 'wait') ldPaint();
+  if (!save.friends.list.length && !ldOut && !ldInv && !ldWantLobby) return; // nobody can invite you yet: no presence calls
+  const run = duelBusy(), act = Math.max(ldTouch, ldBootAt), gap = ldBoxMode === 'wait' ? LD_POLL.wait : run ? (ldWantLobby ? LD_POLL.want : LD_POLL.run) : now < ldAfter ? LD_POLL.after : now - act > 300000 ? LD_POLL.idle : LD_POLL.menu;
+  if (now - ldPollAt >= gap) ldPoll(run);
+  if (G.state === 'friends' && friendsView === 'vrienden' && now - ldFriendsAt >= (save.friends.list.length > 20 ? LD_POLL.friendsMany : LD_POLL.friends)) ldFriends();
+}
+async function ldPoll(busy) {
+  if (ldPollBusy) return null; ldPollBusy = true; ldPollAt = nowMs();
+  try { const r = await ldCall('ldpoll', { busy: !!busy, lang, hide: !!save.ldHide }, 5000); if (r && r.ok) ldOnPoll(r); return r; } finally { ldPollBusy = false; }
+}
+function ldOnPoll(r) {
+  const inv = r.inv && r.inv.id && r.inv.exp > ldNow() ? r.inv : null; ldInv = inv;
+  if (inv && !ldCarded.has(inv.id)) { ldCarded.add(inv.id); markFresh('duels');
+    if (ldOut && ldOut.state === 'open' && ldOut.fid === inv.fid) ldAnswer(inv.id, true); // the friend I wait on invited me too: accept at once (the server normally says theyasked first)
+    else ldShow(() => { if (ldInv && ldInv.id === inv.id && inv.exp > ldNow() && !ldLobId) ldInvCard(inv); }, 'inv:' + inv.id); }
+  if (r.out) { const o = r.out;
+    if (o.state === 'open') ldOut = Object.assign({}, ldOut && ldOut.id === o.id ? ldOut : {}, o);
+    else { ldOut = null; if (ldBoxMode === 'wait') ldBoxClose(); if (o.state === 'no' || o.state === 'gone') ldShow(() => ldNoCard(o.name, o.fid, o.state), 'out:' + o.id); }
+  } else if (ldOut && ldOut.exp < ldNow()) { ldOut = null; if (ldBoxMode === 'wait') ldBoxClose(); }
+  const L = r.lobby;
+  if (L && L.id) {
+    if (ldRun && ldRun.id === L.id) { if (L.res) ldResult(L.res); }
+    else if (ldShut.has(L.id)) { if (ldWantLobby === L.id) ldWantLobby = ''; } // a lobby I left, was late for or closed: never again, in any state
+    else if (L.res) ldResultFrom(L);
+    else if (['wait', 'count', 'go'].includes(L.state)) { if (ldLobId !== L.id) { if (duelBusy()) { const me = L.m.find(s => s.me), o = L.m.find(s => !s.me); ldWantLobby = L.id; ldWantAway = me && me.away ? me.away : ldNow() + 120000; ldWantName = o ? o.name : 'Je vriend'; } else ldEnter(L.id, L, false); } }
+    else if (L.state === 'closed') { if (ldWantLobby === L.id) ldWantLobby = ''; ldShow(() => ldClosedCard(L), 'closed:' + L.id); }
+  } else if (ldWantLobby) ldWantLobby = '';
+  const sig = JSON.stringify([ldInv && ldInv.id, ldOut && ldOut.id, ldWantLobby, L && L.id, L && L.state]); if (sig !== ldSig) { ldSig = sig; if (G.state === 'friends') renderFriends(); else if (G.state === 'menu') renderTodo(); try { updateHub(curScreen); } catch (e) {} }
+}
+async function ldFriends() { // the green dots while Vrienden is open
+  ldFriendsAt = nowMs(); const r = await ldCall('ldfriends', {}, 5000); if (!r || !r.ok || !Array.isArray(r.on)) return; ldFriendsOk = nowMs(); let ch = false;
+  for (const x of r.on) { const f = save.friends.list.find(y => y.uid === x.uid); if (f && (f.on !== x.on || f.busy !== x.busy || f.pu !== x.pu || f.lv !== x.lv)) { Object.assign(f, { on: !!x.on, busy: !!x.busy, pu: !!x.pu, lv: !!x.lv }); ch = true; } }
+  if (ch && G.state === 'friends' && !(document.activeElement && document.activeElement.matches('input'))) renderFriends();
+}
+function ldFromServer(r) { if (r && r.ld && typeof r.ld === 'object') { for (const k of ['won', 'wins', 'losses', 'draws', 'played', 'distinct']) save.ldStats[k] = Math.max(0, Math.floor(+r.ld[k]) || 0); save.ldStats.at = nowMs(); } } // the server's counted wins win (no max with the local copy)
+// -- inviting
+const ldFresh = () => nowMs() - Math.max(save.friends.at || 0, ldFriendsOk) < 120000; // a green dot older than 2 minutes is not shown (the save keeps the last list)
+const ldIsOn = f => !!f && f.on === true && ldFresh();
+const ldCanLive = f => ldOn() && !!f && f.lv === true && (ldIsOn(f) || f.pu === true);
+async function ldInvite(uid, again) {
+  const f = save.friends.list.find(x => x.uid === uid), nm = f ? f.name : 'je vriend'; if (!ldOn() || ldBusyRun() || ldLobId || ldFlight.has('inv')) return false;
+  ldFlight.add('inv'); if (G.state === 'friends') renderFriends(); let r = null;
+  try { r = await ldCall('ldinvite', { to: uid, again: !!again }, 6000); } finally { ldFlight.delete('inv'); if (G.state === 'friends') renderFriends(); }
+  if (!r) { await ldPoll(duelBusy()); if (ldOut && ldOut.state === 'open' && ldOut.fid === uid) { ldBox('wait'); return true; } askBox({ title: 'Geen verbinding', text: 'De server antwoordt niet. Probeer het straks opnieuw.', info: true, yes: 'Oké' }); return false; } // no answer in time: maybe the invite went out anyway
+  if (!r.ok) {
+    if (r.error === 'theyasked') return ldAnswer(r.id, true);
+    if (r.error === 'inlobby') { ldEnter(r.lobby, null, true); return false; }
+    const day24 = [['Daag uit (24\u00a0u)', () => ldChallenge(uid), true], ['Oké', () => {}]], w = Math.max(1, Math.floor(r.wait || 60)), min = Math.max(1, Math.ceil(w / 60));
+    const T = { offline: [`${nm} is niet online`, `${nm} krijgt geen melding. Daag ${nm} uit voor 24 uur: jij speelt nu, ${nm} speelt later dezelfde messen.`, day24],
+      oldapp: [`${nm} moet eerst bijwerken`, `Een live duel kan pas als ${nm} de game bijwerkt. Daag ${nm} intussen uit voor 24 uur.`, day24],
+      busy: [`${nm} is al bezig`, `${nm} heeft al een andere uitnodiging of zit in een lobby. Probeer het straks opnieuw.`, null],
+      soon: r.why === 'no' ? ['Even wachten', `${nm} kan nu niet. Over ${min} ${min === 1 ? 'minuut' : 'minuten'} kan het opnieuw.`, null] : r.why === 'miss' ? ['Even wachten', `${nm} antwoordde twee keer niet. Over ${min} ${min === 1 ? 'minuut' : 'minuten'} kan het opnieuw; ${nm} kan jou intussen wel uitnodigen.`, null] : ['Even wachten', `Je nodigde ${nm} net uit. Over ${w} ${w === 1 ? 'seconde' : 'seconden'} kan het opnieuw.`, null],
+      noday: ['Even wachten', `${nm} wil vandaag geen live duel meer. Probeer het morgen opnieuw.`, null],
+      slow: ['Even wachten', 'Je stuurde dit uur al 10 uitnodigingen die niemand aannam. Probeer het later opnieuw.', null],
+      open: ['Er staat al een uitnodiging open', `Je wacht nog op ${r.name || 'een antwoord'}. Annuleer die eerst als je iemand anders wilt uitnodigen.`, [['Annuleer', () => ldCancel(r.id), true], ['Oké', () => {}]]],
+      notfriend: [`${nm} is geen vriend meer`, 'Jullie zijn geen vrienden meer, dus uitnodigen kan niet.', null] }[r.error] || ['Dat lukte niet', 'Probeer het straks opnieuw.', null];
+    if (T[2]) showAction({ note: 'Live' }, T[0], T[1], T[2]); else askBox({ title: T[0], text: T[1], info: true, yes: 'Oké' }); return false;
+  }
+  ldOut = { id: r.id, name: nm, fid: uid, exp: r.exp, state: 'open', pushed: Math.max(0, Math.floor(+r.pushed) || 0), here: !!r.here, mine: true }; ldPollAt = 0; ldBox('wait'); SFX.click();
+  if (!save.ldAsked) setTimeout(() => ldShow(() => ldPushAsk(), 'ask', true), 400); return true;
+}
+async function ldCancel(id) { const o = ldOut; ldOut = null; ldBoxClose(); if (G.state === 'friends') renderFriends(); await ldCall('ldcancel', { id: id || (o && o.id) || '' }, 5000); if (G.state === 'friends') renderFriends(); }
+function ldChallenge(uid) { openFriends('vrienden'); setTimeout(() => challengeAsk(uid), 50); } // the 24 h challenge of v0.32.3, with its own question
+function ldNoCard(nm, fid, st) { const f = save.friends.list.find(x => x.uid === fid);
+  showAction({ note: 'Live' }, st === 'no' ? `${nm} kan nu niet` : `${nm} antwoordde niet`, `Daag ${nm} uit voor 24 uur: jij speelt nu, ${nm} speelt later dezelfde messen.`, f ? [['Daag uit (24\u00a0u)', () => ldChallenge(fid), true], ['Oké', () => {}]] : [['Oké', () => {}, true]]); }
+// -- the friend's side
+function ldInvCard(v) {
+  const left = Math.max(1, Math.ceil((v.exp - ldNow()) / 60000));
+  showAction({ note: 'Live' }, v.again ? `${v.name} wil nog een keer!` : `${v.name} daagt je uit voor een live duel!`, `Jullie spelen tegelijk 90 seconden op dezelfde messen, en je ziet ${v.name} live spelen. Nog ${left} min om te antwoorden.`,
+    [['Speel', () => ldAnswer(v.id, true), true], ['Niet nu', () => {}], ['Nee, bedankt', () => ldAnswer(v.id, false)]]);
+}
+async function ldAnswer(id, yes) {
+  if (yes && (duelBusy() || ldBusyRun() || ldFlight.has('ans'))) return false; ldFruitPick = ldFruitPick || ldPickDefault(); if (yes) ldFlight.add('ans'); let r = null;
+  try { r = await ldCall('ldanswer', { id, yes: !!yes, fruit: ldFruitPick, v: LD_PROTO, pw: Object.keys(LD_FX) }, 6000); } finally { ldFlight.delete('ans'); }
+  if (!yes) { if (r && r.ok) ldInv = null; if (G.state === 'friends') renderFriends(); else if (G.state === 'menu') renderTodo(); return true; }
+  if (!r) { await ldPoll(duelBusy()); if (ldLobId) return true; askBox({ title: 'Geen verbinding', text: 'De server antwoordt niet. Probeer het straks opnieuw.', info: true, yes: 'Oké' }); return false; } // no answer in time: the poll opens the lobby when the accept went through
+  ldInv = null; if (G.state === 'friends') renderFriends();
+  if (!r.ok) { if (r.error === 'inlobby' && r.lobby) { ldEnter(r.lobby, null, true); return false; } askBox({ title: r.error === 'cancel' ? 'Uitnodiging ingetrokken' : 'Te laat', text: r.error === 'cancel' ? 'Je vriend trok de uitnodiging in.' : r.error === 'busy' ? 'Je vriend zit intussen in een andere lobby.' : 'Deze uitnodiging is verlopen.', info: true, yes: 'Oké' }); return false; }
+  ldEnter(r.lobby.id, r.lobby, true); return true;
+}
+// -- the lobby (one in-game box for the waiting screen, the lobby and the countdown)
+const LD_CSS = '#ldbox{z-index:10}#ldbox .rw-card{display:flex;flex-direction:column;gap:8px;max-height:94%;overflow:auto;width:min(360px,100%)}#ld-rules{margin:0;opacity:.85}.ld-seat{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.06)}.ld-seat canvas{width:36px;height:36px;flex:none}.ld-seat .nm{flex:1;text-align:left;font-weight:800;min-width:0;overflow-wrap:anywhere}.ld-pill{font-size:12px;font-weight:800;padding:3px 8px;border-radius:999px;background:#3a6b2f;color:#fff;white-space:nowrap}.ld-pill.away{background:#a8681a}#ld-status{font-weight:800;font-size:15px;margin:2px 0}#ld-note{margin:0}#ld-fruits{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}#ld-fruits button{background:rgba(255,255,255,.06);border:2px solid transparent;border-radius:10px;padding:2px;min-height:44px}#ld-fruits button.on{border-color:#ffd54a;background:rgba(255,213,74,.18)}#ld-fruits button:disabled{opacity:.45}#ld-fruits button.on:disabled{opacity:1}#ld-fruits canvas{width:36px;height:36px}#ld-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:110px;font-weight:900;color:#ffd54a;text-shadow:0 4px 0 rgba(0,0,0,.4);pointer-events:none;background:rgba(23,16,11,.72);border-radius:22px}#ld-acts{flex-wrap:nowrap;gap:6px}#ld-acts .btn{flex:1 1 0;min-width:0;padding-left:10px;padding-right:10px;font-size:18px;line-height:1.15}#ld-pow-row .btn{font-size:16px;padding:8px 14px}@media (max-height:720px){#ldbox .rw-card{gap:5px;padding-top:12px;padding-bottom:12px}#ldbox .rw-title{font-size:20px}.ld-seat{padding:3px 8px}.ld-seat canvas{width:30px;height:30px}#ld-fruits button{min-height:36px;padding:1px}#ld-fruits canvas{width:28px;height:28px}#ld-acts .btn{padding-top:10px;padding-bottom:10px}}.ld-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#46c04a;margin-left:6px;vertical-align:middle;box-shadow:0 0 0 2px rgba(70,192,74,.25)}.ld-dot.busy{background:#e0a030;box-shadow:0 0 0 2px rgba(224,160,48,.25)}#scr-pause.ld-cover{background:#17100b}#scr-over.ld-over #btn-retry,#scr-over.ld-over #btn-menu{white-space:nowrap;font-size:min(17px,4.6vw);padding-left:min(10px,2.5vw);padding-right:min(10px,2.5vw);flex:1 1 0;min-width:0}';
+const LD_HTML = '<div id="ldbox" class="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ld-title"><div class="rw-card" style="position:relative"><div class="rw-title" id="ld-title">Live duel</div><p class="small" id="ld-rules"></p><div id="ld-seats" class="stack"></div><div id="ld-status"></div><p class="small" id="ld-note"></p><div class="small" id="ld-pick"></div><div id="ld-fruits"></div><div class="row" id="ld-pow-row" hidden><button class="btn ghost" id="ld-pow" type="button"></button></div><div class="row" id="ld-acts"><button class="btn primary" id="ld-a" type="button"></button><button class="btn ghost" id="ld-b" type="button"></button></div><div id="ld-count" hidden></div></div></div>';
+function ldMount() { if ($('#ldbox')) return; const st = document.createElement('style'); st.textContent = LD_CSS; document.head.appendChild(st); $('#askbox').insertAdjacentHTML('beforebegin', LD_HTML);
+  $('#ld-a').addEventListener('click', e => { e.stopPropagation(); SFX.click(); ldAct('a'); }); $('#ld-b').addEventListener('click', e => { e.stopPropagation(); SFX.click(); ldAct('b'); });
+  $('#ld-pow').addEventListener('click', e => { e.stopPropagation(); SFX.click(); ldSetPowers(); });
+  $('#ld-fruits').addEventListener('click', e => { const b = e.target.closest('[data-ldf]'); if (!b || b.disabled) return; SFX.click(); ldFruitPick = b.dataset.ldf; ldPaint(true); ldPollAt = 0; }); }
+function ldPauseMount() { const r = $('#btn-resume'); if (!r || $('#btn-ldgo')) return; r.insertAdjacentHTML('afterend', '<button class="btn" id="btn-ldgo" type="button" hidden>Naar de lobby</button>');
+  $('#btn-ldgo').addEventListener('click', e => { e.stopPropagation(); SFX.click(); const id = ldWantLobby; if (!id) return; ldWantLobby = ''; $('#btn-ldgo').hidden = true; quitRun(); ldEnter(id, null, true); }); } // ends the run the normal way, then opens the lobby
+function ldBox(mode) { ldMount(); ldBoxMode = mode; const box = $('#ldbox'), first = box.hidden; box.hidden = false; ldPaint(true); if (first) navPushModal(); }
+function ldBoxClose() { ldBoxMode = ''; const b = $('#ldbox'); if (b) b.hidden = true; }
+function ldEnter(id, view, manual) { id = ldClean(id); if (!id || ldBusyRun() || ldShut.has(id)) return; if (ldRun && (ldRun.res || ldRun.fin)) ldRun = null; if (ldWantLobby === id) ldWantLobby = '';
+  ldLobId = id; ldLob = view && view.id === id ? view : null; ldLobFail = 0; ldPollAt = 0; ldManual = !!manual; ldFruitPick = ldFruitPick || ldPickDefault(); closeReward(); ldBox('lobby'); SFX.jingle(); }
+function ldLeave() { ldLobId = ''; ldLob = null; ldManual = false; ldPollAt = 0; ldBoxClose(); if (G.state === 'friends') renderFriends(); } // ldPollAt 0: the presence goes out at once, so a new invite right after a closed lobby finds me online
+const ldLobBody = x => Object.assign({ id: ldLobId, fruit: ldFruitPick, act: ldManual || nowMs() - ldTouch < 60000, v: LD_PROTO, pw: Object.keys(LD_FX) }, x || {}); // a seat joins only with a tap (accepting, Naar de lobby, a push, [Ik ben er], or a touch in the last minute)
+const ldNeedTap = L => { const me = L && L.m.find(s => s.me); return !!me && !me.joined && L.state === 'wait' && !ldManual && nowMs() - ldTouch >= 60000; }; // the lobby opened by itself and nobody touched the phone for a minute: the box asks for one tap
+async function ldAct(k) {
+  if (ldBoxMode === 'wait') { if (k === 'a') ldBoxClose(); else ldCancel(); return; }
+  if (ldBoxMode !== 'lobby') return;
+  if (k === 'a') { const me = ldLob && ldLob.m.find(s => s.me); if (me && !me.joined && ldLob.state === 'wait') { ldManual = true; ldPollAt = 0; ldPaint(); ldPollLobby(); return; } // [Ik ben er]: my seat joins with the next call, sent at once
+    if (ldLob && ldLob.host && ldLob.state === 'count' && !ldFlight.has('start')) { ldFlight.add('start'); ldPaint(); ldPollAt = nowMs(); let r = null; try { r = await ldCall('ldlobby', ldLobBody({ start: true }), 5000); } finally { ldFlight.delete('start'); } if (r && r.ok) ldOnLobby(r); else ldPaint(); } return; }
+  const o = ldLob && ldLob.m.find(s => !s.me), id0 = ldLobId, ok = await askBox({ title: 'Lobby verlaten?', text: `Dan sluit de lobby ook voor ${o ? o.name : 'je vriend'}.`, yes: 'Verlaten', no: 'Blijven' });
+  if (!ok || !id0 || ldLobId !== id0) return; ldShut.add(id0); ldLeave(); ldFlight.add('leave'); try { await ldCall('ldlobby', { id: id0, leave: true }, 5000); } finally { ldFlight.delete('leave'); } // also after the start was fixed: then my seat is a no-show and my friend plays on
+}
+function ldBack() { if (ldBoxMode === 'wait') { ldBoxClose(); return; } ldAct('b'); } // the back button: the waiting box closes, the lobby asks before you leave
+async function ldSetPowers() { const L = ldLob; if (!L || !L.host || !NET.has('ldpow')) return; const r = await ldCall('ldset', { id: ldLobId, powers: !(L.opts && L.opts.powers) }, 5000); if (r && r.ok) { ldPollAt = 0; } } // reserved for duel powers: the host's "met krachten / zonder krachten"
+async function ldPollLobby() {
+  if (ldLobBusy || !ldLobId) return; ldLobBusy = true; ldPollAt = nowMs(); const id = ldLobId;
+  try { const r = await ldCall('ldlobby', ldLobBody(), 5000); if (id !== ldLobId) return; if (!r) { ldLobFail++; ldPaint(); return; } ldLobFail = 0;
+    if (!r.ok) { if (r.error === 'otherdevice') { ldShut.add(id); ldLeave(); return; } const L = r.lobby; ldLeave(); ldShut.add(id); ldShow(() => L ? ldClosedCard(Object.assign({ id }, L)) : askBox({ title: 'De lobby is gesloten', text: 'Nodig je vriend opnieuw uit als je samen wilt spelen.', info: true, yes: 'Oké' }), 'closed:' + id, !L); return; }
+    ldOnLobby(r); } finally { ldLobBusy = false; }
+}
+function ldOnLobby(r) { const L = r.lobby; if (!L) return; L.id = L.id || ldLobId; if (L.id !== ldLobId) return; ldLob = L;
+  if (L.res) { ldLeave(); ldResultFrom(L); return; } if (L.state === 'closed') { ldLeave(); ldShut.add(L.id); ldShow(() => ldClosedCard(L), 'closed:' + L.id); return; } ldPaint(); }
+function ldClosedCard(L) { if (!L || !L.id || ldCarded.has('c:' + L.id)) return; ldCarded.add('c:' + L.id); ldShut.add(L.id); if (ldWantLobby === L.id) ldWantLobby = '';
+  if (L.kickedMe === 'left') return; // you left yourself: no card
+  const inM = (L.m || []).find(s => !s.me), g = (L.gone || [])[0], nm = inM ? inM.name : g ? g.name : 'je vriend', fid = inM ? inM.fid || '' : g ? g.fid || '' : '', f = save.friends.list.find(x => x.uid === fid);
+  if (L.kickedMe === 'late') { if (g && g.why === 'late' && !inM) showAction({ note: 'Live' }, 'De lobby is gesloten', 'Jullie waren er niet allebei binnen 2 minuten. Nodig opnieuw uit als je samen wilt spelen.', [['Oké', () => {}, true]]); // nobody came back
+    else showAction({ note: 'Live' }, 'Te laat voor de lobby', `${nm} wachtte 2 minuten. Nodig ${nm} opnieuw uit als je samen wilt spelen.`, f ? [['Nodig uit', () => ldInvite(fid), true], ['Oké', () => {}]] : [['Oké', () => {}, true]]); return; }
+  if ((g && g.why === 'left') || L.why === 'left') { showAction({ note: 'Live' }, `${nm} verliet de lobby`, 'De lobby is gesloten. Nodig opnieuw uit wanneer je wilt.', [['Oké', () => {}, true]]); return; }
+  if (g) { showAction({ note: 'Live' }, `${nm} kwam niet op tijd`, `De lobby is gesloten na 2 minuten. Daag ${nm} uit voor 24 uur of probeer later opnieuw.`, f ? [['Daag uit (24\u00a0u)', () => ldChallenge(fid), true], ['Oké', () => {}]] : [['Oké', () => {}, true]]); return; }
+  showAction({ note: 'Live' }, 'De lobby is gesloten', 'Nodig je vriend opnieuw uit als je samen wilt spelen.', [['Oké', () => {}, true]]); }
+function ldPaint(full) {
+  const box = $('#ldbox'); if (!box || box.hidden) return; const now = ldNow(), set = (id, t) => { const el = $('#' + id); const tt = tr(t); if (el && el.textContent !== tt) { el.dataset.nl = t; el.textContent = tt; } };
+  const A = $('#ld-a'), B = $('#ld-b'), seats = $('#ld-seats'), fr = $('#ld-fruits'), cnt = $('#ld-count'), pw = $('#ld-pow-row');
+  if (ldBoxMode === 'wait') { const o = ldOut; if (!o) { ldBoxClose(); return; } set('ld-title', `Live duel met ${o.name}`); set('ld-rules', '90 seconden · level 10 · dezelfde messen'); seats.innerHTML = ''; seats.dataset.k = ''; fr.innerHTML = ''; fr.dataset.k = ''; set('ld-pick', ''); cnt.hidden = true; pw.hidden = true;
+    const meanwhile = `Speel je intussen een ronde? Zodra ${o.name} in de lobby zit, heb je 2 minuten.`;
+    set('ld-status', `Uitnodiging verstuurd · nog ${ldMmss(o.exp - now)}`); set('ld-note', o.here !== false || !o.mine ? meanwhile : o.pushed > 0 ? `${o.name} krijgt een melding. ${meanwhile}` : `${o.name} krijgt nu geen melding en ziet je uitnodiging zodra ${o.name} de game opent. ${meanwhile}`);
+    set('ld-a', 'Sluiten'); set('ld-b', 'Annuleer uitnodiging'); A.hidden = false; A.disabled = false; B.hidden = false; return; }
+  const L = ldLob, pow = NET.has('ldpow'); set('ld-title', 'Live duel'); set('ld-rules', '90 seconden · level 10 · dezelfde messen · elk fruit mag' + (pow && L ? (L.opts && L.opts.powers ? ' · met krachten' : ' · zonder krachten') : ''));
+  if (!L) { set('ld-status', 'Even verbinden…'); set('ld-note', ''); A.hidden = true; set('ld-b', 'Verlaat lobby'); B.hidden = false; pw.hidden = true; return; }
+  const go = L.state === 'go', meS = L.m.find(s => s.me) || {}, other = L.m.find(s => !s.me) || { name: '?' }, host = L.m.find(s => s.role === 'host') || other, myFruit = go && ldFruitOk(meS.fruit) ? meS.fruit : ldFruitPick, tap = ldNeedTap(L);
+  const seatHTML = L.m.map(s => `<div class="ld-seat"><canvas width="72" height="72" data-ldicon="${escH(s.me ? myFruit : s.fruit || 'appel')}"></canvas><span class="nm"><span>${escH(s.me ? `${s.name} (jij)` : s.name)}</span>${s.role === 'host' ? '<span> · host</span>' : ''}</span><span class="ld-pill${s.in ? '' : ' away'}">${escH(s.in ? 'in de lobby' : s.me && tap ? 'tik om mee te doen' : `komt eraan · ${ldMmss(s.away - now)}`)}</span></div>`).join('');
+  const sk = L.m.map(s => [s.name, s.me ? myFruit : s.fruit, s.in, s.in ? 0 : Math.ceil((s.away - now) / 1000)].join('|')).join(';') + lang + (tap ? 'T' : '');
+  if (seats.dataset.k !== sk) { seats.dataset.k = sk; seats.innerHTML = seatHTML; if (lang === 'en') trTree(seats); seats.querySelectorAll('canvas[data-ldicon]').forEach(cv => { try { renderIcon(cv.getContext('2d'), FRUITS[cv.dataset.ldicon] ? cv.dataset.ldicon : 'appel', 36, false); } catch (e) {} }); }
+  const fk = myFruit + (go ? 'L' : '') + lang;
+  if (full || fr.dataset.k !== fk) { fr.dataset.k = fk; fr.innerHTML = ORDER.map(k => `<button type="button" data-ldf="${k}" class="${k === myFruit ? 'on' : ''}" ${go ? 'disabled' : ''} aria-label="${escH(tr(FRUITS[k].name))}"><canvas width="72" height="72" data-ldicon="${k}"></canvas></button>`).join(''); fr.querySelectorAll('canvas[data-ldicon]').forEach(cv => { try { renderIcon(cv.getContext('2d'), cv.dataset.ldicon, 36, false); } catch (e) {} }); }
+  set('ld-pick', go ? `Je speelt met ${FRUITS[myFruit].name}` : `Jouw fruit: ${FRUITS[myFruit].name} · tik er een om te wisselen`);
+  const away = L.m.find(s => !s.in && !s.me);
+  if (L.state === 'wait') { set('ld-status', tap ? (other.in ? `${other.name} is er! Tik om mee te doen` : 'Tik om mee te doen') : away ? `Wachten op ${away.name} · nog ${ldMmss(away.away - now)}` : 'Even wachten…');
+    set('ld-note', tap ? `Je hebt nog ${ldMmss((meS.away || now) - now)}; daarna sluit de lobby.` : away ? (away.pushed ? `${away.name} kreeg een melding. Is ${away.name} er niet binnen 2 minuten, dan sluit de lobby.` : away.nopush ? `${away.name} heeft geen meldingen aan en ziet het pas in de game. Is ${away.name} er niet binnen 2 minuten, dan sluit de lobby.` : `Is ${away.name} er niet binnen 2 minuten, dan sluit de lobby.`) : ''); }
+  else if (L.state === 'count') { set('ld-status', `Allebei hier! Start over ${Math.max(0, Math.ceil((L.countEnd - now) / 1000))} s`); set('ld-note', L.host ? 'Of tik op Start nu.' : `${host.name} kan ook meteen starten.`); }
+  else if (go) { set('ld-status', 'Daar gaan we!'); set('ld-note', `Je speelt tegelijk met ${other.name}.`); }
+  if (ldLobFail >= 3) set('ld-note', 'Verbinding… de lobby wacht op je.');
+  set('ld-a', tap ? 'Ik ben er' : 'Start nu'); A.hidden = !(tap || (L.host && L.state === 'count')); A.disabled = !tap && ldFlight.has('start'); set('ld-b', 'Verlaat lobby'); B.hidden = go;
+  pw.hidden = !(pow && L.host && !go); if (!pw.hidden) set('ld-pow', `Krachten: ${L.opts && L.opts.powers ? 'aan' : 'uit'}`);
+  if (go && L.startAt) { const left = L.startAt - now; cnt.hidden = left > 3000 || left <= 0; if (!cnt.hidden) cnt.textContent = String(Math.ceil(left / 1000));
+    if (left <= 0) { if (left > -LD_LATE_MS) ldBegin(); else ldLate(); } } else cnt.hidden = true;
+}
+function ldLate() { const id = ldLobId, o = ldLob && ldLob.m.find(s => !s.me), nm = o ? o.name : 'je vriend'; if (!id) return; ldShut.add(id); ldLeave(); ldCall('ldlobby', { id, leave: true }, 5000); // started more than 12 s too late: never plays; the server records the no-show at once
+  ldShow(() => askBox({ title: 'Te laat', text: `Het duel was al begonnen. Speelt ${nm} het uit, dan krijg je die ronde als uitdaging van 24 uur.`, info: true, yes: 'Oké' }), 'late:' + id, true); }
+// -- the run
+const LD_SS = 'dontsliceme-ldstarted';
+function ldBegin() {
+  const L = ldLob, id = ldLobId; if (!L || !id || ldBusyRun()) return; let started = !!L.started; try { if (sessionStorage.getItem(LD_SS) === id) started = true; } catch (e) {}
+  if (started) { ldShut.add(id); ldLeave(); ldShow(() => askBox({ title: 'Live duel onderbroken', text: 'Je app herstartte tijdens het duel. Je duel telt met je laatste stand; de uitslag volgt.', info: true, yes: 'Oké' }), 'int:' + id, true); return; } // never the same duel twice
+  try { sessionStorage.setItem(LD_SS, id); } catch (e) {}
+  const meS = L.m.find(s => s.me) || {}, o = L.m.find(s => !s.me) || { name: 'Vriend', fruit: 'appel' }, fruit = ldFruitOk(meS.fruit) ? meS.fruit : ldFruitOk(ldFruitPick) ? ldFruitPick : 'appel'; // my seat's fruit in the server's view
+  ldBoxClose(); closeReward(); if (askOpen()) askDone(false); closeSheets();
+  duelOpp = { name: o.name, seed: L.seed, fruit: ldFruitOk(o.fruit) ? o.fruit : 'appel', level: LD_LEVEL, score: 0, t: LD_RUN_MS + 1, ghost: '', id: '' };
+  duelFrom = G.state === 'friends' ? 'friends' : 'games'; duelView = G.state === 'friends' ? friendsView : 'duels';
+  duelNext = { to: '', toName: '', challenge: 'live', fromName: o.name, live: { id } }; // challenge: a friend duel (never charged, no sap, no public ghost); live: this module takes the result
+  ldRun = { id, startAt: L.startAt, role: L.host ? 0 : 1, slot: -1, busy: false, pause: 0, pauses: 0, pauseAt: 0, hidAt: 0, myStart: ldNow(), fin: null, finAt: 0, resAt: 0, resGap: 0, res: null, fid: o.fid || '', name: o.name, out: [], fx: [], sending: false, late: false, noBeat: false,
+    o: { name: o.name, fruit: duelOpp.fruit, go: false, P: [], kMax: -1, t: 0, s: 0, at: 0, got: 0, dead: false, pz: false, fin: null, left: false, late: false }, play: 0, playAt: 0, ev: new Map() };
+  ldLobId = ''; ldLob = null; startRun(fruit, true, 'duel'); G.note = `Live duel tegen ${o.name} · 90 s`; G.noteT = 4000; ldBeat();
+}
+const ldCover = on => { const p = $('#scr-pause'); if (p) p.classList.toggle('ld-cover', !!on); };
+function ldRunTick(now) {
+  const X = ldRun;
+  if (!X.fin && ldLive() && ['play', 'dying', 'pause', 'continue', 'ad'].includes(G.state)) {
+    if (G.state === 'pause') { if (!X.pauseAt) { X.pauseAt = X.hidAt && now - X.hidAt < 600000 ? X.hidAt : now; X.hidAt = 0; X.pauses++; } const used = X.pause + (now - X.pauseAt), left = Math.max(0, LD_PAUSE_MS - used); ldCover(true); // the approved pause rule: 3 pauses, 60 s together, the board covered
+      const el = $('#pause-time'), t = X.pauses >= LD_PAUSES ? `Live duel: je laatste pauze, nog ${Math.ceil(left / 1000)} s. Pauzeer je nog eens, dan stopt je duel; het telt nu met ${G.sapRun} sap.` : `Live duel: pauze ${X.pauses} van ${LD_PAUSES}, nog ${Math.ceil(left / 1000)} s. Daarna stopt je duel; het telt nu met ${G.sapRun} sap.`;
+      const tt = tr(t); if (el && el.textContent !== tt) { el.dataset.nl = t; el.textContent = tt; }
+      if (used > LD_PAUSE_MS || X.pauses > LD_PAUSES) { X.pause = Math.min(used, 65000); X.pauseAt = 0; ldCover(false); quitRun(); return; } }
+    else { if (X.pauseAt) { X.pause += now - X.pauseAt; X.pauseAt = 0; } ldCover(false); }
+    const dt = ldNow() - X.startAt - (X.role ? LD_BEAT_MS / 2 : 0), slot = Math.floor(dt / LD_BEAT_MS); // host beats at 0, 3, 6 s; guest at 1.5, 4.5 s (also while paused): a point waits at most 4.5 s
+    if (slot > X.slot && !X.busy) { X.slot = slot; ldBeat(); }
+    ldFxTick();
+  } else if (X.fin && !X.res) { if (now - X.finAt >= LD_RES_MS) { ldRun = null; return; } if (now - X.resAt >= X.resGap) ldEndSend(); }
+  else if (!X.fin && !ldLive()) { ldCover(false); ldRun = null; } // the run was replaced (should not happen)
+}
+function ldPayload() { const X = ldRun, L = (G.duel && G.duel.ld) || { pts: [] }, n = L.pts.length / 3, k0 = Math.max(0, n - LD_PTS), pause = X.pause + (X.pauseAt ? nowMs() - X.pauseAt : 0);
+  return { id: X.id, t: Math.round(G.modeT), s: G.sapRun, k0, p: L.pts.slice(k0 * 3), dead: G.state === 'dying', pz: G.state === 'pause', pause: Math.round(pause), lag: Math.round((ldNow() - X.myStart) - G.modeT - pause), ev: X.out }; }
+async function ldBeat() { const X = ldRun; if (!X || X.busy || X.fin || X.noBeat) return; X.busy = true; try { const r = await ldCall('ldbeat', ldPayload(), 4000); if (X === ldRun) ldOnBeat(r); } finally { X.busy = false; } }
+function ldOnBeat(r) { const X = ldRun; if (!r || !X) return;
+  if (!r.ok) { if (r.error === 'late') { X.late = true; X.noBeat = true; G.note = 'Je startte te laat: dit duel telt niet.'; G.noteT = 4000; } else if (r.error === 'left' || r.error === 'otherdevice' || r.error === 'gone') X.noBeat = true; return; }
+  const o = r.o || {}, O = X.o; O.go = !!o.go; O.left = !!o.left; O.late = !!o.late; O.pz = !!o.pz;
+  if (o.go) { const k0 = o.k0 || 0, p = Array.isArray(o.p) ? o.p : []; for (let i = 0; i + 2 < p.length; i += 3) O.P[k0 + i / 3] = [p[i], p[i + 1], p[i + 2]]; if (p.length >= 3) O.kMax = Math.max(O.kMax, k0 + p.length / 3 - 1); O.t = o.t || 0; O.s = o.s || 0; O.at = o.at || 0; O.got = nowMs(); O.dead = !!o.dead; O.fin = o.fin || null; }
+  if (Array.isArray(o.ev)) for (const e of o.ev) if (e && !X.ev.has(e.i)) { X.ev.set(e.i, e); ldEvent(e); } // reserved for duel powers: an event the other player used, with its start on the shared duel clock
+  if (r.res) ldResult(r.res); else if (X.fin) ldOverPaint(); // a beat that was in flight when the run ended still updates the game-over
+}
+const LD_FX = {}; // { kind: { name, on(e), off(e) } } once duel powers exist (a later version); unknown kinds are ignored
+function ldEvent(e) { const X = ldRun, fx = LD_FX[e.k]; if (!X || !fx) return; const now = ldNow() - X.startAt, start = Math.max(+e.at || 0, now + LD_EV_WARN_MS), end = start + (+e.dur || 0); if (end <= now) return; X.fx.push({ e, fx, start, end, on: false, off: false }); } // the start on the shared duel clock, at least 1.5 s of warning
+function ldFxTick() { const X = ldRun; if (!X || !X.fx.length) return; const now = ldNow() - X.startAt;
+  for (const f of X.fx) { if (now < f.start) { G.note = `${X.o.name} gebruikt ${f.fx.name} over ${Math.ceil((f.start - now) / 1000)} s!`; G.noteT = 400; } else if (!f.on) { f.on = true; G.note = `${X.o.name} gebruikt ${f.fx.name}!`; G.noteT = 1500; try { f.fx.on && f.fx.on(f.e); } catch (e) {} } if (f.on && !f.off && now >= f.end) { f.off = true; try { f.fx.off && f.fx.off(f.e); } catch (e) {} } }
+  X.fx = X.fx.filter(f => !f.off); }
+function ldOppAt() { // the friend's fruit as shown now: ~5 s behind its last known point, smoothed, held while the friend pauses or updates stop
+  const X = ldRun, O = X && X.o; if (!O || !O.go || O.kMax < 1) return null; const est = O.t + (O.pz ? 0 : Math.max(0, ldNow() - O.at)), want = Math.min(est - LD_VIEW_MS, O.kMax * GHOST_STEP), pnow = performance.now();
+  X.play = X.playAt ? X.play + (O.pz ? 0 : pnow - X.playAt) : want; X.playAt = pnow; X.play += (want - X.play) * .08; X.play = clamp(X.play, 0, O.kMax * GHOST_STEP);
+  const f = X.play / GHOST_STEP, i0 = Math.floor(f), k = f - i0, a = O.P[i0] || O.P[O.kMax], b = O.P[Math.min(O.kMax, i0 + 1)] || a; if (!a) return null;
+  return { x: lerp(a[0], b[0], k), y: lerp(a[1], b[1], k) * H / 1000, s: a[2], t: X.play, stale: nowMs() - O.got > LD_STALE_MS || (!O.fin && ldNow() - O.at > LD_STALE_MS), over: !!O.fin && X.play >= Math.min((O.fin.t || 0) - GHOST_STEP, O.kMax * GHOST_STEP) - 1 }; // over: the playback reached the friend's last point (the final time itself lies after it: no points are recorded while the fruit dies)
+}
+function ldDraw() { // the other fruit, translucent, with its name (called after duelDraw)
+  if (!ldRun || !ldLive() || !['play', 'dying', 'pause'].includes(G.state)) return; const p = ldOppAt(); if (!p) return; const O = ldRun.o;
+  if (p.over && !O.shown) { O.shown = true; burst(p.x, p.y, 24, ['#ffffff', '#7fd4ff'], 260); addText(p.x, p.y - 30, `${O.name} is ${O.fin.quit ? 'gestopt' : 'gesneden'} na ${Math.round((O.fin.t || 0) / 1000)} s`, '#7fd4ff'); SFX.pop(); }
+  if (p.over) return; const k = FRUITS[O.fruit] ? O.fruit : 'appel', r = FRUITS[k].r; ctx.save(); ctx.globalAlpha = p.stale ? .22 : .55; drawShadow(p.x, p.y, r); drawFruit(k, p.x, p.y, r, 0, undefined, { look: [0, 0], scared: 0, hat: 'none' });
+  ctx.globalAlpha = p.stale ? .3 : .7; ctx.lineWidth = 2; ctx.strokeStyle = '#bfe8ff'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 5, 0, TAU); ctx.stroke(); // a thin light-blue ring: a dark fruit (Kiwi, Kokosnoot, Pruim) stays visible on the dark board
+  ctx.globalAlpha = .95; ctx.font = `800 12px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.6)'; const lbl = p.stale ? `${O.name} · verbinding…` : O.name; ctx.strokeText(lbl, p.x, p.y + r + 9); ctx.fillStyle = '#bfe8ff'; ctx.fillText(lbl, p.x, p.y + r + 9); ctx.restore();
+}
+function ldHud() { const X = ldRun, ds = Math.max(0, Math.ceil((LD_RUN_MS - G.modeT) / 1000)), O = X && X.o, p = X ? ldOppAt() : null, nm = O ? O.name : '';
+  const them = !O ? '' : !O.go ? (O.left || O.late || ldNow() - X.startAt > LD_LATE_MS + 3000 ? `${nm} startte niet` : `${nm} start…`) : p && p.over ? `${nm} ${O.fin.quit ? 'gestopt' : 'gesneden'} (${O.fin.s} sap)` : p && p.stale ? `${nm}: verbinding…` : O.pz ? `${nm} pauzeert` : `${nm} ${p ? p.s : O.s}`;
+  return `Live · nog ${ds} s · jij ${G.sapRun} · ${them}`; }
+function ldEnd(quit) { // from duelPost: my run is over; the final goes to the server now and is kept in the save until it arrived (also after a restart)
+  const X = ldRun; if (!X || X.fin) return; const L = (G.duel && G.duel.ld) || { pts: [] }, n = L.pts.length / 3, k0 = Math.max(0, n - LD_PTS);
+  X.fin = { s: G.sapRun, t: Math.round(G.modeT), quit: !!quit, died: !!(G.duelOut && G.duelOut.died), ghost: quit ? '' : (G.duel && Array.isArray(G.duel.rec) ? G.duel.rec.join(',') : ''), gt: Math.round(G.t), k0, p: L.pts.slice(k0 * 3) };
+  X.finAt = nowMs(); X.resAt = 0; X.resGap = 0; ldCover(false); if (G.duelOut) G.duelOut.live = true; if (save.duel) save.duel.vsName = '';
+  save.ldPend = { id: X.id, s: X.fin.s, t: X.fin.t, quit: X.fin.quit, died: X.fin.died, ghost: X.fin.ghost, gt: X.fin.gt, at: nowMs(), name: X.name, fid: X.fid }; store(); ldEndSend();
+}
+async function ldEndSend() { const X = ldRun; if (!X || !X.fin || X.sending || X.res) return; if (X.busy) { X.resAt = nowMs() - X.resGap + 300; return; } X.sending = true; X.resAt = nowMs(); // a beat in flight first
+  try { const F = X.fin, ask = X.late || X.sent, r = await ldCall(ask ? 'ldres' : 'ldend', ask ? { id: X.id } : { id: X.id, t: F.t, s: F.s, quit: F.quit, died: F.died, ghost: F.ghost || '', gt: F.gt || 0, k0: F.k0 || 0, p: F.p || [], dead: true, pz: false, pause: Math.round(X.pause || 0), lag: 0 }, 5000); // the final once; after that only the small question for the result
+    if (r && r.ok) { X.sent = true; if (save.ldPend && save.ldPend.id === X.id) { save.ldPend = null; store(); } if (X === ldRun) { X.resGap = LD_RES_GAP_MS; /* every 3 s: the friend's score keeps ticking on the game-over and the verdict comes within a few seconds */ const o = r.o || {}; if (o.go && X.o) { X.o.s = o.s || 0; X.o.t = o.t || 0; X.o.fin = o.fin || null; X.o.go = true; } if (r.res) ldResult(r.res); else ldOverPaint(); } }
+    else if (r && (r.error === 'late' || r.error === 'left')) { X.late = true; X.resGap = 3000; if (save.ldPend && save.ldPend.id === X.id) { save.ldPend = null; store(); } } // too late: only ask for the result
+    else if (r && r.error === 'gone') { if (save.ldPend && save.ldPend.id === X.id) { save.ldPend = null; store(); } if (X === ldRun) ldRun = null; }
+    else X.resGap = 3000;
+  } finally { X.sending = false; } }
+function ldResult(res) { const X = ldRun; if (!X || X.res) return; X.res = res; ldResultApply(res, X.id, X.name, X.fid, true); }
+function ldResultFrom(L) { const o = (L.m || []).find(s => !s.me) || (L.gone || [])[0] || { name: 'je vriend' }; ldShut.add(L.id); ldResultApply(L.res, L.id, o.name, o.fid || '', false); } // a result that came with a presence poll (after a restart, a stop, a no-show)
+function ldResultApply(res, id, nm, fid, mine) {
+  if (!res || !id || save.ldLast.id === id) return false; ldAfter = nowMs() + 60000; // once per lobby id: shown and counted once
+  if (res.r !== 'noshow') { if (res.st) ldFromServer({ ld: res.st });
+    if (res.counted) { save.stats.duelWins = (save.stats.duelWins || 0) + 1; track('duel', { won: true, my: res.me ? res.me.s : 0, theirs: res.them ? res.them.s : 0, live: true }); } // only a counted win counts for the duel mission and the Duellist sticker
+    if (save.duel) Object.assign(save.duel, { vsName: nm, vsScore: res.them ? res.them.s : 0, result: res.r === 'win' ? 'win' : res.r === 'draw' ? 'tie' : 'loss' });
+    const f = save.friends.list.find(y => y.uid === fid); if (f && res.rec) f.rec = res.rec;
+    save.ldLast = { id, name: nm, my: res.me ? res.me.s : 0, their: res.them ? res.them.s : 0, r: res.r, at: nowMs() }; }
+  else save.ldLast = Object.assign({}, save.ldLast, { id, at: nowMs() });
+  store(); if (mine && curScreen === 'scr-over' && G.duelOut && G.duelOut.live) ldOverPaint(); else ldShow(() => ldResultCard(res, nm, fid), 'res:' + id);
+  if (!save.ldAsked) ldShow(() => ldPushAsk(), 'ask', true); if (G.state === 'friends') renderFriends(); return true;
+}
+function ldVerdict(res, nm) { if (res.r === 'noshow') return res.who === 'both' ? 'Niemand startte: dit duel telt niet.' : res.who === 'them' ? (res.chal ? `${nm} startte niet. Je ronde is nu een uitdaging van 24 uur voor ${nm}.` : `${nm} startte niet: dit duel telt niet.`) : (res.chal ? `Je startte niet op tijd. Je krijgt de ronde van ${nm} als uitdaging van 24 uur.` : 'Je startte niet op tijd: dit duel telt niet.');
+  return res.r === 'win' ? `Je wint van ${nm}: ${res.me.s} tegen ${res.them.s} sap.` : res.r === 'loss' ? `${nm} wint: ${res.them.s} tegen ${res.me.s} sap.` : `Gelijkspel: ${res.me.s} tegen ${res.them.s} sap.`; }
+function ldRecLine(res, nm) { const c = res.rec || { w: 0, l: 0, d: 0 }; return `Jullie stand: jij ${c.w} – ${c.l} ${nm}${c.d ? ` (${c.d} gelijk)` : ''}.`; }
+function ldCountLine(res, nm) { if (res.r !== 'win') return ''; if (res.counted) return res.won === 1 ? 'Telt mee: nu telt er 1 gewonnen vriendenduel mee.' : `Telt mee: nu tellen er ${res.won} gewonnen vriendenduels mee.`; const P = 'Telt niet mee voor je gewonnen duels: ';
+  const w = { quit: `${nm} stopte of viel weg.`, short: `${nm} speelde korter dan 30 seconden.`, low: `${nm} haalde minder dan 5 sap.`, fresh: 'jullie zijn nog geen 24 uur vrienden.', new: `het account van ${nm} is nog geen week oud.`, level: `${nm} is nog geen level 15.`, idle: `${nm} speelde de laatste twee weken op minder dan 3 dagen.`, pair: `tegen ${nm} tellen er hoogstens 3 per dag.`, day: 'er tellen er hoogstens 10 per dag.' }[res.why];
+  return w ? P + w : ''; }
+const ldResLines = (res, nm) => [ldVerdict(res, nm), res.r === 'noshow' ? '' : ldRecLine(res, nm), ldCountLine(res, nm)].filter(Boolean);
+function ldChalResult(r, next) { // from duelReply: a 24 h challenge the server settled now. Its game-over gets the same two lines as a live duel: the record, and whether the win counts
+  const d = r && r.ok && r.settled && r.ld; if (!d || !d.rec || !next || !next.challenge) return; const o = G.duelOut, nm = (o && o.challenge) || next.fromName || 'je vriend', el = $('#over-level');
+  const res = { r: d.r, rec: d.rec, counted: !!d.counted, why: d.why || '', won: Math.max(0, Math.floor(+d.won) || 0) }, lines = [ldRecLine(res, nm), ldCountLine(res, nm)].filter(Boolean);
+  if (curScreen === 'scr-over' && G.mode === 'duel' && o && !o.live && el && !el.querySelector('.ld-chal')) el.insertAdjacentHTML('beforeend', lines.map(x => ` <span class="ld-chal">${escH(tr(x))}</span>`).join(''));
+}
+function ldResultCard(res, nm, fid) { nm = nm || 'je vriend'; const f = save.friends.list.find(x => x.uid === fid), lines = ldResLines(res, nm).map(x => tr(x)).join(' ');
+  showAction({ note: res.r === 'win' ? 'Gewonnen' : res.r === 'loss' ? 'Verloren' : 'Live' }, res.r === 'win' ? 'Gewonnen!' : res.r === 'loss' ? 'Verloren' : res.r === 'draw' ? 'Gelijkspel' : 'Geen duel', lines, f && res.r !== 'noshow' ? [['Nog een keer', () => ldInvite(fid, true), true], ['Oké', () => {}]] : [['Oké', () => {}, true]]); }
+function ldOverPaint() { // the game-over of a live duel: both scores, the verdict once the server has it, the record, whether the win counts
+  const o = G.duelOut, X = ldRun, scr = $('#scr-over'); if (!o || !o.live || curScreen !== 'scr-over' || !X) return; const res = X.res, nm = X.name, O = X.o || {}; scr.classList.add('ld-over'); // the class (both buttons on one line) comes off in ldTick as soon as this game-over is left
+  $('#over-title').textContent = tr('Live duel'); $('#over-time').textContent = tr(`${G.sapRun} sap`);
+  const badge = res ? (res.r === 'win' ? 'Gewonnen!' : res.r === 'loss' ? 'Verloren' : res.r === 'draw' ? 'Gelijkspel' : 'Geen duel') : `${nm} speelt nog…`; $('#over-badge').hidden = false; $('#over-badge').textContent = tr(badge);
+  const them = res && res.them ? res.them : { s: O.fin ? O.fin.s : O.s || 0, t: O.fin ? O.fin.t : O.t || 0, quit: !!(O.fin && O.fin.quit) }, sec = Math.round((them.t || 0) / 1000);
+  $('#over-rec').textContent = tr(res && res.r === 'noshow' ? `${nm} speelde niet mee.` : res || O.fin ? `${nm}: ${them.s} sap${them.quit ? ` (gestopt na ${sec} s)` : them.cut ? ` (viel weg na ${sec} s)` : them.t < LD_RUN_MS - 500 ? ` (gesneden na ${sec} s)` : ' (overleefde de 90 s)'}.` : `${nm}: ${O.s || 0} sap (speelt nog).`);
+  const lines = res ? ldResLines(res, nm) : [`De uitslag komt zodra ${nm} klaar is.`, FRIEND_FREE]; // with the result in, the long explanation makes room for the buttons (it stands on the waiting game-over and under Vrienden › Duels)
+  $('#over-level').innerHTML = lines.map(x => `<span>${escH(tr(x))}</span>`).join(' ');
+  const rb = $('#btn-retry'); rb.hidden = !(res && res.r !== 'noshow' && X.fid); rb.textContent = tr('Nog een keer');
+  if (res && !X.scrolled) { X.scrolled = true; ldOverReach(); setTimeout(ldOverReach, 400); } // once (and once more when the picture of the cut fruit has its height)
+}
+function ldOverReach() { try { const scr = $('#scr-over'), rb = $('#btn-retry'), hub = $('#hub'); if (curScreen !== 'scr-over' || !G.duelOut || !G.duelOut.live || !rb || rb.hidden) return; // on a small phone the result's buttons come above the tab bar
+  const lim = hub && !hub.hidden ? hub.getBoundingClientRect().top : scr.getBoundingClientRect().bottom, over = rb.parentElement.getBoundingClientRect().bottom + 10 - lim; if (over > 0) scr.scrollTop += over; } catch (e) {} }
+function ldQuitNote() { const X = ldRun; if (!X) return; const s = X.fin ? X.fin.s : G.sapRun, nm = X.name; ldShow(() => showReward({ note: 'Live' }, 'Live duel gestopt', `Je duel telt met ${s} sap. De uitslag komt zodra ${nm} klaar is.`), 'quit:' + X.id); } // from duelQuitNote: the result card follows
+// -- the Duels sub-tab, the friend card, Nu te doen and the badge
+function ldSection() { if (!ldOn()) return ''; const now = ldNow(), rows = [];
+  if (ldInv) rows.push(`<div class="mrow"><div class="mt"><b>${escH(`${ldInv.name} daagt je uit · LIVE`)}</b><div class="small">${escH(`nog ${ldMmss(ldInv.exp - now)}`)}</div></div><div class="row" style="gap:4px;flex-wrap:nowrap"><button class="btn primary" data-ldyes="${escH(ldInv.id)}" ${ldFlight.has('ans') ? 'disabled' : ''}>Speel</button><button class="btn ghost" data-ldno="${escH(ldInv.id)}">Nee</button></div></div>`);
+  if (ldOut) rows.push(`<div class="mrow"><div class="mt"><b>${escH(`Jij nodigde ${ldOut.name} uit · LIVE`)}</b><div class="small">${escH(`wacht op antwoord · nog ${ldMmss(ldOut.exp - now)}`)}</div></div><button class="btn ghost" data-ldcancel="${escH(ldOut.id)}">Annuleer</button></div>`);
+  if (ldWantLobby) rows.push(`<div class="mrow"><div class="mt">Je vriend wacht in de lobby</div><button class="btn primary" data-ldlobby="${escH(ldWantLobby)}">Naar de lobby</button></div>`);
+  const S = save.ldStats, LL = save.ldLast, last = LL && LL.name && ['win', 'loss', 'draw'].includes(LL.r) ? `Laatste live duel: ${LL.r === 'win' ? 'gewonnen van' : LL.r === 'loss' ? 'verloren van' : 'gelijk tegen'} ${LL.name}, ${LL.my} tegen ${LL.their} sap.` : '';
+  return `<div class="sec" id="fsec-live" data-fv="duels" style="border-color:rgba(127,212,255,.5)"><h3>${ico('friends')}Live duel</h3><div class="small">Speel tegelijk tegen een vriend die online is (groen bolletje bij Vrienden): 90 seconden op dezelfde messen, en je ziet je vriend live spelen. Onbeperkt en zonder sap.</div>${rows.join('')}<div class="small" id="ld-stats"><span>${escH(`Vriendenduels gewonnen: ${Math.max(S.wins, S.won)} · daarvan tellen mee: ${S.won}`)}</span>${last ? `<br><span>${escH(last)}</span>` : ''}</div></div>`; }
+function ldFriendBtn(f) { if (!ldOn() || !f) return ''; const ok = ldCanLive(f) && !ldOut && !ldLobId && !ldBusyRun() && !ldFlight.has('inv'); return `<button class="btn${ok ? ' primary' : ''}" data-live="${escH(f.uid)}" ${ok ? '' : 'disabled'}>Live duel</button>`; }
+function ldFriendNote(f) { if (!ldOn() || !f) return ''; const nm = escH(f.name); return f.lv !== true ? `<div class="small">${nm} heeft nog een oudere versie: live duels kunnen zodra ${nm} bijwerkt.</div>` : ldIsOn(f) ? (f.busy ? `<div class="small">${nm} speelt nu een ronde; je uitnodiging komt na die ronde.</div>` : '') : f.pu ? `<div class="small">${nm} is niet online, maar krijgt een melding.</div>` : `<div class="small">Live duel kan als ${nm} online is (groen bolletje).</div>`; }
+const ldDot = f => ldOn() && ldIsOn(f) ? `<span class="ld-dot${f.busy ? ' busy' : ''}" title="${f.busy ? 'speelt' : 'online'}"></span>` : '';
+const ldRecHTML = f => ldOn() && f && f.rec && (f.rec.w || f.rec.l || f.rec.d) ? ` <span class="small ld-rec">${escH(`· jij ${f.rec.w || 0} – ${f.rec.l || 0}${f.rec.d ? ` · ${f.rec.d} gelijk` : ''}`)}</span>` : ''; // the head-to-head record next to the name (its own text, so the line under it keeps its translation)
+function ldTodoRow() { if (!ldOn()) return null; if (ldInv) return { go: 'friends:duels', icon: 'friends', t: `${ldInv.name} daagt je uit · LIVE`, s: 'Vrienden · Duels', tag: ldMmss(ldInv.exp - ldNow()), y: 1 }; if (ldWantLobby) return { go: 'friends:duels', icon: 'friends', t: 'Je vriend wacht in de lobby', s: 'Vrienden · Duels' }; return null; }
+const ldBadge = () => ldOn() && (!!ldInv || !!ldWantLobby);
+// -- push (opt-in): Web Push with VAPID on the web, FCM in the app (window.FV_PUSH, off until Pieter's setup); one in-game card explains it first
+const LD_PUSH_KEY = 'dontsliceme-ldpush'; // per device (the save travels between devices, a subscription does not)
+function ldPushDev() { try { return JSON.parse(localStorage.getItem(LD_PUSH_KEY) || 'null') || { on: false }; } catch (e) { return { on: false }; } }
+function ldPushSet(v) { try { localStorage.setItem(LD_PUSH_KEY, JSON.stringify(v)); } catch (e) {} }
+const ldIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const ldTz = () => -new Date().getTimezoneOffset();
+function ldPushKind() { const P = window.FV_PUSH; if (P && P.supported) return 'fcm'; if (HOOK.ldPushApi) return 'web'; return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && location.protocol === 'https:' && NET.has('push') && !!NET.vapid ? 'web' : ''; } // never reads FV_NATIVE (the store)
+const ldB64 = s => { const p = '='.repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+const ldKey = () => HOOK.ldVapid || NET.vapid || ''; // the server's public Web Push key (from hello)
+const ldKeySame = (sub, key) => { try { const a = sub && sub.options && sub.options.applicationServerKey; if (!a || !key) return true; const x = new Uint8Array(a), y = ldB64(key); return x.length === y.length && x.every((v, i) => v === y[i]); } catch (e) { return true; } }; // unknown: keep the subscription
+const ldWebApi = () => HOOK.ldPushApi || { perm: () => Notification.requestPermission(), state: () => Notification.permission,
+  sub: async key => { const reg = await navigator.serviceWorker.ready; let s = await reg.pushManager.getSubscription(); if (s && !ldKeySame(s, key)) { try { await s.unsubscribe(); } catch (e) {} s = null; } return s || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: ldB64(key) }); }, // a subscription made with an older key pair would be refused by the push service: a new one
+  get: async () => { const reg = await navigator.serviceWorker.ready; return reg.pushManager.getSubscription(); } };
+async function ldPushAsk() { if (save.ldAsked) return; if (askOpen()) { ldShow(() => ldPushAsk(), 'ask', true); return; } const kind = ldPushKind();
+  if (!kind) { if (ldIOS() && !navigator.standalone && !window.FV_PUSH) { save.ldAsked = true; store(); askBox({ title: 'Meldingen voor live duels', text: 'Op een iPhone kan de game je alleen een melding sturen als je ze op je beginscherm zet: tik op Deel en dan op Zet op beginscherm. Open de game daarna vanaf je beginscherm.', info: true, yes: 'Oké' }); } return; }
+  save.ldAsked = true; store(); ldPermAsk = true; let yes = null;
+  try { yes = await askBox({ title: 'Meldingen voor live duels?', text: 'Mag de game je een melding sturen als een vriend je uitdaagt voor een live duel, of in de lobby op je wacht? Alleen voor live duels, nooit reclame. Je kunt het altijd uitzetten bij Instellingen.', yes: 'Ja, graag', no: 'Nee, liever niet' }); } finally { ldPermAsk = false; }
+  if (yes) await ldPushOn(); ldPermP = null; }
+async function ldPushOn() { const kind = ldPushKind(); let r = null, key = '';
+  try {
+    if (kind === 'fcm') { const tok = await window.FV_PUSH.enable(); if (tok) { key = tok; r = await ldCall('ldpush', { kind: 'fcm', tok, lang, inv: true, tz: ldTz() }, 6000); } }
+    else if (kind === 'web') { const api = ldWebApi(), permP = ldPermP || api.perm(); ldPermP = null; const perm = await permP; // the browser's own question runs inside the tap (iOS needs that)
+      if (perm !== 'granted') { askBox({ title: 'Meldingen staan uit', text: 'Je browser staat meldingen voor deze game niet toe. Je kunt ze aanzetten in de instellingen van je browser.', info: true, yes: 'Oké' }); ldPushSet({ on: false }); ldGearPaint(); return false; }
+      const sub = await api.sub(ldKey()), j = sub && (sub.toJSON ? sub.toJSON() : sub); if (j && j.endpoint) { key = j.endpoint; r = await ldCall('ldpush', { kind: 'web', sub: { endpoint: j.endpoint, keys: j.keys || {} }, lang, inv: true, tz: ldTz() }, 6000); } }
+  } catch (e) { r = null; }
+  const ok = !!(r && r.ok); ldPushSet(ok ? { on: true, kind, at: nowMs(), lang, key, vk: kind === 'web' ? ldKey() : '' } : { on: false }); ldGearPaint(); if (!ok) askBox({ title: 'Dat lukte niet', text: 'De meldingen konden niet aangezet worden. Probeer het later opnieuw bij Instellingen.', info: true, yes: 'Oké' }); return ok; }
+async function ldPushOff(silent) { const d = ldPushDev(); ldPushSet({ on: false }); ldGearPaint(); let key = d.key || ''; const kind = d.kind || ldPushKind();
+  try { if (kind === 'fcm') { if (!key && window.FV_PUSH) key = await window.FV_PUSH.token(); if (key) await ldCall('ldpush', { kind: 'fcm', tok: key, off: true }, 6000); }
+    else { if (!HOOK.ldPushApi && 'serviceWorker' in navigator) { try { const reg = await navigator.serviceWorker.ready, s = await reg.pushManager.getSubscription(); if (s) { key = key || s.endpoint; await s.unsubscribe(); } } catch (e) {} } if (key) await ldCall('ldpush', { kind: 'web', sub: { endpoint: key }, off: true }, 6000); } } catch (e) {} return !silent; }
+async function ldPushRefresh() { const d = ldPushDev(), vk = d.kind === 'web' ? ldKey() : '', rekey = !!vk && !!d.vk && d.vk !== vk; if (!d.on || !ldOn() || (nowMs() - (d.at || 0) < 86400000 && d.lang === lang && !rekey)) return false; // once a day, after a language change, or when the server has another key pair
+  if (d.kind === 'fcm') { const tok = window.FV_PUSH ? await window.FV_PUSH.token() : ''; if (!tok) { await ldPushOff(true); return false; } const r = await ldCall('ldpush', { kind: 'fcm', tok, lang, inv: true, tz: ldTz() }, 6000); if (r && r.ok) ldPushSet(Object.assign(d, { at: nowMs(), lang, key: tok })); return !!(r && r.ok); }
+  const api = ldWebApi(); let sub = null, perm = 'granted';
+  try { perm = api.state ? api.state() : HOOK.ldPushApi ? 'granted' : Notification.permission; sub = await (api.get ? api.get() : api.sub(vk));
+    if (perm === 'granted' && sub && (rekey || !ldKeySame(sub, vk))) { const old = (sub.toJSON ? sub.toJSON() : sub).endpoint; sub = await api.sub(vk); const j2 = sub && (sub.toJSON ? sub.toJSON() : sub); if (old && j2 && j2.endpoint !== old) await ldCall('ldpush', { kind: 'web', sub: { endpoint: old }, off: true }, 6000); } // the old address goes off the server
+  } catch (e) { sub = null; }
+  if (perm !== 'granted' || !sub) { await ldPushOff(true); return false; } // the permission was withdrawn or the subscription is gone: off here and on the server
+  const j = sub.toJSON ? sub.toJSON() : sub, r = await ldCall('ldpush', { kind: 'web', sub: { endpoint: j.endpoint, keys: j.keys || {} }, lang, inv: true, tz: ldTz() }, 6000); if (r && r.ok) ldPushSet(Object.assign(d, { at: nowMs(), lang, key: j.endpoint, vk })); return !!(r && r.ok); }
+function ldGearPaint() { const b = $('#btn-ldpush'), h = $('#btn-ldhide'); if (b) { const on = !!ldPushDev().on, t = `Meldingen live duel: ${on ? 'aan' : 'uit'}`; if (b.dataset.nl !== t) { b.dataset.nl = t; b.textContent = tr(t); } b.hidden = !ldOn() || (!ldPushKind() && !on); }
+  if (h) { const t = `Vrienden zien dat ik online ben: ${save.ldHide ? 'uit' : 'aan'}`; if (h.dataset.nl !== t) { h.dataset.nl = t; h.textContent = tr(t); } h.hidden = !ldOn(); } }
+function ldGearMount() { const row = $('#gear-set .setrow'); if (!row || $('#btn-ldpush')) return; row.insertAdjacentHTML('beforeend', '<button class="linkbtn" id="btn-ldpush" type="button" hidden>Meldingen live duel: uit</button><button class="linkbtn" id="btn-ldhide" type="button" hidden>Vrienden zien dat ik online ben: aan</button>');
+  $('#btn-ldpush').addEventListener('click', () => { SFX.click(); if (ldPushDev().on) ldPushOff(); else { save.ldAsked = true; store(); ldPushOn(); } });
+  $('#btn-ldhide').addEventListener('click', () => { SFX.click(); save.ldHide = !save.ldHide; store(); ldGearPaint(); ldPollAt = 0; }); }
+function ldOpenFrom(d) { // a tapped push (web: the URL ?ld= / ?li= or a message from sw.js; app: the bridge); a lobby push counts as a tap
+  if (!d) return; const id = ldClean(d.id); ldPollAt = 0; if (d.k === 'ldlobby' && id) { if (duelBusy()) { ldWantLobby = id; ldWantName = ldWantName || 'Je vriend'; ldWantAway = ldWantAway || ldNow() + 120000; } else ldEnter(id, null, true); } }
+function ldBoot() { // at boot: the box, the settings rows, the pause button, a final that never arrived, a push that opened the game
+  ldMount(); ldGearMount(); ldPauseMount(); ldBootAt = nowMs(); const P = save.ldPend;
+  if (P && P.id && nowMs() - (P.at || 0) < LD_PEND_MS) ldRun = { id: P.id, startAt: 0, role: 0, fin: { s: P.s || 0, t: P.t || 0, quit: !!P.quit, died: !!P.died, ghost: P.ghost || '', gt: P.gt || 0, k0: 0, p: [] }, finAt: nowMs(), resAt: 0, resGap: 0, res: null, name: P.name || 'je vriend', fid: P.fid || '', o: { name: P.name || '', go: false, P: [], kMax: -1 }, ev: new Map(), out: [], fx: [], pause: 0, busy: false, sending: false };
+  else if (P) { save.ldPend = null; }
+  try { const u = new URL(location.href), ld = u.searchParams.get('ld'), li = u.searchParams.get('li'); if (ld || li) { u.searchParams.delete('ld'); u.searchParams.delete('li'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); ldOpenFrom({ k: ld ? 'ldlobby' : 'ldinv', id: ld || li }); } } catch (e) {}
+  if (window.FV_PUSH_OPEN) { ldOpenFrom(window.FV_PUSH_OPEN); window.FV_PUSH_OPEN = null; } window.addEventListener('fvpushopen', e => ldOpenFrom(e.detail));
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { const d = e.data || {}; if (d.ldopen) ldOpenFrom(d.ldopen); if (d.ldpush) ldPollAt = 0; });
+  document.addEventListener('visibilitychange', () => { if (document.hidden && ldRun && !ldRun.fin && ldLive() && G.state !== 'over') ldRun.hidAt = nowMs(); }); // the time in the background counts as pause
+  ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { ldTouch = nowMs(); }, { passive: true, capture: true }));
+  $('#ask-yes').addEventListener('click', () => { if (ldPermAsk && ldPushKind() === 'web' && !HOOK.ldPushApi && 'Notification' in window) { try { ldPermP = Notification.requestPermission(); } catch (e) { ldPermP = null; } } ldPermAsk = false; }, true); // inside the tap: iOS only asks then
+  $('#friends-body').addEventListener('click', e => { const b = e.target.closest('[data-live],[data-ldyes],[data-ldno],[data-ldcancel],[data-ldlobby]'); if (!b || b.disabled) return; e.stopPropagation(); SFX.click();
+    if (b.dataset.live) ldInvite(b.dataset.live); else if (b.dataset.ldyes) ldAnswer(b.dataset.ldyes, true); else if (b.dataset.ldno) ldAnswer(b.dataset.ldno, false); else if (b.dataset.ldcancel) ldCancel(b.dataset.ldcancel); else if (b.dataset.ldlobby) { const id = b.dataset.ldlobby; ldWantLobby = ''; ldEnter(id, null, true); } });
+  $('#scr-over').addEventListener('click', e => { if (e.target.closest('#btn-retry') && G.mode === 'duel' && G.duelOut && G.duelOut.live) { e.stopPropagation(); e.preventDefault(); SFX.click(); const X = ldRun; if (X && X.fid) ldInvite(X.fid, true); } }, true); // Nog een keer: a new invite, never a run without a friend
+  setInterval(() => { if (HOOK.ldOff) return; try { ldTick(); } catch (e) { console.warn('ld', e); } }, 250);
+}
 
 // ---- v0.32.3 public duels: a video or a duel ticket once the five free duels of the day are played (side by side, the player chooses)
 function duelAd() { // a video for one more public duel (at most DUEL_AD_DAY a day); the duel starts right after it; one that does not start waits (Speel je extra duel)
@@ -8572,7 +8974,7 @@ $('#gear-music').addEventListener('click', e => { const b = e.target.closest ? e
 const HOOK = window.dontsliceme = {
   difficulty, updateTricks,
   LVSND,
-  version: '0.32.4', freeze: false, /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.32.5', freeze: false, /* v0.32.5 live duel */ /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   get SEASON() { return curSeason(); }, // v0.30.3: the current season of the series
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
@@ -8593,6 +8995,10 @@ const HOOK = window.dontsliceme = {
   gain: v => gainSap(v), diff: () => difficulty(), POWERS, levelGoal, stepGoal, levelSec, LEVEL_SEC_200, barRate, BAR_RATE, levelSteps, stepMark, stepNo, runSteps, interDue, interKindOf, interKindAt, dropChance,
 };
 Object.assign(HOOK, { DUEL_FREE_DAY, DUEL_AD_DAY, DUEL_TICKET_DAY, DUEL_DAY_MAX, DUEL_PAID_DAY, DUEL_FIND_MS, duelDay, duelsLeft, duelAdLeft, duelTickets, duelTicketRoom, duelTicketUsable, duelCanPublic, duelCountText, duelExtraHTML, duelAd, duelPaidLeft, duelPayText, duelSeedList, duelSeedFor, duelFinish, duelBtnState, duelPaint, duelSearch: () => duelSearch, duelCancel: () => { duelSearch = null; }, duelNote: () => duelNote, duelFrom: () => duelFrom, duelWinTile, DUEL_FIND_CH_MS, duelFair, quitRun, findPlayers, askFriend, answerFriend, friendReqs, friendDuelList, friendDuelsIn, friendDuelOut, friendsBadge, nameKey, INVITE_URL, webSite, friendQ: v => { if (v !== undefined) friendQ = v; return friendQ; }, friendNote: () => friendNote }); // v0.32 the Friends tab; v0.32.3 duels per day
+Object.assign(HOOK, { ldSame, ldLive, ldNoPerk, ldInitRun, ldSpawn, ldOn, ldNow, ldCall, ldTick, ldPoll, ldOnPoll, ldInvite, ldCancel, ldAnswer, ldEnter, ldLeave, ldAct, ldBack, ldPollLobby, ldPaint, ldBegin, ldBeat, ldOnBeat, ldOppAt, ldHud, ldEnd, ldEndSend, ldResult, ldResultFrom, ldOverPaint, ldChalResult, ldDraw, ldSection, ldFriendBtn, ldFriendNote, ldDot, ldRecHTML, ldCanLive, ldIsOn, ldTodoRow, ldBadge, ldShow, ldPushAsk, ldPushOn, ldPushOff, ldPushRefresh, ldPushKind, ldPushDev, ldOpenFrom, ldFriends, ldFromServer, ldLate, ldEvent,
+  LD_POLL, LD_VIEW_MS, LD_PAUSE_MS, LD_PAUSES, LD_LATE_MS, LD_FX, ldState: () => ({ inv: ldInv, out: ldOut, lob: ldLob, lobId: ldLobId, want: ldWantLobby, wantAway: ldWantAway, run: ldRun, box: ldBoxMode, skew: ldSkew, later: ldLater.length, shut: [...ldShut], flight: [...ldFlight], manual: ldManual }),
+  ldReset: () => { ldInv = null; ldOut = null; ldLob = null; ldLobId = ''; ldRun = null; ldWantLobby = ''; ldWantAway = 0; ldFruitPick = ''; ldManual = false; ldBoxClose(); ldCarded.clear(); ldShut.clear(); ldFlight.clear(); ldLater.length = 0; ldPollAt = 0; ldSig = ''; ldLobFail = 0; ldCover(false); const g = $('#btn-ldgo'); if (g) g.hidden = true; try { sessionStorage.removeItem(LD_SS); } catch (e) {} },
+  ldPick: k => { ldFruitPick = ldFruitOk(k) ? k : 'appel'; }, ldVapid: '', ldPushApi: null, ldOff: false });
 Object.assign(HOOK, { askBox, askDone, askOpen, challengeAsk, chalCard, chalCards, chalPlay, netPoll, pollReset: () => { pollAt = 0; pollBusy = false; }, chalCarded: () => [...chalCarded], inboxNotes: () => inboxNotes, duelBackPay, setDuelTickets, rewardText, FRIEND_FREE, duelNoSap, profilePayload }); // v0.32.3 in-game questions, friend challenges in the game, duel tickets
 Object.assign(EN, { // v0.32.0 navigation content
   "Dagmes": "Daily knife", "Los spelletje": "Single minigame", "Seizoen": "Season", "Rivalen": "Rivals", "Duels spelen": "Play duels", "Vrienden › Duels": "Friends › Duels", "Uitdagingen van vrienden": "Challenges from friends", "Naar Duels": "To Duels",
@@ -8965,6 +9371,75 @@ EN_RX.unshift( // v0.32.4 geen cosmetica (before every older rule)
   [/^Hartjes die niet passen, worden (\d+) sap per hartje\.$/, m => `Hearts that do not fit become ${m[1]} juice per heart.`],
 );
 
+Object.assign(EN, { // v0.32.5 live duel
+  "De server antwoordt niet. Probeer het straks opnieuw.": "The server does not answer. Try again in a moment.", "Daag uit (24\u00a0u)": "Challenge (24\u00a0h)", "Daag uit (24 u)": "Challenge (24 h)", "Even wachten": "One moment", "Je stuurde dit uur al 10 uitnodigingen die niemand aannam. Probeer het later opnieuw.": "You already sent 10 invites this hour that nobody accepted. Try again later.",
+  "Er staat al een uitnodiging open": "An invite is already open", "Jullie zijn geen vrienden meer, dus uitnodigen kan niet.": "You are no longer friends, so you cannot invite.", "Probeer het straks opnieuw.": "Try again in a moment.", "Dat lukte niet": "That did not work", "Niet nu": "Not now", "Nee, bedankt": "No, thanks", "Nee": "No",
+  "Uitnodiging ingetrokken": "Invite withdrawn", "Je vriend trok de uitnodiging in.": "Your friend withdrew the invite.", "Te laat": "Too late", "Deze uitnodiging is verlopen.": "This invite has expired.", "Je vriend zit intussen in een andere lobby.": "Your friend is in another lobby now.",
+  "Live duel": "Live duel", "Live": "Live", "Lobby verlaten?": "Leave the lobby?", "Verlaten": "Leave", "Blijven": "Stay", "De lobby is gesloten": "The lobby is closed", "Nodig je vriend opnieuw uit als je samen wilt spelen.": "Invite your friend again if you want to play together.",
+  "Te laat voor de lobby": "Too late for the lobby", "Nodig uit": "Invite", "De lobby is gesloten. Nodig opnieuw uit wanneer je wilt.": "The lobby is closed. Invite again whenever you like.", "Annuleer uitnodiging": "Cancel invite",
+  "Jullie waren er niet allebei binnen 2 minuten. Nodig opnieuw uit als je samen wilt spelen.": "You were not both here within 2 minutes. Invite again if you want to play together.",
+  "90 seconden · level 10 · dezelfde messen": "90 seconds · level 10 · the same knives", "90 seconden · level 10 · dezelfde messen · elk fruit mag": "90 seconds · level 10 · the same knives · any fruit", "Verlaat lobby": "Leave lobby", "in de lobby": "in the lobby", "Even wachten…": "One moment…",
+  "Of tik op Start nu.": "Or tap Start now.", "Daar gaan we!": "Here we go!", "Verbinding… de lobby wacht op je.": "Connecting… the lobby waits for you.", "Start nu": "Start now", "Tik om mee te doen": "Tap to join", "tik om mee te doen": "tap to join", "Ik ben er": "I'm here", "Telt mee: nu telt er 1 gewonnen vriendenduel mee.": "Counts: 1 won friend duel counts now.",
+  "Je startte te laat: dit duel telt niet.": "You started too late: this duel does not count.", "Geen duel": "No duel", "Nog een keer": "Again", "Live duel gestopt": "Live duel stopped", "Meldingen voor live duels": "Notifications for live duels",
+  "Op een iPhone kan de game je alleen een melding sturen als je ze op je beginscherm zet: tik op Deel en dan op Zet op beginscherm. Open de game daarna vanaf je beginscherm.": "On an iPhone the game can only notify you once it is on your home screen: tap Share, then Add to Home Screen. Then open the game from your home screen.",
+  "Meldingen voor live duels?": "Notifications for live duels?", "Mag de game je een melding sturen als een vriend je uitdaagt voor een live duel, of in de lobby op je wacht? Alleen voor live duels, nooit reclame. Je kunt het altijd uitzetten bij Instellingen.": "May the game notify you when a friend challenges you to a live duel or waits for you in the lobby? Only for live duels, never ads. You can switch it off any time in Settings.",
+  "Ja, graag": "Yes, please", "Nee, liever niet": "No, thanks", "Meldingen staan uit": "Notifications are off", "Je browser staat meldingen voor deze game niet toe. Je kunt ze aanzetten in de instellingen van je browser.": "Your browser does not allow notifications for this game. You can switch them on in your browser's settings.",
+  "De meldingen konden niet aangezet worden. Probeer het later opnieuw bij Instellingen.": "Notifications could not be switched on. Try again later in Settings.",
+  "Telt niet mee voor je gewonnen duels: er tellen er hoogstens 10 per dag.": "Does not count for your won duels: at most 10 count a day.", "Telt niet mee voor je gewonnen duels: jullie zijn nog geen 24 uur vrienden.": "Does not count for your won duels: you have not been friends for 24 hours yet.",
+  "Je startte niet op tijd: dit duel telt niet.": "You did not start in time: this duel does not count.", "Niemand startte: dit duel telt niet.": "Nobody started: this duel does not count.", "Je vriend wacht in de lobby": "Your friend waits in the lobby", "Naar de lobby": "To the lobby",
+  "Speel tegelijk tegen een vriend die online is (groen bolletje bij Vrienden): 90 seconden op dezelfde messen, en je ziet je vriend live spelen. Onbeperkt en zonder sap.": "Play at the same time as a friend who is online (green dot under Friends): 90 seconds on the same knives, and you see your friend play live. Unlimited and without juice.",
+  "Live duel onderbroken": "Live duel interrupted", "Je app herstartte tijdens het duel. Je duel telt met je laatste stand; de uitslag volgt.": "Your app restarted during the duel. Your duel counts with your last score; the result follows.",
+  "online": "online", "speelt": "playing", "Vriend": "Friend", "je vriend": "your friend", "Je vriend": "Your friend",
+});
+EN_RX.unshift( // v0.32.5 live duel (the longest first where two could match)
+  [/^(.+) krijgt geen melding\. Daag (.+) uit voor 24 uur: jij speelt nu, (.+) speelt later dezelfde messen\.$/, m => `${m[1]} gets no notification. Challenge ${m[2]} for 24 hours: you play now, ${m[3]} plays the same knives later.`],
+  [/^Daag (.+) uit voor 24 uur: jij speelt nu, (.+) speelt later dezelfde messen\.$/, m => `Challenge ${m[1]} for 24 hours: you play now, ${m[2]} plays the same knives later.`], [/^(.+) is niet online$/, m => `${m[1]} is not online`],
+  [/^Een live duel kan pas als (.+) de game bijwerkt\. Daag (.+) intussen uit voor 24 uur\.$/, m => `A live duel works once ${m[1]} updates the game. Challenge ${m[2]} for 24 hours meanwhile.`], [/^(.+) is al bezig$/, m => `${m[1]} is busy`],
+  [/^(.+) heeft al een andere uitnodiging of zit in een lobby\. Probeer het straks opnieuw\.$/, m => `${m[1]} already has another invite or is in a lobby. Try again in a moment.`], [/^Je nodigde (.+) net uit\. Over (\d+) seconden? kan het opnieuw\.$/, m => `You just invited ${m[1]}. You can invite ${m[1]} again in ${m[2]} second${m[2] === '1' ? '' : 's'}.`],
+  [/^(.+) antwoordde twee keer niet\. Over (\d+) minu(?:ut|ten) kan het opnieuw; (.+) kan jou intussen wel uitnodigen\.$/, m => `${m[1]} did not answer twice. You can invite again in ${m[2]} minute${m[2] === '1' ? '' : 's'}; ${m[3]} can still invite you meanwhile.`],
+  [/^(.+) kan nu niet\. Over (\d+) minu(?:ut|ten) kan het opnieuw\.$/, m => `${m[1]} cannot play now. You can invite ${m[1]} again in ${m[2]} minute${m[2] === '1' ? '' : 's'}.`], [/^(.+) wil vandaag geen live duel meer\. Probeer het morgen opnieuw\.$/, m => `${m[1]} does not want another live duel today. Try again tomorrow.`],
+  [/^Je wacht nog op (.+)\. Annuleer die eerst als je iemand anders wilt uitnodigen\.$/, m => `You are still waiting for ${tr(m[1])}. Cancel that one first to invite someone else.`], [/^(.+) kan nu niet$/, m => `${m[1]} cannot play now`], [/^(.+) antwoordde niet$/, m => `${m[1]} did not answer`],
+  [/^(.+) wil nog een keer!$/, m => `${m[1]} wants to play again!`], [/^(.+) daagt je uit voor een live duel!$/, m => `${m[1]} challenges you to a live duel!`],
+  [/^Jullie spelen tegelijk 90 seconden op dezelfde messen, en je ziet (.+) live spelen\. Nog (\d+) min om te antwoorden\.$/, m => `You both play 90 seconds on the same knives at the same time, and you see ${m[1]} play live. ${m[2]} min left to answer.`],
+  [/^Dan sluit de lobby ook voor (.+)\.$/, m => `Then the lobby closes for ${tr(m[1])} too.`], [/^(.+) wachtte 2 minuten\. Nodig (.+) opnieuw uit als je samen wilt spelen\.$/, m => `${m[1]} waited 2 minutes. Invite ${m[2]} again if you want to play together.`],
+  [/^(.+) verliet de lobby$/, m => `${m[1]} left the lobby`], [/^(.+) kwam niet op tijd$/, m => `${m[1]} did not come in time`], [/^De lobby is gesloten na 2 minuten\. Daag (.+) uit voor 24 uur of probeer later opnieuw\.$/, m => `The lobby closed after 2 minutes. Challenge ${m[1]} for 24 hours or try again later.`],
+  [/^Live duel met (.+)$/, m => `Live duel with ${m[1]}`], [/^Uitnodiging verstuurd · nog (\d+:\d\d)$/, m => `Invite sent · ${m[1]} left`],
+  [/^(.+) krijgt nu geen melding en ziet je uitnodiging zodra (.+) de game opent\. Speel je intussen een ronde\? Zodra (.+) in de lobby zit, heb je 2 minuten\.$/, m => `${m[1]} gets no notification now and sees your invite once ${m[2]} opens the game. Playing a round meanwhile? Once ${m[3]} is in the lobby, you have 2 minutes.`],
+  [/^(.+) krijgt een melding\. Speel je intussen een ronde\? Zodra (.+) in de lobby zit, heb je 2 minuten\.$/, m => `${m[1]} gets a notification. Playing a round meanwhile? Once ${m[2]} is in the lobby, you have 2 minutes.`],
+  [/^Speel je intussen een ronde\? Zodra (.+) in de lobby zit, heb je 2 minuten\.$/, m => `Playing a round meanwhile? Once ${m[1]} is in the lobby, you have 2 minutes.`],
+  [/^(.+) \(jij\)$/, m => `${m[1]} (you)`], [/^komt eraan · (\d+:\d\d)$/, m => `on the way · ${m[1]}`], [/^Je speelt met (.+)$/, m => `You play with ${tr(m[1])}`], [/^Jouw fruit: (.+) · tik er een om te wisselen$/, m => `Your fruit: ${tr(m[1])} · tap one to switch`],
+  [/^(.+) is er! Tik om mee te doen$/, m => `${m[1]} is here! Tap to join`], [/^Je hebt nog (\d+:\d\d); daarna sluit de lobby\.$/, m => `You have ${m[1]} left; then the lobby closes.`],
+  [/^Wachten op (.+) · nog (\d+:\d\d)$/, m => `Waiting for ${m[1]} · ${m[2]} left`], [/^(.+) kreeg een melding\. Is (.+) er niet binnen 2 minuten, dan sluit de lobby\.$/, m => `${m[1]} got a notification. If ${m[2]} is not here within 2 minutes, the lobby closes.`],
+  [/^(.+) heeft geen meldingen aan en ziet het pas in de game\. Is (.+) er niet binnen 2 minuten, dan sluit de lobby\.$/, m => `${m[1]} has no notifications on and only sees it in the game. If ${m[2]} is not here within 2 minutes, the lobby closes.`],
+  [/^Is (.+) er niet binnen 2 minuten, dan sluit de lobby\.$/, m => `If ${m[1]} is not here within 2 minutes, the lobby closes.`], [/^Allebei hier! Start over (\d+) s$/, m => `Both here! Starts in ${m[1]} s`], [/^(.+) kan ook meteen starten\.$/, m => `${m[1]} can also start right away.`],
+  [/^Je speelt tegelijk met (.+)\.$/, m => `You play at the same time as ${m[1]}.`], [/^Live duel tegen (.+) · 90 s$/, m => `Live duel against ${m[1]} · 90 s`],
+  [/^90 seconden · level 10 · dezelfde messen · elk fruit mag · (met|zonder) krachten$/, m => `90 seconds · level 10 · the same knives · any fruit · ${m[1] === 'met' ? 'with' : 'without'} powers`], [/^Krachten: (aan|uit)$/, m => `Powers: ${m[1] === 'aan' ? 'on' : 'off'}`],
+  [/^Live duel: pauze (\d+) van (\d+), nog (\d+) s\. Daarna stopt je duel; het telt nu met (\d+) sap\.$/, m => `Live duel: pause ${m[1]} of ${m[2]}, ${m[3]} s left. Then your duel stops; it counts ${m[4]} juice now.`],
+  [/^Live duel: je laatste pauze, nog (\d+) s\. Pauzeer je nog eens, dan stopt je duel; het telt nu met (\d+) sap\.$/, m => `Live duel: your last pause, ${m[1]} s left. Pause again and your duel stops; it counts ${m[2]} juice now.`],
+  [/^(.+) gebruikt (.+) over (\d+) s!$/, m => `${m[1]} uses ${tr(m[2])} in ${m[3]} s!`], [/^(.+) gebruikt (.+)!$/, m => `${m[1]} uses ${tr(m[2])}!`], [/^(.+) is gesneden na (\d+) s$/, m => `${m[1]} was cut after ${m[2]} s`], [/^(.+) is gestopt na (\d+) s$/, m => `${m[1]} stopped after ${m[2]} s`],
+  [/^(.+) · verbinding…$/, m => `${m[1]} · connecting…`], [/^Live · nog (\d+) s · jij (\d+) · (.+) startte niet$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} did not start`], [/^Live · nog (\d+) s · jij (\d+) · (.+) start…$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} starting…`],
+  [/^Live · nog (\d+) s · jij (\d+) · (.+) gesneden \((\d+) sap\)$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} cut (${m[4]} juice)`], [/^Live · nog (\d+) s · jij (\d+) · (.+) gestopt \((\d+) sap\)$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} stopped (${m[4]} juice)`], [/^Live · nog (\d+) s · jij (\d+) · (.+) pauzeert$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} is pausing`],
+  [/^Live · nog (\d+) s · jij (\d+) · (.+): verbinding…$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]}: connecting…`], [/^Live · nog (\d+) s · jij (\d+) · (.+) (\d+)$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} ${m[4]}`],
+  [/^(.+) startte niet\. Je ronde is nu een uitdaging van 24 uur voor (.+)\.$/, m => `${m[1]} did not start. Your round is now a 24-hour challenge for ${m[2]}.`], [/^(.+) startte niet: dit duel telt niet\.$/, m => `${m[1]} did not start: this duel does not count.`],
+  [/^Je startte niet op tijd\. Je krijgt de ronde van (.+) als uitdaging van 24 uur\.$/, m => `You did not start in time. You get ${m[1]}'s round as a 24-hour challenge.`],
+  [/^Je wint van (.+): (\d+) tegen (\d+) sap\.$/, m => `You beat ${m[1]}: ${m[2]} to ${m[3]} juice.`], [/^(.+) wint: (\d+) tegen (\d+) sap\.$/, m => `${m[1]} wins: ${m[2]} to ${m[3]} juice.`], [/^Gelijkspel: (\d+) tegen (\d+) sap\.$/, m => `Draw: ${m[1]} to ${m[2]} juice.`],
+  [/^Jullie stand: jij (\d+) – (\d+) (.+) \((\d+) gelijk\)\.$/, m => `Your record: you ${m[1]} – ${m[2]} ${m[3]} (${m[4]} draw${m[4] === '1' ? '' : 's'}).`], [/^Jullie stand: jij (\d+) – (\d+) (.+)\.$/, m => `Your record: you ${m[1]} – ${m[2]} ${m[3]}.`],
+  [/^Telt mee: nu tellen er (\d+) gewonnen vriendenduels mee\.$/, m => `Counts: ${m[1]} won friend duels count now.`],
+  [/^Telt niet mee voor je gewonnen duels: het account van (.+) is nog geen week oud\.$/, m => `Does not count for your won duels: ${m[1]}'s account is not a week old yet.`],
+  [/^Telt niet mee voor je gewonnen duels: tegen (.+) tellen er hoogstens 3 per dag\.$/, m => `Does not count for your won duels: at most 3 count a day against ${m[1]}.`],
+  [/^Telt niet mee voor je gewonnen duels: (.+) stopte of viel weg\.$/, m => `Does not count for your won duels: ${m[1]} stopped or dropped out.`], [/^Telt niet mee voor je gewonnen duels: (.+) speelde korter dan 30 seconden\.$/, m => `Does not count for your won duels: ${m[1]} played less than 30 seconds.`],
+  [/^Telt niet mee voor je gewonnen duels: (.+) haalde minder dan 5 sap\.$/, m => `Does not count for your won duels: ${m[1]} got less than 5 juice.`], [/^Telt niet mee voor je gewonnen duels: (.+) is nog geen level 15\.$/, m => `Does not count for your won duels: ${m[1]} has not reached level 15 yet.`],
+  [/^Telt niet mee voor je gewonnen duels: (.+) speelde de laatste twee weken op minder dan 3 dagen\.$/, m => `Does not count for your won duels: ${m[1]} played on fewer than 3 days in the last two weeks.`],
+  [/^(.+) speelt nog…$/, m => `${m[1]} is still playing…`], [/^(.+) speelde niet mee\.$/, m => `${m[1]} did not play.`], [/^(.+): (\d+) sap \(speelt nog\)\.$/, m => `${m[1]}: ${m[2]} juice (still playing).`], [/^(.+): (\d+) sap \((gestopt|viel weg) na (\d+) s\)\.$/, m => `${m[1]}: ${m[2]} juice (${m[3] === 'gestopt' ? 'stopped' : 'dropped out'} after ${m[4]} s).`],
+  [/^De uitslag komt zodra (.+) klaar is\.$/, m => `The result comes once ${tr(m[1])} is done.`], [/^Je duel telt met (\d+) sap\. De uitslag komt zodra (.+) klaar is\.$/, m => `Your duel counts ${m[1]} juice. The result comes once ${tr(m[2])} is done.`],
+  [/^(.+) daagt je uit · LIVE$/, m => `${m[1]} challenges you · LIVE`], [/^Jij nodigde (.+) uit · LIVE$/, m => `You invited ${m[1]} · LIVE`], [/^wacht op antwoord · nog (\d+:\d\d)$/, m => `waiting for an answer · ${m[1]} left`], [/^nog (\d+:\d\d)$/, m => `${m[1]} left`],
+  [/^Vriendenduels gewonnen: (\d+) · daarvan tellen mee: (\d+)$/, m => `Friend duels won: ${m[1]} · of these count: ${m[2]}`], [/^Laatste live duel: (gewonnen van|verloren van|gelijk tegen) (.+), (\d+) tegen (\d+) sap\.$/, m => `Last live duel: ${{ 'gewonnen van': 'won against', 'verloren van': 'lost to', 'gelijk tegen': 'draw with' }[m[1]]} ${m[2]}, ${m[3]} to ${m[4]} juice.`],
+  [/^(.+) heeft nog een oudere versie: live duels kunnen zodra (.+) bijwerkt\.$/, m => `${m[1]} still has an older version: live duels work once ${m[2]} updates.`], [/^(.+) speelt nu een ronde; je uitnodiging komt na die ronde\.$/, m => `${m[1]} is playing a round now; your invite arrives after that round.`],
+  [/^(.+) is niet online, maar krijgt een melding\.$/, m => `${m[1]} is not online, but gets a notification.`], [/^Live duel kan als (.+) online is \(groen bolletje\)\.$/, m => `A live duel works when ${m[1]} is online (green dot).`],
+  [/^Meldingen live duel: (aan|uit)$/, m => `Live duel notifications: ${m[1] === 'aan' ? 'on' : 'off'}`], [/^Vrienden zien dat ik online ben: (aan|uit)$/, m => `Friends see when I'm online: ${m[1] === 'aan' ? 'on' : 'off'}`],
+  [/^· jij (\d+) – (\d+)( · (\d+) gelijk)?$/, m => `· you ${m[1]} – ${m[2]}${m[3] ? ` · ${m[4]} draw${m[4] === '1' ? '' : 's'}` : ''}`], [/^(.+) wacht in de lobby · nog (\d+:\d\d)$/, m => `${tr(m[1])} waits in the lobby · ${m[2]} left`],
+  [/^Het duel was al begonnen\. Speelt (.+) het uit, dan krijg je die ronde als uitdaging van 24 uur\.$/, m => `The duel had already started. If ${tr(m[1])} plays it out, you get that round as a 24-hour challenge.`],
+);
 let last = performance.now();
 function frame(now) { const real = Math.min(50, now - last); last = now; if (!HOOK.freeze) update(real); render(); requestAnimationFrame(frame); }
 
@@ -8974,6 +9449,7 @@ function boot(hot) {
   resize(); window.addEventListener('resize', resize); if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
   try { if (document.fonts && document.fonts.load) { document.fonts.load(`700 34px ${FD}`).then(() => { board = null; }).catch(() => {}); } } catch (e) {}
   const m = /^#dag(\d{4})(\d{2})(\d{2})$/.exec(location.hash || ''); if (m) pendingDaily = `${m[1]}-${m[2]}-${m[3]}`;
+  ldBoot(); // v0.32.5 live duel: before the invite link clears the address (?ld= / ?li= from a push)
   const inv = parseInvite(location.href); if (inv) { save.pendingFriend = inv; store(); try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {} }
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {}); // offline play when served from a site
   G.px = G.tx = W / 2; G.py = G.ty = H * .6; convertUnlBank(); albumCatchUp(true); duelBackPay(); if (!save.seen.intro && !save.runs && !pendingDaily) openIntro(); else openMenu(); if (pendingDaily) openToday('games'); requestAnimationFrame(frame);

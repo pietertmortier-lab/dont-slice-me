@@ -20,6 +20,9 @@
    overlays for the menus. A single dark kitchen theme by design: the board is the game world. */
 :root{
   color-scheme:dark;
+  /* v0.32.8 safe area */ /* Android app (Capacitor SystemBars 'css'): env() and --safe-area-inset-* on <html>; the larger counts. Web: 0 */
+  --sat:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px));--sar:max(env(safe-area-inset-right,0px),var(--safe-area-inset-right,0px));
+  --sab:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px));--sal:max(env(safe-area-inset-left,0px),var(--safe-area-inset-left,0px));
   --counter:#17100b;      /* kitchen counter behind the board */
   --ink:#fff4e4;
   --ink-dim:#d9bb9b;
@@ -29,8 +32,8 @@
   --panel-edge:rgba(255,220,180,.16);
   --font-display:'Fredoka','Trebuchet MS','Segoe UI',sans-serif;
   --font-ui:'Nunito','Segoe UI',system-ui,sans-serif;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
+  padding-top:var(--sat);
+  padding-bottom:var(--sab);
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
@@ -39,8 +42,8 @@ body{background:var(--counter);color:var(--ink);font-family:var(--font-ui);overf
 [hidden]{display:none!important}
 #game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #ui{position:fixed;inset:0;pointer-events:none}
-.screen{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));pointer-events:auto;overflow-y:auto}
-.panel{background:linear-gradient(180deg,rgba(46,27,13,.93),rgba(26,15,8,.95));border:1px solid var(--panel-edge);border-radius:24px;padding:20px 16px;width:min(100%,400px);box-shadow:0 20px 60px rgba(0,0,0,.5);backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:12px;text-align:center;margin:auto 0}
+.screen{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:max(14px,var(--sat));padding-bottom:max(14px,var(--sab));padding-left:max(16px,var(--sal));padding-right:max(16px,var(--sar));pointer-events:auto;overflow-y:auto}
+.panel{background:linear-gradient(180deg,rgba(46,27,13,.96),rgba(26,15,8,.97));border:1px solid var(--panel-edge);border-radius:24px;padding:20px 16px;width:min(100%,400px);box-shadow:0 20px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:12px;text-align:center;margin:auto 0}
 h1,h2{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.05}
 h2{font-size:34px;font-weight:600}
 .logo{font-size:28px;white-space:nowrap;font-weight:700;color:var(--sugar);text-shadow:0 4px 0 #8a4a10,0 10px 24px rgba(0,0,0,.45);letter-spacing:.01em}
@@ -66,8 +69,9 @@ h2{font-size:34px;font-weight:600}
 .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
 .btn.primary{background:linear-gradient(180deg,#ff7a5c,#ff3d2e);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.25)}
 .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--panel-edge);box-shadow:none}
-.btn.big{font-size:27px;padding:15px 40px;animation:breathe 2.6s ease-in-out infinite}
-@keyframes breathe{0%,100%{filter:brightness(1);box-shadow:0 4px 0 rgba(0,0,0,.35)}50%{filter:brightness(1.14);box-shadow:0 4px 0 rgba(0,0,0,.35),0 0 22px rgba(255,120,90,.55)}}
+.btn.big{font-size:27px;padding:15px 40px;position:relative}
+.btn.big::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 22px rgba(255,120,90,.55);background:rgba(255,240,225,.1);opacity:0;pointer-events:none;animation:breathe 2.6s ease-in-out infinite} /* v0.32.8 heat: only the glow layer's opacity breathes (no repaint) */
+@keyframes breathe{0%,100%{opacity:0}50%{opacity:1}}
 .btn:disabled{opacity:.45;cursor:default;transform:none}
 button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
@@ -92,8 +96,8 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .menu-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--ink-dim);flex-wrap:wrap}
 .linkbtn{background:none;color:var(--ink);font:800 13px var(--font-ui);cursor:pointer;padding:6px 10px;border-radius:999px;border:1px solid var(--panel-edge)}
 #ver{cursor:pointer}
-#btn-pause{position:absolute;top:10px;right:max(10px,env(safe-area-inset-right,0px));width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,244,228,.35);background:rgba(0,0,0,.35);color:var(--ink);font:800 15px var(--font-ui);letter-spacing:.1em;pointer-events:auto;cursor:pointer}
-#btn-lampion{position:absolute;top:10px;right:max(62px,calc(env(safe-area-inset-right,0px) + 62px));width:44px;height:44px;border-radius:50%;border:2px solid var(--lc,#ffb347);background:rgba(0,0,0,.35);padding:0;display:flex;align-items:center;justify-content:center;pointer-events:auto;cursor:pointer;touch-action:manipulation}
+#btn-pause{position:absolute;top:calc(10px + var(--sat));right:max(10px,var(--sar));width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,244,228,.35);background:rgba(0,0,0,.35);color:var(--ink);font:800 15px var(--font-ui);letter-spacing:.1em;pointer-events:auto;cursor:pointer}
+#btn-lampion{position:absolute;top:calc(10px + var(--sat));right:max(62px,calc(var(--sar) + 62px));width:44px;height:44px;border-radius:50%;border:2px solid var(--lc,#ffb347);background:rgba(0,0,0,.35);padding:0;display:flex;align-items:center;justify-content:center;pointer-events:auto;cursor:pointer;touch-action:manipulation}
 #btn-lampion[hidden]{display:none}
 #btn-lampion svg{width:26px;height:26px;overflow:visible}
 #btn-lampion b{position:absolute;left:-4px;top:-4px;min-width:17px;height:17px;padding:0 3px;border-radius:9px;background:var(--lc,#ffb347);color:#2a1408;font:800 11px/17px var(--font-ui)}
@@ -127,14 +131,14 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .fcard.can .st{color:var(--sugar)}
 .sec.focus{outline:2px solid var(--sugar);outline-offset:3px}
 /* v0.32.0: five tabs, Spelen as a raised red disc in the centre */
-#hub{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:flex-end;gap:4px;padding:16px max(8px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(23,16,11,0),rgba(23,16,11,.95) 32%);pointer-events:auto;z-index:5}
+#hub{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:flex-end;gap:4px;padding:16px max(8px,var(--sar)) max(8px,var(--sab)) max(8px,var(--sal));background:linear-gradient(180deg,rgba(23,16,11,0),rgba(23,16,11,.95) 32%);pointer-events:auto;z-index:5}
 #hub button{position:relative;flex:1 1 0;max-width:78px;min-width:0;background:rgba(30,17,9,.94);border:1px solid var(--panel-edge);border-radius:14px;color:var(--ink-dim);font:800 11px/1 var(--font-ui);padding:7px 1px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
 #hub button .lb{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #hub button svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #hub button.on{color:var(--sugar);border-color:rgba(255,213,74,.55);background:rgba(255,213,74,.1)}
 .hb{position:absolute;top:-7px;right:5px;background:var(--knife);color:#fff;border-radius:999px;font:900 12px/18px var(--font-ui);font-style:normal;width:18px;height:18px;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.35);animation:hubpop 1.4s ease-in-out infinite}
 @keyframes hubpop{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-#reward{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(12,7,3,.6);z-index:9;pointer-events:auto}
+#reward{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:max(16px,var(--sat)) max(16px,var(--sar)) max(16px,var(--sab)) max(16px,var(--sal));background:rgba(12,7,3,.6);z-index:9;pointer-events:auto}
 #reward[hidden]{display:none}
 .rw-card{position:relative;width:min(320px,100%);background:linear-gradient(180deg,#43280f,#241408);border:2px solid rgba(255,213,74,.75);border-radius:24px;padding:18px 16px 16px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.12);animation:rwIn .5s cubic-bezier(.2,1.5,.4,1) both}
 .rw-card::before{content:'';position:absolute;inset:-60px;border-radius:50%;background:radial-gradient(circle,rgba(255,213,74,.3),rgba(255,213,74,0) 62%);z-index:-1;animation:rwGlow 1.4s ease-in-out infinite alternate;pointer-events:none}
@@ -157,12 +161,12 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .flag.en{background:linear-gradient(#c8102e 0 0) center/100% 18% no-repeat,linear-gradient(#c8102e 0 0) center/18% 100% no-repeat,linear-gradient(#fff 0 0) center/100% 32% no-repeat,linear-gradient(#fff 0 0) center/32% 100% no-repeat,#012169}
 #playbar .flag{width:18px;height:12px;border-radius:2px}
 .linkbtn .flag{width:20px;height:14px;border-radius:3px;margin-right:2px}
-.dialog{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(12,7,3,.6);z-index:10;pointer-events:auto}
+.dialog{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:max(16px,var(--sat)) max(16px,var(--sar)) max(16px,var(--sab)) max(16px,var(--sal));background:rgba(12,7,3,.6);z-index:10;pointer-events:auto}
 .dialog[hidden]{display:none}
 .dialog .row{flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px}
 .langpick{display:flex;align-items:center;gap:8px;font-size:17px;padding:11px 16px}
-#ui.hub .screen{padding-bottom:104px}
-#ui.subnav .screen{padding-top:calc(100px + max(8px,env(safe-area-inset-top,0px)))}
+#ui.hub .screen{padding-bottom:calc(104px + max(0px,var(--sab) - 8px))}
+#ui.subnav .screen{padding-top:calc(100px + max(8px,var(--sat)))}
 .sec h3{margin:0;font:600 17px var(--font-display)}
 .mrow{display:flex;align-items:center;gap:10px}
 .mrow .mt{flex:1;min-width:0;font-size:13px;line-height:1.3}
@@ -206,7 +210,7 @@ button:focus-visible{outline:3px solid var(--sugar);outline-offset:2px}
 .medal.brons{color:#d08a4a}.medal.zilver{color:#d8dde6}.medal.goud{color:#ffd54a}.medal.diamant{color:#9ae8ff}
 .snap{width:min(72%,250px);max-width:100%;aspect-ratio:1;object-fit:contain;align-self:center;border-radius:16px;background:radial-gradient(circle at 50% 45%,rgba(255,235,200,.14),rgba(255,235,200,0) 70%)}
 .snap.cardimg{width:min(100%,300px);aspect-ratio:4/5;background:none}
-@media (prefers-reduced-motion:reduce){.btn{transition:none;animation:none}.hb{animation:none}.hero canvas{animation:none}}
+@media (prefers-reduced-motion:reduce){.btn,.btn.big::after,.sk.ready .disc::after{transition:none;animation:none}.hb{animation:none}.hero canvas{animation:none}}
 .claimall{display:flex;flex-direction:column;gap:7px;text-align:left;background:rgba(255,213,74,.08);border:1px solid rgba(255,213,74,.42);border-radius:16px;padding:10px 12px}
 .claimall>.btn{align-self:stretch;font-size:18px;padding:11px 16px}
 .cwait{display:flex;flex-wrap:wrap;gap:4px 6px}
@@ -280,7 +284,7 @@ canvas.pvthumb{width:44px;height:44px;flex:0 0 44px;border-radius:10px;backgroun
 #hub .hb.dot,#subnav .hb.dot{min-width:0;width:12px;height:12px;padding:0;top:-4px;right:8px;background:var(--sugar);border:2px solid #2a1208;box-shadow:none}
 #hub .play .hb{top:-25px;right:calc(50% - 32px)}
 #hub .play .hb.dot{top:-21px;right:calc(50% - 27px)}
-#subnav{position:absolute;left:0;right:0;top:0;z-index:5;pointer-events:auto;padding:max(8px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(23,16,11,.97) 80%,rgba(23,16,11,0))}
+#subnav{position:absolute;left:0;right:0;top:0;z-index:5;pointer-events:auto;padding:max(8px,var(--sat)) max(12px,var(--sar)) 10px max(12px,var(--sal));background:linear-gradient(180deg,rgba(23,16,11,.97) 80%,rgba(23,16,11,0))}
 #subnav .navhead{position:relative;max-width:400px;margin:0 auto 6px;display:flex;align-items:center;gap:8px;min-height:40px}
 #subnav .nt{flex:1 1 auto;min-width:0;font:600 26px/1.15 var(--font-display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #subnav .nt.logo{font-size:24px;font-weight:700;color:var(--sugar);text-shadow:0 3px 0 #8a4a10,0 8px 18px rgba(0,0,0,.45)}
@@ -320,8 +324,8 @@ a.btn,a.linkbtn{display:inline-flex;align-items:center;justify-content:center;te
 .linkrow .tag{font:800 11px var(--font-ui);padding:3px 7px;border-radius:999px;background:var(--knife);color:#fff;flex:0 0 auto}
 .linkrow .tag.y{background:var(--sugar);color:#2a1208}
 .sec.todo{gap:6px}
-.sheetbox{align-items:flex-end;padding:0}
-.sheet{position:relative;width:min(100%,430px);max-height:90%;overflow-y:auto;overscroll-behavior:contain;background:linear-gradient(180deg,#43280f,#241408);border:2px solid rgba(255,213,74,.75);border-bottom:0;border-radius:24px 24px 0 0;padding:10px 16px max(22px,env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;text-align:center;box-shadow:0 -10px 50px rgba(0,0,0,.6);animation:sheetIn .22s ease-out both}
+.sheetbox{align-items:flex-end;padding:var(--sat) 0 0}
+.sheet{position:relative;width:min(100%,430px);max-height:90%;overflow-y:auto;overscroll-behavior:contain;background:linear-gradient(180deg,#43280f,#241408);border:2px solid rgba(255,213,74,.75);border-bottom:0;border-radius:24px 24px 0 0;padding:10px 16px max(22px,var(--sab));display:flex;flex-direction:column;gap:10px;text-align:center;box-shadow:0 -10px 50px rgba(0,0,0,.6);animation:sheetIn .22s ease-out both}
 .sheet .grab{width:42px;height:5px;flex:0 0 5px;border-radius:3px;background:rgba(255,255,255,.25);align-self:center}
 .sheet .closex{position:absolute;right:12px;top:10px}
 .sheet h2{font-size:24px;margin:2px 44px 0}
@@ -334,7 +338,7 @@ a.btn,a.linkbtn{display:inline-flex;align-items:center;justify-content:center;te
 .sec.fold.open>h3::after{transform:rotate(-90deg)}
 .sec.fold:not(.open)>:not(h3){display:none}
 @keyframes sheetIn{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
-#navhint{position:absolute;left:0;right:0;bottom:calc(98px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;padding:0 16px;z-index:6;pointer-events:none}
+#navhint{position:absolute;left:0;right:0;bottom:calc(98px + var(--sab));display:flex;justify-content:center;padding:0 16px;z-index:6;pointer-events:none}
 #navhint .nh{position:relative;pointer-events:auto;max-width:320px;display:flex;gap:10px;align-items:center;text-align:left;background:#2c1b0e;border:2px solid var(--sugar);border-radius:16px;padding:10px 12px;font:700 13.5px/1.35 var(--font-ui);color:var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.55);animation:rwIn .4s cubic-bezier(.2,1.5,.4,1) both}
 #navhint .nh::after{content:'';position:absolute;left:50%;bottom:-9px;width:14px;height:14px;margin-left:-7px;background:#2c1b0e;border-right:2px solid var(--sugar);border-bottom:2px solid var(--sugar);transform:rotate(45deg)}
 @media (prefers-reduced-motion:reduce){.sheet,#navhint .nh{animation:none}}
@@ -356,7 +360,8 @@ a.btn,a.linkbtn{display:inline-flex;align-items:center;justify-content:center;te
 .sk .disc svg{width:24px;height:24px}
 .sk.got .disc{background:var(--c);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 2px 0 rgba(0,0,0,.35)}
 .sk.got .disc::after{content:'';position:absolute;right:-2px;bottom:-1px;width:15px;height:15px;border-radius:50%;background:#3fae5a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/11px no-repeat;border:2px solid #2a1a0d}
-.sk.ready .disc{background:var(--c);box-shadow:0 0 0 3px var(--sugar),0 0 16px rgba(255,213,74,.7);animation:stkglow 1.6s ease-in-out infinite}
+.sk.ready .disc{background:var(--c);box-shadow:0 0 0 3px var(--sugar),0 0 16px rgba(255,213,74,.7)}
+.sk.ready .disc::after{content:'';position:absolute;inset:0;border-radius:50%;box-shadow:0 0 24px rgba(255,213,74,.95);opacity:0;pointer-events:none;animation:stkglow 1.6s ease-in-out infinite} /* v0.32.8 heat */
 .sk.lock .disc{background:conic-gradient(var(--sugar) calc(var(--p)*1%),rgba(255,255,255,.1) 0);color:rgba(255,244,228,.5)}
 .sk.lock .disc::before{content:'';position:absolute;inset:4px;border-radius:50%;background:#2c1b0e}
 .sk.lock .disc svg{position:relative}
@@ -365,7 +370,7 @@ a.btn,a.linkbtn{display:inline-flex;align-items:center;justify-content:center;te
 .sk .st{font:800 10.5px/1.25 var(--font-ui);color:var(--ink-dim);font-style:normal;white-space:nowrap}
 .sk.ready .st{color:#fff;background:var(--knife);padding:0 5px;border-radius:999px}
 .sk.got .st{color:#7fd28f;font-weight:700}
-@keyframes stkglow{50%{box-shadow:0 0 0 3px var(--sugar),0 0 24px rgba(255,213,74,.95)}}
+@keyframes stkglow{50%{opacity:1}}
 .sk.flap .disc{animation:stkflap .6s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes stkflap{0%{transform:scale(1.6) rotate(-20deg);opacity:.15}60%{transform:scale(.9) rotate(5deg);opacity:1}100%{transform:none}}
 .sk .fly{position:absolute;top:-6px;left:50%;font:900 12px var(--font-ui);color:var(--sugar);text-shadow:0 1px 0 rgba(0,0,0,.6);animation:stkfly 1.4s ease-out both;pointer-events:none;white-space:nowrap}
@@ -555,6 +560,7 @@ canvas.pvthumb{width:var(--thumb);height:var(--thumb);flex:0 0 var(--thumb)}
 .flag{width:34px;height:24px;border-radius:5px}
 .linkbtn .flag{width:26px;height:18px;border-radius:4px}
 .crown{font-size:17px;line-height:0}
+/* v0.32.8 chefnext */#btn-chef-link{display:block;margin:0 auto;min-height:44px;min-width:120px;padding:10px 20px;font-size:14px}#over-chefrow>.btn{min-height:48px;white-space:nowrap;padding:13px 16px}#btn-chef-next{flex:1 1 auto}#btn-chef-menu{flex:1 1 96px}#over-chefnote{margin:-4px 0 0}
 </style>
 </head>
 <body>
@@ -705,6 +711,7 @@ canvas.pvthumb{width:var(--thumb);height:var(--thumb);flex:0 0 var(--thumb)}
       <p class="small" id="over-kaart" hidden></p>
       <button class="btn primary" id="btn-over-kaart" hidden></button>
       <div class="row"><button class="btn primary" id="btn-retry">Opnieuw</button><button class="btn ghost" id="btn-menu">Ander fruit</button></div>
+      <div class="row" id="over-chefrow" hidden><button class="btn primary" id="btn-chef-next">Volgend hoofdstuk ›</button><button class="btn ghost" id="btn-chef-menu">Menu</button></div><p class="small" id="over-chefnote" hidden></p><button type="button" class="linkbtn" id="btn-chef-link" hidden>Menu</button>
       <button class="btn" id="btn-over-cont" hidden>Verder vanaf hier · filmpje</button>
       <button class="btn" id="btn-over-double" hidden>Filmpje: verdubbel je sap</button>
       <button class="btn" id="btn-share">Afbeelding delen</button>
@@ -2599,8 +2606,8 @@ const EN_RX = [
   [/^Vandaag voor de helft: ([\d.]+) wordt ([\d.]+) sap\. (.+)$/, m => `Half price today: ${m[1]} becomes ${m[2]} juice. ${tr(m[3])}`], [/^Je hebt nog ([\d.]+) sap tekort\.$/, m => `You need ${m[1]} more juice.`], [/^max (\d+) uur$/, m => `max ${m[1]} hours`],
   [/^Met sap: tot je er (\d+) hebt\.$/, m => `With juice: until you have ${m[1]}.`], [/^Je hebt er genoeg\. Met sap kan het weer als je er nog (\d+) hebt\.$/, m => `You have enough. Buying with juice works again when you have ${m[1]} left.`],
   [/^Level (\d+)$/, m => `Level ${m[1]}`],
-  [/^Level (\d+) · (\d+)\/(\d+) sap$/, m => `Level ${m[1]} · ${m[2]}/${m[3]} juice`],
-  [/^(.+) · level (\d+) · (\d+)\/(\d+) sap$/, m => `${tr(m[1])} · level ${m[2]} · ${m[3]}/${m[4]} juice`],
+  [/^Level (\d+) · (\d+)\/(\d+)$/, m => `Level ${m[1]} · ${m[2]}/${m[3]}`], // v0.32.8: the level line has no sap word
+  [/^(.+) · level (\d+) · (\d+)\/(\d+)$/, m => `${tr(m[1])} · level ${m[2]} · ${m[3]}/${m[4]}`],
   [/^Level (\d+)! \+5 sap$/, m => `Level ${m[1]}! +5 juice`],
   [/^Overleeft nog (\d+) sneden$/, m => `Survives ${m[1]} more cuts`], [/^Nog (\d+) sneden vrij$/, m => `${m[1]} free cuts left`], [/^Partjes: (\d+)$/, m => `Segments: ${m[1]}`], [/^Kersen: (\d+)$/, m => `Cherries: ${m[1]}`],
   [/^Nieuwe keuken: (.+?)( · ronde (\d+): (.+))?$/, m => `New kitchen: ${tr(m[1])}${m[2] ? ` · round ${m[3]}: ${tr(m[4])}` : ''}`],
@@ -2764,7 +2771,8 @@ EN_RX.push( // v0.32.7: a medal name after a fruit name (Fruitkaart list, the re
 // text that passes tr() twice stays right. Decimals: one or two digits after the comma. No lookbehind (older Safari).
 const EN_NUM = /(^|[^\w.,])(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+,\d{1,2})(?!\d)/g;
 const enNum = s => /\d[.,]\d/.test(s) ? s.replace(EN_NUM, (m, pre, num) => pre + num.replace(/[.,]/g, c => c === '.' ? ',' : '.')) : s;
-function tr(src) { const out = trRaw(src); return lang === 'en' && typeof out === 'string' ? enNum(out) : out; }
+const TR_MEMO = new Map(); // v0.32.8 heat: tr() is pure per language; drawHud asks the same texts every frame
+function tr(src) { if (lang !== 'en' || typeof src !== 'string') return src; let o = TR_MEMO.get(src); if (o === undefined) { const out = trRaw(src); o = typeof out === 'string' ? enNum(out) : out; if (TR_MEMO.size >= 1000) TR_MEMO.clear(); TR_MEMO.set(src, o); } return o; }
 function trRaw(src) { if (lang !== 'en' || typeof src !== 'string') return src; const k = src.trim(); if (!k) return src; const d = EN[k]; if (d !== undefined) return src.replace(k, d); for (const [rx, fn] of EN_RX) { const m = rx.exec(k); if (m) return src.replace(k, fn(m)); } return src; }
 const I18N_ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
 function trNode(n) {
@@ -2776,7 +2784,7 @@ function trTree(root) { if (!root) return; if (root.nodeType === 3) { trNode(roo
 const i18nObs = new MutationObserver(ms => { if (lang !== 'en') return; for (const m of ms) { if (m.type === 'characterData') trNode(m.target); else for (const n of m.addedNodes) trTree(n); } });
 function detectLang(list) { const ls = (list || navigator.languages || [navigator.language || 'en']).map(x => String(x).toLowerCase()); return ls.some(x => x.startsWith('nl') || /-(be|nl)$/.test(x)) ? 'nl' : 'en'; }
 const langLabel = () => lang === 'en' ? 'Language: English' : 'Taal: Nederlands';
-function setLang(l) { lang = l === 'en' ? 'en' : 'nl'; save.lang = lang; store(); document.documentElement.lang = lang; trTree($('#ui')); for (const el of document.querySelectorAll('.flag.cur')) { el.classList.toggle('en', lang === 'en'); el.classList.toggle('nl', lang !== 'en'); } const b = $('#btn-lang'); if (b) b.innerHTML = `<span class="flag cur${lang === 'en' ? ' en' : ' nl'}"></span> ${langLabel()}`; try { navBuild(); } catch (e) {} try { if (curScreen === 'scr-album') renderAlbum(); if (stkOpen && !$('#stkbox').hidden) openStk(stkOpen); } catch (e) {} } /* v0.32.1: names with soft hyphens per language */ // v0.32.0: the tab and sub-tab labels follow the language
+function setLang(l) { TR_MEMO.clear(); lang = l === 'en' ? 'en' : 'nl'; save.lang = lang; store(); document.documentElement.lang = lang; trTree($('#ui')); for (const el of document.querySelectorAll('.flag.cur')) { el.classList.toggle('en', lang === 'en'); el.classList.toggle('nl', lang !== 'en'); } const b = $('#btn-lang'); if (b) b.innerHTML = `<span class="flag cur${lang === 'en' ? ' en' : ' nl'}"></span> ${langLabel()}`; try { navBuild(); } catch (e) {} try { if (curScreen === 'scr-album') renderAlbum(); if (stkOpen && !$('#stkbox').hidden) openStk(stkOpen); } catch (e) {} } /* v0.32.1: names with soft hyphens per language */ // v0.32.0: the tab and sub-tab labels follow the language
 function initLang() { lang = save.lang === 'en' || save.lang === 'nl' ? save.lang : detectLang(); document.documentElement.lang = lang; i18nObs.observe($('#ui'), { subtree: true, childList: true, characterData: true }); setLang(lang); }
 { const P = CanvasRenderingContext2D.prototype, f = P.fillText, st = P.strokeText, me = P.measureText; P.fillText = function (s, ...a) { return f.call(this, tr(String(s)), ...a); }; P.strokeText = function (s, ...a) { return st.call(this, tr(String(s)), ...a); }; P.measureText = function (s) { return me.call(this, tr(String(s))); }; }
 const FD = "'Fredoka','Trebuchet MS',sans-serif", FU = "'Nunito','Segoe UI',sans-serif";
@@ -3009,7 +3017,7 @@ const SAVE_DEFAULTS = {
   stamps: {}, families: {}, titles: [], boards: [], board: '', startLevel: 0, bounty: { day: '', n: 0, k: '', claimed: false }, wheel: { day: '', result: '', ad: false },
   spins: 0, spinSalesOn: false, paidSpins: 0, seen: {}, fresh: {}, seenDay: {}, show: { title: '', pins: [], label: '' }, stkClaimed: {}, setClaimed: {}, albumMiles: {}, stkCtx: {}, albumFx: {}, albumFxOff: [], albumSince: '',
   perkKeys: 0, boostStock: { schild: 0, stroop: 0, magneet: 0 }, armBoost: '', doubleUntil: 0, boughtStamps: {}, dealDay: '', dealPick: '', dealBought: '', sapDay: { day: '', n: 0 }, unlConverted: false, coins: 1, coinDay: '', lastSolo: -1,
-  lampions: [], bar: { lv: 0, sap: 0 }, rev: 0, savedAt: 0, plus: { until: 0, trial: false, since: 0, used: false }, plusGrantDay: '', plusMonth: { key: '', n: 0 }, plusChest: '', tourney: null, name: '', comp: {}, hatBons: 0, missionSwap: '', lv100Prize: false, music: '',
+  lampions: [], bar: { lv: 0, sap: 0 }, rev: 0, savedAt: 0, plus: { until: 0, trial: false, since: 0, used: false }, plusGrantDay: '', plusMonth: { key: '', n: 0 }, plusChest: '', tourney: null, name: '', comp: {}, hatBons: 0, missionSwap: '', lv100Prize: false, music: '', liveRun: null, liveDone: [], /* v0.32.8: the normal run in progress (settled once at the next start when it was interrupted); liveDone: what of the last runs was counted ([{id, t}]) */
 };
 const save = JSON.parse(JSON.stringify(SAVE_DEFAULTS));
 const FRESH_KEY = { kaart: 'stempels', pass: 'pas', friends: 'vrienden', shop: 'kast', today: 'vandaag', wheel: 'rad', games: 'dagmes', tourney: 'toernooi' }; // v0.32.0: an old badge key and its sub-tab
@@ -3167,9 +3175,13 @@ function mergeSaves(base, other) { // base is the newer save and wins on setting
     base.hatBons = Math.max(0, Math.floor(+base.hatBons) || 0);
     if (other.lv100Prize === true) base.lv100Prize = true; if (typeof other.missionSwap === 'string' && other.missionSwap > String(base.missionSwap || '')) base.missionSwap = other.missionSwap;
     if (base.music === undefined && typeof other.music === 'string') base.music = other.music; } // the newer save's music wins ('' too); only a save from before v0.32.4 takes the other's
+  if ('liveRun' in base || 'liveRun' in other) base.liveRun = other.liveRun && typeof other.liveRun === 'object' && !Array.isArray(other.liveRun) ? other.liveRun : null; /* v0.32.8: other is the save in memory: its run note wins */
+  if (Array.isArray(base.liveDone) || Array.isArray(other.liveDone)) { const all = [...(Array.isArray(base.liveDone) ? base.liveDone : []), ...(Array.isArray(other.liveDone) ? other.liveDone : [])]; base.liveDone = []; for (const d of all) if (d && typeof d === 'object' && typeof d.id === 'string' && d.id) liveDoneAdd(base, d.id, Math.max(0, Math.floor(+d.t) || 0)); } /* v0.32.8: what was counted of a run, a union */
+  { const lr = base.liveRun; if (lr && typeof lr.id === 'string' && lr.id && liveDoneT(base, lr.id) >= Math.max(0, Math.floor(+lr.t) || 0)) base.liveRun = null; } /* a note of a run that is counted already (recorded, or settled by another tab) never counts again */
   base.rev = Math.max(base.rev || 0, other.rev || 0); return base;
 }
 function store() {
+  try { liveRunNote(); } catch (e) {} /* v0.32.8: a normal run in progress is in the save, so an interrupted run still counts at the next start */
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object' && (d.rev || 0) > storedRev) { const merged = mergeSaves(d, save); for (const k of Object.keys(merged)) save[k] = merged[k]; loadSave(true); setTimeout(() => { if (!inRunState()) duelBackPay(); }, 0); } } /* v0.32.3: a set claimed in another tab without its tickets pays them (never inside a run) */
@@ -3188,15 +3200,18 @@ const AU = {
     if (!this.ctx) {
       try {
         const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
-        this.ctx = new C(); const n = this.ctx.sampleRate;
+        this.ctx = new C(); const n = this.ctx.sampleRate; this.ctx.onstatechange = () => AU.idle(); // v0.32.8 heat: resume() is async; a resume that lands while hidden or muted rests again
         this.noiseBuf = this.ctx.createBuffer(1, n, n); const d = this.noiseBuf.getChannelData(0);
         for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
       } catch (e) { this.ctx = null; }
     }
-    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+    if (this.ctx && this.ctx.state === 'suspended' && (save.sound || save.music3)) this.ctx.resume().catch(() => {}); /* v0.32.8 heat: with sound and music off it stays asleep */
     if (this.ctx) LVSND.load(); /* v0.31.7: decode the jingle once, after the first tap */
     if (this.ctx && save.music3) MUS.start();
+    this.idle();
   },
+  idle() { const c = this.ctx; if (!c || c.state !== 'running' || LVSND.src) return; if (document.hidden || (!save.sound && !save.music3)) c.suspend().catch(() => {}); }, // v0.32.8 heat: hidden, or nothing may sound (never during the jingle)
+  wake() { const c = this.ctx; if (c && c.state === 'suspended' && !document.hidden && (save.sound || save.music3)) c.resume().catch(() => {}); },
   ok() { return save.sound && this.ctx && this.ctx.state === 'running'; },
   noise(dur, f0, f1, vol, type) {
     if (!this.ok()) return; const c = this.ctx, t = c.currentTime, s = c.createBufferSource(); s.buffer = this.noiseBuf;
@@ -3339,7 +3354,7 @@ const LVSND = {
     s.connect(g); g.connect(c.destination); s.start(t); s.stop(t + len + .05); this.src = s; this.gain = g; this.plays++; this.lastLen = len;
     MUS.duck(true); this.timer = setTimeout(() => this.end(), Math.round(len * 1000) + 60); return true;
   },
-  end() { this.src = null; this.gain = null; clearTimeout(this.timer); this.timer = 0; MUS.duck(false); },
+  end() { this.src = null; this.gain = null; clearTimeout(this.timer); this.timer = 0; MUS.duck(false); AU.idle(); }, // v0.32.8 heat: the context may rest once the jingle is over
   stop(quiet) { if (this.src) { try { this.src.stop(); } catch (e) {} } this.src = null; this.gain = null; clearTimeout(this.timer); this.timer = 0; if (!quiet) MUS.duck(false); },
 };
 const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
@@ -3348,9 +3363,35 @@ const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (
 const canvas = document.getElementById('game');
 let ctx = canvas.getContext('2d');
 const W = 360; let H = 640, S = 1, ax = 0, ay = 0, aw = 360, ah = 640, cw = 360, ch = 640, dpr = 1, board = null;
-function resize() {
+// v0.32.8 safe area: the system bars over the page in the Android app, in CSS px (0 on the web). Read from a hidden probe whose padding
+// is the four --sa* insets; refreshed by resize() and when Capacitor writes its --safe-area-inset-* into <html style>.
+const SAFE = { t: 0, r: 0, b: 0, l: 0 }; let safeProbe = null;
+function safeRead() {
+  try {
+    if (!safeProbe) { safeProbe = document.createElement('div'); safeProbe.id = 'safe-probe'; safeProbe.setAttribute('aria-hidden', 'true');
+      safeProbe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none;box-sizing:content-box;padding:var(--sat) var(--sar) var(--sab) var(--sal)'; document.body.appendChild(safeProbe); }
+    const cs = getComputedStyle(safeProbe), px = v => Math.max(0, Math.round(parseFloat(v) || 0));
+    SAFE.t = px(cs.paddingTop); SAFE.r = px(cs.paddingRight); SAFE.b = px(cs.paddingBottom); SAFE.l = px(cs.paddingLeft);
+  } catch (e) {}
+  return SAFE;
+}
+let safeAt = 0; // the HUD also re-reads once a second (an env() change alone fires no event)
+const safeTopU = () => { const n = performance.now(); if (n - safeAt > 1000) { safeAt = n; safeRead(); } return SAFE.t > 0 && S > 0 ? SAFE.t / S : 0; }; // the top inset in logical units: the run HUD starts below the status bar
+try { new MutationObserver(() => safeRead()).observe(document.documentElement, { attributes: true, attributeFilter: ['style'] }); } catch (e) {}
+// v0.32.8 safe area: on a short phone the game-over's main button (Verder, else the Opnieuw row) is above the bottom tabs at first view:
+// the snapshot shrinks just enough (never below 96 px, the rest is scrolled); where it fits nothing changes. Every game-over screen starts from the CSS size.
+// (v0.32.8 polish: on a De Chef card the chapter row or the cut chapter's Menu link is the control that has to fit)
+function overFit(open) { // open: the screen just opened (it starts at the top; a hidden screen kept its old scroll)
+  try { const scr = $('#scr-over'), img = $('#over-snap'), hub = $('#hub'); if (!img) return; if (open && scr.scrollTop) scr.scrollTop = 0; if (img.style.width) img.style.width = ''; if (curScreen !== 'scr-over' || img.hidden || scr.hidden) return;
+    /* v0.32.8 polish */ // the lowest main control that is shown: Verder, the cut chapter's Menu link, the chapter row, the Opnieuw row
+    const shown = e => !!e && !e.hidden && !(e.parentElement && e.parentElement.hidden), b = [$('#btn-over-cont'), $('#btn-chef-link'), $('#over-chefrow'), $('#btn-retry')].find(shown); if (!b) return;
+    const lim = hub && !hub.hidden ? hub.getBoundingClientRect().top : scr.getBoundingClientRect().bottom, over = b.getBoundingClientRect().bottom + scr.scrollTop + 8 - lim;
+    if (over > 0) { const w = img.getBoundingClientRect().width; if (w > 96) img.style.width = Math.max(96, Math.floor(w - over)) + 'px';
+      const rest = b.getBoundingClientRect().bottom + 8 - lim; if (rest > 0) scr.scrollTop += rest; } } catch (e) {} // still too low with the smallest snapshot: the screen scrolls that bit (like ldOverReach)
+}
+function resize() { safeRead(); if (curScreen === 'scr-over') overFit();
   const r = canvas.getBoundingClientRect(); cw = Math.max(1, r.width); ch = Math.max(1, r.height);
-  dpr = Math.min(window.devicePixelRatio || 1, 2.5); canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
+  dpr = Math.min(window.devicePixelRatio || 1, 2); /* v0.32.8 heat: 2x the CSS size at most (was 2.5) */ canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
   aw = cw; ah = ch; if (cw / ch > 0.74) aw = ch * 0.62; // wide screen: a portrait board in the middle of the counter
   ax = (cw - aw) / 2; ay = 0; S = aw / W; H = ah / S; board = null;
 }
@@ -3413,7 +3454,7 @@ const CANDLE_FL = .84; // Kaarslicht's pool of light: fixed size since v0.30.6 (
 const roundLayer = n => ROUNDS[Math.min(roundOf(n), ROUNDS.length - 1)] || null;
 function drawRoundLayer() {
   const L = roundLayer(G.level); if (!L) return; const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, L.a); g.addColorStop(1, L.b); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  const now = performance.now();
+  const now = drawNow();
   if (L.fx === 'candle') { // a warm, steady pool of light with darker edges; it does not move or flicker
     const fl = CANDLE_FL, cx = W * .5, cy = H * .42;
     const c = ctx.createRadialGradient(cx, cy, 20, cx, cy, Math.max(W, H) * .62 * fl); c.addColorStop(0, `rgba(255,214,130,${.26 * fl})`); c.addColorStop(.55, 'rgba(255,170,80,.08)'); c.addColorStop(1, 'rgba(10,4,20,.38)'); ctx.fillStyle = c; ctx.fillRect(0, 0, W, H);
@@ -3495,7 +3536,7 @@ let adT = 0, adThen = null, adKind = 'rewarded', heartTick = 0, menuT = 1200, sh
 const pauseBtn = document.getElementById('btn-pause'), lampBtn = document.getElementById('btn-lampion');
 const screens = ['scr-menu', 'scr-intro', 'scr-fruit', 'scr-pause', 'scr-ad', 'scr-over', 'scr-hearts', 'scr-tourney', 'scr-today', 'scr-album', 'scr-pass', 'scr-shop', 'scr-kaart', 'scr-friends', 'scr-keuken'];
 let curScreen = null;
-function showScreen(id) { try { duelLeave(id); } catch (e) {} closeSheets(); if (id !== 'scr-menu') $('#navhint').hidden = true; if (G.state === 'over' && G.settled === false && id && id !== 'scr-over' && id !== 'scr-ad') settleRun(); curScreen = id; if (id === 'scr-menu' && !save.name && $('#namebox').hidden) openNameBox(); for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); $('#playbar').hidden = !(id === null && G.state === 'play'); if (lang === 'en' && id) trTree($('#' + id)); try { if (id && id !== 'scr-menu' && !(history.state && history.state.s === id)) { if (history.state && history.state.s) history.replaceState({ s: id }, ''); else history.pushState({ s: id }, ''); } } catch (e) {} try { stkScreen(id); } catch (e) {} } /* v0.32.1: stickers that waited get their card on the next screen outside a run */
+function showScreen(id) { try { duelLeave(id); } catch (e) {} closeSheets(); if (id !== 'scr-menu') $('#navhint').hidden = true; if (G.state === 'over' && G.settled === false && id && id !== 'scr-over' && id !== 'scr-ad') settleRun(); if (id && id !== 'scr-pause' && id !== 'scr-ad' && id !== 'scr-over') liveRunDrop(); curScreen = id; if (id === 'scr-menu' && !save.name && $('#namebox').hidden) openNameBox(); for (const s of screens) $('#' + s).hidden = (s !== id); updateHub(id); $('#playbar').hidden = !(id === null && G.state === 'play'); if (lang === 'en' && id) trTree($('#' + id)); if (id === 'scr-over') overFit(true); /* v0.32.8 safe area: the game-over's main button above the tabs */ try { if (id && id !== 'scr-menu' && !(history.state && history.state.s === id)) { if (history.state && history.state.s) history.replaceState({ s: id }, ''); else history.pushState({ s: id }, ''); } } catch (e) {} try { stkScreen(id); } catch (e) {} } /* v0.32.1: stickers that waited get their card on the next screen outside a run */
 // ---- Navigation (v0.32.0, Pieter: "volledig akkoord met het voorstel"): five tabs at the bottom (Verzamel, Vandaag, the raised red
 // Spelen disc, Vrienden, Winkel) and a row of sub-tabs at the top of every hub screen. NAV_TABS is the one table. Every screen maps to
 // [tab, sub] (HUB_SCREENS, navRouteFor); the last sub-tab of each tab is remembered for the session (memory only, no save field);
@@ -4169,7 +4210,7 @@ function startRun(type, free, mode) {
   G.levelT = 0; G.phase = 1; G.slowmo = 0; G.themeFlash = 0; G.levelNote = ''; G.lvStartT = 0;
   G.flow = 0; G.flowT = 0; G.fever = 0; G.feverRun = 0; G.feverBanner = 0; G.revenge = 0; G.revenged = false; G.killer = ''; G.nemesisSeen = false; G.patSeq = 0; const nem = nemesis(); G.nemesis = nem && mode !== 'knife' ? nem.kind : ''; MUS.tempo(1);
   G.timeScale = 1; G.shake = 0; G.zoom = 1; G.flash = 0; G.death = null; G.snapped = false; G.snapshot = null; G.snapshotUrl = ''; G.card = null; G.cardFile = null;
-  G.continueUsed = false; G.doubled = false; G.adAfter = false; G.settled = true; G.solo = false; G.interSap = 0; G.cubesRun = 0; G.sapRun = 0; G.bonusSap = 0; G.plusBonus = 0; G.plusGift = ''; G.near = 0; G.slashCount = 0; G.scared = 0;
+  G.continueUsed = false; G.doubled = false; G.adAfter = false; G.settled = true; G.liveRec = mode === 'normal'; G.runId = G.liveRec ? liveRunId() : ''; liveRunLock(); /* v0.32.8: this run is noted in the save until recordRun (with its id; its lock tells other tabs it is alive) */ G.solo = false; G.interSap = 0; G.cubesRun = 0; G.sapRun = 0; G.bonusSap = 0; G.plusBonus = 0; G.plusGift = ''; G.near = 0; G.slashCount = 0; G.scared = 0;
   G.level = mode === 'daily' || mode === 'duel' ? DUEL_LEVEL : mode === 'chef' ? chefLevel(G.chefChapter || seasonChapter()) : mode === 'tour' && G.tour ? G.tour.stops[0] : mode === 'normal' ? clamp(save.startLevel || save.level, 1, save.level) : save.level; G.levelSap = 0; G.startLevel = G.level; G.kaartLevel = mode === 'normal' && kaartPick > 0 && kaartPick === save.startLevel ? G.level : 0; kaartPick = 0; $('#btn-over-kaart').hidden = true; $('#over-kaart').hidden = true; $('#btn-retry').classList.add('primary'); G.levelsGained = 0; G.levelBanner = 0; G.power = null; G.drop = null; G.bannerTitle = ''; G.wi = 0; G.forceHazard = null;
   G.stepIn = 0; G.stepRun = 0; if (mode === 'normal' && G.level === save.level && save.bar && save.bar.lv === G.level) { G.levelSap = Math.min(Math.max(0, Math.floor(save.bar.sap || 0)), levelGoal(G.level) - 1); syncSteps(); } if (mode === 'normal') stepsHint(); // v0.31: the kept bar
   if (mode === 'tour') tourArrive(G.level); G.wt = 1500;
@@ -4210,7 +4251,7 @@ function gainSap(v, bar) { // v0.31: v goes to the wallet, bar (default v) to th
     }
     const fromLevel = G.level; G.levelSap -= goal; G.level++; G.levelsGained++; G.stepIn = 0;
     const jingled = LVSND.play(G.t - (G.lvStartT || 0)); G.lvStartT = G.t; /* v0.31.7: the Level Complete jingle; 5 s after a fast level */
-    if (G.mode === 'normal' && G.level > save.level) { save.level = G.level; const nf = LATE.find(k => FRUITS[k].minLevel === G.level); if (nf) { save.seen['late:' + nf] = true; markFresh('fruit'); G.note = `Nieuw fruit te koop: ${FRUITS[nf].name}`; G.noteT = 4000; } store(); } // a reached level is saved the moment it is reached, not only when the run ends
+    if (G.mode === 'normal' && G.level > save.level) { save.level = G.level; const nf = LATE.find(k => FRUITS[k].minLevel === G.level); if (nf) { save.seen['late:' + nf] = true; markFresh('fruit'); G.note = `Nieuw fruit te koop: ${FRUITS[nf].name}`; G.noteT = 4000; } G.topStore = true; } // a reached level is saved the moment it is reached, not only when the run ends (v0.32.8: after its +5, below)
     // the tour jumps stop to stop
     if (G.mode === 'tour' && G.tour) { const nx = G.tour.stops.find(st => st >= G.level); if (nx) G.level = nx; if (G.tour.stops.includes(G.level)) tourArrive(G.level); }
     G.levelBanner = 2600; G.bannerTitle = ''; G.shake = 5; G.kiwiStack = 0;
@@ -4222,6 +4263,7 @@ function gainSap(v, bar) { // v0.31: v goes to the wallet, bar (default v) to th
     } else G.levelNote = '';
     save.stats.kitchens[themeIndex(G.level)] = 1; track('levelup', G.level);
     if (!duelNoSap()) save.sap += 5; G.sapRun += 5; addText(G.px, G.py - curR() - 26, `Level ${G.level}! +5 sap`, '#ffd54a'); if (!jingled) SFX.go();
+    if (G.topStore) { G.topStore = false; store(); } // v0.32.8: the new top level is stored with its +5 sap (it was stored before it)
   }
   keepBar();
 }
@@ -4505,13 +4547,51 @@ function afterDeath() {
 }
 // A chosen lower start level counts for one run; recordRun then clears it, so the next run (any fruit) starts
 // from the highest level again.
+// v0.32.8: an interrupted normal run. Levels and sap are saved the moment they are reached; the run itself, the record and the
+// fruit XP only in recordRun. A run whose app was killed (swiped away, restarted, the emulator closed, closed on the game-over
+// screen) left Pogingen 0 and Record 0,0 s next to a higher level, and the next run started at that level without a word.
+// Now every store() during a normal run notes it (save.liveRun) and the next start settles a leftover note once.
+const PIGGY_COL = '#ff9fd0'; // v0.32.8: piggy-bank pink: sap that only counts in your piggy bank (the HUD tag and the pickup number)
+const piggyMult = () => duelFair() ? 1 : (G.dayMult || 1) * (doubling() && soloRun() ? 2 : 1); // first run of the day / Wednesday (G.dayMult) and the sap doubler: wallet only, the level bar fills as usual
+const LIVE_LOCK = 'dontsliceme-run-'; // v0.32.8: the Web Lock a tab holds while its normal run is alive (released when it is recorded, left, or the tab dies)
+function liveRunId() { const u = new Uint32Array(1); try { crypto.getRandomValues(u); } catch (e) { u[0] = (performance.now() * 1000) >>> 0; } return Date.now().toString(36) + u[0].toString(36); } // never Math.random: the knives' stream stays exactly as it was
+function liveRunUnlock() { const f = G.runFree; G.runFree = null; if (f) try { f(); } catch (e) {} }
+function liveRunLock() { liveRunUnlock(); const id = G.liveRec ? G.runId : ''; if (!id) return;
+  try { if (navigator.locks && navigator.locks.request) navigator.locks.request(LIVE_LOCK + id, () => new Promise(res => { if (G.liveRec && G.runId === id && !G.runFree) G.runFree = res; else res(); })).catch(() => {}); } catch (e) {} }
+function liveDoneT(sv, id) { let t = -1; if (sv && Array.isArray(sv.liveDone)) for (const d of sv.liveDone) if (d && typeof d === 'object' && d.id === id) t = Math.max(t, Math.max(0, Math.floor(+d.t) || 0)); return t; } // -1: nothing of this run was counted
+function liveDoneAdd(sv, id, t) { const L = (Array.isArray(sv.liveDone) ? sv.liveDone : []).filter(d => d && typeof d === 'object' && typeof d.id === 'string' && d.id); const i = L.findIndex(d => d.id === id);
+  if (i >= 0) L[i] = { id, t: Math.max(Math.max(0, Math.floor(+L[i].t) || 0), t) }; else L.push({ id, t }); sv.liveDone = L.slice(-8); }
+function liveRunEnd() { const id = G.runId || '', pre = id ? liveDoneT(save, id) : -1; G.liveRec = false; save.liveRun = null; if (id) liveDoneAdd(save, id, Math.max(0, Math.floor(G.t))); liveRunUnlock(); return pre; } // in recordRun
+function liveRunNote() { if (!G.liveRec || G.mode !== 'normal' || !inRunState()) return; save.liveRun = { id: G.runId || '', fruit: G.fruit, t: Math.max(0, Math.floor(G.t)), level: G.level, combo: G.bestCombo || 0, near: G.near || 0 }; }
+function liveRunDrop() { if (!G.liveRec) return; G.liveRec = false; liveRunUnlock(); if (save.liveRun) { save.liveRun = null; store(); } } // a run left without recording never counted (as before)
+function liveRunBoot() { // a note whose run is still alive in another tab of this save (that tab holds its lock) is not settled here: that tab counts it
+  const lr = save.liveRun, id = lr && typeof lr === 'object' && typeof lr.id === 'string' ? lr.id : ''; let q = null;
+  try { if (id && navigator.locks && navigator.locks.query) q = navigator.locks.query(); } catch (e) { q = null; }
+  if (!q) { liveRunSettle(); return (HOOK.liveBoot = Promise.resolve(false)); }
+  return (HOOK.liveBoot = Promise.resolve(q).then(st => !!(st && Array.isArray(st.held) && st.held.some(l => l && l.name === LIVE_LOCK + id)), () => false)
+    .then(held => { if (held) return false; const r = liveRunSettle(lr); if (r && G.state === 'menu') buildMenu(); return !!r; }));
+}
+function liveRunSettle(lr = save.liveRun) {
+  if (!lr) return null; { const sl = save.liveRun; if (sl === lr || (sl && typeof sl === 'object' && typeof lr === 'object' && lr.id && sl.id === lr.id)) save.liveRun = null; }
+  if (typeof lr !== 'object' || Array.isArray(lr)) { store(); return null; }
+  const t = Math.max(0, Math.floor(+lr.t) || 0), fruit = FRUITS[lr.fruit] ? lr.fruit : 'appel', lv = Math.max(1, Math.floor(+lr.level) || 1), id = typeof lr.id === 'string' ? lr.id : '', done = id ? liveDoneT(save, id) : -1;
+  if (done >= t) { store(); return null; } // counted already (the tab that played it recorded it, or another start settled it)
+  if (done < 0) save.runs = (save.runs || 0) + 1; save.level = Math.max(save.level || 1, lv); save.startLevel = 0; // like recordRun: the chosen lower start level counted for this run
+  if (t > (save.best || 0)) save.best = t; if (t > (save.bestBy[fruit] || 0)) save.bestBy[fruit] = t;
+  save.xp[fruit] = (save.xp[fruit] || 0) + Math.floor(t / 1000) - (done >= 0 ? Math.floor(done / 1000) : 0); if (id) liveDoneAdd(save, id, t);
+  const st = save.stats; st.bestCombo = Math.max(st.bestCombo || 0, Math.floor(+lr.combo) || 0); st.nearRun = Math.max(st.nearRun || 0, Math.floor(+lr.near) || 0);
+  store();
+  if (!inRunState()) showReward({ note: 'Poging telt mee' }, 'Vorige poging onderbroken', `Je vorige poging werd onderbroken (het spel ging dicht). Level ${lv} en je sap stonden al vast; nu telt ook de poging mee: ${fmtTime(t)} met ${FRUITS[fruit].name}.`);
+  return { t, fruit, level: lv };
+}
 function recordRun() {
+  const pre = liveRunEnd(); /* v0.32.8: the run counts now (stored below), so its note goes; pre >= 0: another tab of this save already counted it up to pre ms */
   const st = save.stats; st.bestCombo = Math.max(st.bestCombo, G.bestCombo); st.nearRun = Math.max(st.nearRun, G.near); st.chefRun = Math.max(st.chefRun, G.chefRun);
-  const lvBefore = xpLevel(G.fruit); save.xp[G.fruit] = (save.xp[G.fruit] || 0) + Math.floor(G.t / 1000); /* v0.32.0: a stronger fruit is no new fruit, so no badge */
+  const lvBefore = xpLevel(G.fruit); save.xp[G.fruit] = (save.xp[G.fruit] || 0) + Math.max(0, Math.floor(G.t / 1000) - (pre >= 0 ? Math.floor(pre / 1000) : 0)); /* v0.32.8: only the seconds not counted yet */ /* v0.32.0: a stronger fruit is no new fruit, so no badge */
   if (G.level >= 100 && !save.lv100Prize) { save.lv100Prize = true; compMark('hat:chefmedaille', 'w'); giveReward({ heart: 5 }, 'Level 100 gehaald'); } // v0.32.4: 5 hearts once (was the Chefmedaille); the sticker Level 100 gives its own 1.000 sap; also on the test tour
   if (G.mode !== 'normal') { track('run', { t: G.t, fruit: G.fruit, level: G.level, mode: G.mode, score: G.score, cleared: G.cleared }); checkStickers(); store(); return { nr: false, prevBest: save.best }; }
   tourneyAfterRun();
-  save.runs++; save.level = Math.max(save.level, G.level); checkRivals(); save.startLevel = 0; const prevBest = save.best, nr = G.t > save.best; if (nr) save.best = G.t;
+  if (pre < 0) save.runs++; /* v0.32.8: a run another tab already settled is no second run */ save.level = Math.max(save.level, G.level); checkRivals(); save.startLevel = 0; const prevBest = save.best, nr = G.t > save.best; if (nr) save.best = G.t;
   if (G.t > (save.bestBy[G.fruit] || 0)) save.bestBy[G.fruit] = G.t;
   track('run', { t: G.t, fruit: G.fruit, level: G.level, mode: G.mode, levelsGained: G.levelsGained, steps: G.stepRun || 0 }); checkStickers(); store(); return { nr, prevBest };
 }
@@ -4527,7 +4607,7 @@ function finishRun() {
   G.bonusSap = Math.floor(G.t / 10000) * Math.round((fruitDef().sapMult || 1) * boost('sapMult')) * (hasPerk(9) ? 2 : 1);
   G.fruitBonus = G.mode === 'normal' ? Math.floor(G.sapRun * (fruitSapBonus(G.fruit) + 5 * kitLevel('zeef')) / 100) : 0; // the fruit's tier bonus; both bonuses are paid in settleRun
   G.plusBonus = plusActive() ? Math.floor(G.sapRun * .25) : 0; // Plus: a quarter on top of everything the run earned
-  G.settled = false; G.adAfter = false; openOver(G.t > save.best, save.best);
+  G.settled = false; G.adAfter = false; if (G.liveRec) store(); /* v0.32.8: closed on this screen, the run still counts at the next start */ openOver(G.t > save.best, save.best);
 }
 function settleRun() { if (G.settled || G.state !== 'over') return; G.settled = true; save.sap += G.bonusSap + G.fruitBonus + G.plusBonus; recordRun(); G.adAfter = ADS.interstitialDue(); if (G.plusGift) { showReward({ fruit: G.plusGift }, 'Plus: voorgoed van jou'); G.plusGift = ''; } store(); }
 const VIDEO_PER_LEVEL_DAY = 2; // Pieter: a video for Verder or for a heart, together at most twice per level per day
@@ -4648,7 +4728,7 @@ function updateCubes(dt) {
       if (f.bite && !fair && !G.biteGiven && G.cubesRun >= 15) { G.biteGiven = true; G.armor++; addText(G.px, G.py - curR() - 44, 'Hap vrij: je overleeft één snee', '#ffd54a'); }
       if (f.seeds && !fair && G.cubesRun % 10 === 0) plant = { x: G.px, y: Math.min(H - 30, G.py + 30) };
       if (f.fire && !fair && G.cubesRun % 25 === 0) { G.fireCharges = 2; addText(G.px, G.py - curR() - 44, 'Vuur geladen: 2 messen', '#ff6a00'); }
-      addText(c.x, c.y - 16, G.inter ? '+' + v : '+' + v + ' sap', c.gold ? '#ffd54a' : '#fff'); burst(c.x, c.y, c.gold ? 16 : 8, c.gold ? ['#ffd54a', '#fff2b0', '#e8a030'] : ['#ffffff', '#e8f4ff'], 180); SFX.collect(); break;
+      addText(c.x, c.y - 16, G.inter ? '+' + v : '+' + v + ' sap', !G.inter && v !== bar ? PIGGY_COL : c.gold ? '#ffd54a' : '#fff'); /* v0.32.8: more in the piggy bank than on the level bar: piggy-bank pink */ burst(c.x, c.y, c.gold ? 16 : 8, c.gold ? ['#ffd54a', '#fff2b0', '#e8a030'] : ['#ffffff', '#e8f4ff'], 180); SFX.collect(); break;
     }
   }
   G.cubes = G.cubes.filter(c => !c.dead);
@@ -4964,7 +5044,8 @@ function hazLabelWidth(lines) {
   c = { lang, gen: hazLblGen, fs, w }; hazLblW.set(lines, c); return w;
 }
 const hazLabelSize = lines => [Math.min(W - 12, Math.ceil(hazLabelWidth(lines)) + 16), lines.length * hazLabelLh() + 10];
-const hazLabelMinY = () => G.perkBanner > 0 ? (G.power ? 134 : 80) + 58 : G.power ? 134 : 100; // below the HUD, the bonus banner (80-128) and the kitchen-perk banner (52 high, under the bonus one)
+const hudLay = { panel: 80, bottom: 0, lineY: 50, barY: 67, col: [] }; /* v0.32.8 HUD lines */ // the last HUD frame: where the panels start, the HUD's bottom (board units, with the top inset), the column's lines
+const hazLabelMinY = () => Math.max(hudLay.bottom + 6, hazLabelMinY0()), hazLabelMinY0 = () => G.perkBanner > 0 ? (G.power ? 134 : 80) + 58 : G.power ? 134 : 100; // below the HUD, the bonus banner (80-128) and the kitchen-perk banner (52 high, under the bonus one)
 const hazLabelRect = (cx, cy, w, h) => [clamp(cx - w / 2, 6, W - 6 - w), clamp(cy - h / 2, hazLabelMinY(), H - 8 - h), w, h]; // inside the board, below the HUD
 const hazRectHit = (a, b) => Math.max(0, Math.min(a[0] + a[2], b[0] + b[2]) - Math.max(a[0], b[0])) * Math.max(0, Math.min(a[1] + a[3], b[1] + b[3]) - Math.max(a[1], b[1]));
 function hazLabelCost(b, m, extra) { // how badly a pill covers the fruit (plus a margin m), the fingertip under it (the fruit floats LIFT above the finger) and the given parts [x, y, w, h, weight]
@@ -5085,8 +5166,8 @@ function drawHazard(z) {
       if (tele) { ctx.strokeStyle = `rgba(255,70,55,${.3 + .5 * p})`; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.beginPath(); ctx.arc(0, 0, z.r, 0, TAU); ctx.stroke(); if (z.kind === 'mixer') { ctx.setLineDash([]); ctx.fillStyle = '#e9eef2'; ctx.beginPath(); roundBox(-30, -62, 60, 26, 8); ctx.fill(); ctx.fillStyle = '#ff4d3d'; ctx.beginPath(); ctx.arc(0, -49, 5, 0, TAU); ctx.fill(); } }
       else {
         const g = ctx.createRadialGradient(0, 0, 4, 0, 0, z.r * 2.2); g.addColorStop(0, 'rgba(20,20,30,.55)'); g.addColorStop(1, 'rgba(20,20,30,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, z.r * 2.2, 0, TAU); ctx.fill();
-        ctx.strokeStyle = `rgba(200,220,255,${.25 + .4 * (z.pull || 0)})`; ctx.lineWidth = 1.5 + 1.5 * (z.pull || 0); for (let i = 0; i < 3; i++) { ctx.beginPath(); for (let s = 0; s < 40; s++) { const ang = performance.now() / 300 + i * 2.1 + s * .25, rr = z.r * 2 * (1 - s / 40); ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr); } ctx.stroke(); }
-        ctx.save(); ctx.rotate(performance.now() / 40); ctx.fillStyle = '#cfd6dd'; for (let i = 0; i < 4; i++) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(24, -6); ctx.lineTo(26, 4); ctx.closePath(); ctx.fill(); } ctx.restore();
+        ctx.strokeStyle = `rgba(200,220,255,${.25 + .4 * (z.pull || 0)})`; ctx.lineWidth = 1.5 + 1.5 * (z.pull || 0); for (let i = 0; i < 3; i++) { ctx.beginPath(); for (let s = 0; s < 40; s++) { const ang = drawNow() / 300 + i * 2.1 + s * .25, rr = z.r * 2 * (1 - s / 40); ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr); } ctx.stroke(); }
+        ctx.save(); ctx.rotate(drawNow() / 40); ctx.fillStyle = '#cfd6dd'; for (let i = 0; i < 4; i++) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(24, -6); ctx.lineTo(26, 4); ctx.closePath(); ctx.fill(); } ctx.restore();
         ctx.fillStyle = '#2a2a33'; ctx.beginPath(); ctx.arc(0, 0, 6, 0, TAU); ctx.fill();
         if (z.kind === 'mixer') { ctx.fillStyle = '#e9eef2'; ctx.beginPath(); roundBox(-30, -62, 60, 26, 8); ctx.fill(); ctx.fillStyle = '#b9c3cb'; ctx.fillRect(-4, -40, 8, 20); ctx.fillStyle = '#ff4d3d'; ctx.beginPath(); ctx.arc(0, -49, 5, 0, TAU); ctx.fill(); }
       }
@@ -5110,7 +5191,7 @@ function drawHazard(z) {
       if (tele) { ctx.strokeStyle = `rgba(120,110,100,${.3 + .5 * p})`; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.beginPath(); ctx.arc(0, 0, z.r, 0, TAU); ctx.stroke(); }
       else {
         const g = ctx.createRadialGradient(0, 0, 6, 0, 0, z.r); g.addColorStop(0, 'rgba(110,100,90,.5)'); g.addColorStop(1, 'rgba(110,100,90,.06)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, z.r, 0, TAU); ctx.fill();
-        ctx.fillStyle = 'rgba(40,30,25,.7)'; for (let i = 0; i < 26; i++) { const a = i * 2.4 + performance.now() / 900, rr = z.r * (.15 + ((i * 37) % 80) / 100); ctx.beginPath(); ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, 1.6, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = 'rgba(40,30,25,.7)'; for (let i = 0; i < 26; i++) { const a = i * 2.4 + drawNow() / 900, rr = z.r * (.15 + ((i * 37) % 80) / 100); ctx.beginPath(); ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, 1.6, 0, TAU); ctx.fill(); }
         ctx.fillStyle = '#5a3a1e'; ctx.beginPath(); roundBox(-10, -26, 20, 40, 6); ctx.fill(); ctx.fillStyle = '#7a4e26'; ctx.beginPath(); roundBox(-7, -22, 6, 30, 3); ctx.fill(); ctx.fillStyle = '#3e2612'; ctx.beginPath(); roundBox(-12, -8, 24, 5, 2); ctx.fill(); ctx.fillStyle = '#cfd6dd'; ctx.beginPath(); ctx.arc(0, -31, 7, 0, TAU); ctx.fill(); ctx.fillStyle = '#2a2a33'; ctx.beginPath(); ctx.arc(0, -31, 2.5, 0, TAU); ctx.fill();
       }
     } else if (z.kind === 'garde') {
@@ -5262,7 +5343,7 @@ function lampKeep(k) { // a minigame that is due: saved as a lantern while there
   G.note = save.seen.lampion ? `Lampion gespaard: ${INTER[k].name}` : 'Gespaard! Tik op de lampion om het op te laten'; G.noteT = 3200; save.seen.lampion = 1;
   save.lampions.push({ k, lv: G.level, m: interMult() }); store(); G.lamp = { kind: 'keep', t: 0, k }; track('lampion', 'keep'); return true;
 }
-const lampSlot = (i, n, r) => ({ x: (i - (n - 1) / 2) * r * 1.12, y: -r * 3 - Math.abs(i - (n - 1) / 2) * r * .24 + Math.sin(performance.now() / 430 + i * 1.9) * r * .09 }); // where each lantern floats above her (fruit units)
+const lampSlot = (i, n, r) => ({ x: (i - (n - 1) / 2) * r * 1.12, y: -r * 3 - Math.abs(i - (n - 1) / 2) * r * .24 + Math.sin(drawNow() / 430 + i * 1.9) * r * .09 }); // where each lantern floats above her (fruit units)
 function lampGo(tap) { // the oldest lantern rises: every knife and tool goes, and its minigame starts at once
   if (!lampOn() || !save.lampions.length || G.interPending) return false;
   if (!interOwn(save.lampions[0].k)) { save.lampions.shift(); store(); return false; } // never start a minigame that does not exist
@@ -5379,10 +5460,10 @@ function drawMedlarCrown(r, ry, o) { // the open "eye" with five long dry sepals
   const sin = q => Math.sin(q.a); S.filter(q => sin(q) < 0).sort((p, q) => sin(p) - sin(q)).forEach(sepal);
   ctx.fillStyle = '#3b1d0d'; ctx.beginPath(); ctx.ellipse(0, ey, r * .3, r * .11, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = '#9a6034'; ctx.lineWidth = Math.max(.6, r * .04); ctx.stroke();
   ctx.fillStyle = '#211008'; ctx.beginPath(); ctx.ellipse(0, ey + r * .015, r * .17, r * .055, 0, 0, TAU); ctx.fill();
-  if (o.ready) { const pu = .75 + .25 * Math.sin(performance.now() / 260), ga = ctx.createRadialGradient(0, ey, 0, 0, ey, r * .36); ga.addColorStop(0, `rgba(255,190,60,${.75 * pu})`); ga.addColorStop(1, 'rgba(255,170,40,0)'); ctx.fillStyle = ga; ctx.beginPath(); ctx.arc(0, ey, r * .36, 0, TAU); ctx.fill();
+  if (o.ready) { const pu = .75 + .25 * Math.sin(drawNow() / 260), ga = ctx.createRadialGradient(0, ey, 0, 0, ey, r * .36); ga.addColorStop(0, `rgba(255,190,60,${.75 * pu})`); ga.addColorStop(1, 'rgba(255,170,40,0)'); ctx.fillStyle = ga; ctx.beginPath(); ctx.arc(0, ey, r * .36, 0, TAU); ctx.fill();
     ctx.fillStyle = '#ffb21e'; ctx.beginPath(); ctx.arc(0, ey, r * (.075 + .04 * (o.ping || 0)), 0, TAU); ctx.fill(); ctx.fillStyle = '#fff1c4'; ctx.beginPath(); ctx.arc(-r * .02, ey - r * .02, r * .025, 0, TAU); ctx.fill(); } // ready: the amber dot
   S.filter(q => sin(q) >= 0).sort((p, q) => sin(p) - sin(q)).forEach(sepal);
-  const an = tip(S[0].a, L), sw = Math.sin(performance.now() / 520) * .12, wr = r * .17, wx = r * 1.02 + Math.sin(sw) * r * .1, wy = -r * .42;
+  const an = tip(S[0].a, L), sw = Math.sin(drawNow() / 520) * .12, wr = r * .17, wx = r * 1.02 + Math.sin(sw) * r * .1, wy = -r * .42;
   ctx.strokeStyle = '#d9ad44'; ctx.lineWidth = Math.max(.6, r * .035); ctx.beginPath(); ctx.moveTo(an.x, an.y); ctx.quadraticCurveTo((an.x + wx) / 2 + r * .15, (an.y + wy) / 2 - r * .05, wx, wy - wr); ctx.stroke(); // the chain
   const wg = ctx.createRadialGradient(wx - wr * .35, wy - wr * .35, wr * .1, wx, wy, wr); wg.addColorStop(0, '#fff2b0'); wg.addColorStop(.5, '#e2b445'); wg.addColorStop(1, '#9a6c12'); ctx.fillStyle = wg; ctx.beginPath(); ctx.arc(wx, wy, wr, 0, TAU); ctx.fill();
   ctx.fillStyle = '#c9952a'; ctx.fillRect(wx - wr * .2, wy - wr * 1.3, wr * .4, wr * .35);
@@ -5709,7 +5790,7 @@ function drawInterHud() {
       ctx.font = `700 26px ${FD}`; ctx.fillText(`Start over ${Math.max(1, Math.ceil((INTER_INTRO - it.t) / 1000))}`, W / 2, y + 136); }
     ctx.globalAlpha = 1; return;
   }
-  const bw = 240, bx = W / 2 - bw / 2, by = G.power ? 134 : 80, frac = clamp(it.left / INTER_DUR, 0, 1);
+  const bw = 240, bx = W / 2 - bw / 2, by = hudLay.panel + (G.power ? 54 : 0) + (G.perkBanner > 0 ? 58 : 0), frac = clamp(it.left / INTER_DUR, 0, 1);
   ctx.fillStyle = 'rgba(20,10,40,.8)'; ctx.fillRect(bx, by, bw, 62); ctx.fillStyle = d.col; ctx.fillRect(bx, by, 6, 62);
   ctx.textAlign = 'left'; ctx.font = `800 15px ${FU}`; ctx.fillStyle = d.col; ctx.fillText(d.name, bx + 16, by + 7);
   ctx.textAlign = 'right'; ctx.fillStyle = '#fff4e4'; ctx.fillText(`${Math.ceil(it.left / 1000)} s`, bx + bw - 10, by + 7);
@@ -5731,7 +5812,7 @@ function updateSeekers(dt) {
     if (k.x < 10 || k.x > W - 10) k.vx *= -1; if (k.y < 50 || k.y > H - 10) k.vy *= -1; k.x = clamp(k.x, 10, W - 10); k.y = clamp(k.y, 50, H - 10);
     for (const c of G.cubes) if (!c.dead && !(c.seed && c.t < 0) && Math.hypot(c.x - k.x, c.y - k.y) < c.r + 10) {
       c.dead = true; const fs = duelFair() ? 1 : (fruitDef().sapMult || 1) * masterSap(), v = G.inter ? interPts(c) : Math.round(goldValue(c) * fs * G.dayMult), bar = G.inter ? v : Math.round(goldValue(c) * fs); gainSap(v, bar); G.cubesRun++; track('cube', v);
-      addText(c.x, c.y - 16, '+' + v, k.col); burst(c.x, c.y, 8, ['#ffffff', k.col], 160); SFX.collect();
+      addText(c.x, c.y - 16, '+' + v, !G.inter && v !== bar ? PIGGY_COL : k.col); burst(c.x, c.y, 8, ['#ffffff', k.col], 160); SFX.collect();
     }
   }
   G.seekers = G.seekers.filter(k => k.t < k.life);
@@ -6022,9 +6103,9 @@ function drawPowerAura() {
     const x = G.px + b.ox, y = G.py + b.oy;
     if (p.kind === 'schild') { ctx.fillStyle = 'rgba(90,200,255,.22)'; ctx.beginPath(); ctx.arc(x, y, b.r + 9, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(200,240,255,.8)'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.ellipse(x - b.r * .5, y - b.r * .7, b.r * .35, b.r * .15, -.7, 0, TAU); ctx.fill(); }
     else if (p.kind === 'spin') { ctx.fillStyle = 'rgba(255,154,213,.28)'; ctx.beginPath(); ctx.arc(x, y, b.r + 11, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,200,235,.9)'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#ff9ad5'; for (let i = 0; i < (G.bubble || 0); i++) { ctx.beginPath(); ctx.arc(x - 10 + i * 10, y - b.r - 18, 3.5, 0, TAU); ctx.fill(); } }
-    else if (p.kind === 'honing') { ctx.save(); ctx.strokeStyle = 'rgba(255,176,32,.8)'; ctx.lineWidth = 3; ctx.setLineDash([3, 7]); ctx.lineDashOffset = -performance.now() / 30; ctx.beginPath(); ctx.arc(x, y, b.r + 12, 0, TAU); ctx.stroke(); ctx.restore(); }
-    else if (p.kind === 'magneet') { ctx.save(); ctx.strokeStyle = 'rgba(255,90,138,.7)'; ctx.lineWidth = 2; ctx.setLineDash([5, 6]); ctx.lineDashOffset = -performance.now() / 20; ctx.beginPath(); ctx.arc(x, y, b.r + 12, 0, TAU); ctx.stroke(); ctx.restore(); }
-    else if (p.kind === 'dubbel') { ctx.fillStyle = 'rgba(255,213,74,.5)'; for (let i = 0; i < 3; i++) { const a = performance.now() / 400 + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (b.r + 10), y + Math.sin(a) * (b.r + 10) * .5 - 4, 2.2, 0, TAU); ctx.fill(); } }
+    else if (p.kind === 'honing') { ctx.save(); ctx.strokeStyle = 'rgba(255,176,32,.8)'; ctx.lineWidth = 3; ctx.setLineDash([3, 7]); ctx.lineDashOffset = -drawNow() / 30; ctx.beginPath(); ctx.arc(x, y, b.r + 12, 0, TAU); ctx.stroke(); ctx.restore(); }
+    else if (p.kind === 'magneet') { ctx.save(); ctx.strokeStyle = 'rgba(255,90,138,.7)'; ctx.lineWidth = 2; ctx.setLineDash([5, 6]); ctx.lineDashOffset = -drawNow() / 20; ctx.beginPath(); ctx.arc(x, y, b.r + 12, 0, TAU); ctx.stroke(); ctx.restore(); }
+    else if (p.kind === 'dubbel') { ctx.fillStyle = 'rgba(255,213,74,.5)'; for (let i = 0; i < 3; i++) { const a = drawNow() / 400 + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (b.r + 10), y + Math.sin(a) * (b.r + 10) * .5 - 4, 2.2, 0, TAU); ctx.fill(); } }
   }
 }
 function drawCubes() { for (const c of G.cubes) { if (c.fork) { drawForkPickup(c); continue; } if (c.seed && c.t < 0) { drawSprout(c); continue; } if (c.cherry) { drawCherryPick(c); continue; } ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x + 3, c.y + c.r + 5, c.r * 1.1, c.r * .35, 0, 0, TAU); ctx.fill(); drawSugar(c.x, c.y, c.r, c.gold, c.rot); } }
@@ -6149,7 +6230,7 @@ function drawFruit(type, x, y, r, ang, half, o) {
         ctx.strokeStyle = '#5a3a1e'; ctx.lineWidth = r * .14; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, -r * .85); ctx.quadraticCurveTo(r * .1, -r * 1.15, r * .22, -r * 1.3); ctx.stroke();
         ctx.fillStyle = '#6cc26a'; ctx.beginPath(); ctx.ellipse(r * .4, -r * 1.05, r * .34, r * .16, -.5, 0, TAU); ctx.fill();
         // a worm peeking out of a hole, waving along with the bob
-        const wy = Math.sin(performance.now() / 300) * r * .05;
+        const wy = Math.sin(drawNow() / 300) * r * .05;
         ctx.fillStyle = '#4a1a10'; ctx.beginPath(); ctx.ellipse(r * .72, r * .25, r * .17, r * .13, 0, 0, TAU); ctx.fill();
         ctx.strokeStyle = '#8fd16a'; ctx.lineWidth = r * .16; ctx.beginPath(); ctx.moveTo(r * .72, r * .25); ctx.quadraticCurveTo(r * .95, r * .1 + wy, r * 1.08, r * .22 + wy); ctx.stroke();
         ctx.fillStyle = '#8fd16a'; ctx.beginPath(); ctx.arc(r * 1.1, r * .2 + wy, r * .11, 0, TAU); ctx.fill();
@@ -6328,7 +6409,7 @@ function drawFruit(type, x, y, r, ang, half, o) {
       ctx.save(); ctx.rotate(ang * .1);
       for (let i = 0; i < 18; i++) { const a = i / 18 * TAU; ctx.fillStyle = i % 2 ? '#b8c25a' : '#a3ad48'; ctx.save(); ctx.rotate(a); ctx.beginPath(); ctx.moveTo(r * .8, -r * .14); ctx.lineTo(r * 1.2, 0); ctx.lineTo(r * .8, r * .14); ctx.closePath(); ctx.fill(); ctx.restore(); }
       ctx.fillStyle = radial(r, '#d4dc78', '#a9b24c', '#6d7a2a'); ctx.beginPath(); ctx.arc(0, 0, r * .92, 0, TAU); ctx.fill();
-      if (!o.dead) { ctx.fillStyle = 'rgba(150,200,80,.35)'; const b = Math.sin(performance.now() / 500); for (const [px, py] of [[r * 1.15, -r * .9 + b * 3], [-r * 1.1, -r * 1.05 - b * 3]]) { for (const [dx, dy, k] of [[-.4, 0, .5], [.4, 0, .5], [0, -.3, .6]]) { ctx.beginPath(); ctx.arc(px + dx * r * .4, py + dy * r * .4, r * .4 * k, 0, TAU); ctx.fill(); } } }
+      if (!o.dead) { ctx.fillStyle = 'rgba(150,200,80,.35)'; const b = Math.sin(drawNow() / 500); for (const [px, py] of [[r * 1.15, -r * .9 + b * 3], [-r * 1.1, -r * 1.05 - b * 3]]) { for (const [dx, dy, k] of [[-.4, 0, .5], [.4, 0, .5], [0, -.3, .6]]) { ctx.beginPath(); ctx.arc(px + dx * r * .4, py + dy * r * .4, r * .4 * k, 0, TAU); ctx.fill(); } } }
       ctx.restore(); break;
     }
     case 'mirakelbes': { // a small, wet, deep cherry-red oval berry: one sharp glint, translucent ruby on the shadow side, a tiny calyx
@@ -6342,7 +6423,7 @@ function drawFruit(type, x, y, r, ang, half, o) {
       ctx.fillStyle = 'rgba(255,255,255,.96)'; ctx.beginPath(); ctx.ellipse(-r * .4, -r * .55, r * .12, r * .07, -.7, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.arc(-r * .2, -r * .66, r * .035, 0, TAU); ctx.fill();
       if (!o.dead) {
         ctx.fillStyle = '#5e5a28'; ctx.beginPath(); for (let i = 0; i < 10; i++) { const a = i / 10 * TAU, rr = i % 2 ? r * .07 : r * .17; ctx.lineTo(Math.cos(a) * rr, -ry * .96 + Math.sin(a) * rr * .45); } ctx.closePath(); ctx.fill(); ctx.fillStyle = '#3a3214'; ctx.beginPath(); ctx.ellipse(0, -ry * .96, r * .06, r * .035, 0, 0, TAU); ctx.fill();
-        if (o.sparkle > 0) { ctx.fillStyle = '#fff'; const tt = performance.now() / 120; for (let i = 0; i < 5; i++) { const k = Math.max(0, Math.sin(tt + i * 1.9)) * o.sparkle, a = i * 1.26 + .4, sx = Math.cos(a) * rx * .85, sy = Math.sin(a) * ry * .85, z = r * .14 * k; if (z < .3) continue; ctx.beginPath(); ctx.moveTo(sx, sy - z); ctx.quadraticCurveTo(sx, sy, sx + z, sy); ctx.quadraticCurveTo(sx, sy, sx, sy + z); ctx.quadraticCurveTo(sx, sy, sx - z, sy); ctx.quadraticCurveTo(sx, sy, sx, sy - z); ctx.fill(); } } // sugar crystals sparkle while it moves
+        if (o.sparkle > 0) { ctx.fillStyle = '#fff'; const tt = drawNow() / 120; for (let i = 0; i < 5; i++) { const k = Math.max(0, Math.sin(tt + i * 1.9)) * o.sparkle, a = i * 1.26 + .4, sx = Math.cos(a) * rx * .85, sy = Math.sin(a) * ry * .85, z = r * .14 * k; if (z < .3) continue; ctx.beginPath(); ctx.moveTo(sx, sy - z); ctx.quadraticCurveTo(sx, sy, sx + z, sy); ctx.quadraticCurveTo(sx, sy, sx, sy + z); ctx.quadraticCurveTo(sx, sy, sx - z, sy); ctx.quadraticCurveTo(sx, sy, sx, sy - z); ctx.fill(); } } // sugar crystals sparkle while it moves
       }
       ctx.restore(); break;
     }
@@ -6461,10 +6542,10 @@ function drawCrossSection(type, R, f) {
   }
 }
 function drawPlayer() {
-  const f = fruitDef(), type = curType(), bob = Math.sin(performance.now() / 350) * 2, dying = G.state === 'dying', LL = lateLook(), LJ = lateJig();
+  const f = fruitDef(), type = curType(), bob = Math.sin(drawNow() / 350) * 2, dying = G.state === 'dying', LL = lateLook(), LJ = lateJig();
   for (const t of G.trail) { ctx.globalAlpha = t.a * .5; ctx.fillStyle = f.juice[1]; ctx.beginPath(); ctx.arc(t.x, t.y, curR() * .8, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1;
   if (f.cherries && !G.form) drawCherryStems();
-  if (G.fever > 0 && !dying) for (const b of G.bodies) { const x = G.px + b.ox, y = G.py + b.oy + bob, rr = b.r * (2.2 + .25 * Math.sin(performance.now() / 110)), g = ctx.createRadialGradient(x, y, b.r * .6, x, y, rr); g.addColorStop(0, 'rgba(255,200,60,.55)'); g.addColorStop(1, 'rgba(255,140,20,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rr, 0, TAU); ctx.fill(); }
+  if (G.fever > 0 && !dying) for (const b of G.bodies) { const x = G.px + b.ox, y = G.py + b.oy + bob, rr = b.r * (2.2 + .25 * Math.sin(drawNow() / 110)), g = ctx.createRadialGradient(x, y, b.r * .6, x, y, rr); g.addColorStop(0, 'rgba(255,200,60,.55)'); g.addColorStop(1, 'rgba(255,140,20,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rr, 0, TAU); ctx.fill(); }
   for (const b of G.bodies) {
     const x = G.px + b.ox + LJ.x, y = G.py + b.oy + bob + LJ.y;
     if (dying && G.death && G.death.body === b) { drawCutFruit(x, y, b, f, type); continue; }
@@ -6477,52 +6558,75 @@ function drawPlayer() {
 // The in-game home and flag buttons are HTML; the HUD places them in board units right after the sap count.
 const PLAYBAR_W = 52; let playbarPos = '';
 function placePlaybar(x, y) { const px = ax + x * S, py = ay + y * S, key = `${px.toFixed(1)},${py.toFixed(1)},${S.toFixed(3)}`; if (key === playbarPos) return; playbarPos = key; const pb = $('#playbar'); pb.style.left = px + 'px'; pb.style.top = py + 'px'; pb.style.transform = `scale(${S})`; }
+function hudBtns(sTop) { // v0.32.8 HUD lines: the pause and lantern buttons in HUD units (left edge, bottom), so no line runs under them
+  const c = canvas.getBoundingClientRect(); let l = W, b = 0;
+  for (const el of [pauseBtn, lampBtn]) { if (!el || el.hidden) continue; const r = el.getBoundingClientRect(); if (!r.width) continue; l = Math.min(l, (r.left - 4 - c.left - ax) / S); b = Math.max(b, (r.bottom + 2 - c.top - ay) / S - sTop); }
+  return { l, b };
+}
+function hudTagsEnd() { // the right end of the tags under the sap count (combo, piggy bank), 0 without tags: the timer keeps right of them
+  ctx.font = `800 12px ${FU}`; let x = 36; const c = comboMult(G.combo), pm = piggyMult(); if (c > 1) x += ctx.measureText(`×${c}`).width + 6; if (pm > 1) x += ctx.measureText(`spaarpot ×${pm}`).width + 6; return x > 36 ? x - 6 : 0;
+}
+function hudFit(txt, fs, room, min) { // the font size (down to min) at which txt fits room, and its width there
+  ctx.font = `800 ${fs}px ${FU}`; let w = ctx.measureText(txt).width; if (w > room) { const f2 = Math.max(min, Math.floor(fs * room / w)); if (f2 < fs) { fs = f2; ctx.font = `800 ${fs}px ${FU}`; w = ctx.measureText(txt).width; } }
+  return { fs, w };
+}
 function drawHud() {
-  ctx.save(); const shade = ctx.createLinearGradient(0, 0, 0, 96); shade.addColorStop(0, 'rgba(0,0,0,.42)'); shade.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = shade; ctx.fillRect(0, 0, W, 96);
+  ctx.save(); const sTop = safeTopU(), shade = ctx.createLinearGradient(0, 0, 0, 96 + sTop); /* v0.32.8 safe area */ shade.addColorStop(0, 'rgba(0,0,0,.42)'); shade.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = shade; ctx.fillRect(0, 0, W, 96 + sTop); if (sTop) ctx.translate(0, sTop);
   ctx.textBaseline = 'top'; ctx.lineJoin = 'round';
   // left cluster: sugar icon, sap count, then the home and flag buttons (HTML, placed to match). The timer gives way when the cluster is wide.
-  ctx.font = `800 16px ${FU}`; const sapTxt = String(save.sap), sapW = ctx.measureText(sapTxt).width, barX = 36 + sapW + 7, clusterEnd = barX + PLAYBAR_W;
+  ctx.font = `800 16px ${FU}`; const sapTxt = String(save.sap), sapW = ctx.measureText(sapTxt).width, barX = 36 + sapW + 7, clusterEnd = Math.max(barX + PLAYBAR_W, hudTagsEnd());
   ctx.font = `700 32px ${FD}`; const tt = fmtTime(G.t); let tw = ctx.measureText(tt).width, tx = Math.max(W / 2, clusterEnd + tw / 2 + 8);
   lampHud.lim = 0; if (!lampBtn.hidden) { const lim = lampHud.lim = lampLim(); if (tx + tw / 2 > lim) { const room = lim - clusterEnd - 8; if (tw > room) { ctx.font = `700 ${Math.max(20, Math.floor(32 * room / tw))}px ${FD}`; tw = ctx.measureText(tt).width; } tx = Math.max(clusterEnd + tw / 2 + 8, lim - tw / 2); } } lampHud.timerR = tx + tw / 2; // v0.32: the timer keeps left of the Lampionvrucht's button
   // outlined so it reads on light boards (marble, bamboo) as well as dark ones
   ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.strokeText(tt, tx, 12); ctx.fillStyle = '#fff4e4'; ctx.fillText(tt, tx, 12);
-  ctx.textAlign = 'left'; ctx.font = `800 16px ${FU}`; drawSugar(20, 26, 10, false, -.15); ctx.lineWidth = 3; ctx.strokeText(sapTxt, 36, 16); ctx.fillStyle = '#fff4e4'; ctx.fillText(sapTxt, 36, 16); placePlaybar(barX, 14);
-  if (comboMult(G.combo) > 1) { const m = `×${comboMult(G.combo)}`; ctx.font = `800 12px ${FU}`; ctx.fillStyle = '#ffd54a'; ctx.strokeText(m, 36, 33); ctx.fillText(m, 36, 33); }
-  if (G.noteT > 0 && G.note) { ctx.textAlign = 'center'; ctx.font = `800 13px ${FU}`; ctx.globalAlpha = clamp(G.noteT / 600, 0, 1); ctx.strokeText(G.note, W / 2, 78); ctx.fillStyle = '#ffd54a'; ctx.fillText(G.note, W / 2, 78); ctx.globalAlpha = 1; ctx.textAlign = 'left'; }
+  ctx.textAlign = 'left'; ctx.font = `800 16px ${FU}`; drawSugar(20, 26, 10, false, -.15); ctx.lineWidth = 3; ctx.strokeText(sapTxt, 36, 16); ctx.fillStyle = '#fff4e4'; ctx.fillText(sapTxt, 36, 16); placePlaybar(barX, 14 + sTop);
+  { let cx = 36; ctx.font = `800 12px ${FU}`; if (comboMult(G.combo) > 1) { const m = `×${comboMult(G.combo)}`; ctx.fillStyle = '#ffd54a'; ctx.strokeText(m, 36, 36); ctx.fillText(m, 36, 36); cx += ctx.measureText(m).width + 6; }
+    const pm = piggyMult(); if (pm > 1) { const p = `spaarpot ×${pm}`; ctx.fillStyle = PIGGY_COL; ctx.strokeText(p, cx, 36); ctx.fillText(p, cx, 36); } } // v0.32.8: the piggy-bank double stays in view all run (the note shows only 4 s)
   const f = fruitDef(); ctx.fillStyle = '#ffd54a'; ctx.font = `800 12px ${FU}`;
-  // the status under the sap count (shield, segments, cherries): drawn after the level line below, which moves aside for it
+  // the status (shield, segments, cherries): the first line of the column under the level bar (v0.32.8 HUD lines)
   const status = G.armor > 0 ? (G.armor > 1 ? `Nog ${G.armor} sneden vrij` : 'Nog 1 snee vrij') : f.segments ? `Partjes: ${f.segments - G.segLost}` : (f.cherries && !G.form) ? `Kersen: ${G.bodies.length}` : '';
-  const statusW = status ? ctx.measureText(status).width : 0;
-  if (G.sourRain > 0) { ctx.fillStyle = '#ffd54a'; ctx.fillText(`Zure regen: nog ${Math.ceil(G.sourRain / 1000)} s goud`, 12, 61); }
-  if (G.mode !== 'knife' && !G.inter && G.fever > 0) { // v0.31.1: no flow meter any more (Pieter: a bar that is always there adds nothing); only Fruit Fever's countdown shows
-    const mw = 86, mx = W - 12 - mw, my = 60, fever = G.fever > 0, fr = fever ? G.fever / FEVER_MS : G.flow;
-    ctx.textAlign = 'right'; ctx.font = `800 10px ${FU}`; ctx.lineWidth = 3; const lbl = fever ? `FEVER ${Math.ceil(G.fever / 1000)} s` : 'FLOW'; ctx.strokeText(lbl, W - 12, 47); ctx.fillStyle = fever ? '#ffb300' : '#c77dff'; ctx.fillText(lbl, W - 12, 47);
-    ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(mx, my, mw, 5); ctx.fillStyle = fever ? `rgba(255,${160 + Math.round(60 * Math.sin(performance.now() / 90))},40,1)` : '#c77dff'; ctx.fillRect(mx, my, mw * clamp(fr, 0, 1), 5);
-    if (!fever) { ctx.fillStyle = 'rgba(0,0,0,.5)'; for (let i = 1; i < 4; i++) ctx.fillRect(mx + mw * i / 4 - .5, my, 1, 5); }
-    ctx.textAlign = 'left';
-  }
   if (G.feverBanner > 0) { const a = clamp(Math.min(G.feverBanner / 250, (2600 - G.feverBanner) / 400), 0, 1); ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.font = `700 34px ${FD}`; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(80,30,0,.7)'; ctx.strokeText('FRUIT FEVER!', W / 2, H * .3); ctx.fillStyle = '#ffb300'; ctx.fillText('FRUIT FEVER!', W / 2, H * .3); ctx.font = `800 13px ${FU}`; ctx.lineWidth = 3; ctx.strokeText('8 s: alles goud, dubbel sap, de wereld vertraagt', W / 2, H * .3 + 40); ctx.fillStyle = '#fff4e4'; ctx.fillText('8 s: alles goud, dubbel sap, de wereld vertraagt', W / 2, H * .3 + 40); ctx.restore(); }
   // level goal (or the mode's own goal) under the time
   const goal = goalFor(G.level); ctx.textAlign = 'center'; ctx.font = `800 12px ${FU}`;
-  let line = `Level ${G.level} · ${G.levelSap}/${goal} sap`, frac = G.levelSap / goal;
+  let line = `Level ${G.level} · ${G.levelSap}/${goal}` /* v0.32.8: the level bar, not your sap (the wallet is the only sap number) */, frac = G.levelSap / goal;
   if (G.mode === 'rain') { line = `Suikerregen · nog ${Math.max(0, Math.ceil((90000 - G.modeT) / 1000))} s · ${G.sapRun}/${WEEKEND.rain.goal} sap`; frac = G.sapRun / WEEKEND.rain.goal; }
   else if (G.mode === 'exam') { line = `Chefs examen · golf ${Math.min(G.wave + 1, EXAM.length)} van ${EXAM.length}`; frac = G.wave / EXAM.length; }
   else if (G.mode === 'knife') { line = `Jij bent het mes · nog ${Math.max(0, Math.ceil((60000 - G.modeT) / 1000))} s · ${G.score}/${WEEKEND.knife.goal} fruitjes`; frac = G.score / WEEKEND.knife.goal; }
-  else if (G.mode === 'daily') line = `${dayRuleNames() || 'Mes van de dag'} · level ${G.level} · ${G.levelSap}/${goal} sap`;
+  else if (G.mode === 'daily') line = `${dayRuleNames() || 'Mes van de dag'} · level ${G.level} · ${G.levelSap}/${goal}`;
   else if (G.mode === 'duel' && ldLive()) { line = ldHud(); frac = G.modeT / DUEL_MS; } // v0.32.5 live duel
   else if (G.mode === 'duel') { const ds = Math.max(0, Math.ceil((DUEL_MS - G.modeT) / 1000)); line = G.duel && G.duel.opp.solo ? `Uitdaging voor ${G.duel.opp.name} · nog ${ds} s · ${G.sapRun} sap` : `Duel · nog ${ds} s · ${G.sapRun} sap${G.duel ? ` · ${G.duel.opp.name}${G.duel.oppDead ? ': gesneden' : ''}` : ''}`; frac = G.modeT / DUEL_MS; } /* v0.32.3: a challenge you send names your friend all through the run */
   else if (G.mode === 'chef') { line = `De Chef · hoofdstuk ${G.chefChapter || 1} · nog ${Math.max(0, Math.ceil((CHEF_MS - G.modeT) / 1000))} s`; frac = G.modeT / CHEF_MS; }
   else if (G.mode === 'sapstorm') { line = `Sapstorm · nog ${Math.max(0, Math.ceil((STORM_ROUND - G.modeT) / 1000))} s · ${G.sapRun} sap`; frac = G.modeT / STORM_ROUND; }
   else if (G.mode === 'nacht') { line = `Lange Nacht · level ${G.level} · ${Math.floor(G.t / 1000) + 100 * G.levelsGained} punten${G.lantern > 0 ? ` · lantaarn ${Math.ceil(G.lantern / 1000)} s` : ''}`; frac = G.levelSap / goal; }
   else if (G.mode === 'estafette' && G.relay) { line = `Estafette ${G.relay.i + 1}/5 · ${fruitDef().name} · nog ${Math.max(0, Math.ceil(G.relay.t / 1000))} s · ${relayScore() + Math.max(0, G.sapRun - G.relay.start)} sap`; frac = 1 - G.relay.t / RELAY_ROUND; }
-  const lineX = status ? Math.max(W / 2, 12 + statusW + 10 + ctx.measureText(line).width / 2) : W / 2; // like the timer: the line slides right when the left status needs the room
-  ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.strokeText(line, lineX, 50); ctx.fillStyle = '#fff4e4'; ctx.fillText(line, lineX, 50);
-  if (status) { ctx.textAlign = 'left'; ctx.font = `800 12px ${FU}`; ctx.fillStyle = '#ffd54a'; ctx.fillText(status, 12, 47); ctx.textAlign = 'center'; }
-  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(W / 2 - 70, 67, 140, 5); ctx.fillStyle = '#ffd54a'; ctx.fillRect(W / 2 - 70, 67, 140 * clamp(frac, 0, 1), 5);
-  { const n = runSteps(G.level); if (n > 1 && n <= 40) { ctx.fillStyle = 'rgba(0,0,0,.55)'; for (let i = 1; i < n; i++) ctx.fillRect(W / 2 - 70 + 140 * stepMark(G.level, i) / goal - .5, 66, 1, 7); } } // v0.31: one tick per step
+  // v0.32.8 HUD lines: the mode line (centred; smaller while it would run under the pause/lantern button, else below the button)
+  const btn = hudBtns(sTop), roomAt = y => y < btn.b ? Math.max(0, 2 * Math.min(W / 2 - 12, btn.l - 6 - W / 2)) : W - 24; let lineY = 50, room = roomAt(lineY), lf = hudFit(line, 12, room, 10);
+  if (lf.w > room && lineY < btn.b) { lineY = Math.ceil(btn.b); room = W - 24; lf = hudFit(line, 12, room, 9); }
+  { const te = hudTagsEnd(); if (te && lineY < 53 && W / 2 - Math.min(lf.w, room) / 2 < te + 3) { lineY = 53; if (lineY >= btn.b && room < W - 24) { room = W - 24; lf = hudFit(line, 12, room, lf.fs < 10 ? 9 : 10); } } ctx.font = `800 ${lf.fs}px ${FU}`; } // v0.32.8 polish: under the tags (y 36, 12 px) with 4 units of air where they meet sideways
+  ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.strokeText(line, W / 2, lineY, room); ctx.fillStyle = '#fff4e4'; ctx.fillText(line, W / 2, lineY, room);
+  const barY = lineY + lf.fs + 5; // the level bar under it
+  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(W / 2 - 70, barY, 140, 5); ctx.fillStyle = '#ffd54a'; ctx.fillRect(W / 2 - 70, barY, 140 * clamp(frac, 0, 1), 5);
+  { const n = runSteps(G.level); if (n > 1 && n <= 40) { ctx.fillStyle = 'rgba(0,0,0,.55)'; for (let i = 1; i < n; i++) ctx.fillRect(W / 2 - 70 + 140 * stepMark(G.level, i) / goal - .5, barY - 1, 1, 7); } } // v0.31: one tick per step
+  // one centred column under the bar: the lasting status first, then what runs out (so a new note never moves the lines above it)
+  let cy = barY + 11; hudLay.col = [];
+  const colLine = (txt, color, fs, a) => { const room = W - 24, fit = hudFit(txt, fs, room, 10); let rows = [txt];
+    if (fit.w > room) { rows = []; let cur = ''; for (const wd of tr(String(txt)).split(' ')) { const t = cur ? cur + ' ' + wd : wd; if (cur && ctx.measureText(t).width > room) { rows.push(cur); cur = wd; } else cur = t; } if (cur) rows.push(cur); } // wrapped in the shown language
+    ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.fillStyle = color;
+    for (const r of rows) { ctx.strokeText(r, W / 2, cy, room); ctx.fillText(r, W / 2, cy, room); hudLay.col.push(r); cy += fit.fs + 3; } ctx.globalAlpha = 1; };
+  if (status) colLine(status, '#ffd54a', 12, 1); // shield, segments, cherries
+  if (G.mode !== 'knife' && !G.inter && G.fever > 0) { // v0.31.1: only Fruit Fever's countdown shows (no flow meter)
+    colLine(`FEVER ${Math.ceil(G.fever / 1000)} s`, '#ffb300', 10, 1); const mw = 86, mx = W / 2 - mw / 2;
+    ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(mx, cy - 1, mw, 5); ctx.fillStyle = `rgba(255,${160 + Math.round(60 * Math.sin(drawNow() / 90))},40,1)`; ctx.fillRect(mx, cy - 1, mw * clamp(G.fever / FEVER_MS, 0, 1), 5); cy += 8;
+  }
+  if (G.sourRain > 0) colLine(`Zure regen: nog ${Math.ceil(G.sourRain / 1000)} s goud`, '#ffd54a', 12, 1);
+  if (G.noteT > 0 && G.note) colLine(G.note, '#ffd54a', 13, clamp(G.noteT / 600, 0, 1));
+  ctx.textAlign = 'center';
+  // the panels under the column: the bonus (48), the kitchen perk (52), the minigame (62); the tools' labels keep below all of it
+  const pTop = hudLay.panel = Math.max(80, Math.ceil(cy) + 2); let pEnd = pTop; if (G.power) pEnd += 54; if (G.perkBanner > 0) pEnd += 58; if (G.inter && G.inter.phase !== 'intro' && G.inter.phase !== 'done') pEnd += 68;
+  hudLay.lineY = lineY; hudLay.barY = barY; hudLay.bottom = sTop + (pEnd > pTop ? pEnd - 6 : cy);
   // active bonus: what it does and how long it lasts
   if (G.power) {
-    const p = POWERS[G.power.kind], bw = 240, bx = W / 2 - bw / 2, by = 80, frac = clamp(G.power.t / G.power.dur, 0, 1);
+    const p = POWERS[G.power.kind], bw = 240, bx = W / 2 - bw / 2, by = hudLay.panel, frac = clamp(G.power.t / G.power.dur, 0, 1);
     ctx.fillStyle = 'rgba(20,10,5,.8)'; ctx.fillRect(bx, by, bw, 48); ctx.fillStyle = p.col; ctx.fillRect(bx, by, 6, 48);
     ctx.textAlign = 'left'; ctx.font = `800 15px ${FU}`; ctx.fillStyle = p.col; ctx.fillText(p.name, bx + 16, by + 7);
     ctx.textAlign = 'right'; ctx.fillStyle = '#fff4e4'; ctx.fillText(`${Math.ceil(G.power.t / 1000)} s`, bx + bw - 10, by + 7);
@@ -6530,7 +6634,7 @@ function drawHud() {
     ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(bx + 6, by + 44, bw - 6, 4); ctx.fillStyle = p.col; ctx.fillRect(bx + 6, by + 44, (bw - 6) * frac, 4);
   }
   if (G.perkBanner > 0) { // the kitchen perk you just earned
-    const bw = 300, bx = W / 2 - bw / 2, by = G.power ? 134 : 80, a = clamp(Math.min(G.perkBanner / 300, (5500 - G.perkBanner) / 400), 0, 1); ctx.globalAlpha = a;
+    const bw = 300, bx = W / 2 - bw / 2, by = hudLay.panel + (G.power ? 54 : 0), a = clamp(Math.min(G.perkBanner / 300, (5500 - G.perkBanner) / 400), 0, 1); ctx.globalAlpha = a;
     ctx.fillStyle = 'rgba(60,40,0,.88)'; ctx.fillRect(bx, by, bw, 52); ctx.fillStyle = '#ffd54a'; ctx.fillRect(bx, by, 6, 52);
     ctx.textAlign = 'left'; ctx.font = `800 11px ${FU}`; ctx.fillStyle = '#ffd54a'; ctx.fillText('KEUKENBONUS · BLIJFT VAN JOU', bx + 16, by + 6);
     ctx.font = `800 15px ${FU}`; ctx.fillStyle = '#fff4e4'; ctx.fillText(G.perkName, bx + 16, by + 20); ctx.font = `600 11px ${FU}`; ctx.fillText(G.perkInfo, bx + 16, by + 38); ctx.globalAlpha = 1;
@@ -6567,7 +6671,7 @@ function render() {
   if (G.flash > .02) { ctx.fillStyle = `rgba(255,60,40,${G.flash * .35})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
   if (G.state === 'dying') { ctx.fillStyle = `rgba(20,0,0,${clamp(G.dyingT / DYING_MS, 0, 1) * .35})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
   if (G.state === 'play' && G.slowmo > 0) { ctx.fillStyle = `rgba(60,120,255,${.16 * clamp(G.slowmo / 600, 0, 1)})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
-  if (G.state === 'play' && G.fever > 0) { ctx.fillStyle = `rgba(255,170,40,${.08 + .04 * Math.sin(performance.now() / 120)})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
+  if (G.state === 'play' && G.fever > 0) { ctx.fillStyle = `rgba(255,170,40,${.08 + .04 * Math.sin(drawNow() / 120)})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
   if (G.themeFlash > 0) { ctx.fillStyle = `rgba(255,250,235,${clamp(G.themeFlash / 900, 0, 1) * .85})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
   ctx.restore();
   if (G.state === 'play' || G.state === 'dying' || G.state === 'pause') drawHud();
@@ -6788,13 +6892,13 @@ const endDrag = e => {
 canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag);
 document.addEventListener('touchmove', e => { if (G.state === 'play') e.preventDefault(); }, { passive: false });
 document.addEventListener('pointerdown', () => AU.init(), { capture: true });
-document.addEventListener('visibilitychange', () => { if (document.hidden) { if (G.state === 'play') pause(); MUS.stop(true); cloudPush(true); } else { if (save.music3) MUS.start(); if (!HOOK.pollOff) netPoll(true); } }); // v0.32.3: back in the foreground, what waits on the server comes in as in-game cards
+document.addEventListener('visibilitychange', () => { if (document.hidden) { if (G.state === 'play') pause(); MUS.stop(true); AU.idle(); /* v0.32.8 heat */ if (inRunState()) store(); /* v0.32.8: the run's sap and note are saved before the app can be killed */ cloudPush(true); } else { AU.wake(); if (save.music3) MUS.start(); if (!HOOK.pollOff) netPoll(true); } }); // v0.32.3: back in the foreground, what waits on the server comes in as in-game cards
 // The system back button (Android, installed app) closes a screen or pauses a run instead of leaving the game. v0.30.4: pressed
 // again on the pause screen it stops the run and records it, like Stoppen; leaving a game-over settles the run first.
 window.addEventListener('popstate', navBack); // v0.32.0: sheet, sub-tab, first sub-tab, Spelen > Levels (navBack)
 
 $('#btn-play').addEventListener('click', () => { SFX.click(); startRun(save.fruit); });
-$('#btn-sound').addEventListener('click', () => { save.sound = !save.sound; store(); buildMenu(); SFX.click(); });
+$('#btn-sound').addEventListener('click', () => { save.sound = !save.sound; store(); buildMenu(); AU.wake(); SFX.click(); setTimeout(() => AU.idle(), 800); }); // v0.32.8 heat: both off -> the context rests
 // Home during a run: pause and ask; the flag: pause and pick a language. Both dialogs sit over the pause screen.
 function abandonRun() { const dq = G.mode === 'duel' && !!G.duel && !G.duelOut; if (dq) { duelFinish(true); recordRun(); } $('#confirm').hidden = true; G.slashes = []; G.hazards = []; G.state = 'menu'; if (dq) duelHome(); else openMenu(); if (dq) duelQuitNote(); }
 $('#btn-home-game').addEventListener('click', () => { SFX.click(); pause(); $('#confirm').hidden = false; navPushModal(); });
@@ -6804,7 +6908,7 @@ function openLangBox() { $('#langbox').hidden = false; navPushModal(); }
 $('#btn-lang-game').addEventListener('click', () => { SFX.click(); pause(); openLangBox(); });
 $('#btn-lang').addEventListener('click', () => { SFX.click(); openLangBox(); });
 for (const b of document.querySelectorAll('.langpick')) b.addEventListener('click', () => { SFX.click(); setLang(b.dataset.lang); $('#langbox').hidden = true; if (G.state === 'menu') buildMenu(); });
-$('#btn-music').addEventListener('click', () => { save.music3 = !save.music3; store(); buildMenu(); SFX.click(); if (save.music3) { AU.init(); MUS.start(); } else MUS.stop(true); });
+$('#btn-music').addEventListener('click', () => { save.music3 = !save.music3; store(); buildMenu(); SFX.click(); if (save.music3) { AU.init(); MUS.start(); } else MUS.stop(true); setTimeout(() => AU.idle(), 800); }); // v0.32.8 heat: after the fade
 pauseBtn.addEventListener('click', () => { SFX.click(); pause(); });
 lampBtn.addEventListener('click', e => { e.stopPropagation(); lampGo(true); });
 $('#btn-resume').addEventListener('click', () => { SFX.click(); resume(); });
@@ -8280,6 +8384,7 @@ $('#btn-storm-close').addEventListener('click', () => { $('#stormbox').hidden = 
 // ---- Online: anonymous Firebase sign-in and the one HTTPS function in native/tourney (tournament submissions, the player
 // profile, friends). Loaded lazily; everything keeps working offline or without a configuration, and tests mock NET.call.
 const NET_URL = 'https://europe-west1-dont-slice-me.cloudfunctions.net/tourney';
+const netPf = () => { try { const C = window.Capacitor; return window.FV_NATIVE || (C && typeof C.isNativePlatform === 'function' && C.isNativePlatform()) ? 'app' : 'web'; } catch (e) { return 'web'; } }; // v0.32.8: app or web, only for the server's daily totals (hello, profile, save); never stored
 const NET_CONFIG = { apiKey: 'AIzaSyD-cpn_f2Jj_XCch_pBpnHTqxRfbLjQZTM', authDomain: 'dont-slice-me.firebaseapp.com', projectId: 'dont-slice-me', appId: '1:599236386226:web:94239b28b31cb18ed218ab' }; // public client configuration; the data is protected by the Firestore rules and the function
 const NET = {
   uid: '', authP: null, failedAt: 0,
@@ -8310,7 +8415,7 @@ const NET = {
     return this.capsP;
   },
   async hello() {
-    this.capsFail = 0; const r = await this.call('hello', {}, false, 5000);
+    this.capsFail = 0; const r = await this.call('hello', { pf: netPf() }, false, 5000);
     if (r && r.ok) { this.capsV = Array.isArray(r.caps) ? r.caps.map(String) : []; this.vapid = String(r.vapid || ''); /* v0.32.5: the public Web Push key */ if (r.inbox && typeof r.inbox === 'object') { friendInbox(r.inbox); inboxNotes = Math.max(0, Math.floor(Number(r.inbox.notes)) || 0); } } /* v0.32.3: notes that wait (a challenge, a result) */
     else if (this.lastErr && this.lastErr.action === 'hello' && this.lastErr.status >= 400 && this.lastErr.status < 500 && this.lastErr.status !== 401) this.capsV = [];
     else { this.capsFail = nowMs(); return null; } // no answer (offline, timeout, server down): the Friends tab says so; the next openFriends asks again
@@ -8332,7 +8437,7 @@ async function cloudPush(keepalive) {
     if (!q || !q.ok) return null; if (inRunState()) { cloudSchedule(); return null; } const d = q.data ? parseSave(q.data) : null; if (d) compTake(d);
     if (!NET.on() || !save.name || cloudBusy || (save.rev || 0) <= cloudPushedRev) return null; }
   cloudBusy = true;
-  try { const rev = save.rev; const r = await NET.call('save', { data: exportSave(), rev, level: save.level, runs: save.runs }, keepalive); if (r && r.ok) { cloudPushedRev = Math.max(cloudPushedRev, rev); if (r.kept && !keepalive) setTimeout(compKept, 0); } return r; } catch (e) { return null; } finally { cloudBusy = false; }
+  try { const rev = save.rev; const r = await NET.call('save', { data: exportSave(), rev, level: save.level, runs: save.runs, pf: netPf() }, keepalive); if (r && r.ok) { cloudPushedRev = Math.max(cloudPushedRev, rev); if (r.kept && !keepalive) setTimeout(compKept, 0); } return r; } catch (e) { return null; } finally { cloudBusy = false; }
 }
 let cloudReading = false, compKeptBusy = false, compKeptN = 0, compKeptAt = 0;
 async function compKept() { // v0.32.4 (re-check): the server kept its own newer copy (another device of this player pushed a higher rev). When that copy lacks a Vergoeding mark of this device, the marks go INTO that copy, with the tool levels and keys they stand for (compTake the other way round, nothing else), and it goes back to the cloud one rev higher: the record of the claim is in the cloud in this session, so no other device is paid again. This device's own save is not touched at all (its progress follows at its next start, as before). compKeptAt: how many of this device's marks the cloud is known to hold. At most three writes per session
@@ -8343,7 +8448,7 @@ async function compKept() { // v0.32.4 (re-check): the server kept its own newer
     compKeptN++; for (const k of miss) d.comp[k] = mine[k];
     if (!compOb(d.kit)) d.kit = {}; const kit = compOb(save.kit) ? save.kit : {}; for (const k of Object.keys(KIT)) { const lv = Math.min(KIT[k].max, Math.floor(+kit[k]) || 0); if (lv > (Math.floor(+d.kit[k]) || 0)) d.kit[k] = lv; }
     d.perkKeys = Math.max(Math.floor(+d.perkKeys) || 0, Math.min(2, Math.floor(+save.perkKeys) || 0)); d.rev = Math.max(Math.floor(+d.rev) || 0, Math.floor(+q.rev) || 0) + 1;
-    const r = await NET.call('save', { data: 'FV1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))), rev: d.rev, level: Math.floor(+d.level) || 1, runs: Math.floor(+d.runs) || 0 }); if (r && r.ok && !r.kept) compKeptAt = n;
+    const r = await NET.call('save', { data: 'FV1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))), rev: d.rev, level: Math.floor(+d.level) || 1, runs: Math.floor(+d.runs) || 0, pf: netPf() }); if (r && r.ok && !r.kept) compKeptAt = n;
   } catch (e) {} finally { compKeptBusy = false; }
 }
 function adoptSave(d) { // merge a save that is ahead of this one into the running game
@@ -8391,7 +8496,7 @@ function friendDuelOpen(uid) { const now = nowMs(); return friendDuelList().some
 function friendInbox(x) { const n = { req: Math.max(0, Math.floor(Number(x.req)) || 0), duel: Math.max(0, Math.floor(Number(x.duel)) || 0) }, old = save.friendInbox || {}; if (n.req > (old.req || 0)) markFresh('vrienden'); if (n.duel > (old.duel || 0)) markFresh('duels'); save.friendInbox = n; }
 function friendsBadge() { const ib = save.friendInbox || {}; return ldBadge() || friendReqs().in.length > 0 || friendDuelsIn().length > 0 || ib.req > 0 || ib.duel > 0 || (!NET.has('duel2') && todayChallenges().some(c => c.mine === 'to' && !c.resolved && !c.toPlayed)); }
 const escH = v => String(v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const profilePayload = () => { const t = TS(), wk = weekKey(); return { findable: save.findable !== false, fruit: save.fruit, name: save.name || '', level: save.level, best: save.best, fruits: save.owned.slice(), kitchen: kitchenPayload(), streak: save.streak, runs: save.runs, stamps: 0, division: tourneyDivision(), weekKey: wk, weekEv: curEvent(), weekScore: t.week === wk ? tourneyScoreNow() : 0, pv: 33, lv: 1 }; }; // v0.32.5: lv 1 = this client plays live duels // v0.32.3: pv 33 = this client polls for challenges and shows them as in-game cards
+const profilePayload = () => { const t = TS(), wk = weekKey(); return { findable: save.findable !== false, fruit: save.fruit, name: save.name || '', level: save.level, best: save.best, fruits: save.owned.slice(), kitchen: kitchenPayload(), streak: save.streak, runs: save.runs, stamps: 0, division: tourneyDivision(), weekKey: wk, weekEv: curEvent(), weekScore: t.week === wk ? tourneyScoreNow() : 0, pv: 33, lv: 1, pf: netPf() }; }; // v0.32.5: lv 1 = this client plays live duels // v0.32.3: pv 33 = this client polls for challenges and shows them as in-game cards
 const profileSignature = () => [save.name, save.findable !== false, save.level, save.best, save.owned.length, save.streak, kitchenLevels(), save.fruit, save.runs, TS().best, TS().vorken, weekKey()].join('|');
 let profileSig = '', netBusy = false, netLast = 0, friendNote = '', friendOpen = '', friendQ = '', friendCodeIn = '', friendFind = { list: null, msg: '', busy: false };
 async function syncProfile(force) {
@@ -8608,10 +8713,10 @@ setInterval(() => { if (!HOOK.pollOff) netPoll(); }, 30000);
 // The server decides the winner from both scores and keeps the head-to-head record and the counted wins. No sap: friend duels are for
 // status. Everything here is new; the old code only calls in at a few marked places. Only in-game cards, except the one opt-in push.
 // No card or question ever opens during a run: every live card goes through ldShow, which queues it until the player is on a menu.
-const LD_LEVEL = DUEL_LEVEL, LD_RUN_MS = DUEL_MS, LD_BEAT_MS = 3000, LD_VIEW_MS = 5000, LD_STALE_MS = 10000, LD_LATE_MS = 12000, LD_PAUSE_MS = 60000, LD_PAUSES = 3, LD_RES_MS = 300000, LD_PEND_MS = 600000, LD_PROTO = 1, LD_PTS = 30, LD_EV_WARN_MS = 1500, LD_RES_GAP_MS = 3000;
+const LD_LEVEL = DUEL_LEVEL, LD_RUN_MS = DUEL_MS, LD_BEAT_MS = 3000, LD_VIEW_MS = 5000, LD_STALE_MS = 10000, LD_LATE_MS = 12000, LD_PAUSE_MS = 60000, LD_PAUSES = 3, LD_RES_MS = 300000, LD_PEND_MS = 600000, LD_PROTO = 2, LD_PTS = 30, LD_EV_WARN_MS = 1500, LD_RES_GAP_MS = 3000;
 const LD_POLL = { menu: 10000, idle: 60000, run: 30000, want: 10000, wait: 3000, lobby: 2000, after: 3000, friends: 30000, friendsMany: 60000 };
 let ldSkew = 0, ldRtt = 1e9, ldPollAt = 0, ldPollBusy = false, ldTouch = 0, ldBootAt = 0, ldInv = null, ldOut = null, ldLob = null, ldLobId = '', ldLobBusy = false, ldLobFail = 0, ldWantLobby = '', ldWantAway = 0, ldWantName = '', ldRun = null, ldAfter = 0;
-let ldFriendsAt = 0, ldFriendsOk = 0, ldFruitPick = '', ldBoxMode = '', ldSig = '', ldManual = false, ldPermAsk = false, ldPermP = null, ldRefreshAt = 0;
+let ldFriendsAt = 0, ldFriendsOk = 0, ldFruitPick = '', ldBoxMode = '', ldSig = '', ldManual = false, ldPermAsk = false, ldPermP = null, ldRefreshAt = 0, ldRdSend = null, ldRdSeq = 0, ldSheetK = ''; /* v0.32.8 lobby 90 s */ // ldRdSend: my Klaar (true/false) until the server confirmed it; ldSheetK: the fruit whose sheet is open
 const ldCarded = new Set(), ldShut = new Set(), ldFlight = new Set(), ldLater = [];
 const ldNow = () => nowMs() + ldSkew; // the server clock
 const ldBusyRun = () => !!ldRun && !ldRun.fin && !ldRun.res; // a live run that is being played
@@ -8740,34 +8845,35 @@ async function ldAnswer(id, yes) {
   ldEnter(r.lobby.id, r.lobby, true); return true;
 }
 // -- the lobby (one in-game box for the waiting screen, the lobby and the countdown)
-const LD_CSS = '/* icons-big v1 lobby */:root{--ld-seat:var(--fruit-row,36px);--ld-pick:48px}@media (max-width:389px){:root{--ld-pick:44px}}@media (max-width:359px){:root{--ld-seat:44px;--ld-pick:38px}}@media (max-height:760px){:root{--ld-seat:44px;--ld-pick:40px}}@media (max-height:760px) and (max-width:359px){:root{--ld-pick:38px}}@media (max-height:720px){:root{--ld-seat:36px;--ld-pick:36px}}@media (max-height:720px) and (max-width:359px){:root{--ld-seat:32px;--ld-pick:30px}}#ldbox{z-index:10}#ldbox .rw-card{display:flex;flex-direction:column;gap:8px;max-height:94%;overflow:auto;width:min(360px,100%)}#ld-rules{margin:0;opacity:.85}.ld-seat{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.06)}.ld-seat canvas{width:var(--ld-seat);height:var(--ld-seat);flex:none}.ld-seat .nm{flex:1;text-align:left;font-weight:800;min-width:0;overflow-wrap:anywhere}.ld-pill{font-size:12px;font-weight:800;padding:3px 8px;border-radius:999px;background:#3a6b2f;color:#fff;white-space:nowrap}.ld-pill.away{background:#a8681a}#ld-status{font-weight:800;font-size:15px;margin:2px 0}#ld-note{margin:0}#ld-fruits{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}#ld-fruits button{background:rgba(255,255,255,.06);border:2px solid transparent;border-radius:10px;padding:2px;min-height:44px}#ld-fruits button.on{border-color:#ffd54a;background:rgba(255,213,74,.18)}#ld-fruits button:disabled{opacity:.45}#ld-fruits button.on:disabled{opacity:1}#ld-fruits canvas{width:var(--ld-pick);height:var(--ld-pick)}#ld-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:110px;font-weight:900;color:#ffd54a;text-shadow:0 4px 0 rgba(0,0,0,.4);pointer-events:none;background:rgba(23,16,11,.72);border-radius:22px}#ld-acts{flex-wrap:nowrap;gap:6px}#ld-acts .btn{flex:1 1 0;min-width:0;padding-left:10px;padding-right:10px;font-size:18px;line-height:1.15}#ld-pow-row .btn{font-size:16px;padding:8px 14px}@media (max-height:720px){#ldbox .rw-card{gap:5px;padding-top:12px;padding-bottom:12px}#ldbox .rw-title{font-size:20px}.ld-seat{padding:3px 8px}#ld-fruits button{min-height:36px;padding:1px}#ld-acts .btn{padding-top:10px;padding-bottom:10px}}.ld-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#46c04a;margin-left:6px;vertical-align:middle;box-shadow:0 0 0 2px rgba(70,192,74,.25)}.ld-dot.busy{background:#e0a030;box-shadow:0 0 0 2px rgba(224,160,48,.25)}#scr-pause.ld-cover{background:#17100b}#scr-over.ld-over #btn-retry,#scr-over.ld-over #btn-menu{white-space:nowrap;font-size:min(17px,4.6vw);padding-left:min(10px,2.5vw);padding-right:min(10px,2.5vw);flex:1 1 0;min-width:0}';
-const LD_HTML = '<div id="ldbox" class="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ld-title"><div class="rw-card" style="position:relative"><div class="rw-title" id="ld-title">Live duel</div><p class="small" id="ld-rules"></p><div id="ld-seats" class="stack"></div><div id="ld-status"></div><p class="small" id="ld-note"></p><div class="small" id="ld-pick"></div><div id="ld-fruits"></div><div class="row" id="ld-pow-row" hidden><button class="btn ghost" id="ld-pow" type="button"></button></div><div class="row" id="ld-acts"><button class="btn primary" id="ld-a" type="button"></button><button class="btn ghost" id="ld-b" type="button"></button></div><div id="ld-count" hidden></div></div></div>';
+const LD_CSS = '/* icons-big v1 lobby */:root{--ld-seat:var(--fruit-row,36px);--ld-pick:48px}@media (max-width:389px){:root{--ld-pick:44px}}@media (max-width:359px){:root{--ld-seat:44px;--ld-pick:38px}}@media (max-height:760px){:root{--ld-seat:44px;--ld-pick:40px}}@media (max-height:760px) and (max-width:359px){:root{--ld-pick:38px}}@media (max-height:720px){:root{--ld-seat:36px;--ld-pick:36px}}@media (max-height:720px) and (max-width:359px){:root{--ld-seat:32px;--ld-pick:30px}}#ldbox{z-index:10}#ldbox .rw-card{display:flex;flex-direction:column;gap:8px;max-height:94%;overflow:auto;width:min(360px,100%)}#ld-rules{margin:0;opacity:.85}.ld-seat{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.06)}.ld-seat canvas{width:var(--ld-seat);height:var(--ld-seat);flex:none}.ld-seat .nm{flex:1;text-align:left;font-weight:800;min-width:0;overflow-wrap:anywhere}.ld-pill{font-size:12px;font-weight:800;padding:3px 8px;border-radius:999px;background:#3a6b2f;color:#fff;white-space:nowrap}.ld-pill.away{background:#a8681a}#ld-status{font-weight:800;font-size:15px;margin:2px 0}#ld-note{margin:0}#ld-fruits{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}#ld-fruits button{background:rgba(255,255,255,.06);border:2px solid transparent;border-radius:10px;padding:2px;min-height:44px}#ld-fruits button.on{border-color:#ffd54a;background:rgba(255,213,74,.18)}#ld-fruits button:disabled{opacity:.45}#ld-fruits button.on:disabled{opacity:1}#ld-fruits canvas{width:var(--ld-pick);height:var(--ld-pick)}#ld-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:110px;font-weight:900;color:#ffd54a;text-shadow:0 4px 0 rgba(0,0,0,.4);pointer-events:none;background:rgba(23,16,11,.72);border-radius:22px}#ld-acts{flex-wrap:nowrap;gap:6px}#ld-acts .btn{flex:1 1 0;min-width:0;padding-left:10px;padding-right:10px;font-size:18px;line-height:1.15}#ld-pow-row .btn{font-size:16px;padding:8px 14px}@media (max-height:720px){#ldbox .rw-card{gap:5px;padding-top:12px;padding-bottom:12px}#ldbox .rw-title{font-size:20px}.ld-seat{padding:3px 8px}#ld-fruits button{min-height:36px;padding:1px}#ld-acts .btn{padding-top:10px;padding-bottom:10px}}.ld-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#46c04a;margin-left:6px;vertical-align:middle;box-shadow:0 0 0 2px rgba(70,192,74,.25)}.ld-dot.busy{background:#e0a030;box-shadow:0 0 0 2px rgba(224,160,48,.25)}#scr-pause.ld-cover{background:#17100b}#scr-over.ld-over #btn-retry,#scr-over.ld-over #btn-menu{white-space:nowrap;font-size:min(17px,4.6vw);padding-left:min(10px,2.5vw);padding-right:min(10px,2.5vw);flex:1 1 0;min-width:0}/* v0.32.8 lobby */@media (max-height:720px){#ld-fruits button{min-height:44px}}#ld-count{z-index:3}#ld-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:-4px}#ld-bar i{display:block;height:100%;width:100%;background:#7cc66b;border-radius:2px}#ld-bar.low i{background:#ff9a2e}#ld-status.low{color:#ffb35c}.ld-pill.pick{background:#3d5a80}#ld-fruits button{position:relative}.ld-fdot{position:absolute;top:2px;right:2px;width:11px;height:11px;border-radius:50%;background:#4aa8ff;box-shadow:0 0 0 2px #2a170a;pointer-events:none}#ldbox .rw-card{overflow-x:hidden}/* v0.32.8 polish */#ldbox .rw-card.sheet-on{overflow:hidden}#ld-sheet{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;flex-direction:column;gap:8px;padding:10px 12px 12px;text-align:left;background:linear-gradient(180deg,#3d240d,#241408);border-top:2px solid rgba(255,213,74,.5);border-radius:0 0 22px 22px}#ld-sheet .hd{display:flex;align-items:center;gap:8px}#ld-sheet .hd canvas{width:var(--fruit-l,76px);height:var(--fruit-l,76px);flex:none}#ld-sheet .tx{flex:1;min-width:0}#ld-sheet .nm{font-weight:900;font-size:20px;line-height:1.15;overflow-wrap:anywhere}#ld-sheet .lv{font-size:13px;opacity:.9;overflow-wrap:anywhere}#ld-sheet .fd{font-size:12.5px;font-weight:800;color:#8cc8ff}#ld-sheet .nav{flex:none;width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;font-size:26px;line-height:1;margin:0;display:flex;align-items:center;justify-content:center}#ld-sheet .bd{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:7px}#ld-sheet .trt{margin:0;font-size:13.5px;line-height:1.35}#ld-sheet .duel{border:1.5px solid rgba(255,213,74,.5);border-radius:12px;padding:6px 10px;font-size:12.5px;line-height:1.35;background:rgba(255,213,74,.07)}#ld-sheet .duel b{display:block;color:#ffd54a;margin-bottom:2px}#ld-sheet .duel p{margin:0 0 3px}#ld-sheet .lent{margin:0;font-size:12px;line-height:1.3;opacity:.75}#ld-sheet .ft{display:flex;gap:6px;flex:none}#ld-sheet .ft .btn{flex:1 1 0;min-width:0;min-height:44px;margin:0;font-size:17px;padding:9px 10px;line-height:1.15}#ld-sheet .ft .btn.primary:disabled{opacity:.8}#ld-a:disabled{opacity:.7}#ld-sheet .bd.more{-webkit-mask-image:linear-gradient(#000 calc(100% - 26px),transparent);mask-image:linear-gradient(#000 calc(100% - 26px),transparent)}@media (max-width:359px),(max-height:720px){#ld-sheet{gap:6px;padding:8px 10px 10px}#ld-sheet .hd canvas{width:56px;height:56px}#ld-sheet .nm{font-size:18px}#ld-sheet .trt{font-size:12.5px}#ld-sheet .duel{font-size:12px}#ld-sheet .lent{font-size:11.5px}}';
+const LD_HTML = '<div id="ldbox" class="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ld-title"><div class="rw-card" style="position:relative"><div class="rw-title" id="ld-title">Live duel</div><p class="small" id="ld-rules"></p><div id="ld-seats" class="stack"></div><div id="ld-status"></div><div id="ld-bar" hidden><i></i></div><p class="small" id="ld-note"></p><div class="small" id="ld-pick"></div><div id="ld-fruits"></div><div class="row" id="ld-pow-row" hidden><button class="btn ghost" id="ld-pow" type="button"></button></div><div class="row" id="ld-acts"><button class="btn primary" id="ld-a" type="button"></button><button class="btn ghost" id="ld-b" type="button"></button></div><div id="ld-sheet" hidden role="region" aria-label="Fruit"></div><div id="ld-count" hidden></div></div></div>';
 function ldMount() { if ($('#ldbox')) return; const st = document.createElement('style'); st.textContent = LD_CSS; document.head.appendChild(st); $('#askbox').insertAdjacentHTML('beforebegin', LD_HTML);
   $('#ld-a').addEventListener('click', e => { e.stopPropagation(); SFX.click(); ldAct('a'); }); $('#ld-b').addEventListener('click', e => { e.stopPropagation(); SFX.click(); ldAct('b'); });
   $('#ld-pow').addEventListener('click', e => { e.stopPropagation(); SFX.click(); ldSetPowers(); });
-  $('#ld-fruits').addEventListener('click', e => { const b = e.target.closest('[data-ldf]'); if (!b || b.disabled) return; SFX.click(); ldFruitPick = b.dataset.ldf; ldPaint(true); ldPollAt = 0; }); }
+  $('#ld-fruits').addEventListener('click', e => { const b = e.target.closest('[data-ldf]'); if (!b || b.disabled) return; SFX.click(); ldSheetOpen(b.dataset.ldf); }); // v0.32.8: a tap opens the fruit sheet
+  $('#ld-sheet').addEventListener('click', e => { const b = e.target.closest('[data-lds]'); if (!b || b.disabled) return; e.stopPropagation(); SFX.click(); ldSheetAct(b.dataset.lds); }); }
 function ldPauseMount() { const r = $('#btn-resume'); if (!r || $('#btn-ldgo')) return; r.insertAdjacentHTML('afterend', '<button class="btn" id="btn-ldgo" type="button" hidden>Naar de lobby</button>');
   $('#btn-ldgo').addEventListener('click', e => { e.stopPropagation(); SFX.click(); const id = ldWantLobby; if (!id) return; ldWantLobby = ''; $('#btn-ldgo').hidden = true; quitRun(); ldEnter(id, null, true); }); } // ends the run the normal way, then opens the lobby
 function ldBox(mode) { ldMount(); ldBoxMode = mode; const box = $('#ldbox'), first = box.hidden; box.hidden = false; ldPaint(true); if (first) navPushModal(); }
-function ldBoxClose() { ldBoxMode = ''; const b = $('#ldbox'); if (b) b.hidden = true; }
+function ldBoxClose() { ldBoxMode = ''; ldSheetClose(); const b = $('#ldbox'); if (b) b.hidden = true; }
 function ldEnter(id, view, manual) { id = ldClean(id); if (!id || ldBusyRun() || ldShut.has(id)) return; if (ldRun && (ldRun.res || ldRun.fin)) ldRun = null; if (ldWantLobby === id) ldWantLobby = '';
-  ldLobId = id; ldLob = view && view.id === id ? view : null; ldLobFail = 0; ldPollAt = 0; ldManual = !!manual; ldFruitPick = ldFruitPick || ldPickDefault(); closeReward(); ldBox('lobby'); SFX.jingle(); }
-function ldLeave() { ldLobId = ''; ldLob = null; ldManual = false; ldPollAt = 0; ldBoxClose(); if (G.state === 'friends') renderFriends(); } // ldPollAt 0: the presence goes out at once, so a new invite right after a closed lobby finds me online
-const ldLobBody = x => Object.assign({ id: ldLobId, fruit: ldFruitPick, act: ldManual || nowMs() - ldTouch < 60000, v: LD_PROTO, pw: Object.keys(LD_FX) }, x || {}); // a seat joins only with a tap (accepting, Naar de lobby, a push, [Ik ben er], or a touch in the last minute)
+  if (ldLobId !== id) { ldRdSend = null; ldSheetK = ''; } ldLobId = id; ldLob = view && view.id === id ? view : null; ldLobFail = 0; ldPollAt = 0; ldManual = !!manual; ldFruitPick = ldFruitPick || ldPickDefault(); closeReward(); ldBox('lobby'); SFX.jingle(); }
+function ldLeave() { ldLobId = ''; ldLob = null; ldManual = false; ldRdSend = null; ldPollAt = 0; ldBoxClose(); if (G.state === 'friends') renderFriends(); } // ldPollAt 0: the presence goes out at once, so a new invite right after a closed lobby finds me online
+const ldLobBody = x => Object.assign({ id: ldLobId, fruit: ldFruitPick, act: ldManual || nowMs() - ldTouch < 60000, v: LD_PROTO, pw: Object.keys(LD_FX) }, ldRdSend !== null ? { ready: ldRdSend } : {}, x || {}); // v0.32.8: my Klaar until confirmed // a seat joins only with a tap (accepting, Naar de lobby, a push, [Ik ben er], or a touch in the last minute)
 const ldNeedTap = L => { const me = L && L.m.find(s => s.me); return !!me && !me.joined && L.state === 'wait' && !ldManual && nowMs() - ldTouch >= 60000; }; // the lobby opened by itself and nobody touched the phone for a minute: the box asks for one tap
 async function ldAct(k) {
   if (ldBoxMode === 'wait') { if (k === 'a') ldBoxClose(); else ldCancel(); return; }
   if (ldBoxMode !== 'lobby') return;
   if (k === 'a') { const me = ldLob && ldLob.m.find(s => s.me); if (me && !me.joined && ldLob.state === 'wait') { ldManual = true; ldPollAt = 0; ldPaint(); ldPollLobby(); return; } // [Ik ben er]: my seat joins with the next call, sent at once
-    if (ldLob && ldLob.host && ldLob.state === 'count' && !ldFlight.has('start')) { ldFlight.add('start'); ldPaint(); ldPollAt = nowMs(); let r = null; try { r = await ldCall('ldlobby', ldLobBody({ start: true }), 5000); } finally { ldFlight.delete('start'); } if (r && r.ok) ldOnLobby(r); else ldPaint(); } return; }
+    if (ldLob && ['wait', 'count'].includes(ldLob.state) && !ldMeReady(ldLob)) ldReadySet(true); return; } // v0.32.8: [Klaar] for host and guest (no Start nu); sent with the next lobby call, at once
   const o = ldLob && ldLob.m.find(s => !s.me), id0 = ldLobId, ok = await askBox({ title: 'Lobby verlaten?', text: `Dan sluit de lobby ook voor ${o ? o.name : 'je vriend'}.`, yes: 'Verlaten', no: 'Blijven' });
   if (!ok || !id0 || ldLobId !== id0) return; ldShut.add(id0); ldLeave(); ldFlight.add('leave'); try { await ldCall('ldlobby', { id: id0, leave: true }, 5000); } finally { ldFlight.delete('leave'); } // also after the start was fixed: then my seat is a no-show and my friend plays on
 }
-function ldBack() { if (ldBoxMode === 'wait') { ldBoxClose(); return; } ldAct('b'); } // the back button: the waiting box closes, the lobby asks before you leave
+function ldBack() { if (ldBoxMode === 'wait') { ldBoxClose(); return; } if (ldSheetK) { ldSheetClose(); ldPaint(); return; } ldAct('b'); } // v0.32.8: an open fruit sheet closes first // the back button: the waiting box closes, the lobby asks before you leave
 async function ldSetPowers() { const L = ldLob; if (!L || !L.host || !NET.has('ldpow')) return; const r = await ldCall('ldset', { id: ldLobId, powers: !(L.opts && L.opts.powers) }, 5000); if (r && r.ok) { ldPollAt = 0; } } // reserved for duel powers: the host's "met krachten / zonder krachten"
 async function ldPollLobby() {
-  if (ldLobBusy || !ldLobId) return; ldLobBusy = true; ldPollAt = nowMs(); const id = ldLobId;
-  try { const r = await ldCall('ldlobby', ldLobBody(), 5000); if (id !== ldLobId) return; if (!r) { ldLobFail++; ldPaint(); return; } ldLobFail = 0;
+  if (ldLobBusy || !ldLobId) return; ldLobBusy = true; ldPollAt = nowMs(); const id = ldLobId, seq = ldRdSeq, sent = ldRdSend;
+  try { const r = await ldCall('ldlobby', ldLobBody(), 5000); if (id !== ldLobId) return; if (!r) { ldLobFail++; ldPaint(); return; } ldLobFail = 0; if (r.ok && sent !== null && seq === ldRdSeq) ldRdSend = null; // v0.32.8: the server has my Klaar (its view shows it from now on)
     if (!r.ok) { if (r.error === 'otherdevice') { ldShut.add(id); ldLeave(); return; } const L = r.lobby; ldLeave(); ldShut.add(id); ldShow(() => L ? ldClosedCard(Object.assign({ id }, L)) : askBox({ title: 'De lobby is gesloten', text: 'Nodig je vriend opnieuw uit als je samen wilt spelen.', info: true, yes: 'Oké' }), 'closed:' + id, !L); return; }
     ldOnLobby(r); } finally { ldLobBusy = false; }
 }
@@ -8781,29 +8887,84 @@ function ldClosedCard(L) { if (!L || !L.id || ldCarded.has('c:' + L.id)) return;
   if ((g && g.why === 'left') || L.why === 'left') { showAction({ note: 'Live' }, `${nm} verliet de lobby`, 'De lobby is gesloten. Nodig opnieuw uit wanneer je wilt.', [['Oké', () => {}, true]]); return; }
   if (g) { showAction({ note: 'Live' }, `${nm} kwam niet op tijd`, `De lobby is gesloten na 2 minuten. Daag ${nm} uit voor 24 uur of probeer later opnieuw.`, f ? [['Daag uit (24\u00a0u)', () => ldChallenge(fid), true], ['Oké', () => {}]] : [['Oké', () => {}, true]]); return; }
   showAction({ note: 'Live' }, 'De lobby is gesloten', 'Nodig je vriend opnieuw uit als je samen wilt spelen.', [['Oké', () => {}, true]]); }
+// v0.32.8: the lobby of 90 s (Pieter's decision): pick freely, read what a fruit does, start earlier only when both tapped Klaar.
+const LD_COUNT_MS = 90000, LD_WARN_MS = 15000, LD_OLD_COUNT_MS = 15000; // LD_OLD_COUNT_MS: the count of a server from before v0.32.8 (the function not deployed yet): the bar is drawn against it and Klaar is hidden
+const LD_FULL = 'Werkt volledig in dit duel.', LD_FAIR = 'Iedereen krijgt dezelfde messen; sapverdubbelaar, uitrusting, medaillebonus en extra schillen tellen niet.', LD_LV5 = 'Jouw niveau 5+ telt wel: de eigenschap is versterkt.';
+const LD_LENT = 'Geleend voor dit duel: alle 20 klassieke fruitsoorten mogen, ook als je ze nog niet hebt. Na het duel blijft je eigen fruit gekozen.';
+const LD_DUEL_NOTE = { // what is different in a live duel (duelFair, the shared cube stream); every other classic fruit: LD_FULL
+  appel: 'Na 15 klontjes krijg je geen vrije hap. Klontjes rollen wel naar je toe.', // f.bite && !fair
+  aardbei: 'Lokt niet meer klontjes en plant geen zaadjes: alleen zijn grootte en snelheid tellen.', // cubeRate (old spawner off), seeds && !fair
+  citroen: 'De zure regen maakt geen nieuwe gouden klontjes; de messen wegspuiten en de klontjes die al liggen goud maken werkt wel.', // sourRain only in the old spawner
+  kiwi: '"Net niet!" geeft geen sap; het vertragen van de messen werkt wel.', // nearSap && !duelFair()
+  sinaasappel: 'Verloren partjes pakken geen klontjes; kleiner en sneller worden werkt wel.', // spawnSeekers returns in duels
+  ananas: 'De kroon groeit geen schil terug; de twee schillen heb je wel.', // regrow && !duelFair()
+  granaatappel: 'De pitten slurpen geen klontjes op; kleiner verder spelen werkt wel.', // burst: spawnSeekers
+  drakenvrucht: 'Sap telt niet dubbel en je spuwt geen vuur: alleen grootte en snelheid tellen.', // sapMult: fair ? 1, fire && !fair
+  lychee: 'De schil groeit niet terug; die ene snee vangt ze wel op.', // regrow && !duelFair()
+  passievrucht: 'Ze barst niet open: alleen grootte en snelheid tellen.' }; // passion && !fair
+const LD_EN = { 'Klaar': 'Ready', 'Klaar ✓': 'Ready ✓', 'klaar': 'ready', 'Gekozen': 'Picked', 'Terug': 'Back' }; // lobby words whose general English differs (Klaar is Done elsewhere)
+const ldT = t => lang === 'en' && LD_EN[t] !== undefined ? LD_EN[t] : tr(t);
+const ldDuelNote = k => LD_DUEL_NOTE[k] || LD_FULL;
+const ldNarrow = () => { try { return matchMedia('(max-width:359px)').matches; } catch (e) { return false; } };
+const ldMeReady = L => ldRdSend !== null ? ldRdSend : !!(L && (L.m.find(s => s.me) || {}).rd);
+const ldPill = (L, s) => (s.me ? ldMeReady(L) : !!s.rd) ? 'klaar' : L.state === 'count' ? 'kiest…' : 'in de lobby';
+const ldOldFriend = (L, o) => !!L && L.v >= 2 && !!o && !!o.joined && (o.v || 0) < 2 && !o.rd; // a friend on v0.32.5-0.32.7: no Klaar, the full time runs
+function ldReadySet(on) { ldRdSend = !!on; ldRdSeq++; ldTouch = nowMs(); ldPollAt = 0; ldPaint(); }
+function ldPickFruit(k) { if (!ldFruitOk(k) || !ldLob || !['wait', 'count'].includes(ldLob.state)) return; const ch = k !== ldFruitPick; if (ch && ldMeReady(ldLob)) { ldRdSend = false; ldRdSeq++; } ldFruitPick = k; ldTouch = nowMs(); ldPollAt = 0; ldPaint(true); } // another fruit takes Klaar back
+function ldSheetOpen(k) { if (!ldFruitOk(k) || !ldLob || !['wait', 'count'].includes(ldLob.state)) return; ldSheetK = k; const sh = $('#ld-sheet'); if (sh) sh.dataset.k = ''; ldPaint(); }
+function ldSheetClose() { ldSheetK = ''; const sh = $('#ld-sheet'); if (sh) { sh.hidden = true; sh.dataset.k = ''; } const c = $('#ldbox .rw-card'); if (c) c.classList.remove('sheet-on'); }
+function ldSheetAct(a) { const i = ORDER.indexOf(ldSheetK); if (i < 0) { ldSheetClose(); return; }
+  if (a === 'prev' || a === 'next') { ldSheetK = ORDER[(i + (a === 'prev' ? ORDER.length - 1 : 1)) % ORDER.length]; ldPaint(); return; }
+  const k = ldSheetK; ldSheetClose(); if (a === 'pick') ldPickFruit(k); else ldPaint(); }
+function ldSheetHTML(k, L) {
+  const f = FRUITS[k], own = owned(k), lv = xpLevel(k), md = fruitMedal(k), o = (L && L.m.find(s => !s.me)) || {}, mine = k === ldFruitPick, E = t => escH(ldT(t));
+  const lvl = own ? `Jouw niveau ${lv}${lv >= 5 ? ' · versterkt' : ''}` : `Nog niet van jou · geleend op niveau ${lv}`;
+  return `<div class="hd"><button type="button" class="btn ghost nav" data-lds="prev" aria-label="${E('Vorig fruit')}">‹</button><canvas width="72" height="72" data-ldicon="${k}"></canvas>`
+    + `<div class="tx"><div class="nm">${E(f.name)}</div><div class="lv">${E(lvl)}</div>${md ? `<div class="lv">${E(`Medaille: ${md}`)}</div>` : ''}${o.joined && o.fruit === k ? `<div class="fd">${E(`${o.name} koos dit`)}</div>` : ''}</div>`
+    + `<button type="button" class="btn ghost nav" data-lds="next" aria-label="${E('Volgend fruit')}">›</button></div>`
+    + `<div class="bd"><p class="trt">${E(f.trait)}</p><div class="duel"><b>${E('In dit live duel')}</b><p>${E(ldDuelNote(k))}</p><p>${E(LD_FAIR)}</p>${lv >= 5 ? `<p>${E(LD_LV5)}</p>` : ''}</div><p class="lent">${E(LD_LENT)}</p></div>`
+    + `<div class="ft"><button type="button" class="btn primary" data-lds="pick"${mine ? ' disabled' : ''}>${E(mine ? 'Gekozen' : 'Kies dit fruit')}</button><button type="button" class="btn ghost" data-lds="back">${E('Terug')}</button></div>`;
+}
+function ldSheetPaint(L, go, now) { // inside the lobby card, from just below the countdown bar to the bottom: the clock and the seats stay in view
+  const sh = $('#ld-sheet'), card = $('#ldbox .rw-card'); if (!sh || !card) return;
+  if (!ldSheetK || !L || go || !['wait', 'count'].includes(L.state) || (L.state === 'count' && L.countEnd - now <= 0)) { if (ldSheetK || !sh.hidden) ldSheetClose(); return; } // at 0 s or at the start it closes by itself
+  const bar = $('#ld-bar'), st = $('#ld-status'), an = bar && !bar.hidden ? bar : st, top = an.offsetTop + an.offsetHeight + 6;
+  if (card.scrollTop) card.scrollTop = 0; card.classList.add('sheet-on'); sh.hidden = false; if (sh.style.top !== top + 'px') sh.style.top = top + 'px';
+  const o = L.m.find(s => !s.me) || {}, key = [ldSheetK, ldFruitPick, lang, o.joined ? o.fruit : '', o.name, ldNarrow(), innerHeight > 720].join('|');
+  if (sh.dataset.k !== key) { sh.dataset.k = key; sh.innerHTML = ldSheetHTML(ldSheetK, L); const cv = sh.querySelector('canvas[data-ldicon]'), px = Math.round(cv.getBoundingClientRect().width) || iconPx('fruit-l', 76); try { menuIcon(iconCanvas(cv, px), ldSheetK, px, false); } catch (e) {} }
+  const bd = sh.querySelector('.bd'); if (bd) bd.classList.toggle('more', bd.scrollHeight - bd.clientHeight - bd.scrollTop > 4); // more text below: the last lines fade out
+}
 function ldPaint(full) {
-  const box = $('#ldbox'); if (!box || box.hidden) return; const now = ldNow(), set = (id, t) => { const el = $('#' + id); const tt = tr(t); if (el && el.textContent !== tt) { el.dataset.nl = t; el.textContent = tt; } };
+  const box = $('#ldbox'); if (!box || box.hidden) return; const now = ldNow(), set = (id, t) => { const el = $('#' + id); const tt = ldT(t); if (el && el.textContent !== tt) { el.dataset.nl = t; el.textContent = tt; } };
   const A = $('#ld-a'), B = $('#ld-b'), seats = $('#ld-seats'), fr = $('#ld-fruits'), cnt = $('#ld-count'), pw = $('#ld-pow-row');
-  if (ldBoxMode === 'wait') { const o = ldOut; if (!o) { ldBoxClose(); return; } set('ld-title', `Live duel met ${o.name}`); set('ld-rules', '90 seconden · level 10 · dezelfde messen'); seats.innerHTML = ''; seats.dataset.k = ''; fr.innerHTML = ''; fr.dataset.k = ''; set('ld-pick', ''); cnt.hidden = true; pw.hidden = true;
+  if (ldBoxMode === 'wait') { const o = ldOut; $('#ld-bar').hidden = true; if (!o) { ldBoxClose(); return; } set('ld-title', `Live duel met ${o.name}`); set('ld-rules', '90 seconden · level 10 · dezelfde messen'); seats.innerHTML = ''; seats.dataset.k = ''; fr.innerHTML = ''; fr.dataset.k = ''; set('ld-pick', ''); cnt.hidden = true; pw.hidden = true;
     const meanwhile = `Speel je intussen een ronde? Zodra ${o.name} in de lobby zit, heb je 2 minuten.`;
     set('ld-status', `Uitnodiging verstuurd · nog ${ldMmss(o.exp - now)}`); set('ld-note', o.here !== false || !o.mine ? meanwhile : o.pushed > 0 ? `${o.name} krijgt een melding. ${meanwhile}` : `${o.name} krijgt nu geen melding en ziet je uitnodiging zodra ${o.name} de game opent. ${meanwhile}`);
     set('ld-a', 'Sluiten'); set('ld-b', 'Annuleer uitnodiging'); A.hidden = false; A.disabled = false; B.hidden = false; return; }
   const L = ldLob, pow = NET.has('ldpow'); set('ld-title', 'Live duel'); set('ld-rules', '90 seconden · level 10 · dezelfde messen · elk fruit mag' + (pow && L ? (L.opts && L.opts.powers ? ' · met krachten' : ' · zonder krachten') : ''));
-  if (!L) { set('ld-status', 'Even verbinden…'); set('ld-note', ''); A.hidden = true; set('ld-b', 'Verlaat lobby'); B.hidden = false; pw.hidden = true; return; }
+  if (!L) { ldSheetClose(); $('#ld-bar').hidden = true; set('ld-status', 'Even verbinden…'); set('ld-note', ''); A.hidden = true; set('ld-b', 'Verlaat lobby'); B.hidden = false; pw.hidden = true; return; }
   const go = L.state === 'go', meS = L.m.find(s => s.me) || {}, other = L.m.find(s => !s.me) || { name: '?' }, host = L.m.find(s => s.role === 'host') || other, myFruit = go && ldFruitOk(meS.fruit) ? meS.fruit : ldFruitPick, tap = ldNeedTap(L);
-  const seatHTML = L.m.map(s => `<div class="ld-seat"><canvas width="72" height="72" data-ldicon="${escH(s.me ? myFruit : s.fruit || 'appel')}"></canvas><span class="nm"><span>${escH(s.me ? `${s.name} (jij)` : s.name)}</span>${s.role === 'host' ? '<span> · host</span>' : ''}</span><span class="ld-pill${s.in ? '' : ' away'}">${escH(s.in ? 'in de lobby' : s.me && tap ? 'tik om mee te doen' : `komt eraan · ${ldMmss(s.away - now)}`)}</span></div>`).join('');
-  const sk = L.m.map(s => [s.name, s.me ? myFruit : s.fruit, s.in, s.in ? 0 : Math.ceil((s.away - now) / 1000)].join('|')).join(';') + lang + (tap ? 'T' : '') + '@' + iconPx('ld-seat', 36);
+  const seatHTML = L.m.map(s => `<div class="ld-seat"><canvas width="72" height="72" data-ldicon="${escH(s.me ? myFruit : s.fruit || 'appel')}"></canvas><span class="nm"><span>${escH(s.me ? `${s.name} (jij)` : s.name)}</span>${s.role === 'host' ? '<span> · host</span>' : ''}</span><span class="ld-pill${s.in ? (ldPill(L, s) === 'kiest…' ? ' pick' : '') : ' away'}">${escH(ldT(s.in ? ldPill(L, s) : s.me && tap ? 'tik om mee te doen' : `komt eraan · ${ldMmss(s.away - now)}`))}</span></div>`).join('');
+  const sk = L.m.map(s => [s.name, s.me ? myFruit : s.fruit, s.in, s.in ? 0 : Math.ceil((s.away - now) / 1000), ldPill(L, s)].join('|')).join(';') + lang + (tap ? 'T' : '') + '@' + iconPx('ld-seat', 36);
   if (seats.dataset.k !== sk) { seats.dataset.k = sk; seats.innerHTML = seatHTML; if (lang === 'en') trTree(seats); const sp = iconPx('ld-seat', 36); seats.querySelectorAll('canvas[data-ldicon]').forEach(cv => { try { menuIcon(iconCanvas(cv, sp), FRUITS[cv.dataset.ldicon] ? cv.dataset.ldicon : 'appel', sp, false); } catch (e) {} }); }
-  const fk = myFruit + (go ? 'L' : '') + lang + '@' + iconPx('ld-pick', 36);
-  if (full || fr.dataset.k !== fk) { fr.dataset.k = fk; fr.innerHTML = ORDER.map(k => `<button type="button" data-ldf="${k}" class="${k === myFruit ? 'on' : ''}" ${go ? 'disabled' : ''} aria-label="${escH(tr(FRUITS[k].name))}"><canvas width="72" height="72" data-ldicon="${k}"></canvas></button>`).join(''); const kp = iconPx('ld-pick', 36); fr.querySelectorAll('canvas[data-ldicon]').forEach(cv => { try { menuIcon(iconCanvas(cv, kp), cv.dataset.ldicon, kp, false); } catch (e) {} }); }
-  set('ld-pick', go ? `Je speelt met ${FRUITS[myFruit].name}` : `Jouw fruit: ${FRUITS[myFruit].name} · tik er een om te wisselen`);
+  const late = L.state === 'count' && L.countEnd - now <= 0, lock = go || late, oldSrv = !(L.v >= 2); // v0.32.8: at 0:00 nothing more is picked until the server's go; oldSrv: a server from before v0.32.8 (no Klaar, a count of 15 s)
+  const ofr = !go && other.joined && ldFruitOk(other.fruit) ? other.fruit : ''; // v0.32.8: the friend's current pick (a blue dot)
+  const fk = myFruit + (lock ? 'L' : '') + lang + '@' + iconPx('ld-pick', 36) + '|' + ofr;
+  if (full || fr.dataset.k !== fk) { fr.dataset.k = fk; fr.innerHTML = ORDER.map(k => `<button type="button" data-ldf="${k}" class="${k === myFruit ? 'on' : ''}" ${lock ? 'disabled' : ''} aria-label="${escH(tr(FRUITS[k].name))}"><canvas width="72" height="72" data-ldicon="${k}"></canvas>${k === ofr ? `<span class="ld-fdot" role="img" aria-label="${escH(ldT(`${other.name} koos dit`))}"></span>` : ''}</button>`).join(''); const kp = iconPx('ld-pick', 36); fr.querySelectorAll('canvas[data-ldicon]').forEach(cv => { try { menuIcon(iconCanvas(cv, kp), cv.dataset.ldicon, kp, false); } catch (e) {} }); }
+  const meR = ldMeReady(L); set('ld-pick', lock ? `Je speelt met ${FRUITS[myFruit].name}` : oldSrv ? `Jouw fruit: ${FRUITS[myFruit].name}` : `Jouw fruit: ${FRUITS[myFruit].name} · ${meR ? 'klaar' : 'nog niet klaar'}`); // v0.32.8
   const away = L.m.find(s => !s.in && !s.me);
   if (L.state === 'wait') { set('ld-status', tap ? (other.in ? `${other.name} is er! Tik om mee te doen` : 'Tik om mee te doen') : away ? `Wachten op ${away.name} · nog ${ldMmss(away.away - now)}` : 'Even wachten…');
     set('ld-note', tap ? `Je hebt nog ${ldMmss((meS.away || now) - now)}; daarna sluit de lobby.` : away ? (away.pushed ? `${away.name} kreeg een melding. Is ${away.name} er niet binnen 2 minuten, dan sluit de lobby.` : away.nopush ? `${away.name} heeft geen meldingen aan en ziet het pas in de game. Is ${away.name} er niet binnen 2 minuten, dan sluit de lobby.` : `Is ${away.name} er niet binnen 2 minuten, dan sluit de lobby.`) : ''); }
-  else if (L.state === 'count') { set('ld-status', `Allebei hier! Start over ${Math.max(0, Math.ceil((L.countEnd - now) / 1000))} s`); set('ld-note', L.host ? 'Of tik op Start nu.' : `${host.name} kan ook meteen starten.`); }
+  else if (L.state === 'count') { const left = Math.max(0, L.countEnd - now), mm = ldMmss(left), oR = !!other.rd; // v0.32.8: 90 s to pick, Klaar
+    if (late) { set('ld-status', 'Tijd om'); set('ld-note', 'Het duel begint zo.'); } else { // v0.32.8: 0:00 until the server's go (at most one poll)
+    set('ld-status', meR && oR ? 'Allebei klaar!' : meR ? `Wacht op ${other.name} · nog ${mm}` : oR ? `${other.name} is klaar · nog ${mm}` : `Kies je fruit · nog ${mm}`);
+    set('ld-note', !meR && left <= LD_WARN_MS ? `Nog ${Math.ceil(left / 1000)} s: daarna speel je met ${FRUITS[myFruit].name}.` : ldOldFriend(L, other) ? `${other.name} heeft een oudere versie zonder Klaar: jullie beginnen als de tijd om is.` : ldNarrow() ? 'Tik een fruit voor uitleg.' : oldSrv ? 'Tik een fruit voor uitleg. Jullie beginnen als de tijd om is.' : 'Tik een fruit voor uitleg. Jullie beginnen zodra jullie allebei op Klaar tikken.'); } }
   else if (go) { set('ld-status', 'Daar gaan we!'); set('ld-note', `Je speelt tegelijk met ${other.name}.`); }
   if (ldLobFail >= 3) set('ld-note', 'Verbinding… de lobby wacht op je.');
-  set('ld-a', tap ? 'Ik ben er' : 'Start nu'); A.hidden = !(tap || (L.host && L.state === 'count')); A.disabled = !tap && ldFlight.has('start'); set('ld-b', 'Verlaat lobby'); B.hidden = go;
+  set('ld-a', tap ? 'Ik ben er' : meR ? 'Klaar ✓' : 'Klaar'); A.hidden = go || (oldSrv && !tap); A.disabled = !tap && (meR || late); set('ld-b', 'Verlaat lobby'); B.hidden = go; // v0.32.8: [Klaar] for both (no Start nu)
+  { const bar = $('#ld-bar'), left = L.state === 'count' ? Math.max(0, L.countEnd - now) : -1, low = left >= 0 && left <= LD_WARN_MS; bar.hidden = left < 0; if (left >= 0) { const w = Math.min(100, left / (oldSrv ? LD_OLD_COUNT_MS : LD_COUNT_MS) * 100).toFixed(1) + '%', i = bar.firstChild; if (i.style.width !== w) i.style.width = w; }
+    bar.classList.toggle('low', low); $('#ld-status').classList.toggle('low', low && !meR); }
+  ldSheetPaint(L, go, now);
   pw.hidden = !(pow && L.host && !go); if (!pw.hidden) set('ld-pow', `Krachten: ${L.opts && L.opts.powers ? 'aan' : 'uit'}`);
   if (go && L.startAt) { const left = L.startAt - now; cnt.hidden = left > 3000 || left <= 0; if (!cnt.hidden) cnt.textContent = String(Math.ceil(left / 1000));
     if (left <= 0) { if (left > -LD_LATE_MS) ldBegin(); else ldLate(); } } else cnt.hidden = true;
@@ -8823,7 +8984,8 @@ function ldBegin() {
   duelNext = { to: '', toName: '', challenge: 'live', fromName: o.name, live: { id } }; // challenge: a friend duel (never charged, no sap, no public ghost); live: this module takes the result
   ldRun = { id, startAt: L.startAt, role: L.host ? 0 : 1, slot: -1, busy: false, pause: 0, pauses: 0, pauseAt: 0, hidAt: 0, myStart: ldNow(), fin: null, finAt: 0, resAt: 0, resGap: 0, res: null, fid: o.fid || '', name: o.name, out: [], fx: [], sending: false, late: false, noBeat: false,
     o: { name: o.name, fruit: duelOpp.fruit, go: false, P: [], kMax: -1, t: 0, s: 0, at: 0, got: 0, dead: false, pz: false, fin: null, left: false, late: false }, play: 0, playAt: 0, ev: new Map() };
-  ldLobId = ''; ldLob = null; startRun(fruit, true, 'duel'); G.note = `Live duel tegen ${o.name} · 90 s`; G.noteT = 4000; ldBeat();
+  const timeUp = !(meS.rd || ldRdSend === true); ldRdSend = null; ldSheetK = ''; // v0.32.8: the duel starts early only when both were Klaar; otherwise the time ran out
+  ldLobId = ''; ldLob = null; startRun(fruit, true, 'duel'); G.note = timeUp ? `Tijd om: je speelt met ${FRUITS[fruit].name}` : `Live duel tegen ${o.name} · 90 s`; G.noteT = timeUp ? 5000 : 4000; ldBeat();
 }
 const ldCover = on => { const p = $('#scr-pause'); if (p) p.classList.toggle('ld-cover', !!on); };
 function ldRunTick(now) {
@@ -9136,7 +9298,7 @@ $('#gear-music').addEventListener('click', e => { const b = e.target.closest ? e
 const HOOK = window.dontsliceme = {
   difficulty, updateTricks,
   LVSND,
-  version: '0.32.7', freeze: false, /* v0.32.7 Google Play fixes */ /* v0.32.6 big menu icons */ /* v0.32.5 live duel */ /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.32.8', freeze: false, /* v0.32.8 lobby 90 s, app-test fixes */ /* v0.32.7 Google Play fixes */ /* v0.32.6 big menu icons */ /* v0.32.5 live duel */ /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   get SEASON() { return curSeason(); }, // v0.30.3: the current season of the series
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
@@ -9158,8 +9320,8 @@ const HOOK = window.dontsliceme = {
 };
 Object.assign(HOOK, { DUEL_FREE_DAY, DUEL_AD_DAY, DUEL_TICKET_DAY, DUEL_DAY_MAX, DUEL_PAID_DAY, DUEL_FIND_MS, duelDay, duelsLeft, duelAdLeft, duelTickets, duelTicketRoom, duelTicketUsable, duelCanPublic, duelCountText, duelExtraHTML, duelAd, duelPaidLeft, duelPayText, duelSeedList, duelSeedFor, duelFinish, duelBtnState, duelPaint, duelSearch: () => duelSearch, duelCancel: () => { duelSearch = null; }, duelNote: () => duelNote, duelFrom: () => duelFrom, duelWinTile, DUEL_FIND_CH_MS, duelFair, quitRun, findPlayers, askFriend, answerFriend, friendReqs, friendDuelList, friendDuelsIn, friendDuelOut, friendsBadge, nameKey, INVITE_URL, webSite, friendQ: v => { if (v !== undefined) friendQ = v; return friendQ; }, friendNote: () => friendNote }); // v0.32 the Friends tab; v0.32.3 duels per day
 Object.assign(HOOK, { ldSame, ldLive, ldNoPerk, ldInitRun, ldSpawn, ldOn, ldNow, ldCall, ldTick, ldPoll, ldOnPoll, ldInvite, ldCancel, ldAnswer, ldEnter, ldLeave, ldAct, ldBack, ldPollLobby, ldPaint, ldBegin, ldBeat, ldOnBeat, ldOppAt, ldHud, ldEnd, ldEndSend, ldResult, ldResultFrom, ldOverPaint, ldChalResult, ldDraw, ldSection, ldFriendBtn, ldFriendNote, ldDot, ldRecHTML, ldCanLive, ldIsOn, ldTodoRow, ldBadge, ldShow, ldPushAsk, ldPushOn, ldPushOff, ldPushRefresh, ldPushKind, ldPushDev, ldOpenFrom, ldFriends, ldFromServer, ldLate, ldEvent,
-  LD_POLL, LD_VIEW_MS, LD_PAUSE_MS, LD_PAUSES, LD_LATE_MS, LD_FX, ldState: () => ({ inv: ldInv, out: ldOut, lob: ldLob, lobId: ldLobId, want: ldWantLobby, wantAway: ldWantAway, run: ldRun, box: ldBoxMode, skew: ldSkew, later: ldLater.length, shut: [...ldShut], flight: [...ldFlight], manual: ldManual }),
-  ldReset: () => { ldInv = null; ldOut = null; ldLob = null; ldLobId = ''; ldRun = null; ldWantLobby = ''; ldWantAway = 0; ldFruitPick = ''; ldManual = false; ldBoxClose(); ldCarded.clear(); ldShut.clear(); ldFlight.clear(); ldLater.length = 0; ldPollAt = 0; ldSig = ''; ldLobFail = 0; ldCover(false); const g = $('#btn-ldgo'); if (g) g.hidden = true; try { sessionStorage.removeItem(LD_SS); } catch (e) {} },
+  LD_POLL, LD_VIEW_MS, LD_PAUSE_MS, LD_PAUSES, LD_LATE_MS, LD_FX, ldState: () => ({ inv: ldInv, out: ldOut, lob: ldLob, lobId: ldLobId, want: ldWantLobby, wantAway: ldWantAway, run: ldRun, box: ldBoxMode, skew: ldSkew, later: ldLater.length, shut: [...ldShut], flight: [...ldFlight], manual: ldManual, rdSend: ldRdSend, sheet: ldSheetK }),
+  ldReset: () => { ldInv = null; ldOut = null; ldLob = null; ldLobId = ''; ldRdSend = null; ldRdSeq = 0; ldRun = null; ldWantLobby = ''; ldWantAway = 0; ldFruitPick = ''; ldManual = false; ldBoxClose(); ldCarded.clear(); ldShut.clear(); ldFlight.clear(); ldLater.length = 0; ldPollAt = 0; ldSig = ''; ldLobFail = 0; ldCover(false); const g = $('#btn-ldgo'); if (g) g.hidden = true; try { sessionStorage.removeItem(LD_SS); } catch (e) {} },
   ldPick: k => { ldFruitPick = ldFruitOk(k) ? k : 'appel'; }, ldVapid: '', ldPushApi: null, ldOff: false });
 Object.assign(HOOK, { askBox, askDone, askOpen, challengeAsk, chalCard, chalCards, chalPlay, netPoll, pollReset: () => { pollAt = 0; pollBusy = false; }, chalCarded: () => [...chalCarded], inboxNotes: () => inboxNotes, duelBackPay, setDuelTickets, rewardText, FRIEND_FREE, duelNoSap, profilePayload }); // v0.32.3 in-game questions, friend challenges in the game, duel tickets
 Object.assign(EN, { // v0.32.0 navigation content
@@ -9602,8 +9764,94 @@ EN_RX.unshift( // v0.32.5 live duel (the longest first where two could match)
   [/^· jij (\d+) – (\d+)( · (\d+) gelijk)?$/, m => `· you ${m[1]} – ${m[2]}${m[3] ? ` · ${m[4]} draw${m[4] === '1' ? '' : 's'}` : ''}`], [/^(.+) wacht in de lobby · nog (\d+:\d\d)$/, m => `${tr(m[1])} waits in the lobby · ${m[2]} left`],
   [/^Het duel was al begonnen\. Speelt (.+) het uit, dan krijg je die ronde als uitdaging van 24 uur\.$/, m => `The duel had already started. If ${tr(m[1])} plays it out, you get that round as a 24-hour challenge.`],
 );
-let last = performance.now();
-function frame(now) { const real = Math.min(50, now - last); last = now; if (!HOOK.freeze) update(real); render(); requestAnimationFrame(frame); }
+/* v0.32.8 save and x2 fixes */ Object.assign(EN, { 'Vorige poging onderbroken': 'Last run interrupted', 'Poging telt mee': 'Run counts' });
+EN_RX.unshift([/^spaarpot ×(\d+)$/, m => `piggy bank ×${m[1]}`],
+  [/^Je vorige poging werd onderbroken \(het spel ging dicht\)\. Level (\d+) en je sap stonden al vast; nu telt ook de poging mee: (.+) met (.+)\.$/, m => `Your last run was interrupted (the game closed). Level ${m[1]} and your juice were already saved; now the run counts too: ${m[2]} with ${tr(m[3])}.`]);
+Object.assign(HOOK, { liveRunNote, liveRunDrop, liveRunSettle, liveRunBoot, liveDoneT, LIVE_LOCK, piggyMult, PIGGY_COL });
+Object.assign(EN, { /* v0.32.8 lobby 90 s: English */ "Allebei klaar!": "Both ready!", "Tijd om": "Time's up", "Het duel begint zo.": "The duel starts in a moment.", "Tik een fruit voor uitleg. Jullie beginnen als de tijd om is.": "Tap a fruit to read what it does. You start when the time is up.", "Tik een fruit voor uitleg. Jullie beginnen zodra jullie allebei op Klaar tikken.": "Tap a fruit to read what it does. You start as soon as you both tap Ready.", "Tik een fruit voor uitleg.": "Tap a fruit to read what it does.",
+  "kiest…": "picking…", "Kies dit fruit": "Pick this fruit", "Vorig fruit": "Previous fruit", "Volgend fruit": "Next fruit", "In dit live duel": "In this live duel",
+  "Werkt volledig in dit duel.": "Works fully in this duel.", "Iedereen krijgt dezelfde messen; sapverdubbelaar, uitrusting, medaillebonus en extra schillen tellen niet.": "Everyone gets the same knives; juice doubler, gear, medal bonus and extra shells do not count.",
+  "Jouw niveau 5+ telt wel: de eigenschap is versterkt.": "Your level 5+ does count: the trait is strengthened.",
+  "Geleend voor dit duel: alle 20 klassieke fruitsoorten mogen, ook als je ze nog niet hebt. Na het duel blijft je eigen fruit gekozen.": "Lent for this duel: all 20 classic fruits are allowed, even ones you don't own yet. After the duel your own fruit stays picked.",
+  "Na 15 klontjes krijg je geen vrije hap. Klontjes rollen wel naar je toe.": "No free bite after 15 cubes. Cubes still roll towards you.",
+  "Lokt niet meer klontjes en plant geen zaadjes: alleen zijn grootte en snelheid tellen.": "Attracts no extra cubes and plants no seeds: only its size and speed count.",
+  "De zure regen maakt geen nieuwe gouden klontjes; de messen wegspuiten en de klontjes die al liggen goud maken werkt wel.": "The sour rain makes no new gold cubes; wiping the knives and turning the cubes on the board gold still works.",
+  "\"Net niet!\" geeft geen sap; het vertragen van de messen werkt wel.": "\"Close call!\" gives no juice; slowing the knives still works.",
+  "Verloren partjes pakken geen klontjes; kleiner en sneller worden werkt wel.": "Lost segments collect no cubes; getting smaller and faster still works.",
+  "De kroon groeit geen schil terug; de twee schillen heb je wel.": "The crown grows no shell back; you do have the two shells.",
+  "De pitten slurpen geen klontjes op; kleiner verder spelen werkt wel.": "The seeds collect no cubes; playing on smaller still works.",
+  "Sap telt niet dubbel en je spuwt geen vuur: alleen grootte en snelheid tellen.": "Juice does not count double and you breathe no fire: only size and speed count.",
+  "De schil groeit niet terug; die ene snee vangt ze wel op.": "The skin does not grow back; it still takes that one cut.",
+  "Ze barst niet open: alleen grootte en snelheid tellen.": "She does not burst open: only size and speed count." });
+EN_RX.unshift([/^Kies je fruit · nog (\d+:\d\d)$/, m => `Pick your fruit · ${m[1]} left`], [/^Wacht op (.+) · nog (\d+:\d\d)$/, m => `Waiting for ${m[1]} · ${m[2]} left`], [/^(.+) is klaar · nog (\d+:\d\d)$/, m => `${m[1]} is ready · ${m[2]} left`],
+  [/^Nog (\d+) s: daarna speel je met (.+)\.$/, m => `${m[1]} s left: then you play with ${tr(m[2])}.`], [/^Jouw fruit: (.+) · klaar$/, m => `Your fruit: ${tr(m[1])} · ready`], [/^Jouw fruit: (.+) · nog niet klaar$/, m => `Your fruit: ${tr(m[1])} · not ready yet`], [/^Jouw fruit: ([^·]+)$/, m => `Your fruit: ${tr(m[1])}`],
+  [/^(.+) koos dit$/, m => `${m[1]} picked this`], [/^Jouw niveau (\d+)( · versterkt)?$/, m => `Your level ${m[1]}${m[2] ? ' · strengthened' : ''}`], [/^Nog niet van jou · geleend op niveau (\d+)$/, m => `Not yours yet · lent at level ${m[1]}`],
+  [/^Medaille: (brons|zilver|goud|diamant)$/, m => `Medal: ${MEDAL_EN[m[1]]}`], [/^Tijd om: je speelt met (.+)$/, m => `Time's up: you play with ${tr(m[1])}`],
+  [/^(.+) heeft een oudere versie zonder Klaar: jullie beginnen als de tijd om is\.$/, m => `${m[1]} has an older version without Ready: you start when the time is up.`]);
+Object.assign(HOOK, { ldSheetOpen, ldSheetClose, ldSheetAct, ldSheetHTML, ldSheetPaint, ldPickFruit, ldReadySet, ldMeReady, ldPill, ldOldFriend, ldDuelNote, ldT, LD_DUEL_NOTE, LD_COUNT_MS, LD_WARN_MS, LD_OLD_COUNT_MS, LD_FAIR, LD_LV5, LD_LENT, LD_FULL, LD_EN }); // v0.32.8 lobby
+Object.assign(HOOK, { safeRead, safeTopU, SAFE, overFit }); // v0.32.8 safe area
+Object.assign(HOOK, { hudLay, hudBtns }); // v0.32.8 HUD lines
+/* v0.32.8 chefnext */ // after a cleared chapter: Volgend hoofdstuk or Naar het seizoen, and Menu (Pieter)
+function chefNextOf(ch) { // the next chapter after ch that Spelen > Seizoen offers a Speel button for (open, not cleared, this season); 0: none
+  const S = curSeason(), s = save.season; if (!s || s.id !== S.id || G.chefSeason !== S.id || seasonOver()) return 0; const cl = Array.isArray(s.cleared) ? s.cleared : [];
+  for (let n = ch + 1; n <= SEASON_WEEKS; n++) if (chapterOpen(n) && !cl.includes(n)) return n; return 0;
+}
+function chefOverState() { // what the chapter's card offers: next (a chapter to play), season (none to play now; wait: the chapter that waits for its week) or fail
+  if (G.mode !== 'chef' || !G.cleared || G.chefLate) return { kind: 'fail' };
+  const ch = G.chefChapter || 1, n = chefNextOf(ch); if (n) return { kind: 'next', ch: n };
+  const up = ch + 1, s = save.season, cl = s && s.id === curSeason().id && Array.isArray(s.cleared) ? s.cleared : [];
+  return { kind: 'season', wait: up <= SEASON_WEEKS && G.chefSeason === curSeason().id && !seasonOver() && !chapterOpen(up) && !cl.includes(up) ? up : 0 };
+}
+function chefOverSync() { // which row the over card shows: the chapter's own row after a cleared chapter, else the usual one (+ the Menu link after a chef run)
+  const st = G.mode === 'chef' && G.state === 'over' ? G.chefOver : null, pass = !!st && st.kind !== 'fail', std = $('#btn-retry').parentElement, note = $('#over-chefnote');
+  std.hidden = pass; $('#over-chefrow').hidden = !pass; $('#btn-chef-link').hidden = !(st && st.kind === 'fail'); note.hidden = !(pass && st.wait);
+  if (pass) { $('#btn-chef-next').textContent = st.kind === 'next' ? 'Volgend hoofdstuk ›' : 'Naar het seizoen'; note.textContent = st.wait ? `Hoofdstuk ${st.wait} komt op ${chapterDate(st.wait)}.` : ''; }
+}
+{ const base = openOverSpecial; openOverSpecial = function (m, prize, died) { G.chefOver = m === 'chef' ? chefOverState() : null; return base.call(this, m, prize, died); }; } // the state first: the card's showScreen paints it
+{ const base = showScreen; showScreen = function (id) { if (id === 'scr-over') chefOverSync(); return base.apply(this, arguments); }; } // every over card (normal, modes, tournament, after an ad) sets its row
+$('#btn-chef-next').addEventListener('click', () => { const st = G.chefOver; if (curScreen !== 'scr-over' || G.mode !== 'chef' || !st || st.kind === 'fail') return; SFX.click(); settleRun();
+  if (st.kind === 'next') { const n = st.ch; leaveOver(() => { if (!startChef(n)) openToday('season'); }); } else leaveOver(() => goTo('season')); }); // as the Speel button of Spelen > Seizoen
+$('#btn-chef-menu').addEventListener('click', () => { const st = G.chefOver; if (curScreen !== 'scr-over') return; SFX.click(); settleRun(); leaveOver(() => goTo(st && st.kind === 'season' ? 'home' : 'season')); });
+$('#btn-chef-link').addEventListener('click', () => { if (curScreen !== 'scr-over') return; SFX.click(); settleRun(); leaveOver(() => goTo('season')); });
+Object.assign(EN, { 'Volgend hoofdstuk ›': 'Next chapter ›', 'Naar het seizoen': 'To the season' });
+EN_RX.unshift([/^Hoofdstuk (\d) komt op (\d+\/\d+)\.$/, m => `Chapter ${m[1]} opens on ${m[2]}.`]);
+Object.assign(HOOK, { chefNextOf, chefOverState, chefOverSync });
+/* v0.32.8 heat: the loop paces itself */
+// requestAnimationFrame fires on every vsync; update+render run on every n-th one (a 60 fps target in a run:
+// 120 Hz -> 60, 144 Hz -> 72, 90 and 60 Hz unchanged; about 30 fps outside a run). The vsync interval is the median of the last
+// 15 rAF gaps (without dropped frames) snapped to the nearest common refresh rate, and a new rate counts only after it held for
+// 10 vsyncs, so jitter or dropped frames do not flip the divisor. A skipped vsync leaves `last` alone: update() gets the whole
+// elapsed time (clamped at 50 ms as before). Outside a run the board is only redrawn when something moves or changed, and once a second as a safety net;
+// under a native ad video once; its clock-driven decorations stand still there (drawNow). HOOK.freeze keeps the old loop exactly.
+let last = performance.now(), vsyTick = 0, vsyVs = 1000 / 60, vsyHold = 0, vsyTs = 0, vsySigLast = null, vsyAt = -1e9, vsyDirty = true; const vsyGaps = [];
+var vsyDeco = { on: false, held: false, t: 0 }; // var, no TDZ: drawNow() is safe before this line runs
+function drawNow() { return vsyDeco && vsyDeco.on ? vsyDeco.t : performance.now(); } // the decorations' clock: held while frame() draws outside a run
+function paceDiv(vsMs, live) { const target = live ? 1000 / 60 : 1000 / 30; return Math.max(1, Math.floor((target + 1) / vsMs)); }
+const VSY_HZ = [30, 60, 72, 90, 120, 144, 240]; // 165 Hz is left out: only 0.9 ms from 144, jitter would swap them (both draw every 2nd vsync)
+const vsySnap = ms => 1000 / VSY_HZ.reduce((b, hz) => (Math.abs(1000 / hz - ms) < Math.abs(1000 / b - ms) ? hz : b), 60); // the nearest common refresh rate, as ms
+const vsyLive = () => G.state === 'play' || G.state === 'dying';
+const vsyAdVideo = () => G.state === 'ad' && adT > 1e8; // the app shows a real video over the game
+const VSY_FX = new Set(['menu', 'hearts', 'over', 'pause', 'today', 'album', 'pass', 'shop', 'kaart', 'fruit', 'intro']); // the states whose update() moves the effects
+const vsySig = () => [G.state, curScreen, lang, canvas.width, canvas.height, board ? 1 : 0, G.level, save.level, G.mode, G.fruit, Math.round(G.px), Math.round(G.py), G.zoom, G.parts.length, G.texts.length, G.scars.length, G.slashes.length, G.debris.length, G.stains.length, G.hazards.length, G.cubes.length].join('|');
+const vsyBusy = () => { const s = G.state; if (vsyAdVideo() || !VSY_FX.has(s)) return false; if (s === 'menu' && G.slashes.length) return true;
+  return G.parts.length > 0 || G.texts.length > 0 || G.scars.length > 0 || G.wipes.length > 0 || G.signs.length > 0 || G.paper.length > 0 || G.folds.length > 0 || !!G.mira || !!G.vb || !!G.lamp || G.themeFlash > 0 || G.flash > .02 || G.shake > .3; };
+function frame(now) {
+  requestAnimationFrame(frame);
+  const gap = now - (vsyTs || now); vsyTs = now;
+  if (gap > 4 && gap < 70) { vsyGaps.push(gap); if (vsyGaps.length > 15) vsyGaps.shift(); if (vsyGaps.length >= 3) { const s = vsyGaps.slice().sort((a, b) => a - b); let m = s[s.length >> 1]; if (m < vsyVs * 1.6) { const k = s.filter(g => g < vsyVs * 1.6); m = k[k.length >> 1]; } /* dropped frames (2+ vsyncs) left out, unless most gaps are that long */ const v = vsySnap(m); if (v === vsyVs) vsyHold = 0; else if (++vsyHold >= 10) { vsyVs = v; vsyHold = 0; } } }
+  if (HOOK.freeze) { last = now; render(); HOOK.renders++; vsySigLast = null; return; } // frozen (the checks): a render on every vsync, as before
+  const live = vsyLive();
+  if (++vsyTick % paceDiv(vsyVs, live) && board && !vsyDirty && (live || vsySig() === vsySigLast)) return; // a skipped vsync; a change outside a run is drawn at once
+  vsyTick = 0; const real = Math.min(50, now - last); last = now;
+  update(real);
+  if (vsyLive() || vsyDirty || !board || vsySig() !== vsySigLast || vsyBusy() || (now - vsyAt >= 1000 && !vsyAdVideo())) {
+    if (vsyLive()) vsyDeco.held = false; else if (!vsyDeco.held) { vsyDeco.held = true; vsyDeco.t = performance.now(); } // outside a run the decorations keep the clock of the moment it stopped
+    vsyDeco.on = vsyDeco.held; try { render(); } finally { vsyDeco.on = false; } HOOK.renders++; vsyAt = now; vsyDirty = false; vsySigLast = vsySig(); }
+}
+{ const base = showScreen; showScreen = function () { vsyDirty = true; return base.apply(this, arguments); }; } // a new screen, size or language is drawn on the next vsync
+{ const base = resize; resize = function () { vsyDirty = true; return base.apply(this, arguments); }; }
+{ const base = setLang; setLang = function () { vsyDirty = true; return base.apply(this, arguments); }; }
+Object.assign(HOOK, { renders: 0, paceDiv, paceSnap: vsySnap, paceInfo: () => ({ vs: vsyVs, live: vsyLive(), div: paceDiv(vsyVs, vsyLive()), busy: vsyBusy(), dirty: vsyDirty, held: vsyDeco.held }), trMemoSize: () => TR_MEMO.size });
 
 function boot(hot) {
   $('#ver').textContent = verLine(); /* v0.32.2: the real version in the settings (it said v0.30) */
@@ -9614,7 +9862,7 @@ function boot(hot) {
   ldBoot(); // v0.32.5 live duel: before the invite link clears the address (?ld= / ?li= from a push)
   const inv = parseInvite(location.href); if (inv) { save.pendingFriend = inv; store(); try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {} }
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {}); // offline play when served from a site
-  G.px = G.tx = W / 2; G.py = G.ty = H * .6; convertUnlBank(); albumCatchUp(true); duelBackPay(); if (!save.seen.intro && !save.runs && !pendingDaily) openIntro(); else openMenu(); if (pendingDaily) openToday('games'); requestAnimationFrame(frame);
+  G.px = G.tx = W / 2; G.py = G.ty = H * .6; convertUnlBank(); albumCatchUp(true); duelBackPay(); liveRunBoot(); /* v0.32.8 */ if (!save.seen.intro && !save.runs && !pendingDaily) openIntro(); else openMenu(); if (pendingDaily) openToday('games'); requestAnimationFrame(frame);
   initLang(); // the saved language wins once the save is in
   if (NET.on()) setTimeout(() => { cloudPull(); }, 300);
 }

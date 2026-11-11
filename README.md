@@ -57,6 +57,67 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.8: 90 seconden om je fruit te kiezen in het live duel, Volgend hoofdstuk, statusregels die niets meer bedekken en een eigen telling
+
+- **90 seconden om te kiezen.** Zodra jullie allebei in de lobby zitten, heb je anderhalve minuut om je fruit te kiezen
+  (was 15 seconden). Bovenaan staat de klok ("Kies je fruit · nog 1:12") met een balkje eronder; in de laatste 15
+  seconden worden ze oranje.
+- **Klaar in plaats van Start nu.** De knop Start nu is weg. Jij en je vriend krijgen allebei de knop **Klaar**. Tikken
+  jullie allebei op Klaar, dan begint het duel meteen (3-2-1). Kies je daarna toch een ander fruit, dan is je Klaar weg en
+  tik je opnieuw. Bij elke speler staat "kiest…" of "klaar".
+- **Tik op een fruit en lees wat het doet.** Een fruitkaart opent in de lobby, terwijl de klok zichtbaar blijft: de
+  eigenschap (dezelfde tekst als bij Verzamel > Fruit), jouw niveau met dat fruit (vanaf niveau 5 "versterkt", en dat telt
+  ook in het duel), je medaille, een vak "In dit live duel" (bij 10 fruitsoorten werkt een deel van de eigenschap niet in
+  een duel) en de regel over geleend fruit. Met ‹ › blader je door alle 20. Kies met **Kies dit fruit**, of tik **Terug**.
+- **Blauw stipje.** Het fruit dat je vriend op dat moment kiest, krijgt een blauw stipje.
+- **Tijd om.** Tikt niet iedereen op Klaar, dan begint het duel na 90 seconden met het fruit dat geel omrand is. Vanaf 15
+  seconden staat er "Nog 12 s: daarna speel je met Kiwi.", en het duel begint met "Tijd om: je speelt met Kiwi". Op 0:00
+  staat er even "Tijd om" en kun je niets meer kiezen tot het duel echt begint.
+- **Even weg?** Valt iemand weg (telefoon op slot), dan wacht de lobby zoals vroeger. Komt die terug, dan loopt de klok
+  verder met de tijd die nog over was (minstens 20 seconden), niet opnieuw 90.
+- **Een vriend met een oudere versie** (v0.32.5 tot v0.32.7) kan nog altijd live met je spelen. Hij ziet zijn oude
+  scherm met "Start over 85 s"; zijn Start nu telt als "klaar" en kort jouw tijd nooit in. Jij ziet een zinnetje dat de
+  volle tijd loopt.
+- **Een onderbroken poging telt mee.** Ging het spel dicht tijdens een poging (app weggeveegd, telefoon uit), dan telde
+  die poging niet: wel het level en het sap, niet de poging zelf. Nu telt ze bij de volgende start alsnog mee (Pogingen,
+  record, fruitervaring), met een kaartje "Vorige poging onderbroken". Geen sap meer kwijt als de app op de achtergrond gaat.
+  Staat het spel in twee tabbladen open, dan telt een poging toch maar één keer.
+- **Spaarpot ×2 duidelijker.** De levelregel bovenaan zegt niet meer "sap" (het is je levelbalk, niet je saldo). Zolang
+  je sap dubbel telt voor je spaarpot (eerste poging van de dag, woensdag, Sapverdubbelaar) staat er onder je sap
+  "spaarpot ×2", en een blokje dat meer in je spaarpot geeft dan op je levelbalk, toont zijn getal in roze.
+- **De klok van je telefoon staat niet meer over je sap (Android-app).** In de app ligt de balk met klok en batterij
+  bovenaan over het spel, en onderaan de knoppen of het veegstreepje van Android. Nu staan je sap, de tijd, de levelregel,
+  de knopjes en alle menu's en schermen eronder of erboven. Het speelveld zelf loopt nog tot aan de rand. Je hebt daarvoor
+  de nieuwe app-versie 0.32.8 uit de Play-test nodig (die weet ook vanaf het eerste beeld waar de balken liggen, zodat er
+  niets verspringt). Op de website verandert er niets.
+- **Verder meteen in beeld.** Op een kleine telefoon stond de gele knop Verder na een verloren poging half achter de
+  tabbladen onderaan. Nu wordt de foto van je gesneden fruit dan iets kleiner, zodat Opnieuw en Verder meteen zichtbaar zijn.
+- **Volgend hoofdstuk (De Chef).** Heb je een hoofdstuk van het seizoen gehaald, dan staan er op het kaartje twee knoppen:
+  **Volgend hoofdstuk** start meteen het eerstvolgende hoofdstuk dat je nog kunt spelen (zelfde fruit, geen hartje, met de
+  DE CHEF-banner en de regel van dat hoofdstuk; al gehaalde hoofdstukken worden overgeslagen) en **Menu** brengt je naar
+  Spelen > Seizoen. Na het laatste hoofdstuk, of als het volgende nog op zijn week wacht, staat er **Naar het seizoen**
+  (met "Hoofdstuk 2 komt op 26/10." als het nog dicht is) en gaat Menu naar het hoofdmenu. Mislukt een hoofdstuk, dan
+  blijven Opnieuw en Ander fruit, met een klein linkje Menu eronder.
+- **Statusregels staan niet meer op elkaar.** "Zure regen: nog 1 s goud" liep door zijn eigen balkje en onder de regel
+  van De Chef. Nu staat alles bovenaan in één vaste volgorde: de tijd, je sap met "spaarpot ×2" (iets lager, los van de
+  knopjes), de regel van de modus in het midden, het levelbalkje en daaronder één kolom met schild, FEVER met zijn balkje,
+  zure regen en meldingen. Een lange regel wordt kleiner of loopt door op een tweede regel; de bonus- en keukenkaartjes
+  schuiven eronder. De teksten zelf zijn niet veranderd.
+- **Eigen telling (zonder Google Analytics).** De server telt per dag alleen totalen: actieve en nieuwe spelers (app of
+  web), pogingen, levels, toernooirondes, duels, vriendenduels, live duels en vriendschappen. Nooit iets per speler. Pieter
+  bekijkt ze op een privépagina `stats.html` waarop alleen zijn Google-account binnen mag (zie STAPPEN-telling.md). Alleen
+  spelers met een spelersnaam praten met de server en tellen dus mee. De privacyverklaring zegt het in punt 11:
+  "Geen analysediensten, alleen dagtotalen".
+- **Zonder internet opent de privacypagina niet meer als het spel.** De service worker gaf offline elke pagina het spel;
+  nu krijgen privacy.html en stats.html hun eigen bewaarde kopie (of een foutmelding), en alleen het spel zelf het spel.
+- **Nieuw app-icoon op je beginscherm.** De nieuwe versie (cache `dontsliceme-v0.32.8`) haalt ook de nieuwe icoontjes
+  op. Het icoon van een geïnstalleerde web-app ververst Chrome zelf (dat kan een dag duren); op een iPhone pas na
+  opnieuw "Zet op beginscherm".
+- **Je telefoon wordt minder warm.** Tijdens een poging tekent het spel hoogstens 60 beelden per seconde (een 120 Hz-scherm
+  tekende er 120, een 90 Hz-scherm houdt er 90); menu, winkel, pauze en game-over tekenen niets opnieuw zolang er niets
+  beweegt (het fruit achter het paneel staat dan stil); de panelen hebben geen wazige achtergrond meer; op heel scherpe schermen is het speelveld iets minder fijn; en
+  het geluid slaapt als het spel weg is of geluid en muziek allebei uit staan. Het spel loopt even snel als vroeger.
+
 ## Nieuw in v0.32.7: klaar voor de interne test op Google Play
 
 - **Kopen gaat in de app via Google Play.** De knop "Koop de Fruitpas · € 4,99" op het Fruitpas-tabblad loopt nu ook via

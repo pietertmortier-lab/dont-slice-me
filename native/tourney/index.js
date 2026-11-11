@@ -53,6 +53,38 @@ const ghostKey = uid => hashOf('ghost', uid).slice(0, 20); // a ghost id never s
 const dayOf = t => new Date(t - 7 * 3600000).toISOString().slice(0, 10), dayNow = () => dayOf(Date.now()); // the game's day starts at 07:00
 const reqFresh = d => (((d.data && d.data()) || {}).at || 0) > Date.now() - REQ_TTL_MS; // a friend request older than two weeks no longer counts
 const clientIp = req => { const xff = String((req.get && req.get('x-forwarded-for')) || '').split(',').map(s => s.trim()).filter(Boolean); return xff.length ? xff[xff.length - 1] : String(req.ip || ''); }; // Google's front end appends the real address last
+// ---- v0.32.8 own statistics (Pieter, 11 November 2026: "A, onze eigen telling", no Google Analytics): daily TOTALS only, in
+// stats/d_YYYYMMDD (the UTC day: in Belgium from 01:00, in summer 02:00, to the same hour the next day), readable only by the owner's
+// Google account (firestore.rules, stats.html). A stats document holds counters only, never a uid, name, address or device. Per player
+// only profiles/{uid}.lastStatDay (the UTC day the player was last counted as active, so each player counts once a day). pf: 'app' or
+// 'web' from v0.32.8 clients, anything else 'unk'. At most one extra write per call; a stats error (or a write slower than STAT_MS) is
+// logged and never fails or blocks the action. The daily knife and ad rewards never reach the server: not counted.
+const STAT_MS = 1500, STAT_RUNS_MAX = 300, STAT_LVL_MAX = 50, STAT_BUY_MAX = 5;
+const STAT_SKUS = ['sap_3000', 'sap_10000', 'hearts_5', 'doubler_1h', 'coins_5', 'shield', 'pass', 'noads', 'plus_month', 'plus_year', 'tickets_5', 'tickets_15', 'weekpass']; // the client's Google Play product ids (PRODUCTS), and bundle_*
+const statDay = t => new Date(t).toISOString().slice(0, 10), statRef = t => db.doc(`stats/d_${statDay(t).replace(/-/g, '')}`);
+const statPf = v => v === 'app' || v === 'web' ? v : 'unk';
+const statSku = v => { const s = String(v || '').toLowerCase(); return STAT_SKUS.includes(s) || /^bundle_[a-z0-9]{1,16}$/.test(s) ? s : 'other'; };
+const statBuys = v => { const o = {}; for (const x of (Array.isArray(v) ? v : []).slice(0, STAT_BUY_MAX)) { const k = 'buyRep_' + statSku(x); o[k] = (o[k] || 0) + 1; o.buyRep = (o.buyRep || 0) + 1; } return o; }; // purchases as REPORTED by a client (never verified here)
+function statFields(inc, now) { const o = { day: statDay(now), tz: 'UTC', at: now }; for (const k of Object.keys(inc)) { const n = Math.floor(Number(inc[k]) || 0); if (n > 0) o[k] = admin.firestore.FieldValue.increment(n); } return o; }
+function statQuiet(p) { let t = 0; return Promise.race([p, new Promise((_, no) => { t = setTimeout(() => no(new Error('stats: slower than ' + STAT_MS + ' ms')), STAT_MS); })]).finally(() => clearTimeout(t)); } // never hold the action up
+async function statBump(inc, opt) { // inc: { field: n } added to today's totals; opt.lvl: a level reached (the day's highest is kept: read, then an update guarded by the read's updateTime)
+  const now = Date.now(), ref = statRef(now), lvl = (opt && opt.lvl) || 0, any = Object.keys(inc || {}).some(k => Math.floor(Number(inc[k]) || 0) > 0);
+  try {
+    if (lvl > 0) for (let i = 0; i < 2; i++) { const snap = await statQuiet(ref.get()), d = snap.data() || {}; if (!(lvl > (d.lvlMax || 0))) break;
+      const f = Object.assign(statFields(inc || {}, now), { lvlMax: lvl });
+      try { if (snap.exists && snap.updateTime) await statQuiet(ref.update(f, { lastUpdateTime: snap.updateTime })); else await statQuiet(ref.set(f, { merge: true })); return true; }
+      catch (e) { if (!(e && (e.code === 9 || e.code === 'failed-precondition' || /FAILED_PRECONDITION/.test(String(e.message))))) throw e; } } // another call wrote meanwhile: read once more, then the counts without the max
+    if (any) await statQuiet(ref.set(statFields(inc, now), { merge: true }));
+    return true;
+  } catch (e) { console.error('stats', (e && e.message) || e); return false; }
+}
+async function statActive(uid, pf) { // the player's first counted call of the UTC day: active (app / web / unk) and, the very first time, new. One transaction (the marker and the totals together), so a hello and a profile at the same moment count once
+  try { const now = Date.now(), day = statDay(now), pref = db.doc(`profiles/${uid}`), k = statPf(pf);
+    return await statQuiet(db.runTransaction(async tx => { const p = (await tx.get(pref)).data() || {}; if (p.lastStatDay === day) return false;
+      const inc = { act: 1, ['act_' + k]: 1 }; if (!p.lastStatDay && (!p.code || (p.firstMs > 0 && statDay(p.firstMs) === day))) Object.assign(inc, { nw: 1, ['nw_' + k]: 1 }); // new: never counted, and no profile yet (or its Firebase account was made today: a first day that fell in a stats outage)
+      tx.set(statRef(now), statFields(inc, now), { merge: true }); tx.set(pref, { lastStatDay: day }, { merge: true }); return true; }));
+  } catch (e) { console.error('stats', (e && e.message) || e); return false; }
+}
 async function rateOk(key, max, windowMs) { // a fixed window per key in limits/{key}
   const ref = db.doc(`limits/${key}`);
   return db.runTransaction(async tx => { const d = (await tx.get(ref)).data() || {}, now = Date.now(); let start = d.start || 0, n = d.n || 0; if (!(now >= start && now - start < windowMs)) { start = now; n = 0; } if (n >= max) return false; tx.set(ref, { start, n: n + 1 }); return true; });
@@ -71,7 +103,7 @@ async function makeFriends(uid, other, mp, op) { // both ways; FRIEND_SAP once p
   if (meOk) batch.set(db.doc(`profiles/${uid}`), { joinRewards: admin.firestore.FieldValue.increment(1) }, { merge: true });
   if (!paid) batch.set(pairRef, { at: Date.now() });
   for (const p of [`requests/${uid}/in/${other}`, `requests/${other}/out/${uid}`, `requests/${other}/in/${uid}`, `requests/${uid}/out/${other}`]) batch.delete(db.doc(p));
-  await batch.commit(); return { friend: profileView(other, op), reward: meOk ? FRIEND_SAP : 0 };
+  await batch.commit(); await statBump({ fr: 1 }); return { friend: profileView(other, op), reward: meOk ? FRIEND_SAP : 0 }; // v0.32.8 stats
 }
 async function freshRequests(uid) { // the requests that wait for uid; stale ones (older than REQ_TTL_MS) are deleted on the way
   const snap = await db.collection(`requests/${uid}/in`).limit(REQ_IN_MAX * 2).get(), keep = [], old = [];
@@ -151,8 +183,9 @@ async function groupFor(week, uid, level, division) {
 // wins (duelstats, farm-resistant) for a later milestone ladder, for live duels and 24 h challenges alike. No realtime listeners and no
 // scheduler: the lobby state is derived from timestamps, so the 2-minute rule holds even when nobody polls; whoever calls writes it.
 // The beats can carry timed events, stamped on the shared duel clock (reserved for duel powers; LD_POWERS is empty and ldPowerOk refuses).
-const LD_INV_MS = 10 * 60000, LD_RETURN_MS = 120000, LD_PUSH_AFTER_MS = 15000, LD_CHK_MS = 10000, LD_COUNT_MS = 15000, LD_GO_MS = 6000, LD_LATE_MS = 15000, LD_RUN_MS = 90000;
+const LD_INV_MS = 10 * 60000, LD_RETURN_MS = 120000, LD_PUSH_AFTER_MS = 15000, LD_CHK_MS = 10000, LD_COUNT_MS = 90000, LD_GO_MS = 6000, LD_LATE_MS = 15000, LD_RUN_MS = 90000;
 const LD_PAUSE_MS = 60000, LD_GRACE_MS = 20000, LD_SEAT_MAX_MS = 240000, LD_IN_MS = 8000, LD_SEEN_LOBBY_MS = 4000, LD_SEEN_WRITE_MS = 25000, LD_HERE_MS = 50000, LD_BUSY_HERE_MS = 75000, LD_ON_MS = 90000;
+const LD_RESUME_MIN_MS = 20000, LD_OPT_MIN_MS = 30000; // v0.32.8: 90 s to pick a fruit (Pieter); a count that resumes after a drop keeps its time left (at least 20 s); the host's options leave at least 30 s
 const LD_LOBBY_MAX_MS = 15 * 60000, LD_KEEP_MS = 86400000, LD_SETTLE_POLL_MS = 110000;
 const LD_INV_HOUR = 10, LD_SAME_MS = 120000, LD_NO_MS = 30 * 60000, LD_NO_DAY = 2, LD_AGAIN_MS = 5 * 60000, LD_PTS = 30, LD_PUSH_IN_HOUR = 3, LD_QUIET_FROM = 21, LD_QUIET_TO = 8, LD_PUSH_WAIT_MS = 2500, LD_PUSH_DAYS = 60, LD_PUSH_FAILS = 5, LD_MISS_MAX = 2, LD_MISS_MS = 30 * 60000;
 const LD_MIN_T = 30000, LD_MIN_SCORE = 5, LD_FRIEND_MS = 24 * HOUR_MS, LD_NEW_MS = 7 * 86400000, LD_MIN_LEVEL = 15, LD_ACT_DAYS = 3, LD_PAIR_DAY = 3, LD_WIN_DAY = 10; // counted wins (Pieter's decision)
@@ -202,9 +235,9 @@ function ldEval(l, now, ro) { // mutates l; returns true when it changed. ro (re
     if (l.m.length < (l.min || 2)) { l.state = 'closed'; l.closedWhy = gone.some(g => g[1] === 'left') ? 'left' : 'late'; l.closedAt = now; return true; } } // 1-on-1: closes for both; a later pool keeps going with whoever is left
   if (ro) return ch;
   const allIn = l.m.every(s => ldSeat(l, s, now).isIn);
-  if (l.state === 'wait' && allIn) { l.state = 'count'; l.countEnd = now + LD_COUNT_MS; ch = true; }
-  else if (l.state === 'count' && !allIn) { l.state = 'wait'; l.countEnd = 0; ch = true; }
-  if (l.state === 'count' && now >= l.countEnd) { const same = String((l.opts && l.opts.fruit) || '').startsWith('same:') ? ldFruit(l.opts.fruit.slice(5)) : '';
+  if (l.state === 'wait' && allIn) { l.state = 'count'; l.countEnd = now + ((l.countLeft || 0) > 0 ? Math.max(LD_RESUME_MIN_MS, l.countLeft) : LD_COUNT_MS); l.countLeft = 0; ch = true; } // v0.32.8: a count that was interrupted resumes with its time left (at least 20 s), never a fresh 90 s
+  else if (l.state === 'count' && !allIn) { l.state = 'wait'; l.countLeft = Math.max(1, (l.countEnd || 0) - now); l.countEnd = 0; ch = true; }
+  if (l.state === 'count' && (now >= l.countEnd || l.m.every(s => (s.rd || 0) > 0))) { /* v0.32.8: the time is up, or every seat tapped Klaar */ const same = String((l.opts && l.opts.fruit) || '').startsWith('same:') ? ldFruit(l.opts.fruit.slice(5)) : '';
     l.state = 'go'; l.startAt = now + LD_GO_MS; l.seed = 'L' + ldId().slice(0, 10); for (const s of l.m) s.fruit = same || ldFruit(s.fruit); ch = true; } // the fruits are locked here
   return ch;
 }
@@ -231,9 +264,9 @@ async function ldPushTo(uid, msg) { // msg { k: 'ldinv' | 'ldlobby', n, id, exp 
 }
 function ldView(l, uid, now, started) { // what a member sees of the lobby: seats by name (the other one's uid only because you are friends), never a uid of anyone else
   const meI = (l.m || []).findIndex(s => s.uid === uid), kicked = (l.kicked || []).find(k => k.uid === uid), pn = l.pn || {}, go = ['go', 'done'].includes(l.state) || !!l.res, duo = (l.cap || 2) <= 2; // duo: a 1-on-1 lobby exists only between friends; a later pool sends no uid until it checks the friendship per seat
-  return { id: l.id || '', state: l.res ? 'done' : l.state, host: l.host === uid, me: meI, cap: l.cap || 2, min: l.min || 2, opts: Object.assign({ powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, l.opts || {}), countEnd: l.countEnd || 0, startAt: l.startAt || 0, seed: go ? l.seed || '' : '',
+  return { v: 2, id: l.id || '', state: l.res ? 'done' : l.state, host: l.host === uid, me: meI, cap: l.cap || 2, min: l.min || 2, opts: Object.assign({ powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, l.opts || {}), countEnd: l.countEnd || 0, startAt: l.startAt || 0, seed: go ? l.seed || '' : '',
     why: l.closedWhy || '', kickedMe: kicked ? kicked.why : '', gone: (l.kicked || []).filter(k => k.uid !== uid).map(k => ({ name: k.name, why: k.why, fid: duo ? k.uid : '' })), started: !!started,
-    m: (l.m || []).map((s, i) => { const st = ldSeat(l, s, now); return { name: s.name, fruit: s.fruit || '', role: s.role, me: i === meI, fid: i === meI || !duo ? '' : s.uid, in: st.isIn, away: st.isIn ? 0 : st.from + LD_RETURN_MS, joined: !!s.joined, left: !!s.left, pushed: (pn[s.uid] || 0) > 0, nopush: !!s.pushAt && pn[s.uid] === 0 }; }),
+    m: (l.m || []).map((s, i) => { const st = ldSeat(l, s, now); return { name: s.name, fruit: s.fruit || '', role: s.role, me: i === meI, fid: i === meI || !duo ? '' : s.uid, in: st.isIn, away: st.isIn ? 0 : st.from + LD_RETURN_MS, joined: !!s.joined, left: !!s.left, pushed: (pn[s.uid] || 0) > 0, nopush: !!s.pushAt && pn[s.uid] === 0, rd: (s.rd || 0) > 0, v: s.v || 0 }; }), // v0.32.8: rd = tapped Klaar; v = the seat's client protocol (2: has Klaar)
     res: l.res ? ldResView(l.res, meI) : null };
 }
 const ldStatOf = S => ({ won: S.won || 0, wins: S.wins || 0, losses: S.losses || 0, draws: S.draws || 0, played: S.played || 0, distinct: S.distinct || 0 });
@@ -288,8 +321,9 @@ async function ldSettle(id, now) {
       const fin = x => x.fin ? { s: x.fin.s, t: x.fin.t, quit: !!x.fin.quit, died: !!x.fin.died } : { s: x.s || 0, t: x.t || 0, cut: true }, fa = fin(a), fb = fin(b), r = await ldRecordTx(tx, A.uid, B.uid, fa, fb, 'live', now);
       res = { kind: 'live', a: Object.assign({ name: A.name }, fa), b: Object.assign({ name: B.name }, fb), win: r.win, counted: r.counted, why: r.why, rec: r.rec, stA: r.stA, stB: r.stB };
     }
-    tx.update(lref, { res, state: 'done', doneAt: now }); return { l: Object.assign({}, l, { res, state: 'done', doneAt: now }), note };
+    tx.update(lref, { res, state: 'done', doneAt: now }); return { l: Object.assign({}, l, { res, state: 'done', doneAt: now }), note, fresh: res.kind };
   });
+  if (out && out.fresh) await statBump(out.fresh === 'live' ? { ldFin: 1 } : { ldNo: 1 }); // v0.32.8 stats: only the call that wrote the result counts
   if (out && out.note) { try { await noteTo(out.note.to, { type: 'challenge', v: 2, by: out.note.by, id: out.note.id }); } catch (e) {} } // the friend's existing challenge card (v0.32.3)
   return out ? out.l : null;
 }
@@ -360,6 +394,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       return { id, exp, fromName, here: ldHere(op, now), hid: !!op.ldHide };
     });
     if (out.error) return J(Object.assign({ ok: false }, out));
+    await statBump({ ldInv: 1 }); // v0.32.8 stats
     const pushed = out.here ? 0 : await ldPushTo(to, { k: 'ldinv', n: out.fromName, id: out.id, exp: out.exp }); // push only when the friend's app is not open
     return J({ ok: true, id: out.id, exp: out.exp, here: out.here && !out.hid, pushed: out.hid && out.here ? 1 : pushed }); // a friend who hides her online status: the reply is the same whether her game is open (the card) or closed (the push)
   }
@@ -401,7 +436,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       const l = (await tx.get(ref)).data(); if (!l) return { err: 'gone' }; l.id = id;
       let me = l.m.find(s => s.uid === uid); if (!me) { if (!(l.kicked || []).some(k => k.uid === uid)) return { err: 'gone' }; tx.set(db.doc(`profiles/${uid}`), { ldLobby: '' }, { merge: true }); return { err: 'gone', l }; } // the view only for a seat that was removed, never for somebody who merely knows the id
       if (me.dev && rawUid && me.dev !== rawUid) return { err: 'otherdevice' }; // another device of mine holds this seat
-      let ch = false, started = false, pres = false; const pushes = [];
+      let ch = false, started = false, pres = false, went = false; const pushes = [];
       if (!me.dev && rawUid) { me.dev = rawUid; ch = true; }
       if (['wait', 'count'].includes(l.state) && !l.res) {
         if (ldEval(l, now, true)) ch = true; me = l.m.find(s => s.uid === uid); // first the removals as they stand: a seat back after its 2:00 is still removed
@@ -410,9 +445,10 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
           else { if (body.act && !me.joined) { me.joined = true; ch = true; } if (me.joined && now - (me.seen || 0) >= LD_SEEN_LOBBY_MS) { me.seen = now; ch = true; }
             if (me.joined && now - (me.ps || 0) >= LD_SEEN_WRITE_MS) { me.ps = now; ch = true; pres = true; } // a joined seat keeps the player's presence fresh (the client sends no ldpoll while the lobby is open)
             if (body.v !== undefined && clampInt(body.v, 0, 99) !== (me.v || 0)) { me.v = clampInt(body.v, 0, 99); ch = true; } if (body.pw !== undefined) { const pw = ldPw(body.pw); if (JSON.stringify(pw) !== JSON.stringify(me.pw || [])) { me.pw = pw; ch = true; } }
-            if (body.fruit !== undefined) { const f = ldFruit(body.fruit); if (f !== me.fruit) { me.fruit = f; ch = true; } } }
-          if (body.start && l.host === uid && l.state === 'count' && !body.leave) { l.countEnd = now; ch = true; } // the host starts at once (the 3-2-1 still follows)
-          if (ldEval(l, now)) ch = true; me = l.m.find(s => s.uid === uid);
+            if (body.fruit !== undefined) { const f = ldFruit(body.fruit); if (f !== me.fruit) { me.fruit = f; me.rd = 0; ch = true; } } // v0.32.8: another fruit takes Klaar back
+            if (body.ready !== undefined && me.joined) { const rd = body.ready === true ? (me.rd || now) : 0; if (rd !== (me.rd || 0)) { me.rd = rd; ch = true; } } } // v0.32.8: Klaar (v2 clients send it until it is confirmed)
+          if (body.start && l.host === uid && ['wait', 'count'].includes(l.state) && !body.leave && me.joined && !me.rd) { me.rd = now; ch = true; } // v0.32.8: Start nu of an older host (v0.32.5-0.32.7) = the host is Klaar; it never ends the guest's 90 s
+          { const st0 = l.state; if (ldEval(l, now)) ch = true; if (st0 !== 'go' && l.state === 'go') went = true; } me = l.m.find(s => s.uid === uid); // v0.32.8 stats: went = this call fixed the start
           if (['wait', 'count'].includes(l.state)) for (const s of l.m) { // the push decision: one push per seat that is away while another is in
             const st = ldSeat(l, s, now), w = l.m.find(o => o !== s && ldSeat(l, o, now).isIn); if (st.isIn || s.pushAt || !w || s.left) continue;
             if (s.joined) { if (now - st.from < LD_PUSH_AFTER_MS) continue; }
@@ -426,11 +462,11 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       const mine = l.m.find(s => s.uid === uid);
       if (ch) { const keep = Object.assign({}, l); delete keep.id; tx.set(ref, keep); }
       const pf = Object.assign(!mine || l.state === 'closed' ? { ldLobby: '' } : {}, pres ? { ldSeen: now, ldBusy: false } : {}); if (Object.keys(pf).length) tx.set(db.doc(`profiles/${uid}`), pf, { merge: true });
-      return { l, pushes, started, gone: !mine };
+      return { l, pushes, started, gone: !mine, went };
     });
     if (out.err === 'otherdevice') return NO('otherdevice');
     if (out.err) return NO('gone', { lobby: out.l ? ldView(out.l, uid, now, false) : null });
-    const l = out.l;
+    const l = out.l; if (out.went) await statBump({ ldGo: 1 }); // v0.32.8 stats
     for (const p of out.pushes) { const n = await ldPushTo(p.uid, { k: 'ldlobby', n: p.n, id, exp: p.exp }); l.pn = Object.assign({}, l.pn, { [p.uid]: n }); try { await ref.update({ ['pn.' + p.uid]: n }); } catch (e) {} }
     if (out.gone) return NO('gone', { lobby: ldView(l, uid, now, false) });
     return J({ ok: true, lobby: ldView(l, uid, now, out.started) });
@@ -441,7 +477,9 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       const o = Object.assign({ powers: false, fruit: 'any' }, l.opts || {});
       if (body.powers !== undefined) { if (body.powers && (!LD_POWERS.length || !l.m.every(s => LD_POWERS.every(P => ldPw(s.pw).includes(P.k))))) return 'nopowers'; o.powers = !!body.powers; }
       if (body.fruit !== undefined) { const f = String(body.fruit || ''); if (f !== 'any' && !(f.startsWith('same:') && LD_FRUITS.includes(f.slice(5)))) return 'fruit'; o.fruit = f; }
-      const upd = { opts: o }; if (l.state === 'count') upd.countEnd = now + LD_COUNT_MS; tx.update(ref, upd); return ''; });
+      const was = JSON.stringify(Object.assign({ powers: false, fruit: 'any' }, l.opts || {})); if (JSON.stringify(o) === was) return ''; // v0.32.8: nothing changed: no Klaar cleared, the count as it is
+      const upd = { opts: o }; if ((l.m || []).some(s => s.rd)) upd.m = l.m.map(s => Object.assign({}, s, { rd: 0 })); // v0.32.8: new options: everybody taps Klaar again
+      if (l.state === 'count') upd.countEnd = Math.max(l.countEnd || 0, now + LD_OPT_MIN_MS); else if ((l.countLeft || 0) > 0) upd.countLeft = Math.max(l.countLeft, LD_OPT_MIN_MS); tx.update(ref, upd); return ''; }); // at least 30 s left, never less than before
     return r ? NO(r) : J({ ok: true });
   }
   if (action === 'ldbeat' || action === 'ldend' || action === 'ldres') { // the live run: { id, t, s, k0, p, dead, pz, pause, lag, ev } (ldend: + quit, died, ghost, gt) -> { startAt, started, o, evOk, evNo, res, wait }
@@ -511,6 +549,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       const [rin, cin, mine] = await Promise.all([freshRequests(uid), db.collection('challenges').where('to', '==', uid).where('status', '==', 'open').limit(10).get(), db.doc(`profiles/${uid}`).get()]);
       const now = Date.now(), p = mine.data() || {}, notes = (Array.isArray(p.notes) ? p.notes.length : 0) + (Array.isArray(p.pending) ? p.pending.length : 0);
       if (p.code && !p.firstMs) { const f = await ldFirstMs(uid, now); if (f) await db.doc(`profiles/${uid}`).set({ firstMs: f }, { merge: true }); } // v0.32.5: the account's age from Firebase Auth, once
+      if (p.lastStatDay !== statDay(now)) await statActive(uid, body.pf); // v0.32.8 stats: active today (pf app / web)
       const vk = ldVapid(), wp = !!(vk && ldWebPush); res.json({ ok: true, v: SERVER_V, caps: CAPS.concat(['live'], wp ? ['push'] : [], LD_POWERS.length ? ['ldpow'] : []), vapid: wp ? vk.publicKey : '', inbox: { req: rin.length, duel: cin.docs.filter(d => (d.data().expires || 0) > now).length, notes } });
     } else if (action === 'submit') { // { ev, score, seconds, level, division, name }
       const ev = String(body.ev); if (!EVENTS.includes(ev) || ev !== eventOfWeek(week)) { res.status(400).json({ error: 'event' }); return; } await ldMark(uid); // v0.32.5: a played day (counted friend-duel wins need an active loser)
@@ -519,7 +558,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       const { group, div } = await groupFor(week, uid, Number(body.level) || 1, body.division);
       const ref = db.doc(`groups/${group}/scores/${uid}`), cur = (await ref.get()).data();
       if (!cur || score > cur.score) await ref.set({ score, name: String(body.name || 'Fruit').slice(0, 20), level: Number(body.level) || 1, updated: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
-      res.json({ ok: true, group, division: div, week });
+      await statBump({ tr: 1 }); res.json({ ok: true, group, division: div, week }); // v0.32.8 stats
     } else if (action === 'ladder') { // the player's group, sorted; the client shows top 10 + neighbours
       const { group, div } = await groupFor(week, uid, Number(body.level) || 1, body.division);
       const snap = await db.collection(`groups/${group}/scores`).orderBy('score', 'desc').limit(DIV_SIZE).get();
@@ -536,7 +575,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
         updatedMs: Date.now(), updated: admin.firestore.FieldValue.serverTimestamp() };
       if (typeof body.findable === 'boolean') { data.findable = body.findable; data.nameKey = body.findable ? nameKeyOf(data.name) : ''; data.cv = CLIENT_V; data.pv = clampInt(body.pv, 0, 999); data.lv = clampInt(body.lv, 0, 9); } /* v0.32.5: lv 1 = this client plays live duels (an older one resets it to 0) */ // v0.32: only a client that can show requests and friend duels v2 sends findable; v0.32.3: pv 33 = it polls (an older one resets it to 0)
       if (body.fruit) data.fruit = String(body.fruit).slice(0, 24);
-      { const curP = (await db.doc(`profiles/${uid}`).get()).data() || {}, nowP = Date.now(); if (!curP.firstMs) { const f = await ldFirstMs(uid, nowP); if (f) data.firstMs = f; } if (data.runs > (curP.runs || 0)) Object.assign(data, ldPlayed(curP, nowP) || {}); } // v0.32.5: account age (Firebase Auth) and a played day when the run count rose
+      { const curP = (await db.doc(`profiles/${uid}`).get()).data() || {}, nowP = Date.now(); if (!curP.firstMs) { const f = await ldFirstMs(uid, nowP); if (f) data.firstMs = f; } if (data.runs > (curP.runs || 0)) Object.assign(data, ldPlayed(curP, nowP) || {}); if (curP.lastStatDay !== statDay(nowP)) await statActive(uid, body.pf); } // v0.32.5: account age (Firebase Auth) and a played day when the run count rose; v0.32.8 stats: active today, new player
       const code = await ensureCode(uid, data); await db.doc(`profiles/${uid}`).set(data, { merge: true }); await ensureRef(uid); res.json({ ok: true, code });
     } else if (action === 'befriend') { // { code } -> both players become friends; the first time, both get FRIEND_SAP
       const code = cleanCode(body.code); if (code.length !== 6) { res.status(400).json({ error: 'code' }); return; }
@@ -620,6 +659,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
         else { const id = `${uid}-${to}`, cref = db.doc(`challenges/${id}`), [cur, old] = (await Promise.all([cref.get(), db.doc(`challenges/${[uid, to].sort().join('_')}`).get()])).map(s => s.data()); // v0.32.3: one open challenge per direction; a uid has no '-', a v0.32 pair id has '_'
           if ((cur && chalLive(cur, now)) || (old && old.from === uid && chalLive(old, now))) error = 'already';
           else { await cref.set({ from: uid, to, fromName: name, toName: String(o.name || 'vriend').slice(0, 16), seed, ghost, t, fromScore: score, fromFruit: fruit, level, status: 'open', created: now, expires: now + CHALLENGE_MS }); await noteTo(to, { type: 'challenge', v: 2, by: name, id }); challenge = id; } } } } // the note reaches the friend's next hello (inbox.notes) and its card plays this id
+      await statBump({ du: slot.ok && !friendly ? 1 : 0, fdSent: challenge ? 1 : 0, fdPlay: settled ? 1 : 0 }); // v0.32.8 stats
       res.json(Object.assign(slot.ok ? { ok: true, stored: true, settled, challenge, error } : { ok: true, stored: false, limit: true, settled, challenge, error }, ldRep ? { ld: ldRep } : {}));
     } else if (action === 'duel') { // { day, score, seconds, level, fruit, name, ghost, t, vs, vsScore }: my finished duel; settles friend challenges that are complete now
       if (!dayOk(body.day)) { res.status(400).json({ error: 'day' }); return; }
@@ -630,7 +670,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       const vs = String(body.vs || '').slice(0, 128); if (vs && vs !== uid) { try { await noteTo(vs, { type: 'picked', by: name, won: score > clampInt(body.vsScore, 0, 1e6), score, theirs: clampInt(body.vsScore, 0, 1e6), day: body.day }); } catch (e) {} }
       const [asFrom, asTo] = await Promise.all([db.collection(`duels/${body.day}/challenges`).where('from', '==', uid).get(), db.collection(`duels/${body.day}/challenges`).where('to', '==', uid).get()]);
       let settled = 0; for (const d of asFrom.docs.concat(asTo.docs)) { const c = d.data(); if (!c.resolved && await settleChallenge(body.day, c, d.ref)) settled++; }
-      res.json({ ok: true, settled });
+      await statBump({ du: 1 }); res.json({ ok: true, settled }); // v0.32.8 stats (an older client's day duel)
     } else if (action === 'challenge') { // { uid, day }: challenge a friend to today's duel; the loser pays CHALLENGE_SAP and wears the pan for a day
       const other = String(body.uid || '').slice(0, 128); if (!other || other === uid || !dayOk(body.day)) { res.status(400).json({ error: 'uid' }); return; }
       const [isFriend, mp, op] = await Promise.all([db.doc(`friends/${uid}/of/${other}`).get(), db.doc(`profiles/${uid}`).get(), db.doc(`profiles/${other}`).get()]);
@@ -639,7 +679,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       const id = [uid, other].sort().join('_'), ref = db.doc(`duels/${body.day}/challenges/${id}`); if ((await ref.get()).exists) { res.json({ ok: true, already: true }); return; }
       const fromName = String((mp.data() || {}).name || 'Een vriend').slice(0, 16), toName = String((op.data() || {}).name || 'vriend').slice(0, 16);
       await ref.set({ from: uid, to: other, fromName, toName, resolved: false, created: Date.now() }); await noteTo(other, { type: 'challenge', by: fromName, day: body.day });
-      const c = { from: uid, to: other, fromName, toName }; const settled = await settleChallenge(body.day, c, ref); res.json({ ok: true, settled });
+      const c = { from: uid, to: other, fromName, toName }; const settled = await settleChallenge(body.day, c, ref); await statBump({ fdSent: 1 }); res.json({ ok: true, settled }); // v0.32.8 stats
     } else if (action === 'rivals') { // { level, keep: [uid] } -> two players just above me (fresh views of the kept ones while the week lasts)
       const keep = (Array.isArray(body.keep) ? body.keep : []).map(String).slice(0, 2).filter(u => u && u !== uid);
       let rows = [];
@@ -693,9 +733,13 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
     } else if (action === 'save') { // { data, rev, level, runs }: the save blob (the game's own FV1 code), kept unless the stored one is ahead
       const data = String(body.data || ''); if (!data.startsWith('FV1.') || data.length > 300000) { res.status(400).json({ error: 'data' }); return; }
       const rev = clampInt(body.rev, 0, 1e9), level = clampInt(body.level, 1, 500), runs = clampInt(body.runs, 0, 1e6), ref = db.doc(`saves/${uid}`), cur = (await ref.get()).data() || {};
-      if ((cur.rev || 0) > rev && (cur.level || 0) >= level && (cur.runs || 0) >= runs) { res.json({ ok: true, rev: cur.rev, kept: true }); return; }
+      const st = statBuys(body.buy); // v0.32.8 stats: purchases a client reports (optional; none does yet)
+      if ((cur.rev || 0) > rev && (cur.level || 0) >= level && (cur.runs || 0) >= runs) { await statBump(st); res.json({ ok: true, rev: cur.rev, kept: true }); return; }
       const histDay = new Date(Date.now()).toISOString().slice(0, 10);
       await ref.set({ data, rev, level, runs, histDay, updatedMs: Date.now(), updated: admin.firestore.FieldValue.serverTimestamp() });
+      { const dr = cur.data ? runs - (cur.runs || 0) : 0, dl = cur.data ? level - (cur.level || 0) : 0, k = statPf(body.pf); // v0.32.8 stats: the rise since the stored save (none on the first save; a jump above the caps is not counted)
+        if (dr > 0 && dr <= STAT_RUNS_MAX) Object.assign(st, { runs: dr, ['runs_' + k]: dr }); if (dl > 0 && dl <= STAT_LVL_MAX) st.lvUp = dl;
+        await statBump(st, { lvl: dl > 0 && dl <= STAT_LVL_MAX ? level : 0 }); }
       if (cur.histDay !== histDay) { // v0.32.2 save history: the first save of a new day is kept as that day's copy; days beyond SAVE_HISTORY_DAYS go
         await db.doc(`saves/${uid}/history/${histDay}`).set({ data, rev, level, runs, savedMs: Date.now() });
         const hs = await db.collection(`saves/${uid}/history`).get(); const old = hs.docs.map(d => d.id).sort().reverse().slice(SAVE_HISTORY_DAYS);

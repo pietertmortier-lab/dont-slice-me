@@ -1,6 +1,6 @@
 {
   "name": "dontsliceme-android",
-  "version": "0.32.7",
+  "version": "0.32.8",
   "private": true,
   "description": "Android shell for Don't Slice Me! (Capacitor 8 + AdMob + RevenueCat). The app's own version lives in android/app/build.gradle (versionName, versionCode).",
   "engines": { "node": ">=22" },

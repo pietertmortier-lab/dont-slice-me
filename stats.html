@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Telling · Don't Slice Me!</title>
+<style>
+/* v0.32.8 eigen telling: Pieters privepagina. Alleen dagtotalen uit Firestore stats/d_YYYYMMDD; lezen kan enkel met dont.slice.me@gmail.com (firestore.rules). */
+:root {
+  color-scheme: light;
+  --bg: #f6f4ef; --surface: #fcfcfb; --line: #e4e1d8; --grid: #ecebe6;
+  --ink: #1d1b16; --ink2: #52514e; --ink3: #7a786f;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --gray: #a9a69c;
+  --accent: #c2410c; --btn: #1d1b16; --btnInk: #fff; --warn: #fff4e5; --warnLine: #f0c27a;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --line: #2e2d2a; --grid: #262523;
+  --ink: #f0efec; --ink2: #c3c2b7; --ink3: #8f8d84;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --gray: #6b6962;
+  --accent: #fb923c; --btn: #f0efec; --btnInk: #121211; --warn: #2a2217; --warnLine: #7a5a2a;
+} }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --line: #2e2d2a; --grid: #262523;
+  --ink: #f0efec; --ink2: #c3c2b7; --ink3: #8f8d84;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --gray: #6b6962;
+  --accent: #fb923c; --btn: #f0efec; --btnInk: #121211; --warn: #2a2217; --warnLine: #7a5a2a;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 16px 16px 48px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+h1 small { display: block; font-size: 13px; font-weight: 400; color: var(--ink2); }
+h2 { font-size: 16px; margin: 0 0 2px; }
+.sub { color: var(--ink2); font-size: 13px; margin: 0 0 10px; }
+button { font: inherit; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 8px 14px; min-height: 40px; cursor: pointer; }
+button.main { background: var(--btn); color: var(--btnInk); border-color: var(--btn); font-weight: 600; padding: 12px 20px; min-height: 48px; }
+.who { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--ink2); font-size: 13px; }
+.who span { flex-basis: 100%; }
+@media (min-width: 640px) { .who span { flex-basis: auto; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 12px 0; }
+.center { text-align: center; padding: 28px 16px; }
+.center p { max-width: 460px; margin: 8px auto 18px; color: var(--ink2); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.tile .k { font-size: 12px; color: var(--ink2); }
+.tile .v { font-size: 28px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.tile .d { font-size: 12px; color: var(--ink3); font-variant-numeric: tabular-nums; }
+.charts { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 760px) { .charts { grid-template-columns: 1fr 1fr; } }
+.charts .card { margin: 0; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--ink2); margin: 2px 0 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+svg.chart { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+svg.chart text { fill: var(--ink3); font-size: 11px; font-family: inherit; }
+svg.chart .gl { stroke: var(--grid); stroke-width: 1; }
+svg.chart .hit { fill: transparent; }
+svg.chart .hit:hover, svg.chart .hit.on { fill: var(--ink); fill-opacity: .06; }
+.tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; font-size: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.15); max-width: 220px; }
+.tip b { display: block; margin-bottom: 2px; }
+.tip span { display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 8px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th { color: var(--ink2); font-weight: 600; font-size: 12px; position: sticky; top: 0; background: var(--surface); }
+th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); }
+tr.today td { font-weight: 700; }
+td.z { color: var(--ink3); }
+.note { font-size: 12px; color: var(--ink2); }
+.note li { margin: 3px 0; }
+.err { background: var(--warn); border: 1px solid var(--warnLine); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Telling <small>Don't Slice Me! · alleen dagtotalen</small></h1>
+    <div class="who" id="who" hidden><span id="who-mail"></span><button id="btn-refresh" type="button">Vernieuwen</button><button id="btn-out" type="button">Uitloggen</button></div>
+  </header>
+
+  <section class="card center" id="v-login" hidden>
+    <h2>Privépagina</h2>
+    <p>Hier zie je de dagtotalen van het spel (hoeveel spelers, pogingen, duels...). Alleen het account dont.slice.me@gmail.com kan ze lezen.</p>
+    <button class="main" id="btn-in" type="button">Inloggen met Google</button>
+    <p class="note" id="login-msg"></p>
+  </section>
+
+  <section class="card center" id="v-wait"><p>Even geduld…</p></section>
+
+  <section class="card center" id="v-deny" hidden>
+    <h2>Geen toegang</h2>
+    <p id="deny-text">Je bent ingelogd met een ander account. Deze pagina is alleen voor de maker van het spel. Log uit en kies het account dont.slice.me@gmail.com.</p>
+    <button class="main" id="btn-switch" type="button">Ander account kiezen</button>
+  </section>
+
+  <div id="v-data" hidden>
+    <div class="err" id="data-err" hidden></div>
+    <section>
+      <h2>Vandaag tot nu toe</h2>
+      <p class="sub" id="today-sub"></p>
+      <div class="tiles" id="tiles"></div>
+    </section>
+    <section style="margin-top:18px">
+      <h2>De laatste 30 dagen</h2>
+      <p class="sub">Tik of wijs een staaf aan voor de cijfers van die dag.</p>
+      <div class="charts" id="charts"></div>
+    </section>
+    <section class="card">
+      <h2>Per dag</h2>
+      <p class="sub">Nieuwste dag bovenaan. Actief = app / web (/ onbekend: een oudere versie van het spel).</p>
+      <div class="tablewrap"><table id="table"></table></div>
+      <p class="note" id="buys"></p>
+    </section>
+    <section class="card note">
+      <h2>Goed om te weten</h2>
+      <ul>
+        <li>Een dag loopt van middernacht tot middernacht in UTC: in België van 01:00 tot 01:00 (in de zomer van 02:00 tot 02:00).</li>
+        <li>Alleen spelers met een spelersnaam praten met de server; wie nooit een naam koos (nooit Toernooi of Vrienden opende), wordt niet geteld.</li>
+        <li>Actief: elke speler telt één keer per dag. Nieuw: de eerste keer dat een speler zich bij de server meldt.</li>
+        <li>Pogingen en levels komen uit de online opslag: ze tellen vanaf de tweede opslag van een speler.</li>
+        <li>Aankopen: alleen wat de app zelf meldt (nog geen enkele versie doet dat). De echte verkoop staat in de Google Play Console.</li>
+        <li>Het dagmes en filmpjes voor beloningen gebeuren alleen op het toestel: die telt de server niet.</li>
+      </ul>
+    </section>
+  </div>
+  <div class="tip" id="tip" hidden></div>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+(() => {
+'use strict';
+const CONFIG = { apiKey: 'AIzaSyD-cpn_f2Jj_XCch_pBpnHTqxRfbLjQZTM', authDomain: 'dont-slice-me.firebaseapp.com', projectId: 'dont-slice-me', appId: '1:599236386226:web:94239b28b31cb18ed218ab' }; // the same public configuration as the game (index.html)
+const OWNER = 'dont.slice.me@gmail.com', DAYS = 30;
+const $ = id => document.getElementById(id);
+const show = v => { for (const k of ['v-login', 'v-wait', 'v-deny', 'v-data']) $(k).hidden = k !== v; };
+const esc = v => String(v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = n => (Number(n) || 0).toLocaleString('nl-BE');
+const ymd = d => d.toISOString().slice(0, 10);
+const MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'], WD = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
+const dayLabel = s => { const d = new Date(s + 'T12:00:00Z'); return `${WD[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`; };
+const short = s => { const d = new Date(s + 'T12:00:00Z'); return `${d.getUTCDate()}/${d.getUTCMonth() + 1}`; };
+const v = (d, k) => Math.max(0, Math.floor(Number(d && d[k]) || 0));
+const sumPrefix = (d, p) => Object.keys(d || {}).filter(k => k.startsWith(p)).reduce((s, k) => s + v(d, k), 0);
+
+if (!window.firebase) { show('v-login'); $('btn-in').disabled = true; $('login-msg').textContent = 'Firebase kon niet laden. Controleer je internetverbinding en vernieuw de pagina.'; return; }
+if (!firebase.apps.length) firebase.initializeApp(CONFIG);
+const auth = firebase.auth(), db = firebase.firestore();
+
+async function signIn() {
+  $('login-msg').textContent = ''; const p = new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
+  try { await auth.signInWithPopup(p); }
+  catch (e) { const c = e && e.code || '';
+    if (c === 'auth/popup-blocked' || c === 'auth/operation-not-supported-in-this-environment' || c === 'auth/cancelled-popup-request') { try { await auth.signInWithRedirect(p); return; } catch (e2) { e = e2; } }
+    if (c === 'auth/popup-closed-by-user') { $('login-msg').textContent = 'Het venster werd gesloten. Probeer opnieuw.'; return; }
+    $('login-msg').textContent = c === 'auth/operation-not-allowed' ? 'Inloggen met Google staat nog niet aan in Firebase (zie STAPPEN-telling.md, stap 1).' : c === 'auth/unauthorized-domain' ? 'Dit webadres staat nog niet bij de toegelaten domeinen in Firebase (zie STAPPEN-telling.md, stap 2).' : 'Inloggen lukte niet (' + (c || 'onbekende fout') + ').'; }
+}
+$('btn-in').addEventListener('click', signIn);
+$('btn-out').addEventListener('click', () => auth.signOut());
+$('btn-switch').addEventListener('click', async () => { await auth.signOut(); signIn(); });
+$('btn-refresh').addEventListener('click', () => { if (auth.currentUser) load(); });
+let rsz = 0; window.addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(() => { if (rows.length && !$('v-data').hidden) render(); }, 200); });
+auth.getRedirectResult().catch(e => { $('login-msg').textContent = 'Inloggen lukte niet (' + ((e && e.code) || 'onbekende fout') + ').'; });
+
+auth.onAuthStateChanged(u => {
+  $('who').hidden = !u; $('who-mail').textContent = u ? (u.email || 'ingelogd') : '';
+  if (!u) { show('v-login'); return; }
+  if (String(u.email || '').toLowerCase() !== OWNER || !u.emailVerified) { deny(u); return; }
+  load();
+});
+function deny(u, why) { $('btn-refresh').hidden = true; $('deny-text').textContent = why || `Je bent ingelogd als ${u && u.email ? u.email : 'een ander account'}. Deze pagina is alleen voor de maker van het spel. Kies het account ${OWNER}.`; show('v-deny'); }
+
+let rows = [];
+async function load() {
+  $('btn-refresh').hidden = false;
+  if ($('v-data').hidden) show('v-wait');
+  const now = new Date(), days = []; for (let i = DAYS - 1; i >= 0; i--) days.push(ymd(new Date(now.getTime() - i * 86400000)));
+  let snap;
+  try { snap = await db.collection('stats').where(firebase.firestore.FieldPath.documentId(), '>=', 'd_' + days[0].replace(/-/g, '')).orderBy(firebase.firestore.FieldPath.documentId()).limit(40).get(); }
+  catch (e) { if (e && e.code === 'permission-denied') { deny(auth.currentUser, 'De server weigert dit account. Log in met ' + OWNER + ' (een Google-account met bevestigd e-mailadres).'); return; }
+    show('v-data'); $('data-err').hidden = false; $('data-err').textContent = 'De cijfers konden niet laden (' + ((e && e.code) || (e && e.message) || 'fout') + '). Probeer Vernieuwen.'; return; }
+  const by = {}; snap.forEach(d => { by[d.id] = d.data() || {}; });
+  rows = days.map(day => Object.assign({ _day: day }, by['d_' + day.replace(/-/g, '')] || {}));
+  $('data-err').hidden = true; show('v-data'); render(); // shown first: the charts measure their width
+}
+
+const M = {
+  act: d => v(d, 'act'), app: d => v(d, 'act_app'), web: d => v(d, 'act_web'), unk: d => v(d, 'act_unk'), nw: d => v(d, 'nw'), runs: d => v(d, 'runs'),
+  ldGo: d => v(d, 'ldGo'), ldFin: d => v(d, 'ldFin'), buy: d => v(d, 'buyRep'), tr: d => v(d, 'tr'), du: d => v(d, 'du'), fd: d => v(d, 'fdSent') + v(d, 'fdPlay'), fr: d => v(d, 'fr'), lvl: d => v(d, 'lvlMax'),
+};
+function render() {
+  const t = rows[rows.length - 1], y = rows[rows.length - 2] || {};
+  $('today-sub').textContent = `${dayLabel(t._day)} (UTC)` + (t.at ? ` · laatst bijgewerkt om ${new Date(t.at).toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' })}` : ' · nog niets geteld vandaag');
+  const tile = (k, val, d) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${fmt(val)}</div><div class="d">${d}</div></div>`;
+  $('tiles').innerHTML = [
+    tile('Actieve spelers', M.act(t), `app ${fmt(M.app(t))} · web ${fmt(M.web(t))}${M.unk(t) ? ' · onbekend ' + fmt(M.unk(t)) : ''}`),
+    tile('Nieuwe spelers', M.nw(t), `gisteren ${fmt(M.nw(y))}`),
+    tile('Pogingen', M.runs(t), `gisteren ${fmt(M.runs(y))}`),
+    tile('Live duels gestart', M.ldGo(t), `${fmt(M.ldFin(t))} uitgespeeld`),
+    tile('Aankopen (gemeld)', M.buy(t), `gisteren ${fmt(M.buy(y))}`),
+    tile('Hoogste level', M.lvl(t), `gisteren ${fmt(M.lvl(y))}`),
+  ].join('');
+  const C = 'var(--s1)', C2 = 'var(--s2)', GR = 'var(--gray)';
+  $('charts').innerHTML = [
+    chart('Actieve spelers', 'act', [['App', C, M.app], ['Web', C2, M.web], ['Onbekend', GR, M.unk]], true),
+    chart('Nieuwe spelers', 'nw', [['Nieuw', C, M.nw]]),
+    chart('Pogingen', 'runs', [['Pogingen', C, M.runs]]),
+    chart('Live duels', 'ld', [['Gestart', C, M.ldGo], ['Uitgespeeld', C2, M.ldFin]], false),
+    chart('Aankopen (gemeld door de app)', 'buy', [['Aankopen', C, M.buy]]),
+  ].join('');
+  bindTips();
+  const cols = [['Dag', null], ['Actief', d => `${fmt(M.act(d))} <span style="color:var(--ink3)">(${fmt(M.app(d))}/${fmt(M.web(d))}${M.unk(d) ? '/' + fmt(M.unk(d)) : ''})</span>`, M.act], ['Nieuw', M.nw], ['Pogingen', M.runs], ['Hoogste level', M.lvl], ['Toernooi', M.tr], ['Duels', M.du], ['Vriendenduels', M.fd], ['Live gestart', M.ldGo], ['Live klaar', M.ldFin], ['Vriendschappen', M.fr], ['Aankopen', M.buy]];
+  const head = '<tr>' + cols.map(c => `<th>${c[0]}</th>`).join('') + '</tr>';
+  const body = rows.slice().reverse().map((d, i) => `<tr${i === 0 ? ' class="today"' : ''}><td>${dayLabel(d._day)}</td>` + cols.slice(1).map(c => { const n = (c[2] || c[1])(d); return `<td${n ? '' : ' class="z"'}>${c[2] ? c[1](d) : fmt(n)}</td>`; }).join('') + '</tr>').join('');
+  $('table').innerHTML = `<thead>${head}</thead><tbody>${body}</tbody>`;
+  const buys = {}; for (const d of rows) for (const k of Object.keys(d)) if (k.startsWith('buyRep_')) buys[k.slice(7)] = (buys[k.slice(7)] || 0) + v(d, k);
+  $('buys').textContent = Object.keys(buys).length ? 'Gemelde aankopen per product (30 dagen): ' + Object.entries(buys).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${fmt(n)}`).join(' · ') : '';
+}
+function nice(m) { const x = m / 4; if (x <= 1) return 4; const p = Math.pow(10, Math.floor(Math.log10(x))), f = x / p, st = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find(k => f <= k) * p; return Math.ceil(st) * 4; } // the top of the axis: four whole steps (1, 1.5, 2, 2.5, 3, 4, 5, 6, 8 x 10^n, rounded up), so every tick is a whole number
+// a bar chart per day; stacked (with a 2 px gap between segments) or grouped; inline SVG, one y-axis, recessive grid, hover/tap tooltip
+function chart(title, key, series, stacked) {
+  const cw = $('charts').clientWidth || 600, W = Math.round(Math.max(260, Math.min(640, (cw >= 724 ? (cw - 12) / 2 : cw) - 30))), H = 190, L = 34, R = 6, T = 8, B = 22, n = rows.length, /* drawn at its real width, so the axis text stays 11 px */ pw = W - L - R, ph = H - T - B, slot = pw / n;
+  const tot = d => stacked ? series.reduce((s, x) => s + x[2](d), 0) : Math.max(...series.map(x => x[2](d)));
+  const max = nice(Math.max(1, ...rows.map(tot))), Y = val => T + ph - (val / max) * ph;
+  const shown = series.filter(s => s[0] !== 'Onbekend' || rows.some(d => s[2](d) > 0));
+  let g = '';
+  for (let i = 0; i <= 4; i++) { const val = max * i / 4, y = Y(val); g += `<line class="gl" x1="${L}" x2="${W - R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/><text x="${L - 6}" y="${(y + 3).toFixed(1)}" text-anchor="end">${fmt(val)}</text>`; }
+  let bars = '', hits = '';
+  rows.forEach((d, i) => {
+    const x0 = L + i * slot, bw = Math.max(3, slot * (stacked || shown.length === 1 ? .62 : .8));
+    if (stacked || shown.length === 1) { let base = 0; const segs = shown.map(s => [s, s[2](d)]).filter(z => z[1] > 0);
+      segs.forEach(([s, val], j) => { const y1 = Y(base + val), y0 = Y(base), h = Math.max(0, y0 - y1 - (j > 0 ? 2 : 0)), top = j === segs.length - 1; bars += barPath(x0 + (slot - bw) / 2, y1, bw, h, top, s[1]); base += val; }); }
+    else { const w = bw / shown.length; shown.forEach((s, j) => { const val = s[2](d); if (val > 0) bars += barPath(x0 + (slot - bw) / 2 + j * w + (j ? 1 : 0), Y(val), w - (j ? 1 : 0) - 1, Y(0) - Y(val), true, s[1]); }); }
+    hits += `<rect class="hit" x="${x0.toFixed(1)}" y="${T}" width="${slot.toFixed(1)}" height="${ph + B}" data-i="${i}" data-c="${key}"/>`;
+    if (i % (W < 420 ? 7 : 5) === (n - 1) % (W < 420 ? 7 : 5)) g += `<text x="${(x0 + slot / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${short(d._day)}</text>`;
+  });
+  CH[key] = { title, series: shown, stacked };
+  const leg = shown.length > 1 ? `<div class="legend">${shown.map(s => `<span><i style="background:${s[1]}"></i>${esc(s[0])}</span>`).join('')}</div>` : '';
+  const last = rows[n - 1], tv = stacked ? tot(last) : shown[0][2](last);
+  return `<div class="card"><h2>${esc(title)}</h2><p class="sub">vandaag ${fmt(tv)} · 30 dagen samen ${fmt(rows.reduce((s, d) => s + (stacked ? tot(d) : shown[0][2](d)), 0))}</p>${leg}<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)} per dag, de laatste 30 dagen">${g}<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--ink3)" stroke-width="1"/>${bars}${hits}</svg></div>`;
+}
+const CH = {};
+function barPath(x, y, w, h, roundTop, fill) { if (h <= 0) return ''; const r = roundTop ? Math.min(4, w / 2, h) : 0;
+  return `<path d="M${x.toFixed(1)},${(y + h).toFixed(1)}V${(y + r).toFixed(1)}${r ? `Q${x.toFixed(1)},${y.toFixed(1)} ${(x + r).toFixed(1)},${y.toFixed(1)}H${(x + w - r).toFixed(1)}Q${(x + w).toFixed(1)},${y.toFixed(1)} ${(x + w).toFixed(1)},${(y + r).toFixed(1)}` : `H${(x + w).toFixed(1)}`}V${(y + h).toFixed(1)}Z" fill="${fill}"/>`; }
+let tipOn = null; const hideTip = () => { $('tip').hidden = true; if (tipOn) tipOn.classList.remove('on'); tipOn = null; };
+document.addEventListener('pointerdown', e => { if (!e.target.closest || !e.target.closest('svg.chart .hit')) hideTip(); }, { passive: true });
+window.addEventListener('scroll', hideTip, { passive: true });
+function bindTips() {
+  const tip = $('tip'); let on = null;
+  const hide = hideTip;
+  const showTip = (el, cx, cy) => { const c = CH[el.dataset.c], d = rows[+el.dataset.i]; if (!c || !d) return; if (tipOn) tipOn.classList.remove('on'); tipOn = on = el; el.classList.add('on');
+    const lines = c.series.map(s => `<span><em style="font-style:normal"><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${s[1]};margin-right:5px"></i>${esc(s[0])}</em><b style="display:inline;margin:0">${fmt(s[2](d))}</b></span>`).join('');
+    const total = c.stacked && c.series.length > 1 ? `<span>Samen <b style="display:inline;margin:0">${fmt(c.series.reduce((s, x) => s + x[2](d), 0))}</b></span>` : '';
+    tip.innerHTML = `<b>${dayLabel(d._day)}</b>${lines}${total}`; tip.hidden = false;
+    const r = tip.getBoundingClientRect(), x = Math.min(window.innerWidth - r.width - 8, Math.max(8, cx + 12)), y = cy - r.height - 12 < 8 ? cy + 16 : cy - r.height - 12; tip.style.left = x + 'px'; tip.style.top = y + 'px'; };
+  document.querySelectorAll('svg.chart .hit').forEach(el => { el.addEventListener('pointerenter', e => showTip(el, e.clientX, e.clientY)); el.addEventListener('pointermove', e => showTip(el, e.clientX, e.clientY)); el.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hide(); }); });
+}
+})();
+</script>
+</body>
+</html>

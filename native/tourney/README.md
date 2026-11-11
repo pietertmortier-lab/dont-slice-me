@@ -206,3 +206,25 @@ Besides the existing list: the live-duel fields of `profiles/{uid}` (above); `ld
 ## Costs
 
 Firestore reads are the main cost: one ladder read per screen open (≤ 50 documents). At 10,000 players that is a few euros a month on the Blaze plan; the Spark plan covers the first tests.
+
+## v0.32.8 own statistics (daily totals, no analytics service)
+
+Pieter's choice "A, onze eigen telling": the function adds daily totals to `stats/d_YYYYMMDD` (the UTC day; in Belgium 01:00-01:00,
+in summer 02:00-02:00). A stats document holds counters only: `act` / `act_app` / `act_web` / `act_unk` (players active that day, each
+once), `nw_*` (new players), `runs_*` (rise of the cloud save's run count; not on a player's first save; at most 300 a call), `lvUp`,
+`lvlMax` (the day's highest level: read, then an update guarded by the read's updateTime, no transaction), `tr` (tournament rounds),
+`du` (random duels), `fdSent` / `fdPlay` (24 h friend duels), `ldInv` / `ldGo` / `ldFin` / `ldNo` (live duels), `fr` (friendships),
+`buyRep` / `buyRep_<product>` (purchases a client reports in the optional save field `buy`; no client does yet), `day`, `tz`, `at`.
+Per player only `profiles/{uid}.lastStatDay` (the UTC day the player was last counted; one transaction with the totals, so a hello and
+a profile at the same moment count once). `pf` ('app' | 'web') comes with hello, profile and save from v0.32.8; anything else is `unk`.
+The daily knife and ad rewards never reach the server and are not counted; players without a name never call the server.
+
+Cost: at most one extra write per counted call (about one per run, per tournament round, per duel; never for polls or beats). A stats
+error, or a write slower than 1.5 s, is logged (`stats ...` in `firebase functions:log`) and never fails the action. All writes of a day
+go to one document: Firestore takes about one sustained write a second per document, plenty for this game; shard the day document
+(`d_YYYYMMDD_0..9`) only if the log shows contention.
+
+Reading: `firestore.rules` lets only a signed-in user with the token email `dont.slice.me@gmail.com` and `email_verified` read
+`stats/*`; no client can write. The private page `stats.html` (next to `index.html`) signs in with Google (enable the Google provider
+once: Authentication > Sign-in method) and shows the last 30 days. Deleting a player (privacy.html section 14): `lastStatDay` goes with
+the profile; the totals hold no personal data.

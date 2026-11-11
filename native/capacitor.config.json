@@ -5,6 +5,6 @@
   "android": { "allowMixedContent": false, "backgroundColor": "#17100b" },
   "plugins": {
     "AdMob": { "appId": "ca-app-pub-9632519764252496~5730966023" },
-    "SystemBars": { "insetsHandling": "css" }
+    "SystemBars": { "insetsHandling": "css", "initialViewportFitValueHint": "cover" }
   }
 }

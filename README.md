@@ -57,6 +57,31 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.7: klaar voor de interne test op Google Play
+
+- **Kopen gaat in de app via Google Play.** De knop "Koop de Fruitpas · € 4,99" op het Fruitpas-tabblad loopt nu ook via
+  Google Play (product `pass`), net als in de winkel: de pas komt pas na de betaling. De knop "Laatste stempel · € 0,49"
+  is weg, want daar bestaat (nog) geen Google Play-product voor. Op de website verandert er niets.
+- **Eén tik, één aankoop.** Staat het venster van Google Play nog open, dan doet een tweede tik op dezelfde koopknop (in de
+  winkel of op het Fruitpas-tabblad) niets: er start geen tweede aankoop.
+- **Geen "simulatie" meer in de app.** De winkel zegt in de app "Aankopen met geld lopen via Google Play", Plus zegt dat
+  je opzegt in Google Play, en onder de instellingen staat "Versie v0.32.7". Op de website blijven de oude teksten.
+- **Privacybeleid in het spel.** Achter het tandwiel staat bij Instellingen de link **Privacybeleid**, en bij Hulp een
+  onderwerp **Privacy**. De link opent in je browser (in het Engels het Engelse deel).
+- **Privacy en advertenties.** In de app staat bij Instellingen een knop **Privacy en advertenties** zodra Google je om
+  toestemming voor advertenties vroeg: daar wijzig je je keuze of trek je je toestemming in (het venster van Google). Lukt
+  dat venster even niet (bijvoorbeeld zonder internet), dan zegt het spel dat, met het mailadres. Het privacybeleid zegt
+  dat nu ook. De twee privacylinks zien eruit als de knoppen ernaast.
+- **Reclamevrij en Plus: echt geen filmpjes.** Wie Reclamevrij of Plus heeft, krijgt elke beloning meteen, ook die van
+  een beloningsvideo (extra hartje, rad, Verder, ...). De knoppen zeggen dan ook "Zonder filmpje" in plaats van "Filmpje".
+- **Deellinks wijzen altijd naar de website.** Ook vanuit de app gaat een gedeelde uitdaging of het Mes van de dag naar
+  https://pietertmortier-lab.github.io/dont-slice-me/.
+- **Engels met Engelse getallen.** In het Engels staat er nu 25.4 s en 12,840 (in het Nederlands blijft het 25,4 s en
+  12.840), en de medailles heten DIAMOND, GOLD, SILVER en BRONZE. Ook een paar oude Nederlandse woorden zijn nu vertaald
+  (Purchases, Tier 1, Claimed, Only incomplete rows, en de toestellen in de keukentekening).
+- **Mooiere namen in een duel.** De naam van je vriend (of van een schim) boven het fruit heeft geen puntjes meer aan
+  letters als de M.
+
 ## Nieuw in v0.32.6: grotere icoontjes in de menu's
 
 - **Alles in de menu's is groter, het fruit het meest.** Zo zie je de stoned gezichtjes echt. Het fruit vult ook meer van

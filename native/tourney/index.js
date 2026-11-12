@@ -311,6 +311,19 @@ const LD_LOBBY_MAX_MS = 15 * 60000, LD_KEEP_MS = 86400000, LD_SETTLE_POLL_MS = 1
 const LD_INV_HOUR = 10, LD_SAME_MS = 120000, LD_NO_MS = 30 * 60000, LD_NO_DAY = 2, LD_AGAIN_MS = 5 * 60000, LD_PTS = 30, LD_PUSH_IN_HOUR = 3, LD_QUIET_FROM = 21, LD_QUIET_TO = 8, LD_PUSH_WAIT_MS = 2500, LD_PUSH_DAYS = 60, LD_PUSH_FAILS = 5, LD_MISS_MAX = 2, LD_MISS_MS = 30 * 60000;
 const LD_MIN_T = 30000, LD_MIN_SCORE = 5, LD_FRIEND_MS = 24 * HOUR_MS, LD_NEW_MS = 7 * 86400000, LD_MIN_LEVEL = 15, LD_ACT_DAYS = 3, LD_PAIR_DAY = 3, LD_WIN_DAY = 10; // counted wins (Pieter's decision)
 const LD_POWERS = [], LD_EV_MAX = 3, LD_EV_LEAD_MIN = 2500, LD_EV_LEAD_MAX = 15000; // a power later: { k: 'zwaarte', maxDur: 4000 }; none exists yet
+// ---- v0.32.10 WP1 RTDB (v0.32.10 live view and shared arena, Stap A): one Realtime Database room per live friend duel, /ld/{lobbyId} =
+// { c: created ms, m: { hostUid: 0, guestUid: 1 } }, written only here (admin SDK); the phones write their own on/k/p strings (database.rules.json).
+// Every RTDB call is outside every Firestore transaction and swallows its errors: the function never fails because of RTDB, and without
+// a room both phones play today's duel. ar (the shared arena) is fixed at go: both seats v >= 3, both reached RTDB (rc) within 10 s.
+const LD_RTDB_URL = 'https://dont-slice-me-default-rtdb.europe-west1.firebasedatabase.app'; // v0.32.10: the live view (Pieter created it 11 Nov 2026, Belgium, locked mode); '' = RTDB off
+const LD_AR_OK = true, LD_RC_MS = 10000, LD_RT_RETRY_MS = 10000, LD_RT_SWEEP_MS = 600000, LD_RT_OLD_MS = 3600000, LD_RT_SWEEP_N = 20; // v0.32.10: arena kill switch, presence freshness, room retry, sweep cadence/age/batch
+let ldRtDb = null, ldRtSweptAt = 0; const LD_RT_T_MS = 3000; // v0.32.10 fixer: every RTDB call gives up after 3 s (a wrong or unreachable database never hangs a call)
+function ldRt() { if (!LD_RTDB_URL) return null; if (ldRtDb !== null) return ldRtDb || null; try { const { getDatabaseWithUrl } = require('firebase-admin/database'); ldRtDb = getDatabaseWithUrl(LD_RTDB_URL, admin.app()); } catch (e) { console.error('ldrt', (e && e.message) || e); ldRtDb = false; } return ldRtDb || null; } // getDatabaseWithUrl: getDatabase(app) has no URL parameter (firebase-admin 12); false: the database module failed once; never retried by this instance
+function ldRtT(p) { let h = null; return Promise.race([p, new Promise((_, no) => { h = setTimeout(() => no(new Error('rtdb timeout')), LD_RT_T_MS); })]).finally(() => clearTimeout(h)); } // the RTDB promise or an error after LD_RT_T_MS (the timer is cleared as soon as the call settles)
+async function ldRtRoom(id, host, guest, now) { const d = ldRt(); if (!d || !id || !host || !guest) return false; try { await ldRtT(d.ref('ld/' + id).set({ c: now, m: { [host]: 0, [guest]: 1 } })); return true; } catch (e) { console.error('ldrt room', (e && e.message) || e); return false; } }
+async function ldRtDel(id) { const d = ldRt(); if (!d || !id) return; try { await ldRtT(d.ref('ld/' + id).remove()); } catch (e) { console.error('ldrt del', (e && e.message) || e); } }
+async function ldRtSweep(now) { if (!LD_RTDB_URL || now - ldRtSweptAt < LD_RT_SWEEP_MS) return; const d = ldRt(); if (!d) return; ldRtSweptAt = now; try { const s = await ldRtT(d.ref('ld').orderByChild('c').endAt(now - LD_RT_OLD_MS).limitToFirst(LD_RT_SWEEP_N).once('value')); const ids = []; s.forEach(c => { ids.push(c.key); }); await ldRtT(Promise.all(ids.map(k => d.ref('ld/' + k).remove()))); } catch (e) { console.error('ldrt sweep', (e && e.message) || e); } } // rooms older than 1 h, 20 at a time, at most every 10 min per instance (on hello, ldinvite and ldanswer; no scheduler)
+const ldArOk = (l, now) => LD_AR_OK && !!LD_RTDB_URL && l.rt === 1 && (l.cap || 2) === 2 && (l.m || []).length === 2 && l.m.every(s => (s.v || 0) >= 3 && now - (s.rc || 0) <= LD_RC_MS) ? 1 : 0; // fixed once at go, never recomputed
 const LD_FRUITS = ['appel', 'druif', 'aardbei', 'kersen', 'citroen', 'kiwi', 'banaan', 'kokosnoot', 'sinaasappel', 'pruim', 'avocado', 'watermeloen', 'ananas', 'mandarijn', 'durian', 'granaatappel', 'drakenvrucht', 'lychee', 'stervrucht', 'passievrucht']; // the 20 classic fruits (the client's ORDER), lent for the round
 const LD_PUSH_SUBJECT = 'mailto:dont.slice.me@gmail.com', LD_PUSH_HOSTS = /^(fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|web\.push\.apple\.com|[a-z0-9-]+\.push\.apple\.com|[a-z0-9-]+\.notify\.windows\.com)$/;
 const LD_DEAD = new Set([404, 410, 'messaging/registration-token-not-registered', 'messaging/invalid-registration-token']); // only these remove a subscription at once
@@ -362,7 +375,7 @@ function ldEval(l, now, ro) { // mutates l; returns true when it changed. ro (re
   if (l.state === 'wait' && allIn) { l.state = 'count'; l.countEnd = now + ((l.countLeft || 0) > 0 ? Math.max(LD_RESUME_MIN_MS, l.countLeft) : LD_COUNT_MS); l.countLeft = 0; ch = true; } // v0.32.8: a count that was interrupted resumes with its time left (at least 20 s), never a fresh 90 s
   else if (l.state === 'count' && !allIn) { l.state = 'wait'; l.countLeft = Math.max(1, (l.countEnd || 0) - now); l.countEnd = 0; ch = true; }
   if (l.state === 'count' && (now >= l.countEnd || l.m.every(s => (s.rd || 0) > 0))) { /* v0.32.8: the time is up, or every seat tapped Klaar */ const same = String((l.opts && l.opts.fruit) || '').startsWith('same:') ? ldFruit(l.opts.fruit.slice(5)) : '';
-    l.state = 'go'; l.startAt = now + LD_GO_MS; l.seed = 'L' + ldId().slice(0, 10); for (const s of l.m) s.fruit = same || ldFruit(s.fruit); ch = true; } // the fruits are locked here
+    l.state = 'go'; l.startAt = now + LD_GO_MS; l.seed = 'L' + ldId().slice(0, 10); for (const s of l.m) s.fruit = same || ldFruit(s.fruit); l.ar = ldArOk(l, now); /* v0.32.10 */ ch = true; } // the fruits are locked here
   return ch;
 }
 const ldRo = (l, now) => { const c = Object.assign({}, l, { m: (l.m || []).map(s => Object.assign({}, s)), kicked: (l.kicked || []).slice() }); ldEval(c, now, true); return c; };
@@ -388,7 +401,7 @@ async function ldPushTo(uid, msg) { // msg { k: 'ldinv' | 'ldlobby', n, id, exp 
 }
 function ldView(l, uid, now, started) { // what a member sees of the lobby: seats by name (the other one's uid only because you are friends), never a uid of anyone else
   const meI = (l.m || []).findIndex(s => s.uid === uid), kicked = (l.kicked || []).find(k => k.uid === uid), pn = l.pn || {}, go = ['go', 'done'].includes(l.state) || !!l.res, duo = (l.cap || 2) <= 2; // duo: a 1-on-1 lobby exists only between friends; a later pool sends no uid until it checks the friendship per seat
-  return { v: 2, id: l.id || '', state: l.res ? 'done' : l.state, host: l.host === uid, me: meI, cap: l.cap || 2, min: l.min || 2, opts: Object.assign({ powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, l.opts || {}), countEnd: l.countEnd || 0, startAt: l.startAt || 0, seed: go ? l.seed || '' : '',
+  return { v: 3, rt: l.rt === 1 && LD_RTDB_URL && (l.m || []).every(s => s.joined && (s.v || 0) >= 3) ? 1 : 0, ar: l.ar === 1 ? 1 : 0, /* v0.32.10: the RTDB room exists and both seats joined on v >= 3 (a v0.32.9 host: the guest's phone never opens the room); the shared arena (fixed at go) */ id: l.id || '', state: l.res ? 'done' : l.state, host: l.host === uid, me: meI, cap: l.cap || 2, min: l.min || 2, opts: Object.assign({ powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, l.opts || {}), countEnd: l.countEnd || 0, startAt: l.startAt || 0, seed: go ? l.seed || '' : '',
     why: l.closedWhy || '', kickedMe: kicked ? kicked.why : '', gone: (l.kicked || []).filter(k => k.uid !== uid).map(k => ({ name: k.name, why: k.why, fid: duo ? k.uid : '' })), started: !!started,
     m: (l.m || []).map((s, i) => { const st = ldSeat(l, s, now); return { name: s.name, fruit: s.fruit || '', role: s.role, me: i === meI, fid: i === meI || !duo ? '' : s.uid, in: st.isIn, away: st.isIn ? 0 : st.from + LD_RETURN_MS, joined: !!s.joined, left: !!s.left, pushed: (pn[s.uid] || 0) > 0, nopush: !!s.pushAt && pn[s.uid] === 0, rd: (s.rd || 0) > 0, v: s.v || 0 }; }), // v0.32.8: rd = tapped Klaar; v = the seat's client protocol (2: has Klaar)
     res: l.res ? ldResView(l.res, meI) : null };
@@ -448,6 +461,7 @@ async function ldSettle(id, now) {
     tx.update(lref, { res, state: 'done', doneAt: now }); return { l: Object.assign({}, l, { res, state: 'done', doneAt: now }), note, fresh: res.kind };
   });
   if (out && out.fresh) await statBump(out.fresh === 'live' ? { ldFin: 1 } : { ldNo: 1 }); // v0.32.8 stats: only the call that wrote the result counts
+  if (out && out.fresh && out.l && out.l.rt === 1) await ldRtDel(id); // v0.32.10: the live view's room goes with the result
   if (out && out.note) { try { await noteTo(out.note.to, { type: 'challenge', v: 2, by: out.note.by, id: out.note.id }); } catch (e) {} } // the friend's existing challenge card (v0.32.3)
   return out ? out.l : null;
 }
@@ -520,6 +534,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
     if (out.error) return J(Object.assign({ ok: false }, out));
     await statBump({ ldInv: 1 }); // v0.32.8 stats
     const pushed = out.here ? 0 : await ldPushTo(to, { k: 'ldinv', n: out.fromName, id: out.id, exp: out.exp }); // push only when the friend's app is not open
+    await ldRtSweep(now); // v0.32.10: old RTDB rooms (throttled: once per 10 min per instance)
     return J({ ok: true, id: out.id, exp: out.exp, here: out.here && !out.hid, pushed: out.hid && out.here ? 1 : pushed }); // a friend who hides her online status: the reply is the same whether her game is open (the card) or closed (the push)
   }
   if (action === 'ldcancel') { // { id }: the inviter takes it back (one transaction: the invite, the friend's inbox, my pointer)
@@ -552,6 +567,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
     if (out.error) return NO(out.error, out.lobby ? { lobby: out.lobby } : null);
     if (out.refused) return J({ ok: true, refused: true });
     const l = out.l;
+    if (!out.again && clampInt(body.v, 0, 99) >= 3 && LD_RTDB_URL) { const ok = await ldRtRoom(l.id, l.host, uid, now); l.rt = ok ? 1 : 0; l.rtTry = now; try { await db.doc('ldlobby/' + l.id).update(ok ? { rt: 1, rtTry: now } : { rtTry: now }); } catch (e) {} await ldRtSweep(now); } // v0.32.10: the live view's room (outside the transaction)
     if (out.push) { const n = await ldPushTo(out.push.uid, { k: 'ldlobby', n: out.push.n, id: l.id, exp: now + LD_RETURN_MS }); l.pn = Object.assign({}, l.pn, { [out.push.uid]: n }); try { await db.doc(`ldlobby/${l.id}`).update({ ['pn.' + out.push.uid]: n }); } catch (e) {} }
     return J({ ok: true, lobby: ldView(l, uid, now, false) });
   }
@@ -567,7 +583,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
         if (ldEval(l, now, true)) ch = true; me = l.m.find(s => s.uid === uid); // first the removals as they stand: a seat back after its 2:00 is still removed
         if (me && ['wait', 'count'].includes(l.state)) {
           if (body.leave) { me.left = true; me.leftAt = now; ch = true; }
-          else { if (body.act && !me.joined) { me.joined = true; ch = true; } if (me.joined && now - (me.seen || 0) >= LD_SEEN_LOBBY_MS) { me.seen = now; ch = true; }
+          else { if (body.act && !me.joined) { me.joined = true; ch = true; } if (me.joined && now - (me.seen || 0) >= LD_SEEN_LOBBY_MS) { me.seen = now; if (body.rc === 1) me.rc = now; /* v0.32.10: this phone reached RTDB */ ch = true; }
             if (me.joined && now - (me.ps || 0) >= LD_SEEN_WRITE_MS) { me.ps = now; ch = true; pres = true; } // a joined seat keeps the player's presence fresh (the client sends no ldpoll while the lobby is open)
             if (body.v !== undefined && clampInt(body.v, 0, 99) !== (me.v || 0)) { me.v = clampInt(body.v, 0, 99); ch = true; } if (body.pw !== undefined) { const pw = ldPw(body.pw); if (JSON.stringify(pw) !== JSON.stringify(me.pw || [])) { me.pw = pw; ch = true; } }
             if (body.fruit !== undefined) { const f = ldFruit(body.fruit); if (f !== me.fruit) { me.fruit = f; me.rd = 0; ch = true; } } // v0.32.8: another fruit takes Klaar back
@@ -592,6 +608,9 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
     if (out.err === 'otherdevice') return NO('otherdevice');
     if (out.err) return NO('gone', { lobby: out.l ? ldView(out.l, uid, now, false) : null });
     const l = out.l; if (out.went) await statBump({ ldGo: 1 }); // v0.32.8 stats
+    if (LD_RTDB_URL) { const gs = (l.m || []).find(s => s.role === 'guest'); // v0.32.10: the room, retried every 10 s while it is missing (outside the transaction); gone with a closed lobby
+      if (['wait', 'count'].includes(l.state) && !l.res && l.rt !== 1 && gs && l.m.every(s => !s.joined || (s.v || 0) >= 3) && now - (l.rtTry || 0) >= LD_RT_RETRY_MS) { const ok = await ldRtRoom(id, l.host, gs.uid, now); l.rtTry = now; if (ok) l.rt = 1; try { await ref.update(ok ? { rt: 1, rtTry: now } : { rtTry: now }); } catch (e) {} }
+      else if (l.state === 'closed' && l.rt === 1) await ldRtDel(id); }
     for (const p of out.pushes) { const n = await ldPushTo(p.uid, { k: 'ldlobby', n: p.n, id, exp: p.exp }); l.pn = Object.assign({}, l.pn, { [p.uid]: n }); try { await ref.update({ ['pn.' + p.uid]: n }); } catch (e) {} }
     if (out.gone) return NO('gone', { lobby: ldView(l, uid, now, false) });
     return J({ ok: true, lobby: ldView(l, uid, now, out.started) });
@@ -627,7 +646,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
         const m = Object.assign({ go: now, t: 0, s: 0, k0: 0, p: [], at: 0, pAt: 0, dead: false, pz: false, pause: 0, lag: 0, ev: [], fin: null, gh: '', gt: 0 }, x || {}, { expireAt: new Date(now + LD_KEEP_MS) });
         if (!m.go) m.go = now;
         if (action === 'ldend' || now - (m.pAt || 0) >= 1000) { // positions at most once a second (events and the rest in every beat)
-          if (!m.dead || action === 'ldend') { const t = Math.max(m.t || 0, Math.min(clampInt(body.t, 0, LD_RUN_MS + 500), Math.max(0, now - m.go + 3000))); m.t = t; m.s = Math.max(m.s || 0, Math.min(clampInt(body.s, 0, 1e6), Math.floor(t / 1000 * DUEL_MAX_PER_SEC) + 50)); } // only rises, never above 15 sap a second + 50 (like every duel); frozen after the cut
+          if (!m.dead || action === 'ldend') { const t = Math.max(m.t || 0, Math.min(clampInt(body.t, 0, LD_RUN_MS + 500), Math.max(0, now - (l.ar === 1 ? Math.min(m.go, l.startAt || m.go) : m.go) + 3000))); m.t = t; m.s = Math.max(m.s || 0, Math.min(clampInt(body.s, 0, 1e6), Math.floor(t / 1000 * DUEL_MAX_PER_SEC) + 50)); } // only rises, never above 15 sap a second + 50 (like every duel); frozen after the cut
           if (body.p !== undefined) { m.k0 = clampInt(body.k0, 0, 5000); m.p = ldPts(body.p); } m.pAt = now; }
         const e = ldEvents(l, meI, m, body, now); m.ev = e.ev; evr = e;
         m.at = now; m.dead = !!m.dead || !!body.dead; m.pz = !!body.pz; m.pause = Math.max(m.pause || 0, clampInt(body.pause, 0, 65000)); m.lag = clampInt(body.lag, -600000, 600000);
@@ -690,7 +709,7 @@ async function deleteAccount(uid, opt) { // opt { rawUid, dryRun } -> { docs, fi
   if (!uid || String(uid).includes('/')) throw new Error('uid');
   const ids = await delAuthIds(uid, opt.rawUid), mine = new Set(ids), holds = s => typeof s === 'string' && s.split(/[-_]/).some(p => mine.has(p));
   if (!dry) await delCommit(ids.map(id => ['set', db.doc(`devices/${id}`), { gone: true, done: false, of: uid, at: now, expireAt: new Date(now + DEL_TOMB_MS) }])); // first: no other call of this account writes any more
-  const ops = { early: [], late: [], final: [] }, seen = new Map(), partners = new Set(), invIds = new Set(), lobIds = new Set();
+  const ops = { early: [], late: [], final: [] }, seen = new Map(), partners = new Set(), invIds = new Set(), lobIds = new Set(), rtLobs = []; // v0.32.10 rtLobs: lobbies with an RTDB room
   const kill = (ref, kind, where, sure) => { if (seen.has(ref.path)) return; seen.set(ref.path, { ref, kind, where: where || 'early', sure: !!sure }); };
   const other = p => { if (typeof p === 'string' && p && !p.includes('/') && !mine.has(p)) partners.add(p); };
   // scanned once for every id: the days of the old day duel, the tournament groups, the paid pairs (ids only) and the refusals
@@ -727,7 +746,7 @@ async function deleteAccount(uid, opt) { // opt { rawUid, dryRun } -> { docs, fi
     if (p) kill(pref, 'profile', 'final', true);
   }
   { const ls = [...lobIds].filter(Boolean), docs = ls.length ? await db.getAll(...ls.map(id => db.doc(`ldlobby/${id}`))) : []; // the lobbies: every seat's live document, then the lobby
-    for (const s of docs) { if (!s.exists) continue; const l = s.data() || {}; for (const m of (l.m || []).concat(l.kicked || [])) other(m && m.uid);
+    for (const s of docs) { if (!s.exists) continue; const l = s.data() || {}; if (l.rt === 1) rtLobs.push(s.id); for (const m of (l.m || []).concat(l.kicked || [])) other(m && m.uid);
       for (const d of (await db.collection(`ldlobby/${s.id}/live`).get()).docs) kill(d.ref, 'live', 'early', true); kill(s.ref, 'live', 'early', true); } }
   const maybe = [...seen.values()].filter(x => !x.sure), have = await delExisting(maybe.map(x => x.ref));
   for (const x of seen.values()) if (x.sure || have.has(x.ref.path)) { ops[x.where].push(['del', x.ref]); cnt.kinds[x.kind] = (cnt.kinds[x.kind] || 0) + 1; cnt.docs++; }
@@ -744,6 +763,7 @@ async function deleteAccount(uid, opt) { // opt { rawUid, dryRun } -> { docs, fi
   if (dry) { cnt.auth = ids.length; return cnt; }
   await delCommit(upd.concat(ops.early, ops.late, ops.final), cnt);
   for (const id of ids) { try { await admin.auth().deleteUser(id); cnt.auth++; } catch (e) { const c = e && (e.code || (e.errorInfo && e.errorInfo.code)); if (c !== 'auth/user-not-found') throw e; } } // a missing user is deleted already
+  await Promise.all(rtLobs.map(ldRtDel)); // v0.32.10: the live view's rooms, after the auth deletion, in parallel, 3 s at most (errors ignored, not counted in the report)
   await delCommit(ids.map(id => ['set', db.doc(`devices/${id}`), { gone: true, done: true, at: now, expireAt: new Date(now + DEL_TOMB_MS) }])); // done: no uid any more, only the flag
   return cnt;
 }
@@ -773,6 +793,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       const now = Date.now(), p = mine.data() || {}, notes = (Array.isArray(p.notes) ? p.notes.length : 0) + (Array.isArray(p.pending) ? p.pending.length : 0);
       if (p.code && !p.firstMs) { const f = await ldFirstMs(uid, now); if (f) await db.doc(`profiles/${uid}`).set({ firstMs: f }, { merge: true }); } // v0.32.5: the account's age from Firebase Auth, once
       if (p.lastStatDay !== statDay(now)) await statActive(uid, body.pf); // v0.32.8 stats: active today (pf app / web)
+      await ldRtSweep(now); // v0.32.10: old RTDB rooms (throttled: once per 10 min per instance, 3 s at most)
       const vk = ldVapid(), wp = !!(vk && ldWebPush); res.json({ ok: true, v: SERVER_V, caps: CAPS.concat(['live'], wp ? ['push'] : [], LD_POWERS.length ? ['ldpow'] : []), vapid: wp ? vk.publicKey : '', ...nmFlagOf(p), inbox: { req: rin.length, duel: cin.docs.filter(d => (d.data().expires || 0) > now).length, notes } });
     } else if (action === 'submit') { // { ev, score, seconds, level, division, name }
       const ev = String(body.ev); if (!EVENTS.includes(ev) || ev !== eventOfWeek(week)) { res.status(400).json({ error: 'event' }); return; } await ldMark(uid); // v0.32.5: a played day (counted friend-duel wins need an active loser)

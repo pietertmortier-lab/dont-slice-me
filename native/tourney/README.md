@@ -280,3 +280,29 @@ Google Play's rules for user-generated content: a name filter, a way to report a
   (`GOOGLE_APPLICATION_CREDENTIALS`) or `gcloud auth application-default login`: `node tools/reports.cjs list` (open reports and every hidden name, once a week), then
   `approve <who> --yes`, `rename <who> --yes` or `clear <who> --yes` (`<who>`: friend code, search handle, uid or exact name; without
   `--yes` a dry run).
+
+## v0.32.10 live view and shared arena
+
+A live friend duel shows the friend's fruit from a Firebase Realtime Database stream (15 times a second, about 0.2 s behind instead of
+about 5 s). The beats every 3 s, `ldend`, `ldres`, the score caps, the settle and the counted wins are unchanged: RTDB is display only.
+
+- Database: `https://dont-slice-me-default-rtdb.europe-west1.firebasedatabase.app` (Belgium, created 11 Nov 2026 in locked mode).
+  Deploy everything with `firebase deploy --only functions,firestore,database` (or `npm run deploy`): the `"database"` entry in
+  `firebase.json` uploads `database.rules.json`. No new index, secret or npm package (`firebase-admin` contains the database client).
+- Room `/ld/{lobbyId}` = `{ c: created ms, m: { hostUid: 0, guestUid: 1 } }`, written only by this function: when `ldanswer` creates a
+  lobby and the guest's client sends `v >= 3`; retried by `ldlobby` every 10 s while it is missing (lobby field `rt: 1` when it exists,
+  `rtTry` = the last try). Deleted when the result is written (`ldSettle`), when a lobby closes, by the account deletion, and by a
+  sweep (rooms older than 1 h, 20 at a time, at most every 10 minutes per instance, on `hello`, `ldinvite` and `ldanswer`).
+- The rules (`database.rules.json`) let a signed-in member of a room read that room and write only his own `on/{uid}` (a number:
+  presence), `k/{uid}` (the lobby pick `fruit|0/1`, at most 24 characters) and `p/{uid}` (the live sample string, at most 128
+  characters). Everything else, `c` and `m` included, is denied to every client.
+- Seat field `rc`: the last `ldlobby` call (with the `seen` refresh, so no extra writes) whose body said `rc: 1` (that phone's presence
+  write was acknowledged). At go the lobby gets `ar` once: 1 when both seats run `v >= 3`, both `rc` are at most 10 s old and the room
+  exists; otherwise 0, and both phones play the v0.32.9 duel. `ldView` has `v: 3`, `rt` (1 when the room exists and both seats joined on `v >= 3`; only then does a phone open the room), `ar` (older clients ignore them).
+- Every RTDB call of the function gives up after 3 s (`LD_RT_T_MS`) and only logs: a slow or unreachable database never blocks
+  an invite, a lobby, a result or an account deletion. The function opens the database with `getDatabaseWithUrl(LD_RTDB_URL)`.
+- The sweep also runs on `hello`, so a leftover room goes at the next server activity after one hour.
+- An arena seat (`ar: 1`) that starts late keeps its full time: its time clamp counts from `startAt`, not from its first beat.
+- Switches in `index.js`, each followed by a redeploy of the function, no app update needed:
+  - `LD_AR_OK = false`: no shared arena; the live view (RTDB) stays.
+  - `LD_RTDB_URL = ''`: everything off: no live view, no arena, no RTDB call at all (the full v0.32.9 duel).

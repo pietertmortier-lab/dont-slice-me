@@ -58,6 +58,39 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.10: het live vriendenduel op één gedeeld veld (stap A)
+
+Eerst de server bijwerken, in `native/tourney`: `firebase deploy --only functions,firestore,database` (of `npm run deploy`).
+Dat zet ook de regels van de Realtime Database online (`database.rules.json`). Daarna de nieuwe app-versie (versionCode 4,
+versionName 0.32.10). Testen: `TESTLIJST-v0.32.10.md`.
+
+- **Je vriend live.** Spelen jullie allebei met 0.32.10, dan zie je het fruit van je vriend bijna zonder vertraging
+  (ongeveer 0,2 seconde in plaats van 5 seconden). Een bolletje naast de liveregel zegt hoe goed de verbinding is:
+  groen live, oranje "verbinding zwak", grijs "vertraagd" (dan ziet het eruit zoals vroeger).
+- **Eén klok, één veld.** Beide telefoons spelen op dezelfde duelklok en op hetzelfde speelveld, passend gemaakt op elk
+  scherm (een smal of breed scherm krijgt een rand). Een telefoon die later start, springt meteen naar het juiste moment.
+- **Dezelfde messen, klontjes en bonussen.** Op beide telefoons komen dezelfde messen, suikerklontjes en bonussymbolen
+  (schild, magneet, dubbel sap, krimp; de vork op level 10) op hetzelfde moment op dezelfde plaats. De messen mikken op
+  de klontjes en de speelband, niet op jou (daardoor is het duel in stap A ongeveer twee keer makkelijker en eindigen twee
+  even goede spelers vaak bijna gelijk; zie de testlijst). Geen vertraagde tijd, geen Fever-vertraging en geen level-ups in het duel.
+- **Ieder pakt zijn eigen klontjes.** Een klontje dat je vriend pakte, blijft op jouw scherm staan tot het weggaat.
+  Klontjes afpakken, messen die om de beurt op jou mikken en bonussen in duelvorm komen pas in stap B.
+- **Fruittrucs die messen of klontjes veranderen**, werken niet op het gedeelde veld; het fruitkaartje in de lobby zegt
+  welke (onder andere Appel, Citroen, Kiwi, Druif, Banaan, Durian, Watermeloen, Mandarijn en Pruim).
+- **Pauze.** Het duel loopt door terwijl je pauzeert; je fruit is zo lang veilig en verborgen voor je vriend. Na de pauze
+  is het nog ongeveer 0,3 seconde veilig; een mes dat daarna nog over je fruit gaat, raakt je wel.
+- **Verborgen controle.** Tik 5 keer snel op de duelklok bovenaan: onderaan verschijnt de duelklok (wt), een veldcode en
+  de nummers van de klontjes, bonussen en messen. Leg twee telefoons naast elkaar: dezelfde code en nummers op hetzelfde
+  moment. Nog eens 5 tikken zet het weg.
+- **Altijd een duel.** Heeft een van jullie een oudere app, lukt de verbinding met de database niet, of staat de
+  noodschakelaar uit, dan spelen jullie gewoon het duel van 0.32.9. Solo, toernooi, openbare duels en uitdagingen van
+  24 uur blijven precies hetzelfde.
+- **Noodschakelaars**, in `native/tourney/index.js`, daarna de functie opnieuw deployen (geen nieuwe app nodig):
+  `LD_AR_OK = false` zet alleen het gedeelde veld uit (het live beeld blijft); `LD_RTDB_URL = ''` zet alles uit (geen live
+  beeld, geen gedeeld veld, geen verbinding met de Realtime Database): elk nieuw duel speelt dan precies zoals in 0.32.9.
+- **Privacy.** Het privacybeleid (punt 6a, 8, 13 en 14) beschrijft het live beeld: wat er verstuurd wordt, wie het ziet,
+  waar het staat (België) en wanneer het gewist wordt.
+
 ## Nieuw in v0.32.9: account verwijderen, melden en blokkeren, Plus via Google Play, eerlijke duels en uitnodigen via Google Play
 
 Eerst de server bijwerken (`firebase deploy --only functions,firestore` in `native/tourney`), daarna de nieuwe app-versie

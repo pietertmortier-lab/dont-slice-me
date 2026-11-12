@@ -1,12 +1,13 @@
 // Don't Slice Me! service worker: the page itself is fetched network-first (so a new version shows up on the next
 // visit) and falls back to the cached copy offline; icons, the manifest and fonts are cached on first use.
 // Other pages (privacy.html, voorwaarden.html, stats.html) are network-first as well and fall back to their own cached copy (v0.32.8).
-const CACHE = 'dontsliceme-v0.32.9';
+const CACHE = 'dontsliceme-v0.32.10';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const req = e.request; if (req.method !== 'GET') return;
+  try { const hn = new URL(req.url).hostname; if (/\.firebasedatabase\.app$|\.firebaseio\.com$/.test(hn)) return; } catch (x) {} // v0.32.10: the live view's database (its long-poll fallback uses GET scripts) is never cached
   if (req.destination === 'audio' || req.destination === 'video' || req.headers.has('range')) return; // music streams straight from the network (partial responses cannot be cached)
   const nav = req.mode === 'navigate' || req.destination === 'document';
   // v0.32.8 navigations: only the game itself (the scope root, also with a query, or index.html) falls back to the cached game; any other page

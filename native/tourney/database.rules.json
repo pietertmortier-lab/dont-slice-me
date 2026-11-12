@@ -1,0 +1,17 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "ld": {
+      ".indexOn": ["c"],
+      "$room": {
+        ".read": "auth != null && data.child('m').child(auth.uid).exists()",
+        "c": { ".write": false },
+        "m": { ".write": false },
+        "on": { "$uid": { ".write": "auth != null && auth.uid === $uid && root.child('ld').child($room).child('m').child($uid).exists()", ".validate": "!newData.exists() || newData.isNumber()" } },
+        "k":  { "$uid": { ".write": "auth != null && auth.uid === $uid && root.child('ld').child($room).child('m').child($uid).exists()", ".validate": "newData.isString() && newData.val().length <= 24" } },
+        "p":  { "$uid": { ".write": "auth != null && auth.uid === $uid && root.child('ld').child($room).child('m').child($uid).exists()", ".validate": "newData.isString() && newData.val().length <= 128" } }
+      }
+    }
+  }
+}

@@ -170,7 +170,7 @@ privacybeleid noemt nu eerst die knop en daarna de mail. Een verzoek per mail vo
 | Persoonlijke info > **Gebruikers-ID's** | Ja | Nee | Verplicht | App-functionaliteit, Accountbeheer, Fraudepreventie | Anoniem Firebase-id, vriendencode, anoniem aankoop-id van RevenueCat |
 | Locatie > **Geschatte locatie** | Ja | Ja (Google AdMob) | Verplicht | Advertenties of marketing, Analyse, Fraudepreventie | AdMob leidt een ruwe locatie af uit het IP-adres. Onze eigen server bewaart geen IP-adres (alleen een onomkeerbare code ervan, tegen misbruik). |
 | Financiële info > **Aankoopgeschiedenis** | Ja | Nee | Verplicht (zo raadt RevenueCat het aan: de software verzamelt het altijd) | App-functionaliteit, Analyse | Google Play en RevenueCat (aankopen herstellen, Plus). Sinds v0.32.9 meldt de app ook welk product je kocht aan onze eigen server, die het alleen optelt in dagtotalen (niet per speler bewaard); voor dat deel mag "tijdelijk verwerkt" aan |
-| App-activiteit > **App-interacties** | Ja | Ja (Google AdMob: interacties met advertenties) | Verplicht | App-functionaliteit, Advertenties of marketing, Analyse, Fraudepreventie | Je voortgang en profiel (level, record, fruit, keuken, dagreeks, divisie, scores), duels en schimmen, live-duelposities, online-bolletje; sinds v0.32.9 ook meldingen van namen (wie meldde wie, met welke reden: een keuze, geen vrije tekst) en je lijst met geblokkeerde spelers; bij AdMob: welke advertentie je zag of aantikte |
+| App-activiteit > **App-interacties** | Ja | Ja (Google AdMob: interacties met advertenties) | Verplicht | App-functionaliteit, Advertenties of marketing, Analyse, Fraudepreventie | Je voortgang en profiel (level, record, fruit, keuken, dagreeks, divisie, scores), duels en schimmen, live-duelposities (sinds v0.32.10 ook ongeveer 15 keer per seconde via de Firebase Realtime Database in België, gewist na het duel), online-bolletje; sinds v0.32.9 ook meldingen van namen (wie meldde wie, met welke reden: een keuze, geen vrije tekst) en je lijst met geblokkeerde spelers; bij AdMob: welke advertentie je zag of aantikte |
 | App-activiteit > **Zoekgeschiedenis in de app** | Ja | Nee | Optioneel | App-functionaliteit | Zoeken op spelersnaam bij Vrienden. Bij "tijdelijk verwerkt": **Ja** (de server zoekt met de zoekterm en bewaart hem niet) |
 | App-activiteit > **Andere door gebruikers gemaakte content** | Nee | | | | (niet aanvinken: er is geen chat of vrije tekst behalve de naam, die staat al bij Naam) |
 | App-info en prestaties > **Crashlogs** | Ja | Ja (Google AdMob) | Verplicht | Advertenties of marketing, Analyse, Fraudepreventie | De AdMob-software (Google noemt crashlogs bij de diagnostische gegevens van de Mobile Ads SDK) |
@@ -180,6 +180,11 @@ privacybeleid noemt nu eerst die knop en daarna de mail. Een verzoek per mail vo
 Niet aanvinken (het spel doet dit niet): e-mailadres, adres, telefoonnummer, nauwkeurige locatie, betaalgegevens
 (Google regelt het betalen), contacten, berichten, foto's, video's, audio, bestanden, agenda, gezondheid,
 webgeschiedenis, geïnstalleerde apps.
+
+v0.32.10 (het live beeld in het vriendenduel, via de Firebase Realtime Database) verandert niets aan deze antwoorden: het
+is de plaats van je fruit op het speelveld (geen locatie van je toestel) en je score, het valt onder App-interacties,
+Firebase werkt in onze opdracht (geen delen), het gaat versleuteld over https en het wordt gewist na het duel. Het
+privacybeleid (punt 6a, 8, 13 en 14) beschrijft het; de link blijft dezelfde.
 
 Uitleg bij "verzameld" en "gedeeld":
 - *Verzameld* = de gegevens verlaten het toestel (naar onze server, Firebase, RevenueCat of Google).

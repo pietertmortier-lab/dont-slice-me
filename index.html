@@ -2811,6 +2811,220 @@ const weekNum = t => parseInt(weekKey(t).split('-W')[1], 10);
 // Gameplay randomness goes through R so the daily knife and the weekend games can replay the same sequence.
 function mulberry(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const hashStr = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+/* ARENA-WORLD BEGIN */
+// v0.32.10 shared arena, Stap A: the shared world of a live friend duel as one pure, deterministic module.
+// The same bytes run in the game (index.html) and in Node (native/tourney/arena-world.js); patch-v03210-arena-world.py
+// writes both from tools/v03210/arena-world.src.js. Knives, sugar cubes, bonus symbols and the fork come from seeded
+// streams, one per system and one per object, and every position is a closed-form function of the world time wt (ms
+// since the duel's startAt). Nothing here reads the game: no randomness of the game, no player, no clock, no frame dt.
+// Board units: 360 x 720. Geometry leaves the module rounded to 0.01 units.
+const ARENA = (() => {
+  'use strict';
+  const VERSION = 'A1', PI = Math.PI, TAU = 2 * Math.PI;
+  const deepFreeze = o => { for (const k of Object.keys(o)) if (o[k] && typeof o[k] === 'object') deepFreeze(o[k]); return Object.freeze(o); };
+  const P = deepFreeze({
+    AW: 360, AH: 720, RUN: 90000,
+    // knives (the k-stream of the v0.32.9 live duel at level 10, on wt)
+    K_FIRST: 2000, K_INT: 2100.1, K_RAMP: 0.2, K_RAMP_MS: 60000, K_JIT: [0.78, 1.22],
+    TELE0: 1246, TELE_RAMP: 0.12, TELE_RAMP_MS: 60000, DUR: 272.8,
+    TWO_AT: 45000, TWO_W2: 20000, CROSS_DELAY: 170, DOUBLE_DELAY: 130, DOUBLE_OFF: [0.5, 2.6],
+    J: 7, LINE_M: 50, AIM_ITEM: 0.7, KEEP_DONE: 260,
+    ITEM_BOX: { x: [24, 336], y: [96, 700] }, BAND: { x: [60, 300], y: [260, 640] }, RANDOM_BOX: { x: [40, 320], y: [60, 660] },
+    // sugar cubes
+    C_FIRST: 1500, C_INT: [2600, 4200], C_RATE: 0.6, C_LVL: 0.9505, C_GOLD: 0.1635, C_SPEED: [34, 46],
+    C_MARGIN: 24, C_OFF: 34, C_R: 11, C_R_GOLD: 14, C_WOB: 12, C_WOB_T: 600, C_ROT: 0.0004, C_CAP: 10, C_MIN_LIFE: 1500,
+    // bonus symbols
+    B_FIRST: [8000, 14000], B_GAP: [10000, 16000], B_KINDS: ['schild', 'magneet', 'dubbel', 'klein'], B_SPEED: 28 / 1.1125,
+    B_R: 17, B_MARGIN: 30, B_OFF: 40, B_WOB: 14, B_WOB_T: 700, B_MIN_LIFE: 1500,
+    // the fork (vork), the only hazard at level 10
+    H_FIRST: 14000, H_GAP: 15500, H_GAP_JIT: [0.8, 1.3], VORK_TELE: 1800, VORK_DUR: 350, VORK_FADE: 500, VORK_R: 12, VORK_JIT: 6,
+  });
+  // Identical algorithms to the game's mulberry / hashStr.
+  function mulberry(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  const hashStr = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+  const rng = (seed, sys, i) => mulberry(hashStr(seed + ':' + sys + ':' + i));
+  const draws = (g, n) => { const a = new Array(n); for (let k = 0; k < n; k++) a[k] = g(); return a; }; // a fixed number of draws per object
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const r2 = v => Math.round(v * 100) / 100;     // geometry and times: 0.01
+  const r6 = v => Math.round(v * 1e6) / 1e6;     // unit vectors
+  const r4 = v => Math.round(v * 1e4) / 1e4;     // angles
+  const hex8 = h => ('0000000' + (h >>> 0).toString(16)).slice(-8);
+  const inBox = (b, x, y) => x >= b.x[0] && x <= b.x[1] && y >= b.y[0] && y <= b.y[1];
+  // Entering from a side, like the game's edgeSpawn on a 360 x 720 board: side 0 top, 1 bottom, 2 left, 3 right.
+  function edge(p, side, along, v, m) {
+    if (side === 0) return { x0: r2(30 + (p.AW - 60) * along), y0: -m, vx: 0, vy: v };
+    if (side === 1) return { x0: r2(30 + (p.AW - 60) * along), y0: p.AH + m, vx: 0, vy: -v };
+    if (side === 2) return { x0: -m, y0: r2(90 + (p.AH - 130) * along), vx: v, vy: 0 };
+    return { x0: p.AW + m, y0: r2(90 + (p.AH - 130) * along), vx: -v, vy: 0 };
+  }
+  // ---- closed-form positions
+  function cubePos(c, wt) {
+    const tau = wt - c.t0, w = c.wob * (Math.cos(c.ph) - Math.cos(tau / c.wobT + c.ph));
+    let x = c.x0 + c.vx * tau / 1000, y = c.y0 + c.vy * tau / 1000;
+    if (c.vx) y += w; else x += w;
+    return { x: r2(x), y: r2(y), rot: r4(c.rot0 + c.rotV * tau) };
+  }
+  function bonusPos(b, wt) {
+    const tau = wt - b.t0, w = b.wob * (1 - Math.cos(tau / b.wobT));
+    let x = b.x0 + b.vx * tau / 1000, y = b.y0 + b.vy * tau / 1000;
+    if (b.vx) y += w; else x += w;
+    return { x: r2(x), y: r2(y) };
+  }
+  function bladeAt(bl, wt) {
+    const phase = wt < bl.tCut ? 'tele' : wt < bl.tEnd ? 'cut' : 'done', prog = clamp((wt - bl.tCut) / bl.dur, 0, 1);
+    return { phase, prog: r6(prog), x: r2(bl.ax + (bl.bx - bl.ax) * prog), y: r2(bl.ay + (bl.by - bl.ay) * prog) };
+  }
+  // The game's lineThrough on the board, margin LINE_M; flip < .5 swaps the ends.
+  function line(p, x, y, a, flip) {
+    const dx = Math.cos(a), dy = Math.sin(a), m = p.LINE_M;
+    const tx1 = (-m - x) / dx, tx2 = (p.AW + m - x) / dx, ty1 = (-m - y) / dy, ty2 = (p.AH + m - y) / dy;
+    const tmin = Math.max(Math.min(tx1, tx2), Math.min(ty1, ty2)), tmax = Math.min(Math.max(tx1, tx2), Math.max(ty1, ty2));
+    let ax = r2(x + dx * tmin), ay = r2(y + dy * tmin), bx = r2(x + dx * tmax), by = r2(y + dy * tmax);
+    if (flip < 0.5) { const tx = ax, ty = ay; ax = bx; ay = by; bx = tx; by = ty; }
+    const len = Math.hypot(bx - ax, by - ay) || 1, ux = r6((bx - ax) / len), uy = r6((by - ay) / len);
+    return { ax, ay, bx, by, ux, uy, nx: -uy, ny: ux, len: r2(len) };
+  }
+  // Items on the board at time t inside ITEM_BOX: cubes (by i), then bonus symbols (by i).
+  function itemsAt(p, cubes, bonus, t) {
+    const out = [];
+    for (const c of cubes) if (!c.skip && c.t0 <= t && t < c.tEnd) { const q = cubePos(c, t); if (inBox(p.ITEM_BOX, q.x, q.y)) out.push({ id: c.id, x: q.x, y: q.y }); }
+    for (const b of bonus) if (b.t0 <= t && t < b.tEnd) { const q = bonusPos(b, t); if (inBox(p.ITEM_BOX, q.x, q.y)) out.push({ id: b.id, x: q.x, y: q.y }); }
+    return out;
+  }
+  // ---- the schedule: everything that will happen in the duel, from the seed alone
+  function schedule(seed, params) {
+    const p = params ? Object.assign({}, P, params) : P, sd = String(seed);
+    // sugar cubes ('ac'): 7 draws each: gap, gold, speed, side, along, rot0, ph
+    const cubes = [];
+    for (let i = 0, cAt = p.C_FIRST; cAt < p.RUN; i++) {
+      const r = draws(rng(sd, 'ac', i), 7), t0 = r2(cAt);
+      cAt += (p.C_INT[0] + (p.C_INT[1] - p.C_INT[0]) * r[0]) * p.C_RATE * p.C_LVL;
+      const gold = r[1] < p.C_GOLD, v = p.C_SPEED[0] + (p.C_SPEED[1] - p.C_SPEED[0]) * r[2], side = Math.floor(4 * r[3]), e = edge(p, side, r[4], v, p.C_MARGIN);
+      const dist = (side < 2 ? p.AH : p.AW) + p.C_MARGIN + p.C_OFF, tEnd = r2(t0 + Math.max(p.C_MIN_LIFE, 1000 * dist / v));
+      let live = 0; for (const c of cubes) if (!c.skip && c.tEnd > t0) live++;
+      cubes.push({ i, id: 'c' + i, t0, tEnd, x0: e.x0, y0: e.y0, vx: e.vx, vy: e.vy, ph: r[6] * TAU, wob: p.C_WOB * p.C_WOB_T / 1000, wobT: p.C_WOB_T,
+        rot0: -0.3 + 0.6 * r[5], rotV: p.C_ROT, r: gold ? p.C_R_GOLD : p.C_R, gold, skip: live >= p.C_CAP });
+    }
+    // bonus symbols ('ab'): 4 draws each: gap, kind, side, along
+    const bonus = [];
+    for (let i = 0, t0 = 0; ; i++) {
+      const r = draws(rng(sd, 'ab', i), 4);
+      t0 = i === 0 ? p.B_FIRST[0] + (p.B_FIRST[1] - p.B_FIRST[0]) * r[0] : t0 + p.B_GAP[0] + (p.B_GAP[1] - p.B_GAP[0]) * r[0];
+      if (t0 >= p.RUN) break;
+      const kind = p.B_KINDS[Math.floor(p.B_KINDS.length * r[1])], side = Math.floor(4 * r[2]), e = edge(p, side, r[3], p.B_SPEED, p.B_MARGIN);
+      const dist = (side < 2 ? p.AH : p.AW) + p.B_MARGIN + p.B_OFF;
+      bonus.push({ i, id: 'b' + i, kind, t0: r2(t0), tEnd: r2(t0 + Math.max(p.B_MIN_LIFE, 1000 * dist / p.B_SPEED)), x0: e.x0, y0: e.y0, vx: e.vx, vy: e.vy,
+        wob: p.B_WOB * p.B_WOB_T / 1000, wobT: p.B_WOB_T, r: p.B_R });
+    }
+    // knives ('ak'): 16 draws each: gap, kind, angle, item-or-band, item index, band x/y, random x/y, double offset,
+    // blade 0 flip/jx/jy, blade 1 flip/jx/jy. Aimed patterns aim at the sugar (a cube or bonus symbol on the board when
+    // the first blade sweeps) or at the play band, never at a fruit.
+    const patterns = [], blades = [];
+    for (let i = 0, kAt = p.K_FIRST; kAt < p.RUN; i++) {
+      const r = draws(rng(sd, 'ak', i), 16), T = r2(kAt), kk = clamp(T / p.K_RAMP_MS, 0, 1), kt = clamp(T / p.TELE_RAMP_MS, 0, 1);
+      kAt += p.K_INT * (1 - p.K_RAMP * kk) * (p.K_JIT[0] + (p.K_JIT[1] - p.K_JIT[0]) * r[0]);
+      const pool = ['aim', 'aim', 'random'];
+      if (T >= p.TWO_AT) { const w = T - p.TWO_AT > p.TWO_W2 ? 2 : 1; for (let n = 0; n < w; n++) pool.push('cross', 'double'); }
+      const kind = pool[Math.floor(r[1] * pool.length)], a = r[2] * PI, tele = r2(p.TELE0 * (1 - p.TELE_RAMP * kt)), dur = p.DUR;
+      let aim;
+      if (kind === 'random') aim = { x: r2(p.RANDOM_BOX.x[0] + (p.RANDOM_BOX.x[1] - p.RANDOM_BOX.x[0]) * r[7]), y: r2(p.RANDOM_BOX.y[0] + (p.RANDOM_BOX.y[1] - p.RANDOM_BOX.y[0]) * r[8]), src: 'random' };
+      else {
+        const cand = itemsAt(p, cubes, bonus, T + tele);
+        if (cand.length && r[3] < p.AIM_ITEM) { const c = cand[Math.floor(r[4] * cand.length)]; aim = { x: c.x, y: c.y, src: c.id }; }
+        else aim = { x: r2(p.BAND.x[0] + (p.BAND.x[1] - p.BAND.x[0]) * r[5]), y: r2(p.BAND.y[0] + (p.BAND.y[1] - p.BAND.y[0]) * r[6]), src: 'band' };
+      }
+      const jit = v => -p.J + 2 * p.J * v, spec = [];
+      if (kind === 'random') spec.push([aim.x, aim.y, a, 0]);
+      else spec.push([aim.x + jit(r[11]), aim.y + jit(r[12]), a, 0]);
+      if (kind === 'cross') spec.push([aim.x + jit(r[14]), aim.y + jit(r[15]), a + PI / 2, p.CROSS_DELAY]);
+      if (kind === 'double') spec.push([aim.x + jit(r[14]), aim.y + jit(r[15]), a + p.DOUBLE_OFF[0] + (p.DOUBLE_OFF[1] - p.DOUBLE_OFF[0]) * r[9], p.DOUBLE_DELAY]);
+      const pat = { i, id: 'k' + i, T, kind, aim, blades: [] };
+      spec.forEach((s, b) => {
+        const g = line(p, s[0], s[1], s[2], r[b === 0 ? 10 : 13]), tWarn = r2(T + s[3]), tCut = r2(tWarn + tele), tEnd = r2(tCut + dur);
+        const bl = Object.assign({ id: 'k' + i + '.' + b, pat: i, b, kind }, g, { tWarn, tCut, tEnd, tele, dur, tGone: r2(tEnd + p.KEEP_DONE) });
+        pat.blades.push(bl); blades.push(bl);
+      });
+      patterns.push(pat);
+    }
+    // the fork ('ah'): 7 draws each: gap, item-or-band, item index, band x/y, jitter x/y. It stabs at an item or the band.
+    const hazards = [], life = p.VORK_TELE + p.VORK_DUR + p.VORK_FADE;
+    for (let i = 0, hAt = p.H_FIRST; hAt < p.RUN; i++) {
+      const r = draws(rng(sd, 'ah', i), 7), t0 = r2(hAt);
+      hAt = t0 + life + p.H_GAP * (p.H_GAP_JIT[0] + (p.H_GAP_JIT[1] - p.H_GAP_JIT[0]) * r[0]);
+      const cand = itemsAt(p, cubes, bonus, t0 + p.VORK_TELE); let x, y, src;
+      if (cand.length && r[1] < p.AIM_ITEM) { const c = cand[Math.floor(r[2] * cand.length)]; x = c.x; y = c.y; src = c.id; }
+      else { x = p.BAND.x[0] + (p.BAND.x[1] - p.BAND.x[0]) * r[3]; y = p.BAND.y[0] + (p.BAND.y[1] - p.BAND.y[0]) * r[4]; src = 'band'; }
+      const j = p.VORK_JIT;
+      hazards.push({ i, id: 'h' + i, kind: 'vork', t0, tele: p.VORK_TELE, dur: p.VORK_DUR, fade: p.VORK_FADE, tGone: r2(t0 + life),
+        x: r2(x - j + 2 * j * r[5]), y: r2(y - j + 2 * j * r[6]), r: p.VORK_R, src });
+    }
+    let mc = 0, mb = 0, mk = 0, mh = 0;
+    for (const c of cubes) mc = Math.max(mc, c.tEnd - c.t0);
+    for (const b of bonus) mb = Math.max(mb, b.tEnd - b.t0);
+    for (const b of blades) mk = Math.max(mk, b.tGone - b.tWarn);
+    for (const z of hazards) mh = Math.max(mh, z.tGone - z.t0);
+    return { version: VERSION, seed: sd, p, cubes, bonus, patterns, blades, hazards, maxLife: { c: r2(mc), b: r2(mb), k: r2(mk), h: r2(mh) } };
+  }
+  // ---- the state at wt
+  const LISTS = [['cubes', 't0', 'c'], ['bonus', 't0', 'b'], ['blades', 'tWarn', 'k'], ['hazards', 't0', 'h']];
+  const lowerBound = (a, key, v) => { let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (a[m][key] < v) lo = m + 1; else hi = m; } return lo; }; // first index with a[i][key] >= v
+  const upperBound = (a, key, v) => { let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (a[m][key] <= v) lo = m + 1; else hi = m; } return lo; }; // first index with a[i][key] > v
+  const fixWt = wt => (typeof wt === 'number' && wt === wt) ? wt : 0;
+  const knivesAt = wt => wt >= P.TWO_AT ? 2 : 1;
+  function build(w, wt, lo, hi) {
+    const S = { wt, knives: wt >= w.p.TWO_AT ? 2 : 1, cubes: [], bonus: [], blades: [], hazards: [] };
+    for (let n = lo[0]; n < hi[0]; n++) { const c = w.cubes[n]; if (c.skip || wt >= c.tEnd) continue; const q = cubePos(c, wt); S.cubes.push({ id: c.id, i: c.i, x: q.x, y: q.y, r: c.r, gold: c.gold, rot: q.rot, t: r2(wt - c.t0) }); }
+    for (let n = lo[1]; n < hi[1]; n++) { const b = w.bonus[n]; if (wt >= b.tEnd) continue; const q = bonusPos(b, wt); S.bonus.push({ id: b.id, i: b.i, kind: b.kind, x: q.x, y: q.y, r: b.r, t: r2(wt - b.t0), vx: b.vx, vy: b.vy }); }
+    for (let n = lo[2]; n < hi[2]; n++) {
+      const bl = w.blades[n]; if (wt >= bl.tGone) continue; const q = bladeAt(bl, wt);
+      S.blades.push({ id: bl.id, pat: bl.pat, kind: bl.kind, phase: q.phase, t: r2(wt - bl.tWarn), prog: q.prog, bladeX: q.x, bladeY: q.y, ax: bl.ax, ay: bl.ay, bx: bl.bx, by: bl.by,
+        ux: bl.ux, uy: bl.uy, nx: bl.nx, ny: bl.ny, len: bl.len, tele: bl.tele, dur: bl.dur, tWarn: bl.tWarn, tCut: bl.tCut, tEnd: bl.tEnd });
+    }
+    for (let n = lo[3]; n < hi[3]; n++) {
+      const z = w.hazards[n]; if (wt >= z.tGone) continue; const t = wt - z.t0, phase = t < z.tele ? 'tele' : t < z.tele + z.dur ? 'on' : 'done';
+      S.hazards.push({ id: z.id, kind: z.kind, phase, t: r2(t), x: z.x, y: z.y, r: z.r, tele: z.tele, dur: z.dur, fadeLeft: phase === 'done' ? r2(z.tGone - wt) : z.fade });
+    }
+    return S;
+  }
+  function stateAt(w, wt) {
+    wt = fixWt(wt); const lo = [], hi = [];
+    LISTS.forEach(([name, key, ml], n) => { const a = w[name]; lo[n] = lowerBound(a, key, wt - w.maxLife[ml]); hi[n] = upperBound(a, key, wt); });
+    return build(w, wt, lo, hi);
+  }
+  // An incremental cursor: moving forward only advances two indices per list; going back starts over.
+  function stepper(w) {
+    let lo = [0, 0, 0, 0], hi = [0, 0, 0, 0], last = -Infinity;
+    const st = {
+      wt: 0,
+      stepTo(wt) {
+        wt = fixWt(wt); if (wt < last) { lo = [0, 0, 0, 0]; hi = [0, 0, 0, 0]; }
+        LISTS.forEach(([name, key, ml], n) => {
+          const a = w[name], from = wt - w.maxLife[ml];
+          while (lo[n] < a.length && a[lo[n]][key] < from) lo[n]++;
+          if (hi[n] < lo[n]) hi[n] = lo[n];
+          while (hi[n] < a.length && a[hi[n]][key] <= wt) hi[n]++;
+        });
+        last = wt; st.wt = wt; return build(w, wt, lo, hi);
+      },
+    };
+    return st;
+  }
+  // ---- fingerprints (Pieter's overlay and the tests)
+  function canon(S) {
+    let s = String(Math.floor(S.wt)) + '|c';
+    for (const c of S.cubes) s += c.id + ',' + Math.round(c.x) + ',' + Math.round(c.y) + ';';
+    s += '|b'; for (const b of S.bonus) s += b.id + ',' + b.kind + ',' + Math.round(b.x) + ',' + Math.round(b.y) + ';';
+    s += '|k'; for (const k of S.blades) s += k.id + ',' + k.phase + ',' + Math.round(k.bladeX) + ',' + Math.round(k.bladeY) + ';';
+    s += '|h'; for (const z of S.hazards) s += z.id + ',' + z.phase + ';';
+    return s;
+  }
+  const hashAt = (w, wt) => hex8(hashStr(canon(stateAt(w, wt))));
+  function idsOf(S) { const ids = []; for (const c of S.cubes) ids.push(c.id); for (const b of S.bonus) ids.push(b.id); let last = -1; for (const k of S.blades) if (k.pat !== last) { last = k.pat; ids.push('k' + k.pat); } return ids; }
+  const idsAt = (w, wt) => hex8(hashStr(idsOf(stateAt(w, wt)).join(','))).slice(0, 4);
+  const api = { VERSION, AW: P.AW, AH: P.AH, RUN_MS: P.RUN, P, mulberry, hashStr, schedule, stateAt, stepper, hashAt, idsAt, idsOf, canon, cubePos, bonusPos, bladeAt, knivesAt };
+  return Object.freeze(api);
+})();
+/* ARENA-WORLD END */
 let R = Math.random;
 const rndR = (a, b) => a + R() * (b - a), pickR = a => a[Math.floor(R() * a.length)];
 // A small event bus: gameplay reports what happened, missions / stickers / the pass listen.
@@ -2985,6 +3199,7 @@ function powerInfo(k, n) {
   if (k === 'dubbel') return `Elk klontje telt ${dubbelMult(n)}×.`;
   if (k === 'regen') return `${regenCount(n)} klontjes vallen nu meteen.`;
   if (k === 'klein') return `Je bent ${Math.round((1 - kleinFactor(n)) * 100)}% kleiner.`;
+  if (k === 'magneet' && arOn()) return 'Je pakt klontjes van verder weg.'; // v0.32.10 arena: the grab radius grows, no cube moves
   return POWERS[k].info;
 }
 // Lives: a run costs one heart; hearts grow back one per hour up to five (20 minutes before v0.31.5). At zero the hearts screen
@@ -3390,7 +3605,7 @@ function safeRead() {
   return SAFE;
 }
 let safeAt = 0; // the HUD also re-reads once a second (an env() change alone fires no event)
-const safeTopU = () => { const n = performance.now(); if (n - safeAt > 1000) { safeAt = n; safeRead(); } return SAFE.t > 0 && S > 0 ? SAFE.t / S : 0; }; // the top inset in logical units: the run HUD starts below the status bar
+const safeTopU = () => { const n = performance.now(); if (n - safeAt > 1000) { safeAt = n; safeRead(); } return SAFE.t > 0 && S > 0 ? (arBoard() ? Math.max(0, SAFE.t - ay) / S : SAFE.t / S) : 0; }; // v0.32.10 arena: below the board's top edge only what the status bar still covers // the top inset in logical units: the run HUD starts below the status bar
 try { new MutationObserver(() => safeRead()).observe(document.documentElement, { attributes: true, attributeFilter: ['style'] }); } catch (e) {}
 // v0.32.8 safe area: on a short phone the game-over's main button (Verder, else the Opnieuw row) is above the bottom tabs at first view:
 // the snapshot shrinks just enough (never below 96 px, the rest is scrolled); where it fits nothing changes. Every game-over screen starts from the CSS size.
@@ -3406,8 +3621,10 @@ function overFit(open) { // open: the screen just opened (it starts at the top; 
 function resize() { safeRead(); if (curScreen === 'scr-over') overFit();
   const r = canvas.getBoundingClientRect(); cw = Math.max(1, r.width); ch = Math.max(1, r.height);
   dpr = Math.min(window.devicePixelRatio || 1, 2); /* v0.32.8 heat: 2x the CSS size at most (was 2.5) */ canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
-  aw = cw; ah = ch; if (cw / ch > 0.74) aw = ch * 0.62; // wide screen: a portrait board in the middle of the counter
-  ax = (cw - aw) / 2; ay = 0; S = aw / W; H = ah / S; board = null;
+  if (arBoard()) { S = Math.min(cw / AR_W, ch / AR_H); aw = AR_W * S; ah = AR_H * S; ax = (cw - aw) / 2; ay = (ch - ah) / 2; H = AR_H; board = null; } // v0.32.10 arena: one 360 x 720 board, fitted and centred
+  else { aw = cw; ah = ch; if (cw / ch > 0.74) aw = ch * 0.62; // wide screen: a portrait board in the middle of the counter
+  ax = (cw - aw) / 2; ay = 0; S = aw / W; H = ah / S; board = null; }
+  arBtns();
 }
 // ---- Boards. The kitchen changes every five levels so progress is visible. scar = the rgb of knife marks.
 function vignette(b, a) { const v = b.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .35, W / 2, H / 2, Math.max(W, H) * .75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, `rgba(0,0,0,${a})`); b.fillStyle = v; b.fillRect(0, 0, W, H); }
@@ -4250,6 +4467,7 @@ function gainSap(v, bar) { // v0.31: v goes to the wallet, bar (default v) to th
   if (G.inter) { if (G.inter.phase === 'play') { G.inter.score += v; G.inter.n++; } return; } // inside a minigame v is raw points (interPts); it pays out at its end, nothing else counts meanwhile
   if (bar === undefined) bar = v;
   if (!duelNoSap()) save.sap += v; G.sapRun += v; G.levelSap += bar; track('sap', v);
+  if (arOn()) return; // v0.32.10 arena: no steps, no level-ups, no +5, no kitchen change (level 10 all duel)
   if (G.mode === 'rain' || G.mode === 'exam' || G.mode === 'knife' || G.mode === 'sapstorm' || G.mode === 'estafette') return; // the weekend games and the storm/relay have no levels
   for (;;) {
     const goal = goalFor(G.level), steps = runSteps(G.level);
@@ -4304,7 +4522,7 @@ function activatePower(kind) {
   if (kind === 'schaduw') G.decoy = { x: G.px, y: G.py, t: dur, shadow: true }; // the knives aim at the shadow (see lineThrough callers)
   if (kind === 'honing') { G.magnetT = Math.max(G.magnetT || 0, dur); G.nextSlash = Math.max(G.nextSlash, dur); } // knives and tools freeze in updateGame while it lasts
   if (kind === 'regen') { const n = regenCount(G.level); for (let i = 0; i < n; i++) G.cubes.push({ x: 30 + (W - 60) * ((i % 8) + .5) / 8 + rnd(-10, 10), y: -24 - i * 34, vx: 0, vy: rnd(55, 75), ph: Math.random() * TAU, r: i >= 8 ? 14 : 11, gold: i >= 8, rot: rnd(-.3, .3), dead: false, t: -i * 400 }); }
-  G.slowmo = 3000; // three seconds of near standstill so the panel can be read
+  if (arOn()) { G.note = AR_POWER_NOTE[kind] || POWERS[kind].name; G.noteT = AR_NOTE_MS; } else G.slowmo = 3000; // v0.32.10 arena: no slow motion, a 2.5 s note instead; elsewhere three seconds of near standstill so the panel can be read
   burst(G.px, G.py, 30, [p.col, '#ffffff'], 300); addText(G.px, G.py - curR() - 22, p.name + '!', p.col); SFX.slow(); setTimeout(() => SFX.go(), 90); buzz(30);
 }
 function updatePowers(dt) {
@@ -4487,7 +4705,7 @@ function segDist(px, py, x1, y1, x2, y2) {
 }
 function checkCuts(s, x1, y1, x2, y2) {
   if (s.sweet) return; // the Mirakelbes's marzipan rolling pin is candy: it cuts nothing
-  for (const c of G.cubes) if (!c.dead && !(c.seed && c.t < 0) && segDist(c.x, c.y, x1, y1, x2, y2).d < c.r + 3) { c.dead = true; burst(c.x, c.y, 10, ['#ffffff', '#ffe9a8'], 160); } // a seed in the ground is safe from the blade
+  if (!arOn()) for (const c of G.cubes) if (!c.dead && !(c.seed && c.t < 0) && segDist(c.x, c.y, x1, y1, x2, y2).d < c.r + 3) { c.dead = true; burst(c.x, c.y, 10, ['#ffffff', '#ffe9a8'], 160); } // a seed in the ground is safe from the blade
   if (G.inv > 0 || HOOK.god || (G.power && G.power.kind === 'schild')) return;
   const f = fruitDef();
   for (const b of G.bodies) {
@@ -4497,11 +4715,11 @@ function checkCuts(s, x1, y1, x2, y2) {
       s.near.add(b.id); G.near++; G.nearStreak++; SFX.near(); track('near', G.near); addFlow(FLOW_PER_NEAR); if (f.foresight) bloomWipe(s, bx, by, b.r); if (f.rewind) sandNear();
       if (G.inter && G.inter.kind === 'sprint' && G.inter.phase === 'play') { G.inter.score += 3; G.inter.n++; addText(bx, by - b.r - 8, 'Net niet! +3', INTER.sprint.col); continue; }
       const ns = f.nearSap && !duelFair() ? Math.round(f.nearSap * boost('nearSap')) : 0;
-      if (G.nearStreak % 3 === 0) { G.slowmo = Math.max(G.slowmo, 320); gainSap(2 + ns); addText(bx, by - b.r - 8, `Net niet ×${G.nearStreak}! +${2 + ns} sap`, '#ffd54a'); G.flash = .3; }
+      if (G.nearStreak % 3 === 0) { if (!arOn()) G.slowmo = Math.max(G.slowmo, 320); gainSap(2 + ns); addText(bx, by - b.r - 8, `Net niet ×${G.nearStreak}! +${2 + ns} sap`, '#ffd54a'); G.flash = .3; }
       else if (ns) { gainSap(ns); addText(bx, by - b.r - 8, `Net niet! +${ns} sap`, '#ffd54a'); }
       else addText(bx, by - b.r - 8, 'Net niet!', '#ffd54a');
       if (f.sprint) G.sprint = 1200 * boost('sprint');
-      if (f.trailZone) addZone(bx, by, 40, 6000, 'druif'); if (f.hairy) G.kiwiStack = Math.min(3, (G.kiwiStack || 0) + 1); if (f.stink) addZone(bx, by, 70, 6000, 'durian');
+      if (!arOn()) { if (f.trailZone) addZone(bx, by, 40, 6000, 'druif'); if (f.hairy) G.kiwiStack = Math.min(3, (G.kiwiStack || 0) + 1); if (f.stink) addZone(bx, by, 70, 6000, 'durian'); }
     }
   }
 }
@@ -4510,7 +4728,7 @@ function onHit(s, b, bx, by) {
   const sz = G.zones.find(z => z.kind === 'ster' && Math.hypot(z.x - bx, z.y - by) < z.r + b.r); // standing in a star: it takes the cut and goes out
   if (sz) { G.zones.splice(G.zones.indexOf(sz), 1); G.inv = 800; G.flash = .3; G.shake = 5; burst(bx, by, 20, ['#ffe14a', '#ffffff'], 260); SFX.pop(); addText(bx, by - b.r - 10, 'Ster! Snee opgevangen', '#ffe14a'); return; }
   if (mispelRewind(s)) return; // the Mispel: after the star, before the cotton candy and the shells; no death, no Verder, nothing for the nemesis
-  const f = fruitDef(); G.combo = 0; G.nearStreak = 0; G.flow = 0; track('hit'); countHit(s, 1);
+  const f = fruitDef(); G.combo = 0; G.nearStreak = 0; G.flow = 0; track('hit'); countHit(s, 1); ldRtHit();
   if (G.power && G.power.kind === 'spin' && G.bubble > 0) { // the cotton-candy bubble takes the cut
     G.bubble--; G.inv = 700; G.flash = .3; G.shake = 5; burst(bx, by, 14, ['#ff9ad5', '#ffffff'], 220); SFX.pop(); addText(bx, by - b.r - 10, G.bubble > 0 ? `Suikerspin! Nog ${G.bubble}` : 'Suikerspin op!', '#ff9ad5'); if (G.bubble <= 0) G.power = null; return;
   }
@@ -4518,7 +4736,7 @@ function onHit(s, b, bx, by) {
     G.armor--; G.inv = f.armorInv || 1000; G.flash = .5; G.shake = 8; burst(bx, by, 18, f.juice, 260); buzz(40);
     if (f.burst) { G.burstDone = true; setBodies(); spawnSeekers(bx, by, 8, 2500, f.juice[0]); addText(bx, by - b.r - 26, 'Pitten! Ze slurpen sap op', f.juice[0]); SFX.squirt(); }
     if (f.milk) { G.magnetT = 4000; addText(bx, by - b.r - 26, 'Kokosmelk: klontjes glijden naar je toe', '#fff'); }
-    if (f.armorWipe) {
+    if (f.armorWipe && !arOn()) {
       G.slashes = []; G.nextSlash = Math.max(G.nextSlash, 900); burst(bx, by, 50, f.juice, 520); SFX.squirt();
       addText(bx, by - b.r - 10, 'Zuur! Alle messen weg', '#fff'); if (f.goldWipe) { for (const c of G.cubes) { c.gold = true; c.r = 14; } G.sourRain = 12000; addText(bx, by - b.r - 26, 'Zure regen: 12 s alleen goud', '#ffd54a'); }
     } else { SFX.crack(); addText(bx, by - b.r - 10, G.armor > 0 ? 'Gekraakt! Nog één' : 'Gekraakt!', '#fff'); }
@@ -4668,7 +4886,7 @@ function openMenu() {
   menuSel = save.fruit; lateNotice(); buildMenu(); showScreen('scr-menu'); navHintCheck(); stkFlush();
 }
 function pause() { if (G.state !== 'play') return; G.state = 'pause'; drag = null; hubConfirm = ''; $('#pause-time').textContent = G.mode === 'duel' ? `Je zit op ${fmtTime(G.t)}. Stop je, dan telt je duel met ${G.sapRun} sap.` : `Je zit op ${fmtTime(G.t)}.`; $('#pause-music').textContent = save.music3 ? `Muziek: ${MUS.cur ? (MUS.FILES[MUS.cur.key] || MUS.cur.key).split('/').pop() + (MUS.cur.a.paused ? ' (gepauzeerd)' : '') : MUS.on ? 'ingebouwd deuntje' : 'geen'}` : 'Muziek: uit'; showScreen('scr-pause'); pauseBtn.hidden = true; }
-function resume() { if (G.state !== 'pause') return; G.state = 'play'; G.inv = Math.max(G.inv, ldLive() ? 0 : 600); showScreen(null); pauseBtn.hidden = false; }
+function resume() { if (G.state !== 'pause') return; G.state = 'play'; G.inv = Math.max(G.inv, arOn() ? AR_RESUME_INV : ldLive() ? 0 : 600); if (arOn()) AR.resumed = true; showScreen(null); pauseBtn.hidden = false; }
 function quitRun(toHub) { const dq = G.mode === 'duel' && !!G.duel && !G.duelOut; if (dq) duelFinish(true); recordRun(); if (dq && !toHub) duelHome(); else openMenu(); if (dq) duelQuitNote(); } // v0.32: a stopped duel counts with the sap so far and goes back to where it started
 
 // ---- Player. On a touch screen the fruit hangs LIFT units above the finger, so the finger never hides it or
@@ -4750,6 +4968,7 @@ function updateCubes(dt) {
   if (plant) { G.cubes.push({ x: plant.x, y: plant.y, vx: 0, vy: 0, ph: 0, r: 14, gold: true, rot: 0, dead: false, t: -5000, seed: true }); addText(plant.x, plant.y + 20, 'Zaadje geplant', '#4fa84a'); }
 }
 function updateSpawner(dt) {
+  if (arOn()) return; // v0.32.10: the arena's world comes from ARENA (arUpdate never calls this)
   if (ldSame()) { ldSpawn(dt); return; } // v0.32.5 live duel: knives, cubes and hazards from their own streams on the duel clock
   const d = difficulty();
   if (d.knives !== G.phase) { G.phase = d.knives; if (d.knives >= 2) { G.bossText = ['', '', 'Twee', 'Drie', 'Vier', 'Vijf'][d.knives] + ' messen tegelijk'; G.bossBanner = 2200; SFX.boss(); G.shake = 6; G.chefRun++; track('chef', G.chefRun); } }
@@ -5881,17 +6100,18 @@ function updateTricks(dt) {
   if (f.star) { G.starT -= dt; if (G.starT <= 0) { G.starT = 20000; addZone(G.px, G.py, 34, 15000, 'ster'); addText(G.px, G.py - curR() - 26, 'Ster gelegd: één snee veilig', '#ffe14a'); SFX.jingle(); } } // the star fruit leaves a star that takes one cut
   if (G.passT > 0) { G.passT -= dt; if (G.passT <= 0) setBodies(); } // passion fruit: the shrink after a burst ends
   if (f.rainbow) { G.rainbowT -= dt; if (G.rainbowT <= 0) { G.rainbowT = 20000; G.rainbow = (G.rainbow + 1) % 4; const names = ['schil', 'magneet', 'stroop', 'klein']; if (G.rainbow === 0 && !duelFair()) G.armor = Math.max(G.armor, 1); if (G.rainbow === 1) G.magnetT = Math.max(G.magnetT || 0, 20000); setBodies(); addText(G.px, G.py - curR() - 26, `Regenboog: ${names[G.rainbow]}`, '#ff6ad5'); SFX.jingle(); } }
-  if (f.decoy) { G.decoyT -= dt; if (G.decoyT <= 0) { G.decoyT = 20000; G.decoy = { x: G.px, y: G.py, t: 3000 }; addText(G.px, G.py - curR() - 26, 'Schil gelost: lokaas!', '#ff9f1c'); SFX.pop(); } }
-  if (f.peel) { G.peelT -= dt; if (G.peelT <= 0) { G.peelT = 20000; addZone(G.px, G.py, 44, 12000, 'banaan'); addText(G.px, G.py - curR() - 26, 'Schil gelost!', '#ffd33d'); } }
+  if (f.decoy && !arOn()) { G.decoyT -= dt; if (G.decoyT <= 0) { G.decoyT = 20000; G.decoy = { x: G.px, y: G.py, t: 3000 }; addText(G.px, G.py - curR() - 26, 'Schil gelost: lokaas!', '#ff9f1c'); SFX.pop(); } }
+  if (f.peel && !arOn()) { G.peelT -= dt; if (G.peelT <= 0) { G.peelT = 20000; addZone(G.px, G.py, 44, 12000, 'banaan'); addText(G.px, G.py - curR() - 26, 'Schil gelost!', '#ffd33d'); } }
   if (f.regrow && !duelFair() && G.armor < f.armor) { G.regrowT -= dt; if (G.regrowT <= 0) { G.regrowT = 30000; G.armor++; addText(G.px, G.py - curR() - 26, f.regrowText || 'Kroon gegroeid: +1 schil', '#ffd54a'); SFX.collect(); } } else G.regrowT = 30000;
-  if (f.spit) { G.spitT -= dt; if (G.spitT <= 0) { const sl = G.slashes.find(x => x.phase === 'tele' && !x.spat); if (sl) { G.spitT = 15000; sl.spat = true; sl.tele += 1000; burst((sl.ax + sl.bx) / 2, (sl.ay + sl.by) / 2, 10, ['#1a1a1a', '#ffffff'], 200); addText(G.px, G.py - curR() - 26, 'Pit gespuwd: mes wacht 1 s', '#fff'); SFX.pop(); } } }
-  if (f.fire && G.fireCharges > 0) { const sl = G.slashes.find(x => x.phase === 'tele' && x.t > 0); if (sl) { G.fireCharges--; G.slashes = G.slashes.filter(x => x !== sl); burst((sl.ax + sl.bx) / 2, (sl.ay + sl.by) / 2, 30, ['#ff6a00', '#ffd54a', '#333333'], 320); addText(G.px, G.py - curR() - 26, 'Vuur! Mes verbrand', '#ff6a00'); SFX.squirt(); G.shake = 4; } }
+  if (f.spit && !arOn()) { G.spitT -= dt; if (G.spitT <= 0) { const sl = G.slashes.find(x => x.phase === 'tele' && !x.spat); if (sl) { G.spitT = 15000; sl.spat = true; sl.tele += 1000; burst((sl.ax + sl.bx) / 2, (sl.ay + sl.by) / 2, 10, ['#1a1a1a', '#ffffff'], 200); addText(G.px, G.py - curR() - 26, 'Pit gespuwd: mes wacht 1 s', '#fff'); SFX.pop(); } } }
+  if (f.fire && G.fireCharges > 0 && !arOn()) { const sl = G.slashes.find(x => x.phase === 'tele' && x.t > 0); if (sl) { G.fireCharges--; G.slashes = G.slashes.filter(x => x !== sl); burst((sl.ax + sl.bx) / 2, (sl.ay + sl.by) / 2, 30, ['#ff6a00', '#ffd54a', '#333333'], 320); addText(G.px, G.py - curR() - 26, 'Vuur! Mes verbrand', '#ff6a00'); SFX.squirt(); G.shake = 4; } }
   if (f.shrink) { const st = shrinkStage(); if (st !== G.shrinkStage) { G.shrinkStage = st; setBodies(); addText(G.px, G.py - curR() - 26, st >= 3 ? 'Rozijn! Het mes mikt grof' : 'Gekrompen!', '#e0c6ff'); } }
   updateSeekers(dt); updateZones(dt);
 }
 
 // ---- Update
 function update(real) {
+  arBoardSync(); // v0.32.10 arena: the start in frame and the board (one boolean test outside a live duel)
   if (G.state === 'shop' && shopDblKey !== shopDblNow()) openShop(); // v0.31.9: the doubler ran out or a whole hour fits again
   switch (G.state) {
     case 'menu': {
@@ -5900,6 +6120,7 @@ function update(real) {
       updateSlashes(real); updateFx(real, real); break;
     }
     case 'play': {
+      if (arOn()) { arUpdate(real); break; } // v0.32.10: the shared world on wt; everything personal on real time
       // A bonus pickup slows the world to 15% for three seconds (the fruit still follows the finger at full speed).
       const ts = (G.slowmo > 0 ? (G.slowmo > 600 ? .15 : lerp(1, .15, G.slowmo / 600)) : 1) * (G.fever > 0 ? FEVER_SLOW : 1); if (G.slowmo > 0) G.slowmo -= real; feverTick(real); if (G.feverBanner > 0) G.feverBanner -= real;
       const dt = real * ts;
@@ -5911,7 +6132,7 @@ function update(real) {
     }
     case 'hearts': { heartTick -= real; if (heartTick <= 0) { heartTick = 1000; $('#hearts-timer').textContent = heartsLine(); $('#hearts-row').innerHTML = heartsHTML(); } updateFx(real * .3, real); break; }
     case 'dying': {
-      G.dyingT += real; const dt = real * G.timeScale; updateSlashes(dt); updateFx(dt, real); updateDebris(real * .45);
+      G.dyingT += real; const dt = real * G.timeScale; if (arOn()) { arClock(real); arSync(); } else updateSlashes(dt); updateFx(dt, real); updateDebris(real * .45);
       G.zoom = lerp(G.zoom, 1.25, Math.min(1, real / 350));
       if (!G.snapped && G.dyingT >= SNAP_AT) { G.snapped = true; takeSnapshot(); }
       if (G.dyingT > DYING_MS) afterDeath(); break;
@@ -6600,7 +6821,7 @@ function drawHud() {
   const f = fruitDef(); ctx.fillStyle = '#ffd54a'; ctx.font = `800 12px ${FU}`;
   // the status (shield, segments, cherries): the first line of the column under the level bar (v0.32.8 HUD lines)
   const status = G.armor > 0 ? (G.armor > 1 ? `Nog ${G.armor} sneden vrij` : 'Nog 1 snee vrij') : f.segments ? `Partjes: ${f.segments - G.segLost}` : (f.cherries && !G.form) ? `Kersen: ${G.bodies.length}` : '';
-  if (G.feverBanner > 0) { const a = clamp(Math.min(G.feverBanner / 250, (2600 - G.feverBanner) / 400), 0, 1); ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.font = `700 34px ${FD}`; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(80,30,0,.7)'; ctx.strokeText('FRUIT FEVER!', W / 2, H * .3); ctx.fillStyle = '#ffb300'; ctx.fillText('FRUIT FEVER!', W / 2, H * .3); ctx.font = `800 13px ${FU}`; ctx.lineWidth = 3; ctx.strokeText('8 s: alles goud, dubbel sap, de wereld vertraagt', W / 2, H * .3 + 40); ctx.fillStyle = '#fff4e4'; ctx.fillText('8 s: alles goud, dubbel sap, de wereld vertraagt', W / 2, H * .3 + 40); ctx.restore(); }
+  if (G.feverBanner > 0) { const a = clamp(Math.min(G.feverBanner / 250, (2600 - G.feverBanner) / 400), 0, 1); ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.font = `700 34px ${FD}`; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(80,30,0,.7)'; ctx.strokeText('FRUIT FEVER!', W / 2, H * .3); ctx.fillStyle = '#ffb300'; ctx.fillText('FRUIT FEVER!', W / 2, H * .3); ctx.font = `800 13px ${FU}`; ctx.lineWidth = 3; const fsub = arOn() ? AR_FEVER_SUB : '8 s: alles goud, dubbel sap, de wereld vertraagt'; ctx.strokeText(fsub, W / 2, H * .3 + 40); ctx.fillStyle = '#fff4e4'; ctx.fillText(fsub, W / 2, H * .3 + 40); ctx.restore(); }
   // level goal (or the mode's own goal) under the time
   const goal = goalFor(G.level); ctx.textAlign = 'center'; ctx.font = `800 12px ${FU}`;
   let line = `Level ${G.level} · ${G.levelSap}/${goal}` /* v0.32.8: the level bar, not your sap (the wallet is the only sap number) */, frac = G.levelSap / goal;
@@ -6619,6 +6840,7 @@ function drawHud() {
   if (lf.w > room && lineY < btn.b) { lineY = Math.ceil(btn.b); room = W - 24; lf = hudFit(line, 12, room, 9); }
   { const te = hudTagsEnd(); if (te && lineY < 53 && W / 2 - Math.min(lf.w, room) / 2 < te + 3) { lineY = 53; if (lineY >= btn.b && room < W - 24) { room = W - 24; lf = hudFit(line, 12, room, lf.fs < 10 ? 9 : 10); } } ctx.font = `800 ${lf.fs}px ${FU}`; } // v0.32.8 polish: under the tags (y 36, 12 px) with 4 units of air where they meet sideways
   ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.strokeText(line, W / 2, lineY, room); ctx.fillStyle = '#fff4e4'; ctx.fillText(line, W / 2, lineY, room);
+  if (G.mode === 'duel' && ldRun && ldRun.ar && ldLive()) ldRtDot(W / 2 - Math.min(lf.w, room) / 2 - 7, lineY + lf.fs / 2); // v0.32.10: the live view's state
   const barY = lineY + lf.fs + 5; // the level bar under it
   ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(W / 2 - 70, barY, 140, 5); ctx.fillStyle = '#ffd54a'; ctx.fillRect(W / 2 - 70, barY, 140 * clamp(frac, 0, 1), 5);
   { const n = runSteps(G.level); if (n > 1 && n <= 40) { ctx.fillStyle = 'rgba(0,0,0,.55)'; for (let i = 1; i < n; i++) ctx.fillRect(W / 2 - 70 + 140 * stepMark(G.level, i) / goal - .5, barY - 1, 1, 7); } } // v0.31: one tick per step
@@ -6674,12 +6896,12 @@ function render() {
   const ti = themeIndex(G.state === 'play' || G.state === 'dying' || G.state === 'continue' || G.state === 'pause' || G.state === 'ad' ? G.level : save.level); if (!board || boardTheme !== ti) buildBoard(ti);
   let shx = 0, shy = 0; if (G.shake > .3) { shx = rnd(-G.shake, G.shake); shy = rnd(-G.shake, G.shake); }
   ctx.setTransform(dpr * S, 0, 0, dpr * S, (ax + shx * S) * dpr, (ay + shy * S) * dpr);
-  if (aw < cw - 2) { ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(-8, 6, W + 16, H + 8); }
+  if (aw < cw - 2 || ah < ch - 2) { ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(-8, 6, W + 16, H + 8); }
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
   if (G.state === 'dying' && G.death) { ctx.translate(G.death.x, G.death.y); ctx.scale(G.zoom, G.zoom); ctx.translate(-G.death.x, -G.death.y); }
   const po = plankOffset(); if (po) { ctx.drawImage(board, po, 0, W, H); ctx.drawImage(board, po - Math.sign(po) * W, 0, W, H); } else ctx.drawImage(board, 0, 0, W, H); // the sliding board shows its movement
   drawRoundLayer();
-  drawStains(); drawScars(); drawZones(); tourneyDraw(); duelDraw(); ldDraw(); drawHazards(); drawHazardLabels(); drawLateFx(); drawSigns(); drawCherryRail(); /* late fruit: under the lines and knives, so it never hides a warning */ drawCubes(); drawSeekers(); drawDecoy(); drawDrop(); drawSlashes(0);
+  drawStains(); drawScars(); drawZones(); tourneyDraw(); duelDraw(); ldDraw(); drawHazards(); drawHazardLabels(); drawLateFx(); drawSigns(); drawCherryRail(); /* late fruit: under the lines and knives, so it never hides a warning */ drawCubes(); drawSeekers(); drawDecoy(); drawDrop(); arDrawDrops(); drawSlashes(0);
   if (G.state !== 'menu') { if (G.mode === 'knife') drawAI(); else { drawPlayer(); if (G.state === 'play') drawPowerAura(); } }
   drawForkWarning(); // on top of the fruit: the fork strikes where you are, so its warning must not hide under you
   drawDebris(); drawParticles(); drawSlashes(1); drawLateTop(); drawTexts(); drawInset(); drawDayDark();
@@ -6690,6 +6912,7 @@ function render() {
   if (G.themeFlash > 0) { ctx.fillStyle = `rgba(255,250,235,${clamp(G.themeFlash / 900, 0, 1) * .85})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
   ctx.restore();
   if (G.state === 'play' || G.state === 'dying' || G.state === 'pause') drawHud();
+  arOverlayDraw();
   lampUi();
 }
 
@@ -6890,7 +7113,7 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => keys.delete(e.key));
 function toLogical(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left - ax) / S, y: (e.clientY - r.top - ay) / S }; }
 canvas.addEventListener('pointerdown', e => {
-  AU.init(); if (G.state !== 'play') return; if (drag && drag.id !== e.pointerId && lampOn() && save.lampions.length) { lampGo(true); e.preventDefault(); return; } /* a second finger lets a lantern rise; the first keeps steering */ const p = toLogical(e);
+  AU.init(); if (G.state !== 'play') return; if (drag && drag.id !== e.pointerId && lampOn() && save.lampions.length) { lampGo(true); e.preventDefault(); return; } /* a second finger lets a lantern rise; the first keeps steering */ const p = toLogical(e); if (arOn()) arTap(p);
   drag = { id: e.pointerId, lx: p.x, ly: p.y, off: { x: G.tx - p.x, y: G.ty - p.y }, sx: p.x, sy: p.y };
   try { canvas.setPointerCapture(e.pointerId); } catch (err) {} e.preventDefault();
 });
@@ -8402,7 +8625,7 @@ $('#btn-storm-close').addEventListener('click', () => { $('#stormbox').hidden = 
 // profile, friends). Loaded lazily; everything keeps working offline or without a configuration, and tests mock NET.call.
 const NET_URL = 'https://europe-west1-dont-slice-me.cloudfunctions.net/tourney';
 const netPf = () => { try { const C = window.Capacitor; return window.FV_NATIVE || (C && typeof C.isNativePlatform === 'function' && C.isNativePlatform()) ? 'app' : 'web'; } catch (e) { return 'web'; } }; // v0.32.8: app or web, only for the server's daily totals (hello, profile, save); never stored
-const NET_CONFIG = { apiKey: 'AIzaSyD-cpn_f2Jj_XCch_pBpnHTqxRfbLjQZTM', authDomain: 'dont-slice-me.firebaseapp.com', projectId: 'dont-slice-me', appId: '1:599236386226:web:94239b28b31cb18ed218ab' }; // public client configuration; the data is protected by the Firestore rules and the function
+const NET_CONFIG = { apiKey: 'AIzaSyD-cpn_f2Jj_XCch_pBpnHTqxRfbLjQZTM', authDomain: 'dont-slice-me.firebaseapp.com', projectId: 'dont-slice-me', appId: '1:599236386226:web:94239b28b31cb18ed218ab', databaseURL: 'https://dont-slice-me-default-rtdb.europe-west1.firebasedatabase.app' /* v0.32.10 live view */ }; // public client configuration; the data is protected by the Firestore rules and the function
 const NET = {
   uid: '', authP: null, failedAt: 0,
   on() { return !!(NET_URL && NET_CONFIG) && /^https?:$/.test(location.protocol) && navigator.onLine !== false; },
@@ -8411,10 +8634,19 @@ const NET = {
     if (!this.authP) this.authP = (async () => {
       if (!window.firebase) { await this.script('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js'); await this.script('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js'); }
       if (!window.firebase.apps.length) window.firebase.initializeApp(NET_CONFIG);
-      const a = window.firebase.auth(); if (!a.currentUser) await a.signInAnonymously(); this.uid = a.currentUser ? a.currentUser.uid : ''; return a;
+      const a = window.firebase.auth(), E = rtEmu(); if (E && E.auth && !this.emuOn) { this.emuOn = 1; try { a.useEmulator(E.auth); } catch (e) {} } if (!a.currentUser) { if (E && E.token) await a.signInWithCustomToken(E.token); else await a.signInAnonymously(); } /* v0.32.10: FV_RT_EMU only in tests */ this.uid = a.currentUser ? a.currentUser.uid : ''; return a;
     })().catch(() => { this.authP = null; this.failedAt = nowMs(); return null; });
     return this.authP;
   },
+  rtdb() { // v0.32.10: the Realtime Database for the live view, loaded lazily (only for a lobby with rt 1, never at boot or in solo play); one promise, retried at most every 30 s; null when it cannot load
+    const H = window.dontsliceme || {}; if (H.ldRtImpl) return Promise.resolve().then(() => H.ldRtImpl()).catch(() => null); // the smoke checks: an in-page fake
+    if (!NET_CONFIG.databaseURL) return Promise.resolve(null);
+    if (!this.rtP) { if (this.rtFail && nowMs() - this.rtFail < 30000) return Promise.resolve(null);
+      this.rtP = (async () => { const a = await this.auth(); if (!a || !a.currentUser) throw new Error('auth'); this.rtUid = a.currentUser.uid;
+        if (!window.firebase.database) await this.script('https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js');
+        const E = rtEmu(), url = E && E.ns ? 'https://' + E.ns + '.europe-west1.firebasedatabase.app' : NET_CONFIG.databaseURL, d = window.firebase.app().database(url);
+        if (E && E.db) { const hp = String(E.db).split(':'); d.useEmulator(hp[0], +hp[1]); } return d; })().catch(() => { this.rtP = null; this.rtFail = nowMs(); return null; }); }
+    return this.rtP; },
   async call(action, data, keepalive, ms) { // v0.32: an optional time limit (ms: only duelfind and hello ask for one; load, save and link wait as before) and NET.lastErr, so offline and an older server can be told apart
     if (!this.on()) { this.lastErr = { action, status: 0, error: 'offline' }; return null; } if (this.failedAt && nowMs() - this.failedAt < 30000) { this.lastErr = { action, status: 0, error: 'offline' }; return null; }
     let timer = 0;
@@ -8730,7 +8962,7 @@ setInterval(() => { if (!HOOK.pollOff) netPoll(); }, 30000);
 // The server decides the winner from both scores and keeps the head-to-head record and the counted wins. No sap: friend duels are for
 // status. Everything here is new; the old code only calls in at a few marked places. Only in-game cards, except the one opt-in push.
 // No card or question ever opens during a run: every live card goes through ldShow, which queues it until the player is on a menu.
-const LD_LEVEL = DUEL_LEVEL, LD_RUN_MS = DUEL_MS, LD_BEAT_MS = 3000, LD_VIEW_MS = 5000, LD_STALE_MS = 10000, LD_LATE_MS = 12000, LD_PAUSE_MS = 60000, LD_PAUSES = 3, LD_RES_MS = 300000, LD_PEND_MS = 600000, LD_PROTO = 2, LD_PTS = 30, LD_EV_WARN_MS = 1500, LD_RES_GAP_MS = 3000;
+const LD_LEVEL = DUEL_LEVEL, LD_RUN_MS = DUEL_MS, LD_BEAT_MS = 3000, LD_VIEW_MS = 5000, LD_STALE_MS = 10000, LD_LATE_MS = 12000, LD_PAUSE_MS = 60000, LD_PAUSES = 3, LD_RES_MS = 300000, LD_PEND_MS = 600000, LD_PROTO = 3 /* v0.32.10: Klaar, the RTDB live view and the arena world */, LD_PTS = 30, LD_EV_WARN_MS = 1500, LD_RES_GAP_MS = 3000;
 const LD_POLL = { menu: 10000, idle: 60000, run: 30000, want: 10000, wait: 3000, lobby: 2000, after: 3000, friends: 30000, friendsMany: 60000 };
 let ldSkew = 0, ldRtt = 1e9, ldPollAt = 0, ldPollBusy = false, ldTouch = 0, ldBootAt = 0, ldInv = null, ldOut = null, ldLob = null, ldLobId = '', ldLobBusy = false, ldLobFail = 0, ldWantLobby = '', ldWantAway = 0, ldWantName = '', ldRun = null, ldAfter = 0;
 let ldFriendsAt = 0, ldFriendsOk = 0, ldFruitPick = '', ldBoxMode = '', ldSig = '', ldManual = false, ldPermAsk = false, ldPermP = null, ldRefreshAt = 0, ldRdSend = null, ldRdSeq = 0, ldSheetK = ''; /* v0.32.8 lobby 90 s */ // ldRdSend: my Klaar (true/false) until the server confirmed it; ldSheetK: the fruit whose sheet is open
@@ -8748,7 +8980,7 @@ const ldPickDefault = () => ldFruitOk(save.fruit) ? save.fruit : 'appel';
 async function ldCall(a, d, ms) { // a live call: never blocked by (and never causing) the 30 s pause other calls take after a network error; every answer sets the clock
   if (!NET.on()) return null; const keep = NET.failedAt, t0 = nowMs(); NET.failedAt = 0; let r = null;
   try { r = await NET.call(a, d, false, ms || 5000); } catch (e) { r = null; } finally { NET.failedAt = keep; }
-  const t1 = nowMs(); if (r && r.now > 0) { const rtt = Math.max(1, t1 - t0), est = r.now - (t0 + t1) / 2; ldRtt = Math.min(ldRtt * 1.1, 60000); if (rtt <= ldRtt || Math.abs(est - ldSkew) > rtt / 2 + 1000) { ldRtt = rtt; ldSkew = est; } } // the answer with the shortest round trip wins (half the trip each way); a clock that jumped is taken at once
+  const t1 = nowMs(); if (r && r.now > 0) { const rtt = Math.max(1, t1 - t0), est = r.now - (t0 + t1) / 2; arSkewSample(rtt, est); ldRtt = Math.min(ldRtt * 1.1, 60000); if (rtt <= ldRtt || Math.abs(est - ldSkew) > rtt / 2 + 1000) { ldRtt = rtt; ldSkew = est; } } // the answer with the shortest round trip wins (half the trip each way); a clock that jumped is taken at once
   return r;
 }
 // -- the same round for both: own seeded streams per kind, the timer draw first, the pace on the duel clock (level 10, no perks, no nemesis)
@@ -8874,9 +9106,9 @@ function ldPauseMount() { const r = $('#btn-resume'); if (!r || $('#btn-ldgo')) 
 function ldBox(mode) { ldMount(); ldBoxMode = mode; const box = $('#ldbox'), first = box.hidden; box.hidden = false; ldPaint(true); if (first) navPushModal(); }
 function ldBoxClose() { ldBoxMode = ''; ldSheetClose(); const b = $('#ldbox'); if (b) b.hidden = true; }
 function ldEnter(id, view, manual) { id = ldClean(id); if (!id || ldBusyRun() || ldShut.has(id)) return; if (ldRun && (ldRun.res || ldRun.fin)) ldRun = null; if (ldWantLobby === id) ldWantLobby = '';
-  if (ldLobId !== id) { ldRdSend = null; ldSheetK = ''; } ldLobId = id; ldLob = view && view.id === id ? view : null; ldLobFail = 0; ldPollAt = 0; ldManual = !!manual; ldFruitPick = ldFruitPick || ldPickDefault(); closeReward(); ldBox('lobby'); SFX.jingle(); }
-function ldLeave() { ldLobId = ''; ldLob = null; ldManual = false; ldRdSend = null; ldPollAt = 0; ldBoxClose(); if (G.state === 'friends') renderFriends(); } // ldPollAt 0: the presence goes out at once, so a new invite right after a closed lobby finds me online
-const ldLobBody = x => Object.assign({ id: ldLobId, fruit: ldFruitPick, act: ldManual || nowMs() - ldTouch < 60000, v: LD_PROTO, pw: Object.keys(LD_FX) }, ldRdSend !== null ? { ready: ldRdSend } : {}, x || {}); // v0.32.8: my Klaar until confirmed // a seat joins only with a tap (accepting, Naar de lobby, a push, [Ik ben er], or a touch in the last minute)
+  if (ldLobId !== id) { ldRdSend = null; ldSheetK = ''; } ldLobId = id; ldLob = view && view.id === id ? view : null; ldLobFail = 0; ldPollAt = 0; ldManual = !!manual; ldFruitPick = ldFruitPick || ldPickDefault(); closeReward(); ldBox('lobby'); SFX.jingle(); ldRtLobby(ldLob); }
+function ldLeave() { if (!RT.run) ldRtClose(); /* v0.32.10 */ ldLobId = ''; ldLob = null; ldManual = false; ldRdSend = null; ldPollAt = 0; ldBoxClose(); if (G.state === 'friends') renderFriends(); } // ldPollAt 0: the presence goes out at once, so a new invite right after a closed lobby finds me online
+const ldLobBody = x => Object.assign({ id: ldLobId, fruit: ldFruitPick, act: ldManual || nowMs() - ldTouch < 60000, v: LD_PROTO, pw: Object.keys(LD_FX) }, ldRdSend !== null ? { ready: ldRdSend } : {}, ldRtRc() ? { rc: 1 } : {} /* v0.32.10: this phone reached RTDB */, x || {}); // v0.32.8: my Klaar until confirmed // a seat joins only with a tap (accepting, Naar de lobby, a push, [Ik ben er], or a touch in the last minute)
 const ldNeedTap = L => { const me = L && L.m.find(s => s.me); return !!me && !me.joined && L.state === 'wait' && !ldManual && nowMs() - ldTouch >= 60000; }; // the lobby opened by itself and nobody touched the phone for a minute: the box asks for one tap
 async function ldAct(k) {
   if (ldBoxMode === 'wait') { if (k === 'a') ldBoxClose(); else ldCancel(); return; }
@@ -8894,7 +9126,7 @@ async function ldPollLobby() {
     if (!r.ok) { if (r.error === 'otherdevice') { ldShut.add(id); ldLeave(); return; } const L = r.lobby; ldLeave(); ldShut.add(id); ldShow(() => L ? ldClosedCard(Object.assign({ id }, L)) : askBox({ title: 'De lobby is gesloten', text: 'Nodig je vriend opnieuw uit als je samen wilt spelen.', info: true, yes: 'Oké' }), 'closed:' + id, !L); return; }
     ldOnLobby(r); } finally { ldLobBusy = false; }
 }
-function ldOnLobby(r) { const L = r.lobby; if (!L) return; L.id = L.id || ldLobId; if (L.id !== ldLobId) return; ldLob = L;
+function ldOnLobby(r) { const L = r.lobby; if (!L) return; L.id = L.id || ldLobId; if (L.id !== ldLobId) return; ldLob = L; ldRtLobby(L); /* v0.32.10 */
   if (L.res) { ldLeave(); ldResultFrom(L); return; } if (L.state === 'closed') { ldLeave(); ldShut.add(L.id); ldShow(() => ldClosedCard(L), 'closed:' + L.id); return; } ldPaint(); }
 function ldClosedCard(L) { if (!L || !L.id || ldCarded.has('c:' + L.id)) return; ldCarded.add('c:' + L.id); ldShut.add(L.id); if (ldWantLobby === L.id) ldWantLobby = '';
   if (L.kickedMe === 'left') return; // you left yourself: no card
@@ -8926,8 +9158,8 @@ const ldNarrow = () => { try { return matchMedia('(max-width:359px)').matches; }
 const ldMeReady = L => ldRdSend !== null ? ldRdSend : !!(L && (L.m.find(s => s.me) || {}).rd);
 const ldPill = (L, s) => (s.me ? ldMeReady(L) : !!s.rd) ? 'klaar' : L.state === 'count' ? 'kiest…' : 'in de lobby';
 const ldOldFriend = (L, o) => !!L && L.v >= 2 && !!o && !!o.joined && (o.v || 0) < 2 && !o.rd; // a friend on v0.32.5-0.32.7: no Klaar, the full time runs
-function ldReadySet(on) { ldRdSend = !!on; ldRdSeq++; ldTouch = nowMs(); ldPollAt = 0; ldPaint(); }
-function ldPickFruit(k) { if (!ldFruitOk(k) || !ldLob || !['wait', 'count'].includes(ldLob.state)) return; const ch = k !== ldFruitPick; if (ch && ldMeReady(ldLob)) { ldRdSend = false; ldRdSeq++; } ldFruitPick = k; ldTouch = nowMs(); ldPollAt = 0; ldPaint(true); } // another fruit takes Klaar back
+function ldReadySet(on) { ldRdSend = !!on; ldRdSeq++; ldTouch = nowMs(); ldPollAt = 0; ldPaint(); ldRtK(); }
+function ldPickFruit(k) { if (!ldFruitOk(k) || !ldLob || !['wait', 'count'].includes(ldLob.state)) return; const ch = k !== ldFruitPick; if (ch && ldMeReady(ldLob)) { ldRdSend = false; ldRdSeq++; } ldFruitPick = k; ldTouch = nowMs(); ldPollAt = 0; ldPaint(true); ldRtK(); } // another fruit takes Klaar back
 function ldSheetOpen(k) { if (!ldFruitOk(k) || !ldLob || !['wait', 'count'].includes(ldLob.state)) return; ldSheetK = k; const sh = $('#ld-sheet'); if (sh) sh.dataset.k = ''; ldPaint(); }
 function ldSheetClose() { ldSheetK = ''; const sh = $('#ld-sheet'); if (sh) { sh.hidden = true; sh.dataset.k = ''; } const c = $('#ldbox .rw-card'); if (c) c.classList.remove('sheet-on'); }
 function ldSheetAct(a) { const i = ORDER.indexOf(ldSheetK); if (i < 0) { ldSheetClose(); return; }
@@ -8939,7 +9171,7 @@ function ldSheetHTML(k, L) {
   return `<div class="hd"><button type="button" class="btn ghost nav" data-lds="prev" aria-label="${E('Vorig fruit')}">‹</button><canvas width="72" height="72" data-ldicon="${k}"></canvas>`
     + `<div class="tx"><div class="nm">${E(f.name)}</div><div class="lv">${E(lvl)}</div>${md ? `<div class="lv">${E(`Medaille: ${md}`)}</div>` : ''}${o.joined && o.fruit === k ? `<div class="fd">${E(`${o.name} koos dit`)}</div>` : ''}</div>`
     + `<button type="button" class="btn ghost nav" data-lds="next" aria-label="${E('Volgend fruit')}">›</button></div>`
-    + `<div class="bd"><p class="trt">${E(f.trait)}</p><div class="duel"><b>${E('In dit live duel')}</b><p>${E(ldDuelNote(k))}</p><p>${E(LD_FAIR)}</p>${lv >= 5 ? `<p>${E(LD_LV5)}</p>` : ''}</div><p class="lent">${E(LD_LENT)}</p></div>`
+    + `<div class="bd"><p class="trt">${E(f.trait)}</p><div class="duel"><b>${E('In dit live duel')}</b><p>${E(ldArPredict(L) ? ldDuelNoteAr(k) : ldDuelNote(k))}</p><p>${E(ldArPredict(L) ? LD_FAIR_AR : LD_FAIR)}</p>${lv >= 5 ? `<p>${E(LD_LV5)}</p>` : ''}</div><p class="lent">${E(LD_LENT)}</p></div>`
     + `<div class="ft"><button type="button" class="btn primary" data-lds="pick"${mine ? ' disabled' : ''}>${E(mine ? 'Gekozen' : 'Kies dit fruit')}</button><button type="button" class="btn ghost" data-lds="back">${E('Terug')}</button></div>`;
 }
 function ldSheetPaint(L, go, now) { // inside the lobby card, from just below the countdown bar to the bottom: the clock and the seats stay in view
@@ -8947,7 +9179,7 @@ function ldSheetPaint(L, go, now) { // inside the lobby card, from just below th
   if (!ldSheetK || !L || go || !['wait', 'count'].includes(L.state) || (L.state === 'count' && L.countEnd - now <= 0)) { if (ldSheetK || !sh.hidden) ldSheetClose(); return; } // at 0 s or at the start it closes by itself
   const bar = $('#ld-bar'), st = $('#ld-status'), an = bar && !bar.hidden ? bar : st, top = an.offsetTop + an.offsetHeight + 6;
   if (card.scrollTop) card.scrollTop = 0; card.classList.add('sheet-on'); sh.hidden = false; if (sh.style.top !== top + 'px') sh.style.top = top + 'px';
-  const o = L.m.find(s => !s.me) || {}, key = [ldSheetK, ldFruitPick, lang, o.joined ? o.fruit : '', o.name, ldNarrow(), innerHeight > 720].join('|');
+  const o = L.m.find(s => !s.me) || {}, key = [ldSheetK, ldFruitPick, ldArPredict(L) ? 1 : 0, lang, o.joined ? o.fruit : '', o.name, ldNarrow(), innerHeight > 720].join('|');
   if (sh.dataset.k !== key) { sh.dataset.k = key; sh.innerHTML = ldSheetHTML(ldSheetK, L); const cv = sh.querySelector('canvas[data-ldicon]'), px = Math.round(cv.getBoundingClientRect().width) || iconPx('fruit-l', 76); try { menuIcon(iconCanvas(cv, px), ldSheetK, px, false); } catch (e) {} }
   const bd = sh.querySelector('.bd'); if (bd) bd.classList.toggle('more', bd.scrollHeight - bd.clientHeight - bd.scrollTop > 4); // more text below: the last lines fade out
 }
@@ -8989,6 +9221,151 @@ function ldPaint(full) {
 function ldLate() { const id = ldLobId, o = ldLob && ldLob.m.find(s => !s.me), nm = o ? o.name : 'je vriend'; if (!id) return; ldShut.add(id); ldLeave(); ldCall('ldlobby', { id, leave: true }, 5000); // started more than 12 s too late: never plays; the server records the no-show at once
   ldShow(() => askBox({ title: 'Te laat', text: `Het duel was al begonnen. Speelt ${nm} het uit, dan krijg je die ronde als uitdaging van 24 uur.`, info: true, yes: 'Oké' }), 'late:' + id, true); }
 // -- the run
+// ---- v0.32.10 live view over RTDB (WP1 transport, Stap A of the shared arena). In a live friend duel that the server marked ar: 1 (both
+// phones v0.32.10, both reached the Realtime Database in the lobby) each phone writes its fruit 15 times a second to /ld/{lobby}/p/{uid} and
+// reads the friend's string from p/{friendUid}: the friend is drawn about 0.2 s behind instead of about 5 s. The beats every 3 s stay the
+// authority (score, result) and the fallback (ldOppAt, label "vertraagd"). In the lobby the socket is warmed up: presence on/{uid} with
+// onDisconnect, the pick mirror k/{uid}, and rc: 1 in ldlobby while the presence write is acknowledged. Nothing here runs, allocates or keeps a
+// timer outside a lobby with rt 1 or an ar run: the SDK is loaded only then, the socket goes offline after the duel and when a lobby closes.
+const LD_RT_HZ = 15, LD_RT_MS = 1000 / 15, LD_RT_Q = .8, LD_RT_PAD = 8, LD_RT_DMAX = 400, LD_RT_EXTRA = 100, LD_RT_JUMP = 400, LD_RT_TAU = 60, LD_RT_SMOOTH = 20;
+const LD_RT_FRESH = 600, LD_RT_WEAK = 1500, LD_RT_LOST = LD_STALE_MS, LD_RT_ACK = 3000, LD_RT_CONNECT = 4000, LD_RT_BACK = 2000, LD_RT_REDIAL = 10000, LD_RT_WIN = 60, LD_RT_KEEP = 3000, LD_RT_RC_MS = 10000;
+const LD_RT_PRES_MS = 5000, LD_RT_PAUSED_MS = LD_PAUSE_MS + 5000, LD_RT_PAUSE_IV = 1000; // the presence write is repeated every 5 s in the lobby (rc proves a live socket); a friend's pause holds the live view up to the pause budget; 1 write a second while paused
+const RT = { db: null, gen: 0, opening: false, openAt: 0, lob: '', uid: '', fid: '', conn: false, connAt: 0, offAt: 0, ackAt: 0, presAt: 0, kVal: '', kSent: '', fk: null, fon: null, refs: [], pRef: null, lastErr: '', redialAt: 0, redials: 0,
+  run: '', seq: 0, wAt: 0, hist: [], pend: [0, 0], wq: [], sent: 0, acked: 0, unAt: 0, finSent: 0, buf: [], lat: [], D: 0, newest: null, got: 0, gotAt: 0, ph: null, phAt: 0, dx: null, dy: null, ex: 0, ey: 0,
+  mode: 'off', freshSince: 0, reatt: false, shownS: 0, hitsSeen: -1, pulseAt: 0 };
+function rtEmu() { return window.FV_RT_EMU || (window.dontsliceme && window.dontsliceme.ldRtEmu) || null; } // tests only: { db: 'host:port', auth: 'http://host:port', ns, token }; nothing in the game sets it
+function ldWtNow() { return arOn() ? arWt() : ldRun ? ldNow() - ldRun.startAt : 0; } // H1: the duel's world time (WP3 replaces this body with the slewed arena clock)
+const rtP = (p, what) => { if (p && typeof p.then === 'function') p.then(null, e => { RT.lastErr = what + ' ' + ((e && (e.code || e.message)) || e); }); return p; }; // never an unhandled rejection
+function rtOn(path, cb) { const r = RT.db.ref(path), g = RT.gen; let n = 0; const fail = e => { RT.lastErr = 'read ' + ((e && e.code) || e); if (++n <= 5) setTimeout(() => { if (g === RT.gen && RT.refs.some(x => x[1] === cb)) { try { r.on('value', cb, fail); } catch (x) {} } }, 1000); }; // a listener refused (the sign-in token not attached yet) listens again 1 s later, at most 5 times
+  r.on('value', cb, fail); RT.refs.push([r, cb]); return r; }
+function ldRtDetach() { for (const [r, cb] of RT.refs) { try { r.off('value', cb); } catch (e) {} } RT.refs = []; RT.pRef = null; }
+function ldRtReset() { Object.assign(RT, { run: '', seq: 0, wAt: 0, hist: [], pend: [0, 0], wq: [], unAt: 0, finSent: 0, buf: [], lat: [], D: 0, newest: null, got: 0, gotAt: 0, ph: null, phAt: 0, dx: null, dy: null, ex: 0, ey: 0, hold: false, rx: null, ry: null, mode: 'off', freshSince: 0, reatt: false, shownS: 0, hitsSeen: -1, pulseAt: 0, cutShown: false }); }
+// -- the lobby: open the room's socket, presence, the pick mirror, the friend's mirror
+function ldRtLobby(L) { // every lobby view (ldOnLobby, ldEnter): opens, keeps or closes the room
+  if (!L || !L.id) return;
+  if (L.state === 'go') { if (L.ar !== 1 && RT.lob) ldRtClose(); return; } // the start: the arena keeps the socket for the run, today's mode closes it
+  if (!['wait', 'count'].includes(L.state) || L.rt !== 1 || !NET_CONFIG.databaseURL) { if (RT.lob && !RT.run) ldRtClose(); return; }
+  const o = (L.m || []).find(s => !s.me), fid = (o && o.fid) || ''; if (!fid) return;
+  if (RT.lob !== L.id || RT.fid !== fid || (!RT.db && !RT.opening && nowMs() - RT.openAt >= 30000)) { ldRtOpen(L.id, fid); return; } // a database that never loaded is tried again every 30 s
+  ldRtK();
+}
+async function ldRtOpen(id, fid) {
+  const g = ++RT.gen; ldRtDetach(); Object.assign(RT, { lob: id, fid, conn: false, connAt: 0, offAt: nowMs(), ackAt: 0, presAt: 0, kSent: '', fk: null, fon: null });
+  let d = null; RT.opening = true; RT.openAt = nowMs(); try { d = await NET.rtdb(); } catch (e) { d = null; } finally { if (g === RT.gen) RT.opening = false; }
+  if (g !== RT.gen) return; // closed or replaced meanwhile
+  if (!d) { RT.lastErr = 'sdk'; return; }
+  RT.db = d; RT.uid = d.uid || NET.rtUid || NET.uid || ''; if (!RT.uid) { RT.lastErr = 'uid'; return; }
+  try { if (d.goOnline) d.goOnline(); } catch (e) {}
+  const base = 'ld/' + id + '/';
+  rtOn('.info/connected', ldRtConn);
+  rtOn(base + 'on/' + fid, s => { RT.fon = s ? s.val() : null; });
+  if (ldRun && ldRun.id === id && ldRun.ar && !ldRun.res) { ldRtAttach(); return; }
+  RT.fkInit = false; rtOn(base + 'k/' + fid, s => ldRtFk(s ? s.val() : null)); // my own k is written once the socket is connected (ldRtConn)
+}
+function ldRtConn(s) { const c = !!(s && s.val()); RT.conn = c; if (c) { RT.connAt = nowMs(); ldRtPres(true); } else RT.offAt = nowMs(); } // a (re)connect registers the cleanup again and rewrites presence and the pick
+function ldRtPres(re) { const d = RT.db; if (!d || !RT.lob || !RT.uid) return; const base = 'ld/' + RT.lob + '/', g = RT.gen; RT.presAt = nowMs();
+  try { if (re) { for (const k of ['on', 'k', 'p']) rtP(d.ref(base + k + '/' + RT.uid).onDisconnect().remove(), 'od'); RT.kSent = ''; } // the server removes my strings when this socket drops
+    rtP(d.ref(base + 'on/' + RT.uid).set({ '.sv': 'timestamp' }), 'on').then(() => { if (g === RT.gen) RT.ackAt = nowMs(); }, () => { if (g === RT.gen) { RT.presAt = nowMs() - LD_RT_PRES_MS + 1000; RT.presRe = true; } }); // refused or failed: again with the next lobby call after 1 s, cleanup included
+    if (re && !RT.run) ldRtK(); } catch (e) { RT.lastErr = 'on ' + (e && e.message); } }
+function ldRtK() { const d = RT.db, L = ldLob; if (!d || !RT.uid || !RT.lob || RT.run || !L || L.id !== RT.lob || !['wait', 'count'].includes(L.state)) return;
+  const v = (ldFruitOk(ldFruitPick) ? ldFruitPick : 'appel') + '|' + (ldMeReady(L) ? 1 : 0); RT.kVal = v; if (v === RT.kSent) return; RT.kSent = v;
+  const g = RT.gen; try { rtP(d.ref('ld/' + RT.lob + '/k/' + RT.uid).set(v), 'k').then(null, () => { if (g === RT.gen && RT.kSent === v) RT.kSent = ''; }); } catch (e) { RT.lastErr = 'k'; RT.kSent = ''; } } // a refused write is sent again with the next view
+function ldRtFk(v) { const was = RT.fk, first = !RT.fkInit; RT.fk = v; RT.fkInit = true; if (typeof v !== 'string' || v === was) return; const L = ldLob; if (!L || L.id !== RT.lob || !['wait', 'count'].includes(L.state)) return;
+  const o = L.m.find(s => !s.me); if (!o) return; const [f, r] = v.split('|'); if (ldFruitOk(f)) o.fruit = f; o.rd = r === '1'; // display only: the next server view replaces it
+  ldPaint(); if (!first) { ldPollAt = 0; if (!ldLobBusy) ldPollLobby(); } } // the authoritative ldlobby call goes out at once
+function ldRtRc() { if (!RT.db || !RT.lob || RT.lob !== ldLobId || RT.run) return 0; const now = nowMs(); if (RT.conn && now - RT.presAt >= LD_RT_PRES_MS) { const re = !!RT.presRe; RT.presRe = false; ldRtPres(re); } // rc: 1 while the presence write is acknowledged on a connected socket
+  return RT.conn && RT.ackAt > 0 && now - RT.ackAt <= LD_RT_RC_MS ? 1 : 0; }
+function ldRtClose() { const d = RT.db, id = RT.lob, uid = RT.uid; RT.gen++; RT.opening = false; ldRtDetach(); ldRtReset(); RT.lob = ''; RT.fid = ''; RT.kSent = ''; RT.kVal = ''; RT.fk = null; RT.fon = null; RT.conn = false;
+  if (!d) return; const g = RT.gen, ps = [];
+  if (id && uid) for (const k of ['on', 'k', 'p']) { try { ps.push(d.ref('ld/' + id + '/' + k + '/' + uid).remove().catch(() => {})); } catch (e) {} }
+  const off = () => { if (g === RT.gen && !RT.lob) { try { d.goOffline(); } catch (e) {} } }; // no idle socket (heat): offline once my strings are gone, at most 2 s later
+  Promise.race([Promise.all(ps), new Promise(z => setTimeout(z, 2000))]).then(off, off); }
+// -- the run: the writer (15 Hz), the reader and its playout, the watchdog
+function ldRtRun(L) { const X = ldRun; if (!X) return; ldRtReset(); RT.finSent = 0;
+  if (!X.ar) { if (RT.lob) ldRtClose(); return; } // today's mode: no stream
+  const o = ((L && L.m) || []).find(s => !s.me), fid = (o && o.fid) || X.fid || '';
+  if (!RT.db || RT.lob !== X.id || RT.fid !== fid) { ldRtOpen(X.id, fid); return; } // attaches when the database is ready
+  ldRtAttach(); }
+function ldRtAttach() { const X = ldRun; if (!X || !RT.db || RT.run === X.id) return; RT.run = X.id; ldRtDetach(); const base = 'ld/' + X.id + '/';
+  rtOn('.info/connected', ldRtConn); rtOn(base + 'on/' + RT.fid, s => { RT.fon = s ? s.val() : null; }); RT.pRef = rtOn(base + 'p/' + RT.fid, ldRtOnP); } // one listener on the friend's p, never on the room (it would echo my own writes)
+function ldRtFrame(now) { const X = ldRun; if (!X || !X.ar || X.res) return; ldRtTick(X, now); } // H2: called by frame after update; one test outside an arena run
+function ldRtHit() { if (ldRun && !ldRun.fin) ldRun.hits = (ldRun.hits || 0) + 1; } // H3: every hit (shell, segment, cherry, split, pit)
+const ldRtSt = () => document.hidden || G.state === 'pause' ? 1 : G.state === 'dying' ? 2 : 0;
+function ldRtTick(X, now) { const d = RT.db; if (!d || RT.run !== X.id) return; ldRtWatch(); if (X.fin || !['play', 'dying', 'pause'].includes(G.state)) return;
+  const iv = G.state === 'pause' ? LD_RT_PAUSE_IV : LD_RT_MS; if (RT.wAt && now < RT.wAt + iv - .5) return;
+  if (RT.pend[(RT.seq + 1) & 1]) return; // the write two before this one is still unsent: skip the frame (no queue builds up on a stalled socket)
+  RT.wAt = RT.wAt && now - RT.wAt < iv * 2 ? RT.wAt + iv : now; RT.seq = (RT.seq + 1) % 1e6; ldRtSet(ldRtMsg(X, RT.seq, ldRtSt()), RT.seq); }
+function ldRtMsg(X, seq, st) { // seq|t|x0,y0|d1,x1,y1|d2,x2,y2|score|hits|state|size|tx,ty|fl (board units; t on the duel clock)
+  const t = Math.round(ldWtNow()), x = Math.round(G.px), y = Math.round(G.py), h = RT.hist, a = h[0] || [t, x, y], b = h[1] || a; RT.hist = [[t, x, y], a];
+  let sz = 100; try { sz = Math.round(100 * curR() / fruitDef().r); } catch (e) {}
+  const fl = (G.fever > 0 ? 1 : 0) | (G.power && G.power.kind === 'schild' ? 2 : 0);
+  return `${seq}|${t}|${x},${y}|${t - a[0]},${a[1]},${a[2]}|${t - b[0]},${b[1]},${b[2]}|${G.sapRun}|${X.hits || 0}|${st}|${sz}|${Math.round(G.tx)},${Math.round(G.ty)}|${fl}`; }
+function ldRtSet(msg, seq) { const d = RT.db; if (!d || !RT.run || !RT.uid) return; const at = nowMs(), par = seq & 1; RT.pend[par] = seq || 1e6; RT.sent++; RT.wq.push([seq, at]); if (RT.wq.length > 64) RT.wq.shift(); RT.unAt = RT.wq[0][1]; RT.last = msg;
+  let p = null; try { p = d.ref('ld/' + RT.run + '/p/' + RT.uid).set(msg); } catch (e) { RT.pend[par] = 0; RT.lastErr = 'p'; return; }
+  const g = RT.gen; rtP(p, 'p').then(() => { if (g !== RT.gen) return; if (RT.pend[par] === (seq || 1e6)) RT.pend[par] = 0; RT.acked++; RT.ackAt = nowMs(); const i = RT.wq.findIndex(w => w[0] === seq); if (i >= 0) RT.wq.splice(0, i + 1); RT.unAt = RT.wq.length ? RT.wq[0][1] : 0; }, () => { if (RT.pend[par] === (seq || 1e6)) RT.pend[par] = 0; });
+  return p; }
+function ldRtWatch() { const now = nowMs(); if (now - RT.redialAt < LD_RT_REDIAL) return; // a silently stuck socket: offline + online, at most every 10 s
+  if ((RT.unAt && now - RT.unAt >= LD_RT_ACK) || (!RT.conn && RT.offAt && now - RT.offAt >= LD_RT_ACK)) { RT.redialAt = now; RT.redials++; try { RT.db.goOffline(); RT.db.goOnline(); } catch (e) {} RT.unAt = RT.wq.length ? now : 0; return; }
+  if (RT.fon != null && !RT.reatt && RT.gotAt && now - RT.gotAt >= 2000 && !RT.unAt && RT.pRef && !(RT.newest && RT.newest.st >= 2)) { RT.reatt = true; try { RT.pRef.off('value', ldRtOnP); RT.pRef.on('value', ldRtOnP); } catch (e) {} } } // the friend is online but silent: listen again once
+function ldRtHidden() { const X = ldRun; if (!X || !X.ar || X.fin || X.res || !RT.db || RT.run !== X.id) return; RT.seq = (RT.seq + 1) % 1e6; ldRtSet(ldRtMsg(X, RT.seq, 1), RT.seq); } // the app goes to the background: state 1 at once
+document.addEventListener('visibilitychange', () => { if (document.hidden) ldRtHidden(); });
+function ldRtEnd(quit) { const X = ldRun; if (!X || !X.ar || !RT.db || RT.run !== X.id || RT.finSent) return; RT.finSent = 1; // my final, three times 66 ms apart, then the socket closes
+  const st = quit ? 3 : G.duelOut && G.duelOut.died ? 2 : G.cleared ? 4 : 2, g = RT.gen; let n = 0, last = null;
+  const one = () => { if (g !== RT.gen || RT.run !== X.id) return; RT.seq = (RT.seq + 1) % 1e6; last = ldRtSet(ldRtMsg(X, RT.seq, st), RT.seq);
+    if (++n < 3) { setTimeout(one, 66); return; } const fin = () => { if (g === RT.gen && RT.run === X.id) setTimeout(() => { if (g === RT.gen && RT.run === X.id) ldRtClose(); }, 1000); };
+    Promise.race([last || Promise.resolve(), new Promise(z => setTimeout(z, 2000))]).then(fin, fin); };
+  one(); }
+function ldRtOnP(s) { const v = s && typeof s.val === 'function' ? s.val() : null; if (typeof v === 'string') ldRtIn(v); }
+function ldRtIn(v) { const f = String(v).split('|'); if (f.length < 10) return; const n = x => { const q = +x; return Number.isFinite(q) ? clamp(q, -1e6, 1e6) : 0; }, bx = x => clamp(x, -50, 410), by = y => clamp(y, -50, 770), P = i => String(f[i] || '').split(',').map(n), t = n(f[1]), p0 = P(2), p1 = P(3), p2 = P(4), a = ldWtNow(), now = nowMs(), B = RT.buf; // only finite numbers; positions within the board's margins (the friend's string is display only)
+  RT.got++; RT.gotAt = now; RT.reatt = false;
+  const add = (tt, x, y) => { if (B.some(q => q[0] === tt)) return; let i = B.length; while (i > 0 && B[i - 1][0] > tt) i--; B.splice(i, 0, [tt, x, y]); }; // keyed by t: duplicates and repeats ignored
+  add(t - p2[0], bx(p2[1]), by(p2[2])); add(t - p1[0], bx(p1[1]), by(p1[2])); add(t, bx(p0[0]), by(p0[1]));
+  const nw = RT.newest; if (!nw || t > nw.t) { const tg = P(9); RT.newest = { t, aw: a, seq: n(f[0]), x: bx(p0[0]), y: by(p0[1]), s: clamp(n(f[5]), 0, 1e6), hits: clamp(n(f[6]), 0, 999), st: n(f[7]), size: clamp(n(f[8]) || 100, 20, 300), tx: bx(tg[0]), ty: by(tg[1]), fl: n(f[10]), at: now };
+    RT.lat.push(a - t); if (RT.lat.length > LD_RT_WIN) RT.lat.shift(); const q = RT.lat.slice().sort((x, y) => x - y); RT.D = Math.min(LD_RT_DMAX, q[Math.max(0, Math.ceil(LD_RT_Q * q.length) - 1)] + LD_RT_PAD); } // no lower clamp: a clock offset moves L and D together
+  const keep = (RT.newest ? RT.newest.t : t) - LD_RT_KEEP; while (B.length > 2 && B[0][0] < keep) B.shift(); if (B.length > 200) B.splice(0, B.length - 200); }
+function ldRtPos(ph, nw) { const B = RT.buf; if (!B.length) return [nw.x, nw.y]; if (ph <= B[0][0]) return [B[0][1], B[0][2]]; const L = B[B.length - 1];
+  if (ph >= L[0]) { const e = Math.min(LD_RT_EXTRA, ph - L[0], Math.max(0, ph - (nw.aw - RT.D))), F = FRUITS[ldRun && ldRun.o && ldRun.o.fruit] || FRUITS.appel, k = 1 - Math.exp(-e / 1000 * F.ease); return [L[1] + (nw.tx - L[1]) * k, L[2] + (nw.ty - L[2]) * k]; } // past the newest: towards the finger for at most 100 ms, counted from the sample's arrival (no jump when a late sample lands), then hold
+  let i = B.length - 2; while (i > 0 && B[i][0] > ph) i--; const A = B[i], C = B[i + 1], k = (ph - A[0]) / Math.max(1, C[0] - A[0]); return [A[1] + (C[1] - A[1]) * k, A[2] + (C[2] - A[2]) * k]; }
+function ldLiveAt() { // the friend's fruit now: the playhead D behind the newest arrival, interpolated, glided after a stall, smoothed
+  const X = ldRun, nw = RT.newest; if (!X || !X.ar || !nw) return null; const a = ldWtNow(), now = nowMs(), D = RT.D, dt = RT.phAt ? clamp(now - RT.phAt, 0, 200) : 0, pt = a - D; RT.phAt = now; let jump = false;
+  if (RT.ph === null) RT.ph = pt; else { RT.ph += dt * clamp(1 + (pt - RT.ph) / 300, .75, 1.05); if (pt - RT.ph > LD_RT_JUMP) { RT.ph = pt; jump = true; } }
+  let [x, y] = ldRtPos(RT.ph, nw); const B = RT.buf, hold = !!B.length && RT.ph - B[B.length - 1][0] >= LD_RT_EXTRA;
+  if (jump && RT.dx !== null) { RT.ex = RT.dx - x; RT.ey = RT.dy - y; } else if (RT.hold && !hold && RT.rx !== null) { RT.ex += RT.rx - x; RT.ey += RT.ry - y; } // after a stall (held, then late samples): glide instead of a snap
+  RT.hold = hold; RT.rx = x; RT.ry = y;
+  const ke = Math.exp(-dt / LD_RT_TAU); RT.ex *= ke; RT.ey *= ke; x += RT.ex; y += RT.ey;
+  if (RT.dx === null) { RT.dx = x; RT.dy = y; } else { const ks = 1 - Math.exp(-dt / LD_RT_SMOOTH); RT.dx += (x - RT.dx) * ks; RT.dy += (y - RT.dy) * ks; }
+  return { x: RT.dx, y: RT.dy, s: nw.s, size: nw.size, hits: nw.hits, state: nw.st, fl: nw.fl, mode: ldRtMode(), age: a - nw.t - D }; }
+function ldRtMode() { const X = ldRun; if (!X || !X.ar) return 'off'; const nw = RT.newest, a = ldWtNow(), now = nowMs(); let m;
+  if (!nw) { RT.freshSince = 0; m = a >= LD_RT_CONNECT ? 'fallback' : 'live'; } // nothing came within 4 s of the start: the beats
+  else { const age = a - nw.t - RT.D, fin = nw.st >= 2 && nw.st <= 4, held = fin || (nw.st === 1 && age < LD_RT_PAUSED_MS), fresh = held || age < LD_RT_FRESH;
+    if (fresh) { if (!RT.freshSince) RT.freshSince = now; } else RT.freshSince = 0;
+    if (RT.mode === 'fallback' || RT.mode === 'lost') m = (held && fresh) || (RT.freshSince && now - RT.freshSince >= LD_RT_BACK) ? 'live' : 'fallback'; // back to live after 2 s of fresh samples
+    else m = held || age < LD_RT_WEAK ? 'live' : age < LD_RT_LOST ? 'weak' : 'fallback';
+    if (m === 'weak' && age >= LD_RT_CONNECT && ((RT.unAt && now - RT.unAt >= LD_RT_CONNECT) || (!RT.conn && RT.offAt && now - RT.offAt >= LD_RT_CONNECT))) m = 'fallback'; } // my own socket is down too (no ack, or disconnected, for 4 s): the beats now, not after 10 s
+  if (m === 'fallback') { const O = X.o; if (O && O.go && O.got && (nowMs() - O.got > LD_STALE_MS || (!O.fin && ldNow() - O.at > LD_STALE_MS))) m = 'lost'; } // the beats stopped too
+  return RT.mode = m; }
+function ldRtState() { const now = nowMs(); return { on: !!RT.db && !!RT.lob, conn: RT.conn, acked: RT.acked, ackAge: RT.ackAt ? now - RT.ackAt : -1, mode: ldRun && ldRun.ar ? ldRtMode() : 'off', D: Math.round(RT.D), age: RT.newest && ldRun ? Math.round(ldWtNow() - RT.newest.t - RT.D) : -1, seq: RT.seq, got: RT.got, sent: RT.sent, lastErr: RT.lastErr, lob: RT.lob, run: RT.run, redials: RT.redials }; } // H6
+function ldRtRecPush(x, y, mode) { const H = window.dontsliceme; if (!H || !H.ldRtRec) return; if (H.ldRtLog.length < 20000) H.ldRtLog.push({ at: performance.now(), wt: ldWtNow(), x, y, mode, ph: RT.ph }); } // ph: the playhead (the friend's duel time drawn now)
+function ldRtDraw(m) { // the live ghost (design 4): alpha by state, the ring, size, hits pulse, Fever glow, shield ring, the label
+  const X = ldRun, O = X.o, nw = RT.newest; if (!nw) return; const p = ldLiveAt(); if (!p) return; const k = FRUITS[O.fruit] ? O.fruit : 'appel', r = FRUITS[k].r * clamp(nw.size, 10, 300) / 100;
+  if (nw.st === 0 && RT.cutShown) { RT.cutShown = false; O.shown = false; } // the friend went on after the cut (Verder): the ghost comes back
+  if (nw.st >= 2 && nw.st <= 4 && RT.ph >= nw.t - 1) { if (!O.shown) { O.shown = true; RT.cutShown = true; if (nw.st !== 4) { burst(p.x, p.y, 24, ['#ffffff', '#7fd4ff'], 260); addText(p.x, p.y - 30, `${O.name} is ${nw.st === 3 ? 'gestopt' : 'gesneden'} na ${Math.round(nw.t / 1000)} s`, '#7fd4ff'); SFX.pop(); } } return; } // the friend's end at the live position, then hidden
+  if (nw.st === 1 || O.shown) return; // K6: hidden while the friend pauses
+  if (RT.hitsSeen < 0) RT.hitsSeen = nw.hits; if (nw.hits > RT.hitsSeen) { RT.hitsSeen = nw.hits; RT.pulseAt = nowMs(); addText(p.x, p.y - r - 14, '-1', '#7fd4ff'); }
+  const over = Math.hypot(p.x - G.px, p.y - G.py) < curR() + r; let fa = .6, ra = .75; if (m === 'weak') { fa = .6 - .3 * clamp((p.age - LD_RT_WEAK) / 1000, 0, 1); ra = .4; } else if (over) { fa = .35; ra = .5; }
+  ctx.save(); ctx.globalAlpha = fa; drawShadow(p.x, p.y, r); drawFruit(k, p.x, p.y, r, 0, undefined, { look: [0, 0], scared: 0, hat: 'none' });
+  ctx.lineWidth = 2; ctx.globalAlpha = ra; ctx.strokeStyle = '#bfe8ff'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 5, 0, TAU); ctx.stroke();
+  if (p.fl & 1) { ctx.globalAlpha = Math.min(1, fa + .3); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,170,40,.5)'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 9, 0, TAU); ctx.stroke(); } // Fever: a soft orange glow
+  if (p.fl & 2) { ctx.globalAlpha = Math.min(1, fa + .3); ctx.lineWidth = 2; ctx.strokeStyle = '#5ac8ff'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 7, 0, TAU); ctx.stroke(); } // the shield
+  { const pa = nowMs() - RT.pulseAt; if (RT.pulseAt && pa < 150) { ctx.globalAlpha = 1 - pa / 150; ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 5 + pa / 15, 0, TAU); ctx.stroke(); } } // a hit: a white pulse of 150 ms
+  ctx.globalAlpha = .95; ctx.font = `800 12px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.miterLimit = 2; ctx.strokeStyle = 'rgba(0,0,0,.6)'; const lbl = m === 'weak' ? `${O.name} · verbinding zwak` : O.name, lx = ldRtLx(lbl, p.x); ctx.strokeText(lbl, lx, p.y + r + 9); ctx.fillStyle = '#bfe8ff'; ctx.fillText(lbl, lx, p.y + r + 9); ctx.restore();
+  ldRtRecPush(p.x, p.y, m); }
+function ldRtThem(X, O, p, nm) { const nw = RT.newest; if (!nw || (p && p.over)) return ''; const m = ldRtMode(); // the HUD's friend part from the stream (the same strings as today); '' = today's text
+  RT.shownS = Math.max(RT.shownS, nw.s, m === 'fallback' || m === 'lost' ? O.s || 0 : 0); // monotonic: never lower than shown before
+  if (nw.st >= 2 && nw.st <= 3 && RT.ph !== null && RT.ph >= nw.t - 1) return `${nm} ${nw.st === 3 ? 'gestopt' : 'gesneden'} (${RT.shownS} sap)`;
+  if (nw.st === 1) return `${nm} pauzeert`; if (m === 'lost') return `${nm}: verbinding…`; return `${nm} ${RT.shownS}`; }
+function ldRtDot(x, y) { const m = ldRtMode(); ctx.save(); ctx.globalAlpha = 1; ctx.fillStyle = m === 'live' ? '#46c04a' : m === 'weak' ? '#e0a030' : '#9a9a9a'; ctx.beginPath(); ctx.arc(x, y, 3.5, 0, TAU); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.stroke(); ctx.restore(); } // a thin dark edge: the grey dot stays visible on a light kitchen
+const ldRtLx = (lbl, x) => { const w = ctx.measureText(lbl).width; return clamp(x, Math.min(W / 2, w / 2 + 4), Math.max(W / 2, W - w / 2 - 4)); }; // the ghost's label stays on the board near an edge // the HUD dot: live green, weak orange, delayed or lost grey
 const LD_SS = 'dontsliceme-ldstarted';
 function ldBegin() {
   const L = ldLob, id = ldLobId; if (!L || !id || ldBusyRun()) return; let started = !!L.started; try { if (sessionStorage.getItem(LD_SS) === id) started = true; } catch (e) {}
@@ -9000,16 +9377,16 @@ function ldBegin() {
   duelFrom = G.state === 'friends' ? 'friends' : 'games'; duelView = G.state === 'friends' ? friendsView : 'duels';
   duelNext = { to: '', toName: '', challenge: 'live', fromName: o.name, live: { id } }; // challenge: a friend duel (never charged, no sap, no public ghost); live: this module takes the result
   ldRun = { id, startAt: L.startAt, role: L.host ? 0 : 1, slot: -1, busy: false, pause: 0, pauses: 0, pauseAt: 0, hidAt: 0, myStart: ldNow(), fin: null, finAt: 0, resAt: 0, resGap: 0, res: null, fid: o.fid || '', name: o.name, out: [], fx: [], sending: false, late: false, noBeat: false,
-    o: { name: o.name, fruit: duelOpp.fruit, go: false, P: [], kMax: -1, t: 0, s: 0, at: 0, got: 0, dead: false, pz: false, fin: null, left: false, late: false }, play: 0, playAt: 0, ev: new Map() };
+    o: { name: o.name, fruit: duelOpp.fruit, go: false, P: [], kMax: -1, t: 0, s: 0, at: 0, got: 0, dead: false, pz: false, fin: null, left: false, late: false }, play: 0, playAt: 0, ev: new Map(), ar: L.ar === 1 ? 1 : 0, rt: L.rt === 1 ? 1 : 0, hits: 0 }; ldRtRun(L); // v0.32.10: ar = the shared arena with the live stream (fixed by the server at go)
   const timeUp = !(meS.rd || ldRdSend === true); ldRdSend = null; ldSheetK = ''; // v0.32.8: the duel starts early only when both were Klaar; otherwise the time ran out
-  ldLobId = ''; ldLob = null; startRun(fruit, true, 'duel'); G.note = timeUp ? `Tijd om: je speelt met ${FRUITS[fruit].name}` : `Live duel tegen ${o.name} · 90 s`; G.noteT = timeUp ? 5000 : 4000; ldBeat();
+  ldLobId = ''; ldLob = null; startRun(fruit, true, 'duel'); arStart(); G.note = timeUp ? `Tijd om: je speelt met ${FRUITS[fruit].name}` : `Live duel tegen ${o.name} · 90 s`; G.noteT = timeUp ? 5000 : 4000; ldBeat();
 }
 const ldCover = on => { const p = $('#scr-pause'); if (p) p.classList.toggle('ld-cover', !!on); };
 function ldRunTick(now) {
   const X = ldRun;
   if (!X.fin && ldLive() && ['play', 'dying', 'pause', 'continue', 'ad'].includes(G.state)) {
     if (G.state === 'pause') { if (!X.pauseAt) { X.pauseAt = X.hidAt && now - X.hidAt < 600000 ? X.hidAt : now; X.hidAt = 0; X.pauses++; } const used = X.pause + (now - X.pauseAt), left = Math.max(0, LD_PAUSE_MS - used); ldCover(true); // the approved pause rule: 3 pauses, 60 s together, the board covered
-      const el = $('#pause-time'), t = X.pauses >= LD_PAUSES ? `Live duel: je laatste pauze, nog ${Math.ceil(left / 1000)} s. Pauzeer je nog eens, dan stopt je duel; het telt nu met ${G.sapRun} sap.` : `Live duel: pauze ${X.pauses} van ${LD_PAUSES}, nog ${Math.ceil(left / 1000)} s. Daarna stopt je duel; het telt nu met ${G.sapRun} sap.`;
+      const el = $('#pause-time'), t = arOn() ? (X.pauses >= LD_PAUSES ? `Live duel: je laatste pauze, nog ${Math.ceil(left / 1000)} s. Het duel loopt door. Pauzeer je nog eens, dan stopt je duel; het telt nu met ${G.sapRun} sap.` : `Live duel: pauze ${X.pauses} van ${LD_PAUSES}, nog ${Math.ceil(left / 1000)} s. Het duel loopt door; je fruit is zo lang veilig. Daarna stopt je duel; het telt nu met ${G.sapRun} sap.`) /* v0.32.10 arena */ : X.pauses >= LD_PAUSES ? `Live duel: je laatste pauze, nog ${Math.ceil(left / 1000)} s. Pauzeer je nog eens, dan stopt je duel; het telt nu met ${G.sapRun} sap.` : `Live duel: pauze ${X.pauses} van ${LD_PAUSES}, nog ${Math.ceil(left / 1000)} s. Daarna stopt je duel; het telt nu met ${G.sapRun} sap.`;
       const tt = tr(t); if (el && el.textContent !== tt) { el.dataset.nl = t; el.textContent = tt; }
       if (used > LD_PAUSE_MS || X.pauses > LD_PAUSES) { X.pause = Math.min(used, 65000); X.pauseAt = 0; ldCover(false); quitRun(); return; } }
     else { if (X.pauseAt) { X.pause += now - X.pauseAt; X.pauseAt = 0; } ldCover(false); }
@@ -9020,7 +9397,7 @@ function ldRunTick(now) {
   else if (!X.fin && !ldLive()) { ldCover(false); ldRun = null; } // the run was replaced (should not happen)
 }
 function ldPayload() { const X = ldRun, L = (G.duel && G.duel.ld) || { pts: [] }, n = L.pts.length / 3, k0 = Math.max(0, n - LD_PTS), pause = X.pause + (X.pauseAt ? nowMs() - X.pauseAt : 0);
-  return { id: X.id, t: Math.round(G.modeT), s: G.sapRun, k0, p: L.pts.slice(k0 * 3), dead: G.state === 'dying', pz: G.state === 'pause', pause: Math.round(pause), lag: Math.round((ldNow() - X.myStart) - G.modeT - pause), ev: X.out }; }
+  return { id: X.id, t: Math.round(arOn() ? AR.wt : G.modeT), s: G.sapRun, k0, p: L.pts.slice(k0 * 3), dead: G.state === 'dying', pz: G.state === 'pause', pause: Math.round(pause), lag: Math.round(arOn() ? ldNow() - X.startAt - G.modeT : (ldNow() - X.myStart) - G.modeT - pause), ev: X.out }; }
 async function ldBeat() { const X = ldRun; if (!X || X.busy || X.fin || X.noBeat) return; X.busy = true; try { const r = await ldCall('ldbeat', ldPayload(), 4000); if (X === ldRun) ldOnBeat(r); } finally { X.busy = false; } }
 function ldOnBeat(r) { const X = ldRun; if (!r || !X) return;
   if (!r.ok) { if (r.error === 'late') { X.late = true; X.noBeat = true; G.note = 'Je startte te laat: dit duel telt niet.'; G.noteT = 4000; } else if (r.error === 'left' || r.error === 'otherdevice' || r.error === 'gone') X.noBeat = true; return; }
@@ -9041,20 +9418,20 @@ function ldOppAt() { // the friend's fruit as shown now: ~5 s behind its last kn
   return { x: lerp(a[0], b[0], k), y: lerp(a[1], b[1], k) * H / 1000, s: a[2], t: X.play, stale: nowMs() - O.got > LD_STALE_MS || (!O.fin && ldNow() - O.at > LD_STALE_MS), over: !!O.fin && X.play >= Math.min((O.fin.t || 0) - GHOST_STEP, O.kMax * GHOST_STEP) - 1 }; // over: the playback reached the friend's last point (the final time itself lies after it: no points are recorded while the fruit dies)
 }
 function ldDraw() { // the other fruit, translucent, with its name (called after duelDraw)
-  if (!ldRun || !ldLive() || !['play', 'dying', 'pause'].includes(G.state)) return; const p = ldOppAt(); if (!p) return; const O = ldRun.o;
+  if (!ldRun || !ldLive() || !['play', 'dying', 'pause'].includes(G.state)) return; if (ldRun.ar) { const m = ldRtMode(); if (m === 'live' || m === 'weak') { ldRtDraw(m); return; } } /* v0.32.10 */ const p = ldOppAt(); if (!p) return; const O = ldRun.o;
   if (p.over && !O.shown) { O.shown = true; burst(p.x, p.y, 24, ['#ffffff', '#7fd4ff'], 260); addText(p.x, p.y - 30, `${O.name} is ${O.fin.quit ? 'gestopt' : 'gesneden'} na ${Math.round((O.fin.t || 0) / 1000)} s`, '#7fd4ff'); SFX.pop(); }
-  if (p.over) return; const k = FRUITS[O.fruit] ? O.fruit : 'appel', r = FRUITS[k].r; ctx.save(); ctx.globalAlpha = p.stale ? .22 : .55; drawShadow(p.x, p.y, r); drawFruit(k, p.x, p.y, r, 0, undefined, { look: [0, 0], scared: 0, hat: 'none' });
-  ctx.globalAlpha = p.stale ? .3 : .7; ctx.lineWidth = 2; ctx.strokeStyle = '#bfe8ff'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 5, 0, TAU); ctx.stroke(); // a thin light-blue ring: a dark fruit (Kiwi, Kokosnoot, Pruim) stays visible on the dark board
-  ctx.globalAlpha = .95; ctx.font = `800 12px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.miterLimit = 2; ctx.strokeStyle = 'rgba(0,0,0,.6)'; const lbl = p.stale ? `${O.name} · verbinding…` : O.name; ctx.strokeText(lbl, p.x, p.y + r + 9); ctx.fillStyle = '#bfe8ff'; ctx.fillText(lbl, p.x, p.y + r + 9); ctx.restore();
+  if (p.over) return; const k = FRUITS[O.fruit] ? O.fruit : 'appel', r = FRUITS[k].r; ctx.save(); ctx.globalAlpha = p.stale ? .22 : ldRun.ar ? .45 : .55; drawShadow(p.x, p.y, r); drawFruit(k, p.x, p.y, r, 0, undefined, { look: [0, 0], scared: 0, hat: 'none' });
+  ctx.globalAlpha = p.stale ? .3 : ldRun.ar ? .6 : .7; ctx.lineWidth = 2; ctx.strokeStyle = '#bfe8ff'; if (ldRun.ar && !p.stale) ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.arc(p.x, p.y, r + 5, 0, TAU); ctx.stroke(); if (ldRun.ar) ctx.setLineDash([]); // a thin light-blue ring: a dark fruit (Kiwi, Kokosnoot, Pruim) stays visible on the dark board
+  ctx.globalAlpha = .95; ctx.font = `800 12px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.miterLimit = 2; ctx.strokeStyle = 'rgba(0,0,0,.6)'; const lbl = p.stale ? `${O.name} · verbinding…` : ldRun.ar ? `${O.name} · vertraagd` : O.name, lx = ldRun.ar ? ldRtLx(lbl, p.x) : p.x; ctx.strokeText(lbl, lx, p.y + r + 9); ctx.fillStyle = '#bfe8ff'; ctx.fillText(lbl, lx, p.y + r + 9); ctx.restore(); if (ldRun.ar) ldRtRecPush(p.x, p.y, p.stale ? 'lost' : 'fallback');
 }
 function ldHud() { const X = ldRun, ds = Math.max(0, Math.ceil((LD_RUN_MS - G.modeT) / 1000)), O = X && X.o, p = X ? ldOppAt() : null, nm = O ? O.name : '';
-  const them = !O ? '' : !O.go ? (O.left || O.late || ldNow() - X.startAt > LD_LATE_MS + 3000 ? `${nm} startte niet` : `${nm} start…`) : p && p.over ? `${nm} ${O.fin.quit ? 'gestopt' : 'gesneden'} (${O.fin.s} sap)` : p && p.stale ? `${nm}: verbinding…` : O.pz ? `${nm} pauzeert` : `${nm} ${p ? p.s : O.s}`;
+  const rtT = O && X.ar ? ldRtThem(X, O, p, nm) : '', them = !O ? '' : rtT ? rtT /* v0.32.10: the stream (asked once per frame) */ : !O.go ? (O.left || O.late || ldNow() - X.startAt > LD_LATE_MS + 3000 ? `${nm} startte niet` : `${nm} start…`) : p && p.over ? `${nm} ${O.fin.quit ? 'gestopt' : 'gesneden'} (${O.fin.s} sap)` : p && p.stale ? `${nm}: verbinding…` : O.pz ? `${nm} pauzeert` : `${nm} ${p ? p.s : O.s}`;
   return `Live · nog ${ds} s · jij ${G.sapRun} · ${them}`; }
 function ldEnd(quit) { // from duelPost: my run is over; the final goes to the server now and is kept in the save until it arrived (also after a restart)
   const X = ldRun; if (!X || X.fin) return; const L = (G.duel && G.duel.ld) || { pts: [] }, n = L.pts.length / 3, k0 = Math.max(0, n - LD_PTS);
   X.fin = { s: G.sapRun, t: Math.round(G.modeT), quit: !!quit, died: !!(G.duelOut && G.duelOut.died), ghost: quit ? '' : (G.duel && Array.isArray(G.duel.rec) ? G.duel.rec.join(',') : ''), gt: Math.round(G.t), k0, p: L.pts.slice(k0 * 3) };
   X.finAt = nowMs(); X.resAt = 0; X.resGap = 0; ldCover(false); if (G.duelOut) G.duelOut.live = true; if (save.duel) save.duel.vsName = '';
-  save.ldPend = { id: X.id, s: X.fin.s, t: X.fin.t, quit: X.fin.quit, died: X.fin.died, ghost: X.fin.ghost, gt: X.fin.gt, at: nowMs(), name: X.name, fid: X.fid }; store(); ldEndSend();
+  save.ldPend = { id: X.id, s: X.fin.s, t: X.fin.t, quit: X.fin.quit, died: X.fin.died, ghost: X.fin.ghost, gt: X.fin.gt, at: nowMs(), name: X.name, fid: X.fid }; store(); ldEndSend(); ldRtEnd(quit);
 }
 async function ldEndSend() { const X = ldRun; if (!X || !X.fin || X.sending || X.res) return; if (X.busy) { X.resAt = nowMs() - X.resGap + 300; return; } X.sending = true; X.resAt = nowMs(); // a beat in flight first
   try { const F = X.fin, ask = X.late || X.sent, r = await ldCall(ask ? 'ldres' : 'ldend', ask ? { id: X.id } : { id: X.id, t: F.t, s: F.s, quit: F.quit, died: F.died, ghost: F.ghost || '', gt: F.gt || 0, k0: F.k0 || 0, p: F.p || [], dead: true, pz: false, pause: Math.round(X.pause || 0), lag: 0 }, 5000); // the final once; after that only the small question for the result
@@ -9315,7 +9692,7 @@ $('#gear-music').addEventListener('click', e => { const b = e.target.closest ? e
 const HOOK = window.dontsliceme = {
   difficulty, updateTricks,
   LVSND,
-  version: '0.32.9', freeze: false, /* v0.32.9 delete account, names, Plus via Google Play, fair duels, Play invites */ /* v0.32.8 lobby 90 s, app-test fixes */ /* v0.32.7 Google Play fixes */ /* v0.32.6 big menu icons */ /* v0.32.5 live duel */ /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.32.10', freeze: false, /* v0.32.10 live friend duel: RTDB live view, one clock, one board, shared arena (Stap A) */ /* v0.32.9 delete account, names, Plus via Google Play, fair duels, Play invites */ /* v0.32.8 lobby 90 s, app-test fixes */ /* v0.32.7 Google Play fixes */ /* v0.32.6 big menu icons */ /* v0.32.5 live duel */ /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   get SEASON() { return curSeason(); }, // v0.30.3: the current season of the series
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
@@ -9758,7 +10135,7 @@ EN_RX.unshift( // v0.32.5 live duel (the longest first where two could match)
   [/^Live duel: pauze (\d+) van (\d+), nog (\d+) s\. Daarna stopt je duel; het telt nu met (\d+) sap\.$/, m => `Live duel: pause ${m[1]} of ${m[2]}, ${m[3]} s left. Then your duel stops; it counts ${m[4]} juice now.`],
   [/^Live duel: je laatste pauze, nog (\d+) s\. Pauzeer je nog eens, dan stopt je duel; het telt nu met (\d+) sap\.$/, m => `Live duel: your last pause, ${m[1]} s left. Pause again and your duel stops; it counts ${m[2]} juice now.`],
   [/^(.+) gebruikt (.+) over (\d+) s!$/, m => `${m[1]} uses ${tr(m[2])} in ${m[3]} s!`], [/^(.+) gebruikt (.+)!$/, m => `${m[1]} uses ${tr(m[2])}!`], [/^(.+) is gesneden na (\d+) s$/, m => `${m[1]} was cut after ${m[2]} s`], [/^(.+) is gestopt na (\d+) s$/, m => `${m[1]} stopped after ${m[2]} s`],
-  [/^(.+) · verbinding…$/, m => `${m[1]} · connecting…`], [/^Live · nog (\d+) s · jij (\d+) · (.+) startte niet$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} did not start`], [/^Live · nog (\d+) s · jij (\d+) · (.+) start…$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} starting…`],
+  [/^(.+) · verbinding…$/, m => `${m[1]} · connecting…`], [/^(.+) · verbinding zwak$/, m => `${m[1]} · weak connection`], [/^(.+) · vertraagd$/, m => `${m[1]} · delayed`], [/^Live · nog (\d+) s · jij (\d+) · (.+) startte niet$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} did not start`], [/^Live · nog (\d+) s · jij (\d+) · (.+) start…$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} starting…`],
   [/^Live · nog (\d+) s · jij (\d+) · (.+) gesneden \((\d+) sap\)$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} cut (${m[4]} juice)`], [/^Live · nog (\d+) s · jij (\d+) · (.+) gestopt \((\d+) sap\)$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} stopped (${m[4]} juice)`], [/^Live · nog (\d+) s · jij (\d+) · (.+) pauzeert$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} is pausing`],
   [/^Live · nog (\d+) s · jij (\d+) · (.+): verbinding…$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]}: connecting…`], [/^Live · nog (\d+) s · jij (\d+) · (.+) (\d+)$/, m => `Live · ${m[1]} s left · you ${m[2]} · ${m[3]} ${m[4]}`],
   [/^(.+) startte niet\. Je ronde is nu een uitdaging van 24 uur voor (.+)\.$/, m => `${m[1]} did not start. Your round is now a 24-hour challenge for ${m[2]}.`], [/^(.+) startte niet: dit duel telt niet\.$/, m => `${m[1]} did not start: this duel does not count.`],
@@ -9806,6 +10183,7 @@ EN_RX.unshift([/^Kies je fruit · nog (\d+:\d\d)$/, m => `Pick your fruit · ${m
   [/^Medaille: (brons|zilver|goud|diamant)$/, m => `Medal: ${MEDAL_EN[m[1]]}`], [/^Tijd om: je speelt met (.+)$/, m => `Time's up: you play with ${tr(m[1])}`],
   [/^(.+) heeft een oudere versie zonder Klaar: jullie beginnen als de tijd om is\.$/, m => `${m[1]} has an older version without Ready: you start when the time is up.`]);
 Object.assign(HOOK, { ldSheetOpen, ldSheetClose, ldSheetAct, ldSheetHTML, ldSheetPaint, ldPickFruit, ldReadySet, ldMeReady, ldPill, ldOldFriend, ldDuelNote, ldT, LD_DUEL_NOTE, LD_COUNT_MS, LD_WARN_MS, LD_OLD_COUNT_MS, LD_FAIR, LD_LV5, LD_LENT, LD_FULL, LD_EN }); // v0.32.8 lobby
+Object.assign(HOOK, { ldRtState, ldLiveAt, ldWtNow, ldRtFrame, LD_RT_HZ, LD_RT_DMAX, LD_RT_WEAK, LD_RT_CONNECT, ldRtImpl: null, ldRtEmu: null, ldRtRec: false, ldRtLog: [], ldRtIn, ldRtMode, ldRtLobby, ldRtRun, ldRtClose, ldRtRc, ldRtMsg, ldRtHit, ldRtEnd, ldRtThem, rtEmu, LD_RT_MS, LD_RT_LOST, LD_RT_BACK, LD_RT_REDIAL, LD_RT_EXTRA, LD_RT_JUMP, LD_RT_KEEP, ldRtPos, ldRtDot, NET_CONFIG, drawHud, RT_: RT }); // v0.32.10 live view (WP1)
 Object.assign(HOOK, { safeRead, safeTopU, SAFE, overFit }); // v0.32.8 safe area
 Object.assign(HOOK, { hudLay, hudBtns }); // v0.32.8 HUD lines
 /* v0.32.8 chefnext */ // after a cleared chapter: Volgend hoofdstuk or Naar het seizoen, and Menu (Pieter)
@@ -9987,6 +10365,165 @@ const VSY_FX = new Set(['menu', 'hearts', 'over', 'pause', 'today', 'album', 'pa
 const vsySig = () => [G.state, curScreen, lang, canvas.width, canvas.height, board ? 1 : 0, G.level, save.level, G.mode, G.fruit, Math.round(G.px), Math.round(G.py), G.zoom, G.parts.length, G.texts.length, G.scars.length, G.slashes.length, G.debris.length, G.stains.length, G.hazards.length, G.cubes.length].join('|');
 const vsyBusy = () => { const s = G.state; if (vsyAdVideo() || !VSY_FX.has(s)) return false; if (s === 'menu' && G.slashes.length) return true;
   return G.parts.length > 0 || G.texts.length > 0 || G.scars.length > 0 || G.wipes.length > 0 || G.signs.length > 0 || G.paper.length > 0 || G.folds.length > 0 || !!G.mira || !!G.vb || !!G.lamp || G.themeFlash > 0 || G.flash > .02 || G.shake > .3; };
+/* v0.32.10 ARENA-GAME BEGIN */
+/* v0.32.10 arena game (WP3, Stap A): in a live friend duel with ar 1 both phones play one shared world from ARENA on one clock.
+   wt = the server clock (ldNow, slewed) minus startAt; the run starts in the first processed frame with wt >= 0; one 360 x 720 board
+   fitted to every screen; knives, sugar cubes, bonus symbols and the fork come from ARENA (seeded per object, closed form in wt), so the
+   same objects are at the same place at the same wt on both phones. Each phone judges its own fruit and takes cubes for itself (a taken
+   cube stays on the friend's screen). No slow motion, no Fever slow, no level-ups or kitchen change in the arena world. Everything here
+   is gated by arOn() / arBoard(): solo, tournaments, ghost/public/24 h duels and a live duel with ar 0 run exactly v0.32.9's code.
+   No save fields, no localStorage: AR lives in memory only. */
+var arReady = false; // var, no TDZ: resize() and safeTopU() may ask arBoard() before this block ran
+const AR_W = 360, AR_H = 720, AR_SLEW = .05, AR_JUMP = 250, AR_SAFE_GAP = 250, AR_BACK_MS = 1000, AR_RESUME_INV = 300, AR_GRAB_MAGNEET = 110, AR_GRAB_MILK = 90, AR_NOTE_MS = 2500, AR_TAPS = 5, AR_TAP_GAP = 600;
+const AR = { W: null, st: null, seed: '', startAt: 0, wt: 0, sk: 0, last: 0, lastState: '', taken: new Set(), slash: new Map(), cube: new Map(), drop: new Map(), haz: new Map(), drops: [], skq: [], skLob: '', noTakeUntil: 0, banner: false, notes: new Set(), overlay: false, taps: [], board: false, btn: false, resumed: false, S: null };
+const AR_POWER_NOTE = { schild: 'Schild: het mes kan je niet raken', magneet: 'Magneet: je pakt klontjes van verder weg', dubbel: 'Dubbel sap: elk klontje telt dubbel', klein: `Krimp: je bent ${Math.round((1 - kleinFactor(LD_LEVEL)) * 100)}% kleiner` }; // the same number as the bonus panel at the duel level (powerInfo)
+const AR_FEVER_SUB = '8 s: dubbel sap';
+const LD_FAIR_AR = 'Jullie spelen op één gedeeld veld: dezelfde messen, klontjes en bonussen op hetzelfde moment. De messen mikken op de klontjes, niet op jou. Ieder pakt zijn eigen klontjes. Sapverdubbelaar, uitrusting, medaillebonus en extra schillen tellen niet.';
+const LD_DUEL_NOTE_AR = { // the fruits whose trait would change shared objects (SPEC-A 5.8); every other fruit keeps its v0.32.9 note
+  appel: 'Na 15 klontjes krijg je geen vrije hap, en de klontjes rollen niet naar je toe.', // bite
+  citroen: 'De zure regen en het wegspuiten van de messen werken niet in het gedeelde veld.', // armorWipe
+  kiwi: '"Net niet!" geeft geen extra sap en vertraagt de messen niet: in het gedeelde veld zijn de messen voor iedereen gelijk.', // hairy (every third near miss in a row still gives everyone +2)
+  druif: 'Je spoor vertraagt de messen niet: in het gedeelde veld zijn de messen voor iedereen gelijk.', // trailZone
+  banaan: 'Je schil laat geen messen uitglijden: in het gedeelde veld zijn de messen voor iedereen gelijk.', // peel
+  durian: 'Je stinkwolk vertraagt de messen niet en de messen mikken niet op jou: in het gedeelde veld zijn ze voor iedereen gelijk.', // stink
+  watermeloen: 'Je spuwt geen pit naar de messen: in het gedeelde veld zijn de messen voor iedereen gelijk.', // spit
+  mandarijn: 'Je lokaas werkt niet: in het gedeelde veld mikken de messen niet op jou.', // decoy
+  pruim: 'Krimpen werkt wel; grof mikken telt niet, want in het gedeelde veld mikken de messen niet op jou.' }; // shrink
+const LD_DUEL_NOTE_AR_FLAG = { appel: 'bite', citroen: 'armorWipe', kiwi: 'hairy', druif: 'trailZone', banaan: 'peel', durian: 'stink', watermeloen: 'spit', mandarijn: 'decoy', pruim: 'shrink' };
+const ldArPredict = L => !!L && L.rt === 1 && Array.isArray(L.m) && L.m.length > 1 && L.m.every(s => (s.v || 0) >= 3); // the lobby view predicts the arena (the start may still fall back)
+const ldDuelNoteAr = k => LD_DUEL_NOTE_AR[k] || ldDuelNote(k);
+// H5: the arena is on (a live duel with ar 1, during the run, the world built, no failure)
+function arOn() { return arReady && !!ldRun && ldRun.ar === 1 && !ldRun.arOff && !ldRun.fin && G.mode === 'duel' && ldLive() && !!AR.W; }
+function arBoard() { return arOn() && ['play', 'dying', 'pause', 'continue', 'ad'].includes(G.state); }
+function arBoardSync() { if (!arReady) return; arFrameStart(); if (AR.W && G.state !== 'play' && arOn()) AR.lastState = G.state; const b = arBoard(); if (b !== AR.board) { AR.board = b; resize(); } } // every update: the start in frame, the board in and out (outside the arena H/S/ax/ay are v0.32.9's)
+function arBtns() { // the pause button follows the board: inside its top-right corner below the status bar (resize calls this)
+  if (!arReady || !pauseBtn) return; if (arBoard()) { const side = Math.max(0, cw - ax - aw); pauseBtn.style.top = (Math.max(ay, SAFE.t) + 10) + 'px'; pauseBtn.style.right = (side + Math.max(10, SAFE.r - side)) + 'px'; AR.btn = true; }
+  else if (AR.btn) { AR.btn = false; pauseBtn.style.top = ''; pauseBtn.style.right = ''; } }
+// -- the start: in the first processed frame with wt >= 0 (frame and update both ask; the 250 ms lobby tick stays as a backup)
+function arFrameStart() { const L = ldLob; if (!L || L.state !== 'go' || L.ar !== 1 || !L.startAt || ldBusyRun()) return; const n = ldNow(); if (n < L.startAt || n - L.startAt > LD_LATE_MS) return; ldBegin(); }
+function arStop() { AR.W = null; AR.st = null; AR.S = null; AR.taken.clear(); AR.slash.clear(); AR.cube.clear(); AR.drop.clear(); AR.haz.clear(); AR.drops = []; AR.notes.clear(); AR.banner = false; AR.taps = []; AR.noTakeUntil = 0; AR.resumed = false; }
+function arStart() { // ldBegin, right after startRun(fruit, true, 'duel')
+  arStop(); const X = ldRun; if (!X || X.ar !== 1 || G.mode !== 'duel' || !ldLive()) return;
+  try {
+    if (HOOK.arBreak || typeof ARENA === 'undefined' || !ARENA || ARENA.VERSION !== 'A1') throw new Error('ARENA unavailable');
+    AR.seed = String(G.duelSeed || ''); AR.W = ARENA.schedule(AR.seed); AR.st = ARENA.stepper(AR.W); AR.startAt = X.startAt; AR.sk = ldSkew; { const t = arSkewTarget(); if (Math.abs(t - AR.sk) > AR_JUMP) AR.sk = t; }
+    G.duel.ld = Object.assign(ldInitRun(), { pk: 0 }); G.level = LD_LEVEL; G.slashes = []; G.cubes = []; G.hazards = []; G.drop = null;
+    const wt = nowMs() + AR.sk - AR.startAt; AR.wt = wt; AR.last = wt; AR.lastState = 'play';
+    G.px = G.tx = AR_W / 2; G.py = G.ty = AR_H * .6; G.modeT = G.t = Math.max(0, wt);
+    arBoardSync(); AR.st.stepTo(AR.wt); arSync();
+  } catch (e) { arFail(e); }
+}
+function arFail(e) { // ARENA missing or throwing: today's ldSpawn mode for the rest of this run (the transport keeps running), never a page error
+  try { console.warn('arena off', (e && e.message) || e); } catch (x) {}
+  const X = ldRun; if (X) X.arOff = true; const t = G.modeT || 0; AR.W = null; AR.st = null; AR.drops = []; G.slashes = []; G.cubes = []; G.hazards = [];
+  if (G.duel) { const L = G.duel.ld = ldInitRun(); if (t > 1000) { L.k = 500; L.c = 500; L.kAt = t + 1500; L.cAt = t + 800; } } // a failure mid-run: no burst of old patterns, new streams from here on
+  arBoardSync(); }
+// -- one clock (P1): the server clock from the same beat/lobby answers as ldSkew (ldSkew itself is unchanged: today's duel keeps its clock).
+// Each answer bounds the true offset to [est - rtt/2, est + rtt/2]; the arena takes the middle of the intersection of the bounds of the
+// last answers (v0.32.10 fixer: tighter than the single shortest round trip when the two directions differ); a jump of the device
+// clock (> 1 s) follows ldSkew
+function arSkewSample(rtt, est) { if (!arReady) return; const q = AR.skq, now = nowMs(); if (AR.skLob !== ldLobId) { q.length = 0; AR.skLob = ldLobId; } // a new lobby starts a fresh window
+  for (let i = q.length - 1; i >= 0; i--) if (Math.abs(q[i][1] - est) > (q[i][0] + rtt) / 2 + 5) q.splice(i, 1); // each answer bounds the true offset to est +- rtt/2: an older sample whose bound misses the new one belongs to a device clock that stepped since, so it goes
+  q.push([rtt, est, now]); while (q.length > 24 || (q.length && now - q[0][2] > 120000)) q.shift(); } // called by ldCall (every live answer); no effect outside the arena clock
+function arSkewTarget() { const q = AR.skq; if (!q.length) return ldSkew; let lo = -Infinity, hi = Infinity; for (const s of q) { lo = Math.max(lo, s[1] - s[0] / 2); hi = Math.min(hi, s[1] + s[0] / 2); } const t = (lo + hi) / 2; return Math.abs(t - ldSkew) <= 1000 ? t : ldSkew; } // the samples left are pairwise consistent (arSkewSample), so the intersection holds the true offset
+function arClock(real) { const d = arSkewTarget() - AR.sk; if (Math.abs(d) > AR_JUMP) AR.sk += d; else AR.sk += clamp(d, -AR_SLEW * real, AR_SLEW * real);
+  const wt = nowMs() + AR.sk - AR.startAt; AR.wt = (wt < AR.wt && AR.wt - wt <= AR_JUMP) ? AR.wt : wt; return AR.wt; }
+function arWt() { const w = nowMs() + AR.sk - AR.startAt; return w < AR.wt && AR.wt - w <= AR_JUMP ? AR.wt : w; } // H1 between frames: the same slewed clock read now (an RTDB sample that arrives between two frames gets its true arrival time)
+// -- the frame in the arena (update's play case)
+function arUpdate(real) {
+  try {
+    arClock(real);
+    if (AR.resumed || (AR.lastState && AR.lastState !== 'play')) { AR.resumed = false; G.inv = Math.max(G.inv, AR_RESUME_INV); AR.noTakeUntil = AR.wt + AR_BACK_MS; } // back from a pause or the background: 0.3 s to see the board (a blade that still sweeps after that cuts), no pickups for 1 s
+    AR.lastState = 'play';
+    feverTick(real); if (G.feverBanner > 0) G.feverBanner -= real; // personal, on real time: no slow motion, no Fever slow
+    updatePlayer(real); updateTricks(real); updateCoach(real);
+    if (G.power) { G.power.t -= real; if (G.power.t <= 0) { const was = G.power.kind; G.power = null; if (was === 'klein') setBodies(); } }
+    if (G.levelBanner > 0) G.levelBanner -= real; duelRecord(real);
+    G.modeT = G.t = Math.max(0, AR.wt); G.levelT = G.modeT;
+    if (AR.wt >= DUEL_MS) { G.cleared = true; finishMode(false); return; } // both phones end at wt 90 s (what duelUpdate does)
+    arSync(); arCuts(); if (G.state === 'play') { arCubes(); arBonus(); arHazards(); }
+    const L = G.duel && G.duel.ld; if (L) { if (L.pk === undefined) L.pk = 0; while (L.pk * GHOST_STEP <= AR.wt && L.pts.length < 470 * 3) { L.pts.push(Math.round(G.px), Math.round(G.py * 1000 / H), G.sapRun); L.pk++; } } // the beats' path on the wt grid
+    if (!AR.banner && AR.wt >= ARENA.P.TWO_AT) { AR.banner = true; const late = AR.wt - ARENA.P.TWO_AT; if (late < 2200) { G.bossText = 'Twee messen tegelijk'; G.bossBanner = 2200 - late; SFX.boss(); G.shake = 6; } } // the phase banner, once
+    updateHazLabels(real); updateFx(real, real);
+    AR.last = AR.wt; arRec();
+  } catch (e) { arFail(e); }
+}
+// -- ARENA -> G.slashes, G.cubes, G.hazards, AR.drops (persistent display objects by id)
+function arSync() { try { arSyncIn(); } catch (e) { arFail(e); } } // also called from the dying case: a throwing ARENA never becomes a page error
+function arSyncIn() {
+  if (!AR.W || !AR.st) return; const wt = AR.wt, S = AR.S = AR.st.stepTo(wt);
+  const sl = []; for (const b of S.blades) { let s = AR.slash.get(b.id);
+    if (!s) { s = { id: b.id, pat: b.pat, kind: b.kind, ax: b.ax, ay: b.ay, bx: b.bx, by: b.by, ux: b.ux, uy: b.uy, nx: b.nx, ny: b.ny, len: b.len, tele: b.tele, dur: b.dur, tWarn: b.tWarn, tCut: b.tCut, tEnd: b.tEnd, hit: new Set(), near: new Set(), phase: 'tele', t: 0, prog: 0, cutT: 0, bladeX: b.ax, bladeY: b.ay, pxp: b.ax, pyp: b.ay, cutOn: false, scar: false, judged: false }; AR.slash.set(b.id, s); }
+    s.t = wt - b.tWarn; s.cutT = Math.max(0, wt - b.tCut); s.prog = b.prog; s.phase = b.phase; s.bladeX = b.bladeX; s.bladeY = b.bladeY;
+    if (s.phase !== 'tele' && !s.cutOn) { s.cutOn = true; if (wt < b.tEnd) SFX.swoosh(); }
+    if (s.phase === 'done' && !s.scar) { s.scar = true; const age = wt - b.tEnd; if (age < 1600) G.scars.push({ ax: s.ax, ay: s.ay, bx: s.bx, by: s.by, t: Math.max(0, age) }); }
+    sl.push(s); }
+  for (const id of AR.slash.keys()) if (!sl.some(s => s.id === id)) AR.slash.delete(id); G.slashes = sl;
+  const cs = []; for (const c of S.cubes) { if (AR.taken.has(c.id)) continue; let o = AR.cube.get(c.id); const w = AR.W.cubes[c.i];
+    if (!o) { o = { id: c.id, ld: c.i, x: c.x, y: c.y, r: c.r, gold: c.gold, rot: c.rot, t: c.t, dead: false, ph: w ? w.ph : 0, vx: w ? w.vx : 0, vy: w ? w.vy : 0 }; AR.cube.set(c.id, o); }
+    o.x = c.x; o.y = c.y; o.rot = c.rot; o.t = c.t; o.dead = false; cs.push(o); }
+  for (const id of AR.cube.keys()) if (!S.cubes.some(c => c.id === id)) AR.cube.delete(id); G.cubes = cs;
+  const ds = []; for (const b of S.bonus) { if (AR.taken.has(b.id)) continue; let o = AR.drop.get(b.id);
+    if (!o) { o = { id: b.id, kind: b.kind, x: b.x, y: b.y, r: b.r, t: b.t, vx: b.vx, vy: b.vy }; AR.drop.set(b.id, o); } o.x = b.x; o.y = b.y; o.t = b.t; ds.push(o); }
+  for (const id of AR.drop.keys()) if (!S.bonus.some(b => b.id === id)) AR.drop.delete(id); AR.drops = ds;
+  const hz = []; for (const h of S.hazards) { let z = AR.haz.get(h.id);
+    if (!z) { z = { id: h.id, kind: h.kind, t: 0, phase: 'tele', tele: h.tele, dur: h.dur, x: h.x, y: h.y, heat: 0, hit: false, fade: 500, r: h.r, t0: wt - h.t, noted: false, on: false }; AR.haz.set(h.id, z);
+      if (wt - z.t0 < 2600 && !AR.notes.has(h.id)) { AR.notes.add(h.id); G.note = HAZ.vork.name; G.noteT = 2600 - Math.max(0, wt - z.t0); SFX.alarm(); } } // the fork's note at its start (not after a stall past it)
+    z.phase = h.phase; z.t = h.phase === 'tele' ? h.t : h.t - h.tele; if (h.phase === 'done') z.fade = h.fadeLeft;
+    if (h.phase !== 'tele' && !z.on) { z.on = true; if (h.t < h.tele + h.dur) { SFX.slice(); G.shake = 5; } }
+    hz.push(z); }
+  for (const id of AR.haz.keys()) if (!S.hazards.some(h => h.id === id)) AR.haz.delete(id); G.hazards = hz;
+}
+// -- each phone judges its own fruit (P7: a blade that swept during a stall or a pause never cuts)
+function arCuts() { if (G.state !== 'play') return; const safe = AR.wt - AR.last <= AR_SAFE_GAP;
+  for (const s of G.slashes) { if (s.phase === 'tele' || s.judged) continue; if (s.phase === 'done') s.judged = true; // the last stretch once, on the frame it reached done
+    const bx = s.bladeX, by = s.bladeY; if (safe) checkCuts(s, s.pxp, s.pyp, bx, by); s.pxp = bx; s.pyp = by; if (G.state !== 'play') return; } }
+function arCubes() { if (G.state !== 'play' || AR.wt < AR.noTakeUntil) return; const mag = G.power && G.power.kind === 'magneet', f = fruitDef(), fair = duelFair(), mult = fair ? 1 : f.sapMult || 1;
+  for (const c of G.cubes) { if (c.dead) continue; let hit = false; for (const b of G.bodies) { const reach = Math.max(b.r + c.r + 4, mag ? AR_GRAB_MAGNEET : G.magnetT > 0 ? AR_GRAB_MILK : 0); if (Math.hypot(G.px + b.ox - c.x, G.py + b.oy - c.y) < reach) { hit = true; break; } } if (!hit) continue;
+    c.dead = true; AR.taken.add(c.id); G.combo++; G.bestCombo = Math.max(G.bestCombo, G.combo); if (G.combo === 3 || G.combo === 6 || G.combo === 10) { addText(G.px, G.py - curR() - 30, `Combo ×${comboMult(G.combo)}!`, '#ffd54a'); track('combo', comboMult(G.combo)); }
+    const dub = G.power && G.power.kind === 'dubbel' ? dubbelMult(G.level) : 1, fev = G.fever > 0 ? 2 : 1, v = Math.round(goldValue(c) * mult * G.dayMult * comboMult(G.combo) * dub * fev), bar = c.sweet ? 0 : Math.round(goldValue(c) * mult * comboMult(G.combo) * dub * fev); // the fair-duel take of updateCubes
+    gainSap(v, bar); G.cubesRun++; track('cube', v);
+    addText(c.x, c.y - 16, '+' + v + ' sap', v !== bar ? PIGGY_COL : c.gold ? '#ffd54a' : '#fff'); burst(c.x, c.y, c.gold ? 16 : 8, c.gold ? ['#ffd54a', '#fff2b0', '#e8a030'] : ['#ffffff', '#e8f4ff'], 180); SFX.collect(); }
+  G.cubes = G.cubes.filter(c => !c.dead); } // the world cube stays in ARENA and on the friend's screen
+function arBonus() { if (G.state !== 'play' || AR.wt < AR.noTakeUntil) return;
+  for (const d of AR.drops) { if (AR.taken.has(d.id)) continue; for (const b of G.bodies) if (Math.hypot(G.px + b.ox - d.x, G.py + b.oy - d.y) < b.r + d.r + 6) { AR.taken.add(d.id); activatePower(d.kind); break; } }
+  AR.drops = AR.drops.filter(d => !AR.taken.has(d.id)); } // both phones may take the same symbol
+function arHazards() { if (G.state !== 'play' || AR.wt - AR.last > AR_SAFE_GAP) return;
+  for (const z of G.hazards) { if (z.kind !== 'vork' || z.phase !== 'on' || z.hit || noHit()) continue;
+    for (const b of G.bodies) { const bx = G.px + b.ox, by = G.py + b.oy; for (const dx of [-10, 0, 10]) if (Math.hypot(bx - (z.x + dx), by - z.y) < b.r + 4) { z.hit = true; if (fruitDef().forkMiss && !G.forkMissed) { G.forkMissed = true; addText(bx, by - b.r - 10, 'Vorkvrucht: de vork mist!', '#ffcc33'); SFX.pop(); } else onHit(fakeSlash(z.x, z.y, z), b, bx, by); break; } if (z.hit) break; }
+    if (G.state !== 'play') return; } }
+function arDrawDrops() { if (!AR.drops.length || !arOn()) return; const keep = G.drop; try { for (const d of AR.drops) { G.drop = d; drawDrop(); } } finally { G.drop = keep; } } // render, right after drawDrop()
+// -- the hidden overlay: 5 quick taps on the HUD timer (or HOOK.arOverlay); memory only, for the app session
+function arTap(p) { if (!arOn() || !p) return; const sTop = safeTopU(); if (Math.abs(p.x - W / 2) > 70 || p.y < sTop + 4 || p.y > sTop + 48) { AR.taps = []; return; }
+  const t = performance.now(); if (AR.taps.length && t - AR.taps[AR.taps.length - 1] > AR_TAP_GAP) AR.taps = []; AR.taps.push(t); if (AR.taps.length >= AR_TAPS) { AR.taps = []; AR.overlay = !AR.overlay; } }
+const arDec = v => (Math.max(0, v) / 1000).toFixed(1).replace('.', ',');
+function arOverlayLines() { const st = ldRtState(), m = st.mode, pats = []; for (const s of G.slashes) { const k = 'k' + s.pat; if (!pats.includes(k)) pats.push(k); }
+  return [`wt ${arDec(AR.wt)} s · veld ${AR.W ? ARENA.idsAt(AR.W, AR.wt) : '----'}`, `klontjes: ${G.cubes.map(c => c.id).join(' ') || '-'}`, `bonus: ${AR.drops.map(d => d.id + ' ' + (POWERS[d.kind] ? POWERS[d.kind].name : d.kind)).join(', ') || '-'}`,
+    `messen: ${pats.join(' ') || '-'}`, `vriend: ${m === 'live' ? `live ${arDec(st.D)} s` : m === 'weak' ? 'zwak' : m === 'fallback' ? 'vertraagd' : m === 'lost' ? 'weg' : 'uit'}`]; }
+function arOverlayDraw() { if (!AR.overlay || !arOn() || !['play', 'dying', 'pause'].includes(G.state)) return; const L = arOverlayLines();
+  ctx.save(); ctx.globalAlpha = 1; ctx.font = `700 11px ${FU}`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; let w = 0; for (const s of L) w = Math.max(w, ctx.measureText(s).width); w = Math.min(W - 12, w + 12); const h = L.length * 14 + 8, x = 6, y = H - h - 6;
+  ctx.fillStyle = 'rgba(0,0,0,.66)'; ctx.fillRect(x, y, w, h); ctx.fillStyle = '#eafff0'; L.forEach((s, i) => ctx.fillText(s, x + 6, y + 5 + i * 14, w - 10)); ctx.restore(); }
+function arRec() { const Hk = window.dontsliceme; if (!Hk || !Hk.arRec || Hk.arLog.length >= 20000) return; const it = []; for (const c of G.cubes) it.push([c.id, Math.round(c.x), Math.round(c.y)]); for (const d of AR.drops) it.push([d.id, Math.round(d.x), Math.round(d.y)]);
+  Hk.arLog.push({ at: performance.now(), wt: AR.wt, items: it, blades: G.slashes.map(s => [s.id, s.phase]) }); }
+const arState = () => ({ on: arOn(), wt: AR.wt, sk: AR.sk, hash: AR.W ? ARENA.hashAt(AR.W, AR.wt) : '', ids: AR.W ? ARENA.idsAt(AR.W, AR.wt) : '', cubes: G.cubes.map(c => c.id), drops: AR.drops.map(d => d.id), blades: G.slashes.map(s => s.id), taken: [...AR.taken] });
+Object.assign(EN, { 'Schild: het mes kan je niet raken': 'Shield: the knife cannot hit you', 'Magneet: je pakt klontjes van verder weg': 'Magnet: you grab cubes from further away', 'Dubbel sap: elk klontje telt dubbel': 'Double juice: every cube counts double', 'Je pakt klontjes van verder weg.': 'You grab cubes from further away.',
+  '8 s: dubbel sap': '8 s: double juice', 'Twee messen tegelijk': 'Two knives at once',
+  [LD_FAIR_AR]: 'You play on one shared field: the same knives, cubes and bonuses at the same moment. The knives aim at the cubes, not at you. Each of you takes your own cubes. Juice doubler, gear, medal bonus and extra shells do not count.',
+  [LD_DUEL_NOTE_AR.appel]: 'No free bite after 15 cubes, and the cubes do not roll towards you.', [LD_DUEL_NOTE_AR.citroen]: 'The sour rain and wiping away the knives do not work on the shared field.',
+  [LD_DUEL_NOTE_AR.kiwi]: '"Close call!" gives no extra juice and does not slow the knives: on the shared field the knives are the same for everyone.', [LD_DUEL_NOTE_AR.druif]: 'Your trail does not slow the knives: on the shared field the knives are the same for everyone.',
+  [LD_DUEL_NOTE_AR.banaan]: 'Your peel makes no knife slip: on the shared field the knives are the same for everyone.', [LD_DUEL_NOTE_AR.durian]: 'Your stink cloud does not slow the knives and the knives do not aim at you: on the shared field they are the same for everyone.',
+  [LD_DUEL_NOTE_AR.watermeloen]: 'You spit no seed at the knives: on the shared field the knives are the same for everyone.', [LD_DUEL_NOTE_AR.mandarijn]: 'Your decoy does not work: on the shared field the knives do not aim at you.',
+  [LD_DUEL_NOTE_AR.pruim]: 'Shrinking still works; the coarse aim does not count, because on the shared field the knives do not aim at you.' });
+EN_RX.unshift( // v0.32.10 arena: the pause texts and the overlay lines
+  [/^Live duel: pauze (\d+) van (\d+), nog (\d+) s\. Het duel loopt door; je fruit is zo lang veilig\. Daarna stopt je duel; het telt nu met (\d+) sap\.$/, m => `Live duel: pause ${m[1]} of ${m[2]}, ${m[3]} s left. The duel keeps running; your fruit is safe while you pause. When the time is up your duel stops; it counts with ${m[4]} juice now.`],
+  [/^Live duel: je laatste pauze, nog (\d+) s\. Het duel loopt door\. Pauzeer je nog eens, dan stopt je duel; het telt nu met (\d+) sap\.$/, m => `Live duel: your last pause, ${m[1]} s left. The duel keeps running. Pause once more and your duel stops; it counts with ${m[2]} juice now.`],
+  [/^Krimp: je bent (\d+)% kleiner$/, m => `Shrink: you are ${m[1]}% smaller`], [/^wt (\d+,\d) s · veld (.+)$/, m => `wt ${m[1]} s · field ${m[2]}`], [/^klontjes: (.+)$/, m => `cubes: ${m[1]}`], [/^messen: (.+)$/, m => `knives: ${m[1]}`],
+  [/^bonus: (.+)$/, m => `bonus: ${m[1] === '-' ? '-' : m[1].split(', ').map(x => { const i = x.indexOf(' '); return i < 0 ? x : x.slice(0, i) + ' ' + tr(x.slice(i + 1)); }).join(', ')}`],
+  [/^vriend: live (\d+,\d) s$/, m => `friend: live ${m[1]} s`], [/^vriend: (zwak|vertraagd|weg|uit)$/, m => `friend: ${{ zwak: 'weak', vertraagd: 'delayed', weg: 'lost', uit: 'off' }[m[1]]}`]);
+Object.assign(HOOK, { ARENA, AR, arOn, arBoard, arState, arOverlay: on => { AR.overlay = !!on; }, arBreak: false, arRec: false, arLog: [], arStart, arStop, arSync, arClock, arUpdate, arTap, arFrameStart, arOverlayLines, arPredict: ldArPredict, ldDuelNoteAr, LD_DUEL_NOTE_AR, LD_DUEL_NOTE_AR_FLAG, LD_FAIR_AR, AR_POWER_NOTE, AR_FEVER_SUB,
+  AR_W, AR_H, AR_SLEW, AR_JUMP, AR_SAFE_GAP, AR_BACK_MS, AR_RESUME_INV, AR_GRAB_MAGNEET, AR_GRAB_MILK, AR_NOTE_MS, AR_TAPS, AR_TAP_GAP, ldPayload, arResize: () => resize(), geom: () => ({ H, S, ax, ay, aw, ah, cw, ch }), toLogical, ldSkewSet: v => { ldSkew = v; }, ldSkewGet: () => ldSkew, upd: d => update(d), arSkewSample, arSkewTarget, fmtTime, checkCuts, ldRunTick, activatePower, feverStart, onHit, arWt });
+arReady = true;
+/* v0.32.10 ARENA-GAME END */
 function frame(now) {
   requestAnimationFrame(frame);
   const gap = now - (vsyTs || now); vsyTs = now;
@@ -9994,8 +10531,8 @@ function frame(now) {
   if (HOOK.freeze) { last = now; render(); HOOK.renders++; vsySigLast = null; return; } // frozen (the checks): a render on every vsync, as before
   const live = vsyLive();
   if (++vsyTick % paceDiv(vsyVs, live) && board && !vsyDirty && (live || vsySig() === vsySigLast)) return; // a skipped vsync; a change outside a run is drawn at once
-  vsyTick = 0; const real = Math.min(50, now - last); last = now;
-  update(real);
+  vsyTick = 0; const real = Math.min(50, now - last); last = now; arFrameStart(now);
+  update(real); ldRtFrame(now);
   if (vsyLive() || vsyDirty || !board || vsySig() !== vsySigLast || vsyBusy() || (now - vsyAt >= 1000 && !vsyAdVideo())) {
     if (vsyLive()) vsyDeco.held = false; else if (!vsyDeco.held) { vsyDeco.held = true; vsyDeco.t = performance.now(); } // outside a run the decorations keep the clock of the moment it stopped
     vsyDeco.on = vsyDeco.held; try { render(); } finally { vsyDeco.on = false; } HOOK.renders++; vsyAt = now; vsyDirty = false; vsySigLast = vsySig(); }

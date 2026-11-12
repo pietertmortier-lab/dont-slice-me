@@ -45,9 +45,130 @@ const FIND_MAX = 20, FIND_IP_MAX = 60, FIND_WINDOW_MS = 10 * 60000, REQ_IN_MAX =
 const ghostBand = level => Math.floor(Math.max(1, Number(level) || 1) / 10);
 const nameKeyOf = v => String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^\p{L}\p{N} \-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 16);
 const cleanRef = v => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
-const playerName = v => String(v || 'Fruit').replace(/[^\p{L}\p{N} \-]/gu, '').slice(0, 16) || 'Fruit';
-const ghostView = (id, g) => ({ id, seed: String(g.seed || ''), name: String(g.name || 'Fruit').slice(0, 16), fruit: String(g.fruit || 'appel').slice(0, 24), level: g.level || 1, score: g.score || 0, t: g.t || 0, ghost: g.ghost || '' });
-const reqView = p => ({ ref: String(p.ref || ''), name: String(p.name || 'Fruit').slice(0, 16), level: p.level || 1, fruit: String(p.fruit || 'appel').slice(0, 24), tag: p.ref ? '#' + String(p.ref).slice(0, 3) : '' });
+const playerName = v => { const n = String(v || 'Fruit').replace(/[^\p{L}\p{N} \-]/gu, '').slice(0, 16) || 'Fruit'; return nameBad(n) ? NM_HID : n; }; // v0.32.9: a name that fails the filter shows as Speler
+// ---- v0.32.9 player names (Google Play user-generated content): the name filter, reports, blocks.
+// A name that fails the filter or was hidden after reports is stored as NM_HID ("Speler"; the game shows "Player" in English) and the chosen
+// name waits in nameReal until the player picks another one (nameAsk: hello and profile answer rename: 1). Reports: reports/{target}_{reporter},
+// one per reporter per target, NM_REP_DAY a day per reporter; NM_REP_HIDE distinct reporters of the same name hide it (repsum/{target}).
+// Blocks: blocks/{uid}.list [{ u, n, at }]; the game only ever sees a key (a hash), never the uid of a non-friend.
+const NM_HID = 'Speler', NM_REP_DAY = 10, NM_REP_IP_DAY = 60, PEEK_HOUR = 10, PEEK_IP_HOUR = 60, NM_REP_HIDE = 3, NM_BLOCK_MAX = 200, NM_WHY = ['name', 'other'];
+CAPS.push('names'); // hello: the game shows the report / block buttons only with this server
+// v0.32.9 name filter (the same text in the game and in the server; the server decides). NL, EN and FR slurs, insults, sexual and hate terms.
+// W: whole words only (a name word that IS the term). P: a name word that starts with the term. S: anywhere, also across spaces and separators.
+// Before matching: case, accents, look-alike letters, leetspeak (0 o, 1 i or l, 3 e, 4 a, 5 s, 7 t, @ a, $ s, ...) and repeated letters
+// (fuuuck) are folded; separators split words (k.u.t, k u t), and the words are also checked glued together.
+// Fullwidth and mathematical letters fold to plain letters (NFKD); the name is checked once more with every run of digits as a separator
+// (Kut123, Nazi88: the leetspeak step alone glues the digits to the word as letters).
+const NAME_BAD_W = ['kut', 'kutje', 'lul', 'hoer', 'slet', 'sletje', 'eikel', 'neuk', 'neuken', 'neukt', 'neuker', 'neukte', 'kloten', 'klote', 'debiel', 'pedo', 'pedos', 'nazi', 'nazis', 'neger', 'negers', 'makak', 'makakken', 'piemel', 'tieten', 'seks', 'sex', 'sexy', 'beffen',
+  'shit', 'shits', 'shitty', 'cock', 'cocks', 'pussy', 'pussies', 'penis', 'vagina', 'anal', 'anus', 'ass', 'arse', 'twat', 'fag', 'fags', 'negro', 'chink', 'spic', 'kike', 'paki', 'coon', 'tranny', 'rape', 'raped', 'milf', 'boob', 'boobs', 'tits', 'titties', 'cum', 'horny', 'slut', 'sluts', 'slutty', 'bitches',
+  'fck', 'fuk', 'fack', 'fuq', 'couille', 'couilles', 'merde', 'pute', 'putes', 'salaud', 'conne', 'nique', 'niquer', 'ntm', 'fdp', 'batard', 'chatte', 'tapette', 'negre', 'negres', 'youpin', 'bicot'];
+const NAME_BAD_P = ['hoeren', 'flikker', 'tering', 'tyfus', 'kolere', 'cunt', 'whore', 'wanker', 'retard', 'rapist', 'porn', 'jizz', 'orgasm', 'bastard', 'enculer', 'phuck'];
+const NAME_BAD_S = ['fuck', 'motherf', 'nigger', 'nigga', 'kanker', 'hitler', 'hoerenjong', 'hoerenzoon', 'kutwijf', 'kutmarok', 'kutkop', 'klootzak', 'mongool', 'pedofiel', 'pedophil', 'geitenneuker', 'zwartjoekel', 'siegheil', 'whitepower',
+  'bitch', 'dickhead', 'cocksuck', 'asshole', 'bullshit', 'shithead', 'faggot', 'dildo', 'blowjob', 'handjob', 'putain', 'salope', 'connard', 'connasse', 'encule', 'niquetamere', 'bougnoule', 'salearabe'];
+const NAME_BAD_PH = ['sale arabe', 'sale noir', 'sale juif', 'white power', 'heil hitler', 'sieg heil', 'nique ta mere', 'son of a bitch']; // whole phrases (words in a row)
+const NAME_LOOK = { '\u0430': 'a', '\u0435': 'e', '\u043e': 'o', '\u0440': 'p', '\u0441': 'c', '\u0443': 'y', '\u0445': 'x', '\u0456': 'i', '\u0458': 'j', '\u043a': 'k', '\u0455': 's', '\u0442': 't', '\u043c': 'm', '\u043d': 'h', '\u0432': 'b', '\u0131': 'i', '\u0142': 'l', '\u00f8': 'o', '\u00df': 'ss', '\u00e6': 'ae', '\u0153': 'oe', '\u03b1': 'a', '\u03b5': 'e', '\u03b9': 'i', '\u03ba': 'k', '\u03bf': 'o', '\u03c5': 'u', '\u03c4': 't', '\u03bd': 'v' };
+const NAME_LEET = { '0': 'o', '3': 'e', '4': 'a', '5': 's', '7': 't', '8': 'b', '9': 'g', '@': 'a', '$': 's', '\u20ac': 'e', '!': 'i', '+': 't' };
+const nameFold = s => s.replace(/(.)\1+/g, '$1'), nameFold3 = s => s.replace(/(.)\1\1+/g, '$1'); // fuuuck -> fuck; a double letter only for P and S (Lull and Fagot stay)
+function nameBad(v) { return nameBad0(v) || nameBad0(String(v || '').replace(/[0-9]+/g, ' ')); }
+function nameBad0(v) {
+  const base = String(v || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^\u0000-\u007f]/g, c => NAME_LOOK[c] !== undefined ? NAME_LOOK[c] : c).replace(/[0-9@$\u20ac!+]/g, c => NAME_LEET[c] || c);
+  if (/k{3,}/.test(base.replace(/[^a-z]/g, ''))) return true;
+  for (const one of ['i', 'l']) {
+    const s = base.replace(/[1|]/g, one), words = s.split(/[^a-z]+/).filter(Boolean), glued = words.join(''), many = words.length > 1, line = ' ' + words.join(' ') + ' ';
+    for (const ph of NAME_BAD_PH) if (line.includes(' ' + ph + ' ')) return true;
+    for (const w of words.concat(many && words.every(x => x.length <= 2) ? [glued] : [])) { // glued: only letters typed apart (k u t)
+      const w3 = nameFold3(w), w2 = nameFold(w);
+      for (const b of NAME_BAD_W) if (w === b || w3 === b) return true;
+      for (const b of NAME_BAD_P) if (w.startsWith(b) || w2.startsWith(b)) return true;
+    }
+    for (const w of words.concat(many && words.every(x => x.length <= 4) ? [glued] : [])) { // glued: short pieces only (bull shit), so two real words never meet by chance
+      const w2 = nameFold(w); for (const b of NAME_BAD_S) if (w.includes(b) || w2.includes(b)) return true; }
+  }
+  return false;
+}
+const nmShow = v => { const n = String(v || 'Fruit').slice(0, 16); return nameBad(n) ? NM_HID : n; }; // a name read from an older document
+const nmKey = uid => hashOf('blk', uid).slice(0, 16);
+const nmFlagOf = p => { const ok = Array.isArray(p.nameOk) ? p.nameOk : [], cur = String(p.nameReal || p.name || ''); return p.nameAsk || (cur && cur !== NM_HID && nameBad(cur) && !ok.includes(nameKeyOf(cur))) ? { rename: 1, rnm: cur.slice(0, 16) } : {}; };
+async function nmProfile(uid, data, body) { // profile: the name as it may be shown; returns the flag fields of the reply
+  const p = (await db.doc(`profiles/${uid}`).get()).data() || {}, n = data.name, key = nameKeyOf(n), ok = (Array.isArray(p.nameOk) ? p.nameOk : []).includes(key);
+  const hid = !ok && (Array.isArray(p.nameHid) ? p.nameHid : []).includes(key), bad = !ok && (nameBad(String(body.name || '')) || nameBad(n));
+  if (bad || hid) { Object.assign(data, { name: NM_HID, nameReal: n, nameAsk: true, nameKey: '' }); return { rename: 1, rnm: n }; }
+  data.nameReal = ''; data.nameAsk = false; return {};
+}
+async function nmPub(uid, raw) { // a name a client sends with a duel: never a hidden one
+  const n = playerName(raw); if (n === NM_HID) return n; const p = (await db.doc(`profiles/${uid}`).get()).data() || {}, key = nameKeyOf(n);
+  return (p.nameAsk && key === nameKeyOf(p.nameReal)) || (Array.isArray(p.nameHid) && p.nameHid.includes(key) && !(Array.isArray(p.nameOk) && p.nameOk.includes(key))) ? NM_HID : n;
+}
+async function nmTarget(t, id) { // -> { uid, p } of the player behind a row: 'u' uid (friends, rivals, friend duels, live), 'r' search handle, 'g' ghost id
+  const v = String(id || '');
+  if (t === 'r') { const d = await byRef(v); return d ? { uid: d.id, p: d.data() || {} } : null; }
+  let uid = '';
+  if (t === 'g') { if (!/^[A-Za-z0-9_]{1,64}$/.test(v)) return null; const g = (await db.doc(`ghosts/${v}`).get()).data(); uid = g && g.uid ? String(g.uid) : ''; }
+  else if (t === 'u') uid = /^[A-Za-z0-9_\-]{1,128}$/.test(v) ? v : '';
+  if (!uid) return null; const d = await db.doc(`profiles/${uid}`).get(); return d.exists ? { uid, p: d.data() || {} } : null;
+}
+async function nmBlocks(uid) { const d = (await db.doc(`blocks/${uid}`).get()).data(); return d && Array.isArray(d.list) ? d.list : []; }
+async function nmMine(uid) { return new Set((await nmBlocks(uid)).map(x => x.u)); } // the players I blocked
+async function nmBlocked(a, b) { const [x, y] = await Promise.all([nmBlocks(a), nmBlocks(b)]); return x.some(e => e.u === b) || y.some(e => e.u === a); } // either way
+async function nmHideSet(uid, ids) { // search: players I blocked or who blocked me
+  const out = await nmMine(uid), uniq = Array.from(new Set(ids)).filter(i => i !== uid && !out.has(i)); if (!uniq.length) return out;
+  const docs = await db.getAll(...uniq.map(i => db.doc(`blocks/${i}`))); for (const d of docs) { const l = (d.data() || {}).list; if (Array.isArray(l) && l.some(e => e.u === uid)) out.add(d.id); } return out;
+}
+const nmListView = list => list.map(x => ({ k: nmKey(x.u), n: nmShow(x.n), at: x.at || 0 }));
+async function nmHide(target, p) { // reports reached NM_REP_HIDE: the name is shown as Speler, the player is asked for a new one; copies that still carry it are rewritten
+  const real = String(p.nameReal || p.name || ''), key = nameKeyOf(real); if (!key || real === NM_HID || (Array.isArray(p.nameOk) && p.nameOk.includes(key))) return false;
+  await db.doc(`profiles/${target}`).set({ name: NM_HID, nameReal: real, nameAsk: true, nameKey: '', nameHid: admin.firestore.FieldValue.arrayUnion(key) }, { merge: true });
+  try {
+    const [gh, outR, cf, ct] = await Promise.all([db.collection('ghosts').where('uid', '==', target).limit(40).get(), db.collection(`requests/${target}/out`).limit(60).get(), db.collection('challenges').where('from', '==', target).limit(60).get(), db.collection('challenges').where('to', '==', target).limit(60).get()]);
+    const b = db.batch(); let n = 0; for (const d of gh.docs) { b.set(d.ref, { name: NM_HID }, { merge: true }); n++; }
+    const ins = outR.docs.length ? await db.getAll(...outR.docs.map(d => db.doc(`requests/${d.id}/in/${target}`))) : []; for (const d of ins) if (d.exists) { b.set(d.ref, { name: NM_HID }, { merge: true }); n++; }
+    for (const d of cf.docs) if (['open', 'playing'].includes((d.data() || {}).status)) { b.set(d.ref, { fromName: NM_HID }, { merge: true }); n++; }
+    for (const d of ct.docs) if (['open', 'playing'].includes((d.data() || {}).status)) { b.set(d.ref, { toName: NM_HID }, { merge: true }); n++; }
+    const ent = db.doc(`duels/${dayNow()}/entries/${target}`); if ((await ent.get()).exists) { b.set(ent, { name: NM_HID }, { merge: true }); n++; }
+    if (n) await b.commit();
+  } catch (e) { console.error('nmhide copies', e); }
+  return true;
+}
+async function nmAction(action, uid, body, res, req) { // every names action; false for an action that is not ours
+  const J = o => { res.json(o); return true; };
+  if (action === 'nmreport') { // { t, id, why } -> { ok, done } | { ok, dup } | { ok: false, error: 'self' | 'unknown' | 'slow' | 'why' }
+    const why = String(body.why || ''); if (!NM_WHY.includes(why)) return J({ ok: false, error: 'why' });
+    const tg = await nmTarget(String(body.t || ''), body.id); if (!tg) return J({ ok: false, error: 'unknown' }); if (tg.uid === uid) return J({ ok: false, error: 'self' });
+    const rref = db.doc(`reports/${tg.uid}_${uid}`), r00 = (await rref.get()).data(); if (r00 && r00.key === nameKeyOf(String(tg.p.nameReal || tg.p.name || ''))) return J({ ok: true, dup: true }); // v0.32.9 fixer (review of the integration): a report of an older name is no duplicate
+    if (!(await rateOk(`rep_${uid}`, NM_REP_DAY, 86400000))) return J({ ok: false, error: 'slow' });
+    { const ip = req ? clientIp(req) : ''; if (ip && !(await rateOk(`repip_${hashOf('ip', ip).slice(0, 24)}`, NM_REP_IP_DAY, 86400000))) return J({ ok: false, error: 'slow' }); } // reinstalls (new anonymous ids) share their address
+    const now = Date.now(), sref = db.doc(`repsum/${tg.uid}`);
+    const out = await db.runTransaction(async tx => { const [r0, s0, p0] = [await tx.get(rref), await tx.get(sref), await tx.get(db.doc(`profiles/${tg.uid}`))]; if (r0.exists && (r0.data() || {}).key === nameKeyOf(String((p0.data() || {}).nameReal || (p0.data() || {}).name || ''))) return { dup: true };
+      const p = p0.data() || {}, real = String(p.nameReal || p.name || ''), key = nameKeyOf(real), s = s0.data() || {}, by = s.key === key && Array.isArray(s.by) ? s.by.slice() : [];
+      if (!by.includes(uid)) by.push(uid); const hide = by.length >= NM_REP_HIDE && !(s.key === key && s.hidden);
+      tx.set(rref, { reportedUid: tg.uid, reason: why, byUid: uid, at: now, name: real.slice(0, 16), key, open: true });
+      tx.set(sref, { key, by: by.slice(0, 50), n: by.length, name: real.slice(0, 16), at: now, hidden: !!(s.key === key && s.hidden) || hide }); return { hide, p }; });
+    if (out.dup) return J({ ok: true, dup: true });
+    if (out.hide) await nmHide(tg.uid, out.p);
+    return J({ ok: true, done: true });
+  }
+  if (action === 'nmblock') { // { t, id } -> { ok, k, list }: the friendship, requests, open challenges and a live invite between the two go
+    const tg = await nmTarget(String(body.t || ''), body.id); if (!tg) return J({ ok: false, error: 'unknown' }); if (tg.uid === uid) return J({ ok: false, error: 'self' });
+    const o = tg.uid, ref = db.doc(`blocks/${uid}`), now = Date.now();
+    const list = await db.runTransaction(async tx => { const d = (await tx.get(ref)).data() || {}, l = Array.isArray(d.list) ? d.list.filter(x => x && x.u) : [];
+      if (!l.some(x => x.u === o)) { l.unshift({ u: o, n: String(tg.p.name || 'Fruit').slice(0, 16), at: now }); l.splice(NM_BLOCK_MAX); } tx.set(ref, { list: l }); return l; });
+    const b = db.batch(); for (const p of [`friends/${uid}/of/${o}`, `friends/${o}/of/${uid}`, `requests/${uid}/in/${o}`, `requests/${uid}/out/${o}`, `requests/${o}/in/${uid}`, `requests/${o}/out/${uid}`]) b.delete(db.doc(p)); await b.commit();
+    try { for (const id of [`${uid}-${o}`, `${o}-${uid}`]) { const cref = db.doc(`challenges/${id}`); await db.runTransaction(async tx => { const c = (await tx.get(cref)).data(); if (c && c.status === 'open' && (c.expires || 0) > now) tx.update(cref, { expires: now }); }); }
+      const [mp, op] = await Promise.all([db.doc(`profiles/${uid}`).get(), db.doc(`profiles/${o}`).get()]); const mi = (mp.data() || {}).ldIn, oi = (op.data() || {}).ldIn;
+      if (mi && mi.from === o) await db.doc(`profiles/${uid}`).set({ ldIn: null }, { merge: true }); if (oi && oi.from === uid) await db.doc(`profiles/${o}`).set({ ldIn: null }, { merge: true });
+    } catch (e) { console.error('nmblock tidy', e); }
+    return J({ ok: true, k: nmKey(o), list: nmListView(list) });
+  }
+  if (action === 'nmunblock') { // { k } -> { ok, list }
+    const k = String(body.k || '').slice(0, 16), ref = db.doc(`blocks/${uid}`);
+    const list = await db.runTransaction(async tx => { const d = (await tx.get(ref)).data() || {}, l = (Array.isArray(d.list) ? d.list : []).filter(x => x && x.u && nmKey(x.u) !== k); tx.set(ref, { list: l }); return l; });
+    return J({ ok: true, list: nmListView(list) });
+  }
+  if (action === 'nmblocks') return J({ ok: true, list: nmListView(await nmBlocks(uid)) }); // -> { ok, list: [{ k, n, at }] }
+  return false;
+}
+const ghostView = (id, g) => ({ id, seed: String(g.seed || ''), name: nmShow(g.name), fruit: String(g.fruit || 'appel').slice(0, 24), level: g.level || 1, score: g.score || 0, t: g.t || 0, ghost: g.ghost || '' });
+const reqView = p => ({ ref: String(p.ref || ''), name: nmShow(p.name), level: p.level || 1, fruit: String(p.fruit || 'appel').slice(0, 24), tag: p.ref ? '#' + String(p.ref).slice(0, 3) : '' });
 const hashOf = (salt, v) => crypto.createHash('sha256').update(salt + ':' + v).digest('hex');
 const ghostKey = uid => hashOf('ghost', uid).slice(0, 20); // a ghost id never shows the uid
 const dayOf = t => new Date(t - 7 * 3600000).toISOString().slice(0, 10), dayNow = () => dayOf(Date.now()); // the game's day starts at 07:00
@@ -143,7 +264,7 @@ async function settleChallenge(day, c, ref) { // both entries present: the highe
 const newCode = () => Array.from({ length: 6 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
 const cleanCode = v => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
 const clampInt = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.floor(Number(v) || 0)));
-const profileView = (id, p) => p ? ({ uid: id, name: String(p.name || 'Fruit').slice(0, 16), level: p.level || 1, best: p.best || 0, fruits: Array.isArray(p.fruits) ? p.fruits : [], hat: p.hat || 'none', streak: p.streak || 0, runs: p.runs || 0, stamps: p.stamps || 0, division: p.division || '', weekKey: p.weekKey || '', weekEv: p.weekEv || '', weekScore: p.weekScore || 0, kitchen: p.kitchen && typeof p.kitchen === 'object' ? p.kitchen : null, last: p.updatedMs || 0, v2: (p.cv || 0) >= CLIENT_V, v3: (p.pv || 0) >= POLL_V }) : null; // v0.32: v2 = the friend's client plays friend duels v2; v0.32.3: v3 = it also polls and shows a challenge as an in-game card
+const profileView = (id, p) => p ? ({ uid: id, name: nmShow(p.name), level: p.level || 1, best: p.best || 0, fruits: Array.isArray(p.fruits) ? p.fruits : [], hat: p.hat || 'none', streak: p.streak || 0, runs: p.runs || 0, stamps: p.stamps || 0, division: p.division || '', weekKey: p.weekKey || '', weekEv: p.weekEv || '', weekScore: p.weekScore || 0, kitchen: p.kitchen && typeof p.kitchen === 'object' ? p.kitchen : null, last: p.updatedMs || 0, v2: (p.cv || 0) >= CLIENT_V, v3: (p.pv || 0) >= POLL_V }) : null; // v0.32: v2 = the friend's client plays friend duels v2; v0.32.3: v3 = it also polls and shows a challenge as an in-game card
 async function ensureCode(uid, data) { // the player's code, created once
   const ref = db.doc(`profiles/${uid}`), cur = (await ref.get()).data() || {};
   if (cur.code) return cur.code;
@@ -200,6 +321,9 @@ const ldPair = (a, b) => [a, b].sort().join('_');
 const msOf = v => typeof v === 'number' ? v : v && typeof v.toMillis === 'function' ? v.toMillis() : 0; // friends.since is a Firestore Timestamp (a number in the mock)
 const ldDay = t => new Date(t - 7 * 3600000).toLocaleDateString('en-CA', { timeZone: 'Europe/Brussels' }); // the game day for counted wins starts at 07:00 Belgian time (Pieter's decision)
 const ldFruit = v => LD_FRUITS.includes(String(v || '')) ? String(v) : 'appel';
+// v0.32.9 fair duels: every fruit id of the game (20 classic, 4 late, 4 tournament fruits): a duel may borrow any of them; an unknown id is stored as appel
+const DUEL_FRUITS = LD_FRUITS.concat(['mirakelbes', 'bosbes', 'lampionvrucht', 'mispel', 'goudperzik', 'nachtbes', 'regenboogkiwi', 'vorkvrucht']);
+const duelFruit = v => DUEL_FRUITS.includes(String(v || '')) ? String(v) : 'appel';
 const ldPw = v => (Array.isArray(v) ? v : []).map(k => String(k).replace(/[^a-z0-9]/g, '').slice(0, 16)).filter(Boolean).slice(0, 12); // the power kinds a client knows (none in v0.32.5)
 const ldQuietAt = (tz, now) => { const h = new Date(now + clampInt(tz, -840, 840) * 60000).getUTCHours(); return h >= LD_QUIET_FROM || h < LD_QUIET_TO; }; // 21:00-08:00 on the player's own phone
 const ldHere = (p, now) => (p.ldSeen || 0) > now - LD_HERE_MS || (!!p.ldBusy && (p.ldSeen || 0) > now - LD_BUSY_HERE_MS); // the app is open (a menu, or a run that pings less often)
@@ -406,6 +530,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
   }
   if (action === 'ldanswer') { // { id, yes, fruit, v, pw } -> yes: { lobby }; no: { refused: true } | { ok: false, error: 'gone' | 'cancel' | 'busy' | 'inlobby' }
     const id = ldClean(body.id), iref = db.doc(`ldinv/${id}`), mref = db.doc(`profiles/${uid}`), lid = ldId();
+    if (body.yes) { const x0 = (await iref.get()).data(); if (x0 && x0.to === uid && x0.state === 'open' && await nmBlocked(x0.from, uid)) { try { await iref.update({ state: 'cancel', answered: now }); await mref.set({ ldIn: null }, { merge: true }); } catch (e) {} return NO('gone'); } } // v0.32.9 fixer (review of the integration): blocked while the invite was open
     const out = await db.runTransaction(async tx => {
       const x = (await tx.get(iref)).data(); if (!x || x.to !== uid) return { error: 'gone' };
       const ipref = db.doc(`profiles/${x.from}`), ip = (await tx.get(ipref)).data() || {}, mp = (await tx.get(mref)).data() || {};
@@ -538,19 +663,117 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
   return false;
 }
 
+// ---- v0.32.9 account deletion (Google Play: the deletion starts in the app and removes the account and its data). deleteMe deletes
+// every document and field of the calling identity (the primary one when the device is linked; a uid in the body is never used) and
+// nothing of anybody else: the player's own documents, both sides of a friendship or request, the shared documents with one other
+// player (24 h challenges, live invites and lobbies, h2h records, old day challenges, tips, paid pairs) and the fields of another
+// player's profile that point at this one (an invite, a lobby, the invite counters, a challenge note). The other player keeps what is
+// theirs (their counted wins, their own ghosts, saves and friends). Tombstones devices/{authId} (that document is read on every call
+// anyway, so no extra read): while the job runs only deleteMe passes, so a retry after a partial failure finishes it and nothing else
+// writes meanwhile; afterwards every call of a deleted identity gets 401 gone. Anchors (my friend and request lists, my invites, my
+// profile) are deleted last, so a retry rediscovers everything. Logs only counts. tools/delete-player.cjs uses the same deleteAccount.
+const DEL_BATCH = 450, DEL_TOMB_MS = 2 * 86400000, DEL_READ = 300;
+async function delCommit(ops, cnt) { // ops in order: ['del', ref] | ['upd', ref, data] | ['set', ref, data]; at most DEL_BATCH per batch
+  for (let i = 0; i < ops.length; i += DEL_BATCH) { const b = db.batch(); for (const o of ops.slice(i, i + DEL_BATCH)) { if (o[0] === 'del') b.delete(o[1]); else if (o[0] === 'upd') b.update(o[1], o[2]); else b.set(o[1], o[2]); } await b.commit(); if (cnt) cnt.batches++; }
+}
+async function delExisting(refs) { // which of these documents exist (constructed paths: a missing one is never counted or deleted)
+  const out = new Set(); for (let i = 0; i < refs.length; i += DEL_READ) { const part = refs.slice(i, i + DEL_READ); if (!part.length) continue; for (const s of await db.getAll(...part)) if (s.exists) out.add(s.ref.path); } return out;
+}
+async function delAuthIds(uid, rawUid) { // the anonymous identities of this account: the primary, the calling device, linked devices (also those an earlier try already tombstoned)
+  const ids = new Set([uid]); if (rawUid) ids.add(rawUid);
+  const [lk, tb] = await Promise.all([db.collection('devices').where('primary', '==', uid).get(), db.collection('devices').where('of', '==', uid).get()]);
+  for (const d of lk.docs.concat(tb.docs)) ids.add(d.id);
+  return [...ids].filter(id => id && !id.includes('/'));
+}
+async function deleteAccount(uid, opt) { // opt { rawUid, dryRun } -> { docs, fields, auth, batches, kinds }
+  opt = opt || {}; const dry = !!opt.dryRun, now = Date.now(), FV = admin.firestore.FieldValue, cnt = { docs: 0, fields: 0, auth: 0, batches: 0, kinds: {} };
+  if (!uid || String(uid).includes('/')) throw new Error('uid');
+  const ids = await delAuthIds(uid, opt.rawUid), mine = new Set(ids), holds = s => typeof s === 'string' && s.split(/[-_]/).some(p => mine.has(p));
+  if (!dry) await delCommit(ids.map(id => ['set', db.doc(`devices/${id}`), { gone: true, done: false, of: uid, at: now, expireAt: new Date(now + DEL_TOMB_MS) }])); // first: no other call of this account writes any more
+  const ops = { early: [], late: [], final: [] }, seen = new Map(), partners = new Set(), invIds = new Set(), lobIds = new Set();
+  const kill = (ref, kind, where, sure) => { if (seen.has(ref.path)) return; seen.set(ref.path, { ref, kind, where: where || 'early', sure: !!sure }); };
+  const other = p => { if (typeof p === 'string' && p && !p.includes('/') && !mine.has(p)) partners.add(p); };
+  // scanned once for every id: the days of the old day duel, the tournament groups, the paid pairs (ids only) and the refusals
+  const [days, groups, pairs] = await Promise.all([db.collection('duels').listDocuments(), db.collection('groups').get(), db.collection('pairs').get()]);
+  let refused = { docs: [] }; try { refused = await db.collectionGroup('refused').get(); } catch (e) { console.error('deleteMe refused scan', (e && e.message) || e); }
+  for (const d of pairs.docs) if (d.id.split('_').some(p => mine.has(p))) { kill(d.ref, 'friends', 'early', true); d.id.split('_').forEach(other); }
+  for (const d of refused.docs) if (mine.has(d.id)) kill(d.ref, 'requests', 'early', true);
+  for (const X of ids) {
+    const pref = db.doc(`profiles/${X}`), p = (await pref.get()).data() || null, q = (c, f) => db.collection(c).where(f, '==', X).get();
+    const [codes, fr, rin, rout, rref, ghosts, h2a, h2b, chf, cht, tif, tit, links, ivf, ivt, lobH, hist] = await Promise.all([q('codes', 'uid'), db.collection(`friends/${X}/of`).get(), db.collection(`requests/${X}/in`).get(),
+      db.collection(`requests/${X}/out`).get(), db.collection(`requests/${X}/refused`).get(), q('ghosts', 'uid'), q('h2h', 'a'), q('h2h', 'b'), q('challenges', 'from'), q('challenges', 'to'), q('tips', 'from'), q('tips', 'to'),
+      q('links', 'uid'), q('ldinv', 'from'), q('ldinv', 'to'), q('ldlobby', 'host'), db.collection(`saves/${X}/history`).get()]);
+    if (p && cleanCode(p.code).length === 6) kill(db.doc(`codes/${cleanCode(p.code)}`), 'profile'); for (const d of codes.docs) kill(d.ref, 'profile', 'early', true);
+    for (const d of fr.docs) { other(d.id); kill(db.doc(`friends/${d.id}/of/${X}`), 'friends'); kill(d.ref, 'friends', 'late', true); } // the friend's side first, my own list (the anchor) last
+    for (const d of rin.docs) { other(d.id); kill(db.doc(`requests/${d.id}/out/${X}`), 'requests'); kill(d.ref, 'requests', 'late', true); }
+    for (const d of rout.docs) { other(d.id); kill(db.doc(`requests/${d.id}/in/${X}`), 'requests'); kill(d.ref, 'requests', 'late', true); }
+    for (const d of rref.docs) kill(d.ref, 'requests', 'early', true);
+    for (const d of ghosts.docs) kill(d.ref, 'duels', 'early', true); for (let k = 0; k < GHOST_KEEP; k++) kill(db.doc(`ghosts/${ghostKey(X)}_${k}`), 'duels');
+    for (const d of h2a.docs.concat(h2b.docs)) { const h = d.data() || {}; other(h.a); other(h.b); kill(d.ref, 'duels', 'early', true); }
+    for (const d of chf.docs.concat(cht.docs)) { const c = d.data() || {}; other(c.from); other(c.to); kill(d.ref, 'duels', 'early', true); }
+    for (const d of tif.docs.concat(tit.docs)) { const t = d.data() || {}; other(t.from); other(t.to); kill(d.ref, 'friends', 'early', true); }
+    for (const d of links.docs) kill(d.ref, 'devices', 'early', true);
+    for (const d of ivf.docs.concat(ivt.docs)) { const v = d.data() || {}; other(v.from); other(v.to); invIds.add(d.id); if (v.lobby) lobIds.add(ldClean(v.lobby)); kill(d.ref, 'live', 'late', true); } // an invite is the anchor of its lobby
+    for (const d of lobH.docs) lobIds.add(d.id); if (p && p.ldLobby) lobIds.add(ldClean(p.ldLobby));
+    for (const d of hist.docs) kill(d.ref, 'save', 'early', true);
+    for (const [c, kind] of [['saves', 'save'], ['duelwin', 'duels'], ['duelsum', 'duels'], ['duelstats', 'duels'], ['ldpush', 'push'], ['results', 'tourney'], ['players', 'tourney']]) kill(db.doc(`${c}/${X}`), kind);
+    for (const k of ['find', 'req', 'ldinv', 'ldpushin']) kill(db.doc(`limits/${k}_${X}`), 'limits');
+    { const [rpa, rpb] = await Promise.all([q('reports', 'reportedUid'), q('reports', 'byUid')]); // v0.32.9 integration (names data in the deletion): reports about and by this account, its report summary, block list and report limit
+      for (const d of rpa.docs.concat(rpb.docs)) kill(d.ref, 'reports', 'early', true); kill(db.doc(`repsum/${X}`), 'reports'); kill(db.doc(`blocks/${X}`), 'blocks'); kill(db.doc(`limits/rep_${X}`), 'limits'); }
+    for (const g of groups.docs) kill(db.doc(`groups/${g.id}/scores/${X}`), 'tourney');
+    for (let i = 0; i < days.length; i += 20) { const part = days.slice(i, i + 20); for (const day of part) kill(db.doc(`duels/${day.id}/entries/${X}`), 'duels'); // the old day duel (older clients)
+      const qs = await Promise.all(part.flatMap(day => ['from', 'to'].map(f => db.collection(`duels/${day.id}/challenges`).where(f, '==', X).get())));
+      for (const s of qs) for (const d of s.docs) { const c = d.data() || {}; other(c.from); other(c.to); kill(d.ref, 'duels', 'early', true); } }
+    if (p) kill(pref, 'profile', 'final', true);
+  }
+  { const ls = [...lobIds].filter(Boolean), docs = ls.length ? await db.getAll(...ls.map(id => db.doc(`ldlobby/${id}`))) : []; // the lobbies: every seat's live document, then the lobby
+    for (const s of docs) { if (!s.exists) continue; const l = s.data() || {}; for (const m of (l.m || []).concat(l.kicked || [])) other(m && m.uid);
+      for (const d of (await db.collection(`ldlobby/${s.id}/live`).get()).docs) kill(d.ref, 'live', 'early', true); kill(s.ref, 'live', 'early', true); } }
+  const maybe = [...seen.values()].filter(x => !x.sure), have = await delExisting(maybe.map(x => x.ref));
+  for (const x of seen.values()) if (x.sure || have.has(x.ref.path)) { ops[x.where].push(['del', x.ref]); cnt.kinds[x.kind] = (cnt.kinds[x.kind] || 0) + 1; cnt.docs++; }
+  const upd = []; { const ps = [...partners], docs = []; for (let i = 0; i < ps.length; i += DEL_READ) docs.push(...await db.getAll(...ps.slice(i, i + DEL_READ).map(id => db.doc(`profiles/${id}`)))); // the other players' fields that point at this account
+    for (const s of docs) { if (!s.exists || seen.has(s.ref.path)) continue; const o = s.data() || {}, u = {};
+      if (o.ldIn && mine.has(o.ldIn.from)) u.ldIn = null; if (o.ldOut && invIds.has(o.ldOut)) u.ldOut = ''; if (o.ldLobby && lobIds.has(o.ldLobby)) u.ldLobby = '';
+      for (const X of ids) { if (o.ldMiss && o.ldMiss[X] !== undefined) u['ldMiss.' + X] = FV.delete(); if (o.ldNo && o.ldNo[X] !== undefined) u['ldNo.' + X] = FV.delete(); }
+      if (o.ldDone && mine.has(o.ldDone.with)) u.ldDone = FV.delete(); if (o.ldLast && mine.has(o.ldLast.to)) u.ldLast = FV.delete();
+      if (Array.isArray(o.notes)) { const keep = o.notes.filter(n => !(n && holds(n.id))); if (keep.length !== o.notes.length) u.notes = keep; } // a challenge note carries the challenge id (from-to)
+      if (Object.keys(u).length) { upd.push(['upd', s.ref, u]); cnt.fields += Object.keys(u).length; } } }
+  { const [rs, bl] = await Promise.all([db.collection('repsum').get(), db.collection('blocks').get()]); // v0.32.9 integration: the other players' report summaries and block lists lose this account's id
+    for (const d of rs.docs) { if (seen.has(d.ref.path)) continue; const r = d.data() || {}; if (Array.isArray(r.by) && r.by.some(u => mine.has(u))) { const by = r.by.filter(u => !mine.has(u)); upd.push(['upd', d.ref, { by }]); /* n (a count, no personal data) stays: a hidden name keeps its trace for tools/reports.cjs */ cnt.fields++; } }
+    for (const d of bl.docs) { if (seen.has(d.ref.path)) continue; const l = (d.data() || {}).list; if (Array.isArray(l) && l.some(e => e && mine.has(e.u))) { upd.push(['upd', d.ref, { list: l.filter(e => !(e && mine.has(e.u))) }]); cnt.fields++; } } }
+  if (dry) { cnt.auth = ids.length; return cnt; }
+  await delCommit(upd.concat(ops.early, ops.late, ops.final), cnt);
+  for (const id of ids) { try { await admin.auth().deleteUser(id); cnt.auth++; } catch (e) { const c = e && (e.code || (e.errorInfo && e.errorInfo.code)); if (c !== 'auth/user-not-found') throw e; } } // a missing user is deleted already
+  await delCommit(ids.map(id => ['set', db.doc(`devices/${id}`), { gone: true, done: true, at: now, expireAt: new Date(now + DEL_TOMB_MS) }])); // done: no uid any more, only the flag
+  return cnt;
+}
+async function findPlayers(q) { // tools/delete-player.cjs: a friend code, else the name (findable name key, then the exact name); at most 20
+  const out = new Map(), add = (id, p) => { if (id && !out.has(id)) out.set(id, p || null); };
+  const code = cleanCode(q); if (code.length === 6) { const c = (await db.doc(`codes/${code}`).get()).data(); if (c && c.uid) add(c.uid, (await db.doc(`profiles/${c.uid}`).get()).data()); }
+  const key = nameKeyOf(q); if (key.length >= 2) for (const d of (await db.collection('profiles').where('nameKey', '==', key).limit(20).get()).docs) add(d.id, d.data());
+  for (const d of (await db.collection('profiles').where('name', '==', playerName(q)).limit(20).get()).docs) add(d.id, d.data());
+  return [...out].slice(0, 20).map(([id, p]) => ({ uid: id, name: p ? String(p.name || '') : '', level: p ? p.level || 1 : 0, code: p ? String(p.code || '') : '', last: p ? p.updatedMs || 0 : 0 }));
+}
+Object.defineProperty(exports, '_admin', { value: { deleteAccount, findPlayers }, enumerable: false }); // for tools/delete-player.cjs; not enumerable, so a deploy sees only the functions
+
 exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVEDUEL_VAPID] }, async (req, res) => {
   const rawUid = await uidFrom(req); if (!rawUid) { res.status(401).json({ error: 'auth' }); return; }
   // A device that was linked with a link code acts as the identity it joined (devices/{uid}.primary).
-  let uid = rawUid; try { const dev = (await db.doc(`devices/${rawUid}`).get()).data(); if (dev && dev.primary) uid = dev.primary; } catch (e) {}
+  let uid = rawUid; try { const dev = (await db.doc(`devices/${rawUid}`).get()).data(); if (dev && dev.gone) { if ((req.body || {}).action !== 'deleteMe' || dev.done) { res.status(401).json({ error: 'gone' }); return; } uid = String(dev.of || rawUid); } /* v0.32.9: a deleted account (a running deletion only takes its retry) */ else if (dev && dev.primary) uid = dev.primary; } catch (e) {}
   const body = req.body || {}, action = body.action, week = isoWeek(new Date());
+  { const pv = String(body.prevUid || ''); if (pv && pv !== rawUid && /^[A-Za-z0-9_\-]{1,128}$/.test(pv)) { let gone = false; try { const pd = (await db.doc(`devices/${pv}`).get()).data(); gone = !!(pd && pd.gone); } catch (e) {} if (gone) { res.status(401).json({ error: 'gone' }); return; } } } // v0.32.9 fixer (review of the integration): the device's last uid belongs to a deleted account (its Firebase user is gone, the save is not)
   try {
-    if (/^ld[a-z]+$/.test(String(action || '')) && await ldAction(action, uid, body, req, res, rawUid)) return; // v0.32.5 live duels (rawUid: the device, for the seat binding)
+    if (/^ld[a-z]+$/.test(String(action || '')) && await ldAction(action, uid, body, req, res, rawUid)) return;
+    if (/^nm[a-z]+$/.test(String(action || '')) && await nmAction(action, uid, body, res, req)) return; // v0.32.9 names: report, block // v0.32.5 live duels (rawUid: the device, for the seat binding)
+    if (action === 'deleteMe') { // v0.32.9: the account and all its data; only the caller's own identity (a uid in the body is ignored)
+      const c = await deleteAccount(uid, { rawUid }); console.log('deleteMe', JSON.stringify({ docs: c.docs, fields: c.fields, auth: c.auth, batches: c.batches, kinds: c.kinds })); res.json({ ok: true, n: c.docs }); return;
+    }
     if (action === 'hello') { // v0.32: what this server can do, and what waits for me (friend requests, friend duels); v0.32.3: and how many notes and rewards wait (friends hands them out)
       const [rin, cin, mine] = await Promise.all([freshRequests(uid), db.collection('challenges').where('to', '==', uid).where('status', '==', 'open').limit(10).get(), db.doc(`profiles/${uid}`).get()]);
       const now = Date.now(), p = mine.data() || {}, notes = (Array.isArray(p.notes) ? p.notes.length : 0) + (Array.isArray(p.pending) ? p.pending.length : 0);
       if (p.code && !p.firstMs) { const f = await ldFirstMs(uid, now); if (f) await db.doc(`profiles/${uid}`).set({ firstMs: f }, { merge: true }); } // v0.32.5: the account's age from Firebase Auth, once
       if (p.lastStatDay !== statDay(now)) await statActive(uid, body.pf); // v0.32.8 stats: active today (pf app / web)
-      const vk = ldVapid(), wp = !!(vk && ldWebPush); res.json({ ok: true, v: SERVER_V, caps: CAPS.concat(['live'], wp ? ['push'] : [], LD_POWERS.length ? ['ldpow'] : []), vapid: wp ? vk.publicKey : '', inbox: { req: rin.length, duel: cin.docs.filter(d => (d.data().expires || 0) > now).length, notes } });
+      const vk = ldVapid(), wp = !!(vk && ldWebPush); res.json({ ok: true, v: SERVER_V, caps: CAPS.concat(['live'], wp ? ['push'] : [], LD_POWERS.length ? ['ldpow'] : []), vapid: wp ? vk.publicKey : '', ...nmFlagOf(p), inbox: { req: rin.length, duel: cin.docs.filter(d => (d.data().expires || 0) > now).length, notes } });
     } else if (action === 'submit') { // { ev, score, seconds, level, division, name }
       const ev = String(body.ev); if (!EVENTS.includes(ev) || ev !== eventOfWeek(week)) { res.status(400).json({ error: 'event' }); return; } await ldMark(uid); // v0.32.5: a played day (counted friend-duel wins need an active loser)
       const score = Math.max(0, Math.floor(Number(body.score) || 0)), seconds = Math.max(1, Number(body.seconds) || 1);
@@ -562,7 +785,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
     } else if (action === 'ladder') { // the player's group, sorted; the client shows top 10 + neighbours
       const { group, div } = await groupFor(week, uid, Number(body.level) || 1, body.division);
       const snap = await db.collection(`groups/${group}/scores`).orderBy('score', 'desc').limit(DIV_SIZE).get();
-      const rows = snap.docs.map(d => ({ id: d.id, name: d.data().name, score: d.data().score, me: d.id === uid }));
+      const rows = snap.docs.map(d => ({ id: d.id, name: nmShow(d.data().name), score: d.data().score, me: d.id === uid }));
       res.json({ ok: true, week, division: div, event: eventOfWeek(week), rows, rank: rows.findIndex(r => r.me) + 1 || null });
     } else if (action === 'result') { // prizes of the last closed week, once
       const doc = await db.doc(`results/${uid}`).get(); const r = doc.data();
@@ -576,11 +799,12 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       if (typeof body.findable === 'boolean') { data.findable = body.findable; data.nameKey = body.findable ? nameKeyOf(data.name) : ''; data.cv = CLIENT_V; data.pv = clampInt(body.pv, 0, 999); data.lv = clampInt(body.lv, 0, 9); } /* v0.32.5: lv 1 = this client plays live duels (an older one resets it to 0) */ // v0.32: only a client that can show requests and friend duels v2 sends findable; v0.32.3: pv 33 = it polls (an older one resets it to 0)
       if (body.fruit) data.fruit = String(body.fruit).slice(0, 24);
       { const curP = (await db.doc(`profiles/${uid}`).get()).data() || {}, nowP = Date.now(); if (!curP.firstMs) { const f = await ldFirstMs(uid, nowP); if (f) data.firstMs = f; } if (data.runs > (curP.runs || 0)) Object.assign(data, ldPlayed(curP, nowP) || {}); if (curP.lastStatDay !== statDay(nowP)) await statActive(uid, body.pf); } // v0.32.5: account age (Firebase Auth) and a played day when the run count rose; v0.32.8 stats: active today, new player
-      const code = await ensureCode(uid, data); await db.doc(`profiles/${uid}`).set(data, { merge: true }); await ensureRef(uid); res.json({ ok: true, code });
+      const nmF = await nmProfile(uid, data, body); /* v0.32.9: a bad or hidden name is stored as Speler */ const code = await ensureCode(uid, data); await db.doc(`profiles/${uid}`).set(data, { merge: true }); await ensureRef(uid); res.json(Object.assign({ ok: true, code }, nmF));
     } else if (action === 'befriend') { // { code } -> both players become friends; the first time, both get FRIEND_SAP
       const code = cleanCode(body.code); if (code.length !== 6) { res.status(400).json({ error: 'code' }); return; }
       const c = (await db.doc(`codes/${code}`).get()).data(); if (!c) { res.json({ ok: false, error: 'unknown' }); return; }
       const other = c.uid; if (other === uid) { res.json({ ok: false, error: 'self' }); return; }
+      if (await nmBlocked(uid, other)) { res.json({ ok: false, error: 'unknown' }); return; } // v0.32.9: a block (either way) looks like an unknown code
       const [mine, theirs, otherProfile, myProfile] = await Promise.all([db.collection(`friends/${uid}/of`).get(), db.collection(`friends/${other}/of`).get(), db.doc(`profiles/${other}`).get(), db.doc(`profiles/${uid}`).get()]);
       const op = otherProfile.data() || {}, mp = myProfile.data() || {};
       if (mine.docs.some(d => d.id === other)) { res.json({ ok: true, already: true, friend: profileView(other, op) }); return; }
@@ -622,9 +846,9 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
         if (got.gone === 'playing') await settleStale(cref);
         if (!got.x) { res.json({ ok: true, opp: null, gone: true, error: got.gone }); return; }
         const c = got.x; res.json({ ok: true, opp: { id: '', seed: c.seed, name: c.fromName || 'Vriend', fruit: c.fromFruit || 'appel', level: c.level || 1, score: c.fromScore || 0, t: c.t || 0, ghost: c.ghost || '', same: c.live === 1 ? 1 : 0 }, challenge: cid }); return; } /* v0.32.5: a challenge made from a live no-show is played with the live engine */
-      const seen = new Set((Array.isArray(body.seen) ? body.seen : []).map(String).slice(-60)), band = ghostBand(body.level); let cands = [];
+      const seen = new Set((Array.isArray(body.seen) ? body.seen : []).map(String).slice(-60)), band = ghostBand(body.level); let cands = []; const nbG = await nmMine(uid); // v0.32.9: never a ghost of a player I blocked
       for (const b of [band, band - 1, band + 1]) { if (b < 0) continue; const snap = await db.collection('ghosts').where('band', '==', b).orderBy('createdMs', 'desc').limit(40).get();
-        cands = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(g => g.uid !== uid && (g.createdMs || 0) > now - GHOST_RECENT_MS && !seen.has(String(g.seed))); if (cands.length) break; }
+        cands = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(g => g.uid !== uid && !nbG.has(g.uid) && (g.createdMs || 0) > now - GHOST_RECENT_MS && !seen.has(String(g.seed))); if (cands.length) break; }
       if (cands.length) { const pick5 = cands.sort((a, b) => (a.picked || 0) - (b.picked || 0)).slice(0, 5), o = pick5[Math.floor(Math.random() * pick5.length)]; res.json({ ok: true, opp: ghostView(o.id, o) }); return; }
       if (dayOk(body.day) && !seen.has(String(body.day))) { // nobody new yet: today's entries of the day-based duel (older clients), on the day's knives
         const snap = await db.collection(`duels/${body.day}/entries`).limit(30).get(), list = snap.docs.filter(d => d.id !== uid).map(d => d.data()).sort((a, b) => (a.picked || 0) - (b.picked || 0)).slice(0, 5);
@@ -641,7 +865,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
     } else if (action === 'duel' && SEED_RX.test(String(body.seed || '')) && dayOk(body.day)) { // v0.32 { day, seed, score, seconds, level, fruit, name, ghost, t, quit, vsGhost, challenge, challengeTo }
       const seed = String(body.seed), score = clampInt(body.score, 0, 1e6), t = clampInt(body.t, 0, DUEL_T_MAX), seconds = Math.max(1, Math.min(Number(body.seconds) || 1, t / 1000 + 2, DUEL_T_MAX / 1000)); // a duel lasts 90 s: seconds is bounded by its own t
       if (score > seconds * DUEL_MAX_PER_SEC + 50) { res.status(400).json({ error: 'implausible' }); return; }
-      const now = Date.now(), name = playerName(body.name), level = clampInt(body.level, 1, 500), fruit = String(body.fruit || 'appel').slice(0, 24), quit = !!body.quit, ghost = quit ? '' : String(body.ghost || '').replace(/[^0-9,\-]/g, '').slice(0, GHOST_MAX * 8);
+      const now = Date.now(), name = await nmPub(uid, body.name), level = clampInt(body.level, 1, 500), fruit = duelFruit(body.fruit), quit = !!body.quit, ghost = quit ? '' : String(body.ghost || '').replace(/[^0-9,\-]/g, '').slice(0, GHOST_MAX * 8);
       const cid = String(body.challenge || '').slice(0, 300), to = String(body.challengeTo || '').slice(0, 128), friendly = !!cid || !!(to && to !== uid); // v0.32.3: a friend duel (one you send or play) is unlimited and never a public ghost
       const slot = friendly ? { ok: true, k: -1 } : await duelSlot(uid, now - t, !!ghost); // a random duel counts on the day of its start, like the client's
       let ghostId = '', settled = 0, challenge = '', error = '', ldRep = null; await ldMark(uid); // v0.32.5: a played day; ldRep = my stats when this call settles a 24 h challenge
@@ -666,7 +890,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       const score = clampInt(body.score, 0, 1e6), dt = clampInt(body.t === undefined ? Number(body.seconds) * 1000 : body.t, 0, DUEL_T_MAX), seconds = Math.max(1, Math.min(Number(body.seconds) || 1, dt / 1000 + 2, DUEL_T_MAX / 1000)); if (score > seconds * DUEL_MAX_PER_SEC + 50) { res.status(400).json({ error: 'implausible' }); return; } // v0.32: seconds bounded by t and 95 s
       const ref = db.doc(`duels/${body.day}/entries/${uid}`); if ((await ref.get()).exists) { res.json({ ok: true, dup: true }); return; }
       const name = String(body.name || 'Fruit').replace(/[^\p{L}\p{N} \-]/gu, '').slice(0, 16) || 'Fruit';
-      await ref.set({ score, level: clampInt(body.level, 1, 500), band: bandOf(body.level), fruit: String(body.fruit || 'appel').slice(0, 24), name, ghost: String(body.ghost || '').replace(/[^0-9,\-]/g, '').slice(0, GHOST_MAX * 8), t: clampInt(body.t, 0, 120000), picked: 0, updatedMs: Date.now() });
+      await ref.set({ score, level: clampInt(body.level, 1, 500), band: bandOf(body.level), fruit: duelFruit(body.fruit), name, ghost: String(body.ghost || '').replace(/[^0-9,\-]/g, '').slice(0, GHOST_MAX * 8), t: clampInt(body.t, 0, 120000), picked: 0, updatedMs: Date.now() });
       const vs = String(body.vs || '').slice(0, 128); if (vs && vs !== uid) { try { await noteTo(vs, { type: 'picked', by: name, won: score > clampInt(body.vsScore, 0, 1e6), score, theirs: clampInt(body.vsScore, 0, 1e6), day: body.day }); } catch (e) {} }
       const [asFrom, asTo] = await Promise.all([db.collection(`duels/${body.day}/challenges`).where('from', '==', uid).get(), db.collection(`duels/${body.day}/challenges`).where('to', '==', uid).get()]);
       let settled = 0; for (const d of asFrom.docs.concat(asTo.docs)) { const c = d.data(); if (!c.resolved && await settleChallenge(body.day, c, d.ref)) settled++; }
@@ -686,7 +910,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       if (keep.length) { const docs = await db.getAll(...keep.map(u => db.doc(`profiles/${u}`))); rows = docs.filter(d => d.exists).map(d => profileView(d.id, d.data())); }
       if (rows.length < 2) { const lvl = clampInt(body.level, 1, 500); const snap = await db.collection('profiles').where('level', '>', lvl).orderBy('level', 'asc').limit(8).get();
         for (const d of snap.docs) { if (rows.length >= 2) break; if (d.id === uid || rows.some(r => r.uid === d.id)) continue; rows.push(profileView(d.id, d.data())); } }
-      res.json({ ok: true, rivals: rows.slice(0, 2) });
+      { const nbR = await nmMine(uid); res.json({ ok: true, rivals: rows.filter(r => !nbR.has(r.uid)).slice(0, 2) }); } // v0.32.9: no blocked rival
     } else if (action === 'tip') { // { uid, day }: a tip for a friend's kitchen, once per friend per day; the receiver gets TIP_SAP by note
       const other = String(body.uid || '').slice(0, 128); if (!other || other === uid || !dayOk(body.day)) { res.status(400).json({ error: 'uid' }); return; }
       const [isFriend, mp] = await Promise.all([db.doc(`friends/${uid}/of/${other}`).get(), db.doc(`profiles/${uid}`).get()]); if (!isFriend.exists) { res.json({ ok: false, error: 'notfriend' }); return; }
@@ -695,7 +919,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       res.json({ ok: true, sap: TIP_SAP });
     } else if (action === 'passed') { // { uid }: tell a rival I passed them
       const other = String(body.uid || '').slice(0, 128); if (!other || other === uid) { res.status(400).json({ error: 'uid' }); return; }
-      const mp = (await db.doc(`profiles/${uid}`).get()).data() || {}; await noteTo(other, { type: 'passed', by: String(mp.name || 'Een speler').slice(0, 16), level: mp.level || 1 }); res.json({ ok: true });
+      if (await nmBlocked(uid, other)) { res.json({ ok: true }); return; } /* v0.32.9: no note between blocked players */ const mp = (await db.doc(`profiles/${uid}`).get()).data() || {}; await noteTo(other, { type: 'passed', by: String(mp.name || 'Een speler').slice(0, 16), level: mp.level || 1 }); res.json({ ok: true });
     } else if (action === 'findplayer') { // v0.32 { q } -> up to 8 findable players: { ref, name, level, fruit, tag, friend }; nothing private
       const q = nameKeyOf(body.q); if (q.length < 2) { res.json({ ok: false, error: 'short' }); return; }
       if (!(await rateOk(`find_${uid}`, FIND_MAX, FIND_WINDOW_MS))) { res.json({ ok: false, error: 'slow' }); return; }
@@ -703,11 +927,12 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       const exact = await db.collection('profiles').where('nameKey', '==', q).limit(9).get(); const docs = exact.docs.slice();
       if (q.length >= 3 && docs.length < 9) { const pre = await db.collection('profiles').where('nameKey', '>=', q).where('nameKey', '<', q + '').orderBy('nameKey').limit(12).get(); for (const d of pre.docs) if (!docs.some(x => x.id === d.id)) docs.push(d); }
       const mine = new Set((await db.collection(`friends/${uid}/of`).get()).docs.map(d => d.id));
-      const players = docs.filter(d => d.id !== uid && d.data().findable === true && d.data().ref).slice(0, 8).map(d => Object.assign(reqView(d.data()), { friend: mine.has(d.id) }));
+      const nb = await nmHideSet(uid, docs.map(d => d.id)), players = docs.filter(d => d.id !== uid && !nb.has(d.id) && d.data().findable === true && d.data().ref).slice(0, 8).map(d => Object.assign(reqView(d.data()), { friend: mine.has(d.id) }));
       res.json({ ok: true, players });
     } else if (action === 'friendreq') { // v0.32 { ref }: ask a player found by name; if they asked me already, we are friends at once
       const other = await byRef(body.ref); if (!other || other.data().findable !== true) { res.json({ ok: false, error: 'unknown' }); return; }
       const oid = other.id; if (oid === uid) { res.json({ ok: false, error: 'self' }); return; }
+      if (await nmBlocked(uid, oid)) { res.json({ ok: false, error: 'unknown' }); return; } // v0.32.9: blocked (either way): no request
       const [isFriend, mpd, theirReq, myReq, refused, mine, theirs] = await Promise.all([db.doc(`friends/${uid}/of/${oid}`).get(), db.doc(`profiles/${uid}`).get(), db.doc(`requests/${uid}/in/${oid}`).get(), db.doc(`requests/${oid}/in/${uid}`).get(), db.doc(`requests/${uid}/refused/${oid}`).get(), db.collection(`friends/${uid}/of`).get(), db.collection(`friends/${oid}/of`).get()]);
       if (isFriend.exists) { res.json({ ok: true, already: true }); return; }
       const mp = mpd.data() || {}, op = other.data();
@@ -757,6 +982,13 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       if (l.uid === uid) { res.json({ ok: false, error: 'self' }); return; }
       await db.doc(`devices/${rawUid}`).set({ primary: l.uid, linkedMs: Date.now() }); await ref.delete();
       const cur = (await db.doc(`saves/${l.uid}`).get()).data(); res.json({ ok: true, data: cur ? cur.data : null });
+    } else if (action === 'invitepeek') { // v0.32.9 { code } -> { name }: who invited this new app player (Google Play referrer f=CODE); works before a name exists; never the uid
+      const code = cleanCode(body.code); if (code.length !== 6) { res.status(400).json({ error: 'code' }); return; }
+      if (!(await rateOk(`peek_${uid}`, PEEK_HOUR, HOUR_MS))) { res.json({ ok: false, error: 'slow' }); return; } // v0.32.9 fixer (review of the integration): no running through friend codes
+      { const ip = clientIp(req); if (ip && !(await rateOk(`peekip_${hashOf('ip', ip).slice(0, 24)}`, PEEK_IP_HOUR, HOUR_MS))) { res.json({ ok: false, error: 'slow' }); return; } }
+      const c = (await db.doc(`codes/${code}`).get()).data(); if (!c || !c.uid) { res.json({ ok: false, error: 'unknown' }); return; }
+      if (c.uid === uid) { res.json({ ok: false, error: 'self' }); return; }
+      const v = profileView(c.uid, (await db.doc(`profiles/${c.uid}`).get()).data()); res.json({ ok: true, name: v ? String(v.name || '') : '' });
     } else if (action === 'meter') { // the community meter of the hunt
       const doc = await db.doc(`meters/${week}`).get(); res.json({ ok: true, total: (doc.data() || {}).total || 0 });
     } else if (action === 'fork') { // +n forks in the hunt

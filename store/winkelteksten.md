@@ -3,6 +3,10 @@
 Bijgewerkt op 10 november 2026 voor spelversie 0.32.6. De naam van het spel is in alle talen "Don't Slice Me!".
 Google telt de tekens; de aantallen tussen haakjes zijn nageteld (spaties inbegrepen).
 
+v0.32.9: onder EERLIJK SPELEN / FAIR PLAY staat weer dat in duels alleen telt hoe goed je speelt (iedereen mag elk van de 20
+gewone fruitsoorten lenen, en de fruitmanden geven alleen fruit tot je eigen level). Plak de nieuwe volledige beschrijving pas in Play Console
+als versie 0.32.9 in de test staat.
+
 Regels van Google die ik heb gevolgd (Play-beleid over metadata): geen namen van andere spellen of merken, geen
 woorden als "beste", "nummer 1" of "gratis" in de titel, geen ranglijst- of prijsclaims, geen emoji of rijen
 hoofdletters, en alleen wat echt in het spel zit.
@@ -40,6 +44,7 @@ VERZAMELEN EN BOUWEN
 EERLIJK SPELEN
 • Gratis te spelen. Alles in het spel verdien je ook door te spelen.
 • Geen betaalde toevalsprijzen: je weet altijd precies wat je koopt.
+• In duels telt alleen hoe goed je speelt: iedereen mag elk van de 20 gewone fruitsoorten lenen, en fruitbonussen tellen daar niet.
 • Beloningsvideo's kies je zelf. Met Plus of Reclamevrij zie je geen reclame meer en krijg je de beloning meteen.
 • Je voortgang wordt online bewaard; koppel een tweede toestel met een code.
 • Nederlands en Engels.
@@ -83,6 +88,7 @@ COLLECT AND BUILD
 FAIR PLAY
 • Free to play. Everything in the game can also be earned by playing.
 • No paid random rewards: you always know exactly what you buy.
+• In duels only skill counts: everyone may borrow any of the 20 classic fruits, and fruit bonuses do not count there.
 • Rewarded videos are your choice. With Plus or Ad-free you see no ads at all and get the reward at once.
 • Your progress is saved online; link a second device with a code.
 • English and Dutch.
@@ -134,8 +140,9 @@ Don't Slice Me! is on Google Play. Play live against your friends, take on the K
   (PEGI) bepaalt de IARC-vragenlijst; schrijf die nergens zelf in de tekst.
 - Privacybeleid / privacy policy: https://pietertmortier-lab.github.io/dont-slice-me/privacy.html
 - Account verwijderen (web) / account deletion URL: https://pietertmortier-lab.github.io/dont-slice-me/privacy.html#verwijderen
-- Contact (publiek zichtbaar): dont.slice.me@gmail.com. Website (nodig voor app-ads.txt later):
-  https://pietertmortier-lab.github.io/dont-slice-me/
+- Contact (publiek zichtbaar): dont.slice.me@gmail.com. Website: laat dit veld voorlopig leeg (het webspel stuur je niemand
+  meer). Pas als AdMob om app-ads.txt vraagt: `https://pietertmortier-lab.github.io/` (het hoofdadres, met
+  een korte pagina die naar Google Play wijst), nooit `/dont-slice-me/`.
 - Afbeeldingen / graphics:
   - icoon 512 x 512: `icons/icon-512.png`;
   - feature graphic 1024 x 500: `promo/feature-graphic-nl.png` (Nederlands) en `promo/feature-graphic-en.png`
@@ -150,5 +157,5 @@ Don't Slice Me! is on Google Play. Play live against your friends, take on the K
 
 ## Controle (tekens geteld met een script)
 
-Appnaam NL 30, EN 28. Korte beschrijving NL 68, EN 70. Volledige beschrijving NL 2.138, EN 2.099 (max 4.000).
+Appnaam NL 30, EN 28. Korte beschrijving NL 68, EN 70. Volledige beschrijving NL 2.270, EN 2.217 (max 4.000; nageteld na v0.32.9).
 Wat is er nieuw NL 316, EN 286 (max 500). Geen emoji.

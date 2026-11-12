@@ -25,7 +25,7 @@
   const REVENUECAT = { apiKey: 'goog_FJgTybHYfqFWbkGXAXfgEJleTju' }; // public SDK key of the Google Play app in RevenueCat (safe to ship; client-side only)
   const SUBSCRIPTIONS = ['plus_month', 'plus_year'];          // everything else in PRODUCTS (index.html) is a one-time product
   const PLAY_PACKAGE = 'com.dontsliceme.app';
-  const WEB_URL = 'https://pietertmortier-lab.github.io/dont-slice-me/';
+  const PLAY_URL = 'https://play.google.com/store/apps/details?id=' + PLAY_PACKAGE; // v0.32.9: shared links go to Google Play, never to the web address
   const AdMob = P.AdMob || null, Purchases = P.Purchases || null;
   const EV = { reward: 'onRewardedVideoAdReward', rDismissed: 'onRewardedVideoAdDismissed', rFailShow: 'onRewardedVideoAdFailedToShow',
     iDismissed: 'interstitialAdDismissed', iFailShow: 'interstitialAdFailedToShow' };
@@ -53,7 +53,7 @@
     finally { if (!ads.ready) ads.busy = null; } // offline or refused: try again at the next video
   })());
 
-  let iapReady = false;
+  let iapReady = false, lastBuy = null; // v0.32.9: the last completed purchase { sku, id, at } (FV_NATIVE.lastPurchase)
   try { if (Purchases) { await Purchases.configure({ apiKey: REVENUECAT.apiKey }); iapReady = true; } } catch (e) { console.warn('RevenueCat init', e); }
 
   const openExternal = url => { const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); }; // Capacitor hands non-app URLs to Android (Play Store app, browser)
@@ -89,8 +89,22 @@
         const product = (products || []).find(p => p.identifier === sku || String(p.identifier).split(':')[0] === sku) || (products || [])[0];
         if (!product) { console.warn('buy: no product', sku, type); return false; }
         const r = await Purchases.purchaseStoreProduct({ product });
-        return !!(r && r.customerInfo);
+        if (!(r && r.customerInfo)) return false;
+        const t = (r && r.transaction) || {}; lastBuy = { sku, id: String(t.transactionIdentifier || t.orderId || ''), at: Date.now() }; // v0.32.9: the game reports it once
+        return true;
       } catch (e) { if (e && (e.userCancelled || e.code === '1' || e.code === 1)) return false; console.warn('buy', sku, e); return false; }
+    },
+    // v0.32.9: the last completed purchase { sku, id, at } or null. The game uses the id only to report a purchase once (it never leaves the phone).
+    lastPurchase: () => (lastBuy ? Object.assign({}, lastBuy) : null),
+    // v0.32.9: Google's price texts { sku: '€ 2,99' } for these product ids (the Plus card shows them), null when the store cannot answer.
+    async prices(skus) {
+      if (!iapReady) return null; const want = (Array.isArray(skus) ? skus : []).map(String), out = {};
+      try {
+        for (const type of ['SUBSCRIPTION', 'NON_SUBSCRIPTION']) { const ids = want.filter(s => SUBSCRIPTIONS.includes(s) === (type === 'SUBSCRIPTION')); if (!ids.length) continue;
+          const { products } = await Purchases.getProducts({ productIdentifiers: ids, type });
+          for (const p of products || []) { const id = String(p.identifier || '').split(':')[0]; if (ids.includes(id) && p.priceString && !out[id]) out[id] = String(p.priceString); } }
+        return out;
+      } catch (e) { console.warn('prices', e); return null; }
     },
     // Entitlement ids that are active now (noads, pass, plus). One-time consumables are never restored.
     async restore() { if (!iapReady) return []; try { const { customerInfo } = await Purchases.restorePurchases(); return Object.keys((customerInfo && customerInfo.entitlements && customerInfo.entitlements.active) || {}); } catch (e) { return []; } },
@@ -99,12 +113,28 @@
     // "Opzeggen": a Play subscription is cancelled in Google Play itself, never in the game.
     manageSubscriptions(sku) { openExternal('https://play.google.com/store/account/subscriptions' + (sku ? `?sku=${encodeURIComponent(sku)}&package=${PLAY_PACKAGE}` : '')); return true; },
     openExternal,
+    // v0.32.9: the Google Play install referrer: 'f=K7F4QX' when a friend's Play link installed the app, else null (no referrer, not
+    // installed from Google Play, an app build without the plugin, or no answer twice in 5 s). Never throws. The game reads it once per
+    // install at the first start (index.html refBoot). Plugin: @capawesome/capacitor-install-referrer (getInstallReferrer -> referrerUrl);
+    // @capgo/capacitor-install-referrer (getReferrer -> referrer) has the same plugin name and works too.
+    async installReferrer() {
+      const IR = P.InstallReferrer || null; if (!IR) return null;
+      let alt = typeof IR.getInstallReferrer !== 'function'; const ask = () => !alt ? IR.getInstallReferrer() : typeof IR.getReferrer === 'function' ? IR.getReferrer() : Promise.resolve(null);
+      for (let i = 0; i < 2; i++) {
+        try {
+          const r = await Promise.race([Promise.resolve(ask()), new Promise((ok, no) => setTimeout(() => no(new Error('timeout')), 5000))]);
+          const s = r ? String(r.referrerUrl || r.referrer || '') : ''; return s || null;
+        } catch (e) { const why = String((e && (e.code || e.message)) || ''); const unimpl = /UNIMPLEMENTED|not implemented/i.test(why); if (unimpl && !alt) { alt = true; continue; } if (unimpl || /NOT_SUPPORTED|DEVELOPER/i.test(why)) return null; console.warn('install referrer', why); }
+        await new Promise(z => setTimeout(z, 1500)); // the Play service was busy or not connected: once more
+      }
+      return null;
+    },
   };
 
-  // ---- the share sheet: Android WebView has no navigator.share. Links to https://localhost (the app's own origin) become the web address.
+  // ---- the share sheet: Android WebView has no navigator.share. Links to https://localhost (the app's own origin) become the Google Play page (v0.32.9).
   const Share = P.Share || null;
   if (Share && !navigator.share) {
-    const fix = s => typeof s === 'string' ? s.replace(/https?:\/\/localhost\/?/g, WEB_URL) : s;
+    const fix = s => typeof s === 'string' ? s.replace(/https?:\/\/localhost\/?/g, PLAY_URL) : s;
     try {
       navigator.share = async data => { const d = data || {}; await Share.share({ title: fix(d.title), text: fix(d.text), url: fix(d.url), dialogTitle: fix(d.title) }); };
       navigator.canShare = () => true;

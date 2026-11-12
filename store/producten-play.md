@@ -25,7 +25,7 @@ Entitlements in RevenueCat (de namen die het spel leest bij "Aankopen herstellen
 | `weekpass` | Weekpas | € 2,99 | eenmalig | consumable | - | deze week onbeperkt tickets + 1 extra fruitfragment op zondag (zie C) |
 | `pass` | Fruitpas | € 4,99 | eenmalig | consumable (zie B) | `pass` | het betaalde spoor van dit seizoen: hartjes, schilden, sap en gereedschap |
 | `noads` | Reclamevrij | € 3,99 | eenmalig | **non-consumable** | `noads` | geen filmpjes meer; je krijgt de beloning meteen (de brug slaat de video over, zie `native/bridge.js`) |
-| `bundle_all` | Alles-in-één fruit | € 9,99 | eenmalig | **non-consumable** | - (zie B) | de gewone fruitsoorten (20) die je nog niet hebt; geen toernooifruit en geen laat fruit (zie C: level) |
+| `bundle_all` | Alles-in-één fruit | € 9,99 | eenmalig | **non-consumable** | - (zie B) | de gewone fruitsoorten (20) die je nog niet hebt, maar alleen tot je eigen level; de rest komt vanzelf vrij als je dat level haalt (v0.32.9, zie C). Geen toernooifruit en geen laat fruit |
 | `plus_month` | Don't Slice Me! Plus (maand) | € 2,99 per maand | abonnement, basisabonnement maandelijks, **geen proefperiode** | subscription | `plus` | zie "Plus" hieronder |
 | `plus_year` | Don't Slice Me! Plus (jaar) | € 19,99 per jaar | abonnement, basisabonnement jaarlijks, **geen proefperiode** | subscription | `plus` | idem |
 
@@ -56,15 +56,18 @@ spelvormen, alles is ook met spelen te verdienen, geen pure cosmetica.
 - **Alles is ook te verdienen:** sap, hartjes, munten, tickets (gratis per dag en met sap), fruit (met sap),
   Fruitpas-beloningen (gratis spoor), geen reclame (Plus of filmpjes). Klopt voor elk product in A.
 - **Competitieve spelvormen:**
-  - Het live vriendenduel: eerlijk, beide spelers krijgen hetzelfde fruit te leen.
-  - **Let op, moet in het spel opgelost worden vóór de gesloten test:** in de openbare duels en de duels van 24 uur
-    speel je met je eigen fruit, en de trucs van dat fruit werken daar (de tweede kers, de avocadopit, de helften van
-    de watermeloen, de partjes van de sinaasappel). Alleen de fruitbonussen (sap, rustigere messen) gelden "niet in
-    duels". Bovendien geeft `bundle_all` (en een Fruitmand) alle fruit meteen, ook fruit dat pas vanaf een hoger level
-    mag (kersen level 6, watermeloen 34, drakenvrucht 60). Wie betaalt, heeft dus sneller sterker fruit in een duel.
-    Oplossing in het spel: in die duels krijgen beide spelers hetzelfde fruit (zoals in het live duel), of de trucs
-    staan uit; en `bundle_all` geeft alleen fruit tot je eigen level (de rest komt vrij als je dat level haalt).
-    Tot dan staat "in duels telt alleen hoe goed je speelt" niet in de winkeltekst.
+  - Het live vriendenduel: eerlijk, elke speler kiest uit alle 20 gewone fruitsoorten (te leen).
+  - **Opgelost in v0.32.9 (Pieters keuze "Alle fruit lenen"):** in de openbare duels en de duels van 24 uur mag
+    iedereen elk van de 20 gewone fruitsoorten lenen, ook fruit dat hij nog niet heeft, net als in het live duel
+    (Vrienden > Duels > "Kies fruit", en in de vraag "uitdagen?"). Wie niets kiest, speelt met zijn eigen fruit. De
+    trucs van het fruit werken nog (de tweede kers, de avocadopit ...), maar die kan nu iedereen kiezen; sapverdubbelaar,
+    uitrusting, fruitbonussen en een extra schil tellen in een duel niet (zoals al zo was). `bundle_all` en de
+    Fruitmanden geven alleen fruit tot je eigen level; de rest is betaald en komt vanzelf vrij als je dat level haalt
+    (je betaalt het nooit twee keer). Wie betaalt, heeft dus geen sterker fruit in een duel en ook niet sneller fruit
+    van een hoger level.
+    Let op: wie nog een oudere versie heeft (v0.32.8 of ouder), speelt zijn duels met zijn eigen fruit tot hij de app
+    bijwerkt; een duel tegen zo iemand werkt gewoon. Daarom mag de winkeltekst nu weer zeggen: "in duels telt alleen
+    hoe goed je speelt" (zie winkelteksten.md, EERLIJK SPELEN).
   - Sap, hartjes, verdubbelaar, munten, Reclamevrij, Fruitpas: maken het sneller, niet sterker in een wedstrijd.
   - **Let op, beslissing van Pieter nodig:** `tickets_5`, `tickets_15`, `weekpass` en Plus (+1 gratis ticket per
     dag) geven meer pogingen in het Keukentoernooi, waar je beste score telt in een wekelijkse ranglijst. Wie betaalt,
@@ -89,5 +92,7 @@ dat klopt niet meer (fruit is alleen met sap of in een mand) en moet uit het spe
 3. RevenueCat: importeer de producten uit Google Play, zet `noads` en `bundle_all` op non-consumable, koppel
    `noads` aan entitlement `noads` en `plus_month` en `plus_year` aan `plus`. Koppel `pass` (nog) aan **geen**
    entitlement: eerst beslis je hoe de Fruitpas per seizoen werkt (deel B).
-4. Beschrijving van `bundle_all` in Play Console: "De gewone fruitsoorten (20) die je nog niet hebt. Geen toernooifruit
-   en geen laat fruit." (Pas aan zodra het spel het level respecteert.)
+4. Beschrijving van `bundle_all` in Play Console (vanaf v0.32.9): NL "De gewone fruitsoorten (20) die je nog niet hebt.
+   Fruit tot je eigen level krijg je meteen, de rest komt vanzelf als je dat level haalt. Geen toernooifruit en geen
+   laat fruit." EN "The classic fruits (20) you do not have yet. Fruit up to your level is yours at once, the rest comes
+   by itself when you reach its level. No tournament fruit and no late fruit." 

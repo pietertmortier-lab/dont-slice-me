@@ -93,11 +93,11 @@ Je ziet: een leeftijd per land (in Europa een PEGI-cijfer, waarschijnlijk PEGI 7
 "In-game aankopen" en "Gebruikers werken samen"). Dat cijfer is van IARC, niet van ons; schrijf het nergens zelf.
 
 Opmerking over namen: spelers kiezen zelf een naam (2 tot 16 letters, cijfers, spaties of streepjes) die
-vrienden en duelspelers zien. Het spel weigert vandaag geen ongepaste namen (`cleanName` in `index.html` haalt alleen
-vreemde tekens weg). Andere spelers zien die namen (schimmen in duels, zoeken op naam, vriendschapsverzoeken). Het
-beleid van Google voor door gebruikers gemaakte inhoud vraagt dan regels voor namen, een manier om een naam te melden
-en een speler te blokkeren. Claude bouwt dat vóór de gesloten test (UITROL-STAPPEN.md, deel 0: namenfilter, "Meld deze
-naam", "Blokkeer" en `voorwaarden.html`). Het antwoord hier blijft hetzelfde: spelers kunnen met elkaar interageren.
+vrienden en duelspelers zien. Sinds v0.32.9 weigert de server ongepaste namen (Nederlands en Engels; de speler moet een
+andere kiezen en heet zolang "Speler"), staat bij elke andere speler een knopje ⋯ om de naam te melden of de speler te
+blokkeren, en staan de regels in `voorwaarden.html` (NL en EN). Drie meldingen verbergen een naam tot jij ernaar kijkt
+(`node tools/reports.cjs list` in `native/tourney`). Het antwoord hier blijft hetzelfde: spelers kunnen met elkaar
+interageren.
 
 ## 6. Doelgroep en content
 
@@ -153,20 +153,24 @@ Elk is een apart formulier onder App-content:
 | Kunnen gebruikers vragen om hun gegevens te verwijderen? | **Ja** |
 | Link om account en gegevens te verwijderen (web) | `https://pietertmortier-lab.github.io/dont-slice-me/privacy.html#verwijderen` |
 
-Let op: Google vraagt voor apps met een account ook een manier om de account **in de app zelf** te verwijderen.
-Die knop bestaat nog niet (vandaag alleen per mail, punt 14 van het privacybeleid). De knop of link in het spel moet
-er zijn vóór de gesloten test; tot dan alleen de interne test. (Claude bouwt de knop "Account verwijderen" en de
-serveractie die alles wist: UITROL-STAPPEN.md, deel 0.)
+Google vraagt voor apps met een account ook een manier om de account **in de app zelf** te verwijderen. Die is er
+sinds v0.32.9: Instellingen (tandwiel) > **Account verwijderen**. De link hierboven blijft dezelfde: punt 14 van het
+privacybeleid noemt nu eerst die knop en daarna de mail. Een verzoek per mail voer je uit met
+`node tools/delete-player.cjs <vriendencode>` in `native/tourney` (zie UITROL-STAPPEN.md, deel 0).
+
+| Vraag | Antwoord |
+|---|---|
+| Kunnen gebruikers vragen om een deel van hun gegevens te verwijderen, zonder hun account te verwijderen? | **Nee** (alleen alles samen) |
 
 ### 8.2 Welke gegevens (vink alleen deze aan)
 
 | Categorie > type | Verzameld | Gedeeld (met een derde voor zijn eigen doel) | Verplicht of optioneel | Doelen om aan te vinken | Waar het vandaan komt |
 |---|---|---|---|---|---|
-| Persoonlijke info > **Naam** | Ja | Nee | Optioneel (alleen wie online speelt, kiest een naam) | App-functionaliteit, Accountbeheer | De spelersnaam, zichtbaar voor vrienden en in duels |
+| Persoonlijke info > **Naam** | Ja | Nee | Optioneel (alleen wie online speelt, kiest een naam) | App-functionaliteit, Accountbeheer, Fraudepreventie | De spelersnaam, zichtbaar voor vrienden en in duels; de namenfilter en meldingen van namen (v0.32.9) |
 | Persoonlijke info > **Gebruikers-ID's** | Ja | Nee | Verplicht | App-functionaliteit, Accountbeheer, Fraudepreventie | Anoniem Firebase-id, vriendencode, anoniem aankoop-id van RevenueCat |
 | Locatie > **Geschatte locatie** | Ja | Ja (Google AdMob) | Verplicht | Advertenties of marketing, Analyse, Fraudepreventie | AdMob leidt een ruwe locatie af uit het IP-adres. Onze eigen server bewaart geen IP-adres (alleen een onomkeerbare code ervan, tegen misbruik). |
-| Financiële info > **Aankoopgeschiedenis** | Ja | Nee | Verplicht (zo raadt RevenueCat het aan: de software verzamelt het altijd) | App-functionaliteit, Analyse | Google Play en RevenueCat (aankopen herstellen, Plus) |
-| App-activiteit > **App-interacties** | Ja | Ja (Google AdMob: interacties met advertenties) | Verplicht | App-functionaliteit, Advertenties of marketing, Analyse, Fraudepreventie | Je voortgang en profiel (level, record, fruit, keuken, dagreeks, divisie, scores), duels en schimmen, live-duelposities, online-bolletje; bij AdMob: welke advertentie je zag of aantikte |
+| Financiële info > **Aankoopgeschiedenis** | Ja | Nee | Verplicht (zo raadt RevenueCat het aan: de software verzamelt het altijd) | App-functionaliteit, Analyse | Google Play en RevenueCat (aankopen herstellen, Plus). Sinds v0.32.9 meldt de app ook welk product je kocht aan onze eigen server, die het alleen optelt in dagtotalen (niet per speler bewaard); voor dat deel mag "tijdelijk verwerkt" aan |
+| App-activiteit > **App-interacties** | Ja | Ja (Google AdMob: interacties met advertenties) | Verplicht | App-functionaliteit, Advertenties of marketing, Analyse, Fraudepreventie | Je voortgang en profiel (level, record, fruit, keuken, dagreeks, divisie, scores), duels en schimmen, live-duelposities, online-bolletje; sinds v0.32.9 ook meldingen van namen (wie meldde wie, met welke reden: een keuze, geen vrije tekst) en je lijst met geblokkeerde spelers; bij AdMob: welke advertentie je zag of aantikte |
 | App-activiteit > **Zoekgeschiedenis in de app** | Ja | Nee | Optioneel | App-functionaliteit | Zoeken op spelersnaam bij Vrienden. Bij "tijdelijk verwerkt": **Ja** (de server zoekt met de zoekterm en bewaart hem niet) |
 | App-activiteit > **Andere door gebruikers gemaakte content** | Nee | | | | (niet aanvinken: er is geen chat of vrije tekst behalve de naam, die staat al bij Naam) |
 | App-info en prestaties > **Crashlogs** | Ja | Ja (Google AdMob) | Verplicht | Advertenties of marketing, Analyse, Fraudepreventie | De AdMob-software (Google noemt crashlogs bij de diagnostische gegevens van de Mobile Ads SDK) |
@@ -213,7 +217,11 @@ Buiten Google Play: als handelaar met inkomsten in België (aankopen, advertenti
 hebben, zoals een inschrijving (KBO) en btw. Je koos op 4 november om dat met een boekhouder te bespreken; doe dat
 voor de eerste echte verkoop.
 
-Algemene voorwaarden schrijft Claude sowieso (`voorwaarden.html`, NL en EN), voor de regels rond spelersnamen.
+De algemene voorwaarden staan sinds v0.32.9 in `voorwaarden.html` (NL en EN): spelersnamen, eerlijk spelen, melden,
+blokkeren en aankopen. Adres: `https://pietertmortier-lab.github.io/dont-slice-me/voorwaarden.html`. In de
+winkelvermelding hoeft die link niet: de app toont de spelregels zelf, bij het kiezen van een naam ("Met Klaar ga je
+akkoord met de spelregels"), bij Instellingen, bij Hulp en bij Plus. Google vraagt in zijn eigen formulieren alleen de
+link naar het privacybeleid en de link om je account te verwijderen (hierboven).
 
 ## 10. Wat je pas later invult
 

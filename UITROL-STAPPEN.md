@@ -55,22 +55,48 @@ Voor de **eerste interne test**:
    nog "25,4 s", "12.840" en "DIAMANT". Omdat je standaardtaal Engels is, zijn dat de beelden van je hoofdvermelding.
 
 Voor de **gesloten test** (je testers zijn echte mensen in de EU en betalen echt):
-7. Een knop "Account verwijderen" in Instellingen, met een bevestiging, en de serveractie die alles van die speler
+7. **[GEDAAN in v0.32.9]** Een knop "Account verwijderen" in Instellingen, met een bevestiging, en de serveractie die alles van die speler
    wist (profiel, opslag, vrienden, duels, scores, meldingsadressen, live duels). Plus een klein script voor Claude
    om verzoeken per mail uit te voeren. Google eist een manier die in de app begint; zonder deze knop alleen de
    interne test.
 8. Een knop "Privacy en advertenties" in Instellingen (toestemming wijzigen of intrekken), zichtbaar als Google dat
    vraagt. De brug heeft hem al klaar (`FV_NATIVE.privacyOptions()`).
-9. Plus: voor de aankoop de tekst "Plus: € 2,99 per maand (of € 19,99 per jaar), verlengt automatisch tot je opzegt.
+9. **[GEDAAN in v0.32.9]** Plus: voor de aankoop de tekst "Plus: € 2,99 per maand (of € 19,99 per jaar), verlengt automatisch tot je opzegt.
    Opzeggen: Google Play > Betalingen en abonnementen > Abonnementen", met de prijs van Google Play. Is Plus actief,
    dan geen knoppen "+1 maand / +1 jaar" meer maar "Beheren in Google Play". "Opzeggen" gaat naar Google Play, en
    Plus leest de echte status van Google (`FV_NATIVE.plusStatus()`).
-10. Eerlijke duels: in de openbare duels en de duels van 24 uur krijgen beide spelers hetzelfde fruit (zoals in het
+10. **[GEDAAN in v0.32.9]** (jouw keuze: alle fruit lenen) Eerlijke duels: in de openbare duels en de duels van 24 uur krijgen beide spelers hetzelfde fruit (zoals in het
     live duel), of de fruittrucs staan uit. `bundle_all` geeft alleen fruit tot je eigen level. Zie
     `store/producten-play.md`, deel C.
-11. Spelersnamen: een filter op ongepaste namen (NL en EN) op de server, een knop "Meld deze naam" bij schimmen,
+11. **[GEDAAN in v0.32.9]** Spelersnamen: een filter op ongepaste namen (NL en EN) op de server, een knop "Meld deze naam" bij schimmen,
     zoekresultaten en verzoeken, een knop "Blokkeer", en `voorwaarden.html` (NL en EN) met de regels voor namen,
-    gelinkt in Instellingen en in de winkelvermelding. Google eist dat voor inhoud die spelers zelf maken.
+    gelinkt in Instellingen, bij Hulp, bij Plus en bij het kiezen van een naam (niet in de winkelvermelding: dat hoeft niet).
+    Google eist dat voor inhoud die spelers zelf maken.
+
+Wat jij nog moet doen voor v0.32.9 (in deze volgorde):
+- Server en regels online zetten, **voor** de nieuwe app bij testers komt: `cd native/tourney`, dan
+  `firebase deploy --only functions,firestore`. Er is geen nieuwe index.
+- De app bouwen: in `native` eerst `npm install` (nieuwe plugin voor uitnodigingen via Google Play), dan `npm run sync`.
+  In Android Studio `versionCode 3` en `versionName "0.32.9"`, de bundel bouwen en in de interne test zetten (deel C,
+  stap 21 en 24 tot 27). Alles over de uitnodigingen staat ook in `native/UITNODIGEN-VIA-GOOGLE-PLAY.md`.
+- Eén keer een sleutel voor de twee hulpscripts (verwijderverzoeken per mail en meldingen van namen): Firebase-console
+  > Projectinstellingen > Serviceaccounts > **Nieuwe privésleutel genereren**. Bewaar het `.json`-bestand buiten GitHub,
+  bijvoorbeeld `C:\sleutels\dont-slice-me-admin.json`, en stuur het naar niemand. Daarna in PowerShell, in
+  `native\tourney` (na `npm install`):
+  - `$env:GOOGLE_APPLICATION_CREDENTIALS="C:\sleutels\dont-slice-me-admin.json"`
+  - `node tools/delete-player.cjs <vriendencode>` (proefdraai: er wordt niets gewist), daarna met `--yes` erachter
+    om echt te wissen. Mail de speler daarna dat alles weg is.
+  - `node tools/reports.cjs list` (open meldingen van namen); `node tools/reports.cjs approve <wie> --yes` (de naam is
+    in orde), `rename <wie> --yes` (verbergen en om een nieuwe naam vragen), `clear <wie> --yes` (meldingen weg).
+    Zonder `--yes` verandert er niets. **Elke week:** `node tools/reports.cjs list` (open meldingen en verborgen namen;
+    spelers krijgen "Bedankt! We kijken het na." als ze melden, dus kijk ook echt).
+- Optioneel, één keer: `gcloud firestore fields ttls update expireAt --collection-group=devices --enable-ttl --project=dont-slice-me`
+  (de kleine merktekens van verwijderde accounts verdwijnen dan na 2 dagen; zonder blijven ze staan, er staat niets
+  persoonlijks in).
+- Play Console: de beschrijving van `bundle_all` en de volledige winkelbeschrijving vervangen door de nieuwe teksten in
+  `store/producten-play.md` en `store/winkelteksten.md` (pas als 0.32.9 in de test staat). Het veld Website laat je leeg.
+  Gegevensveiligheid: zie PLAY-FORMULIEREN.md, deel 8 (Aankoopgeschiedenis kreeg een zin bij).
+- Testen met TESTLIJST-v0.32.9.md.
 
 Voor de **productie**:
 12. De Fruitmanden met wisselende prijs: vaste prijzen of weghalen (zie `store/producten-play.md`).
@@ -305,9 +331,9 @@ Bij elke volgende versie: `git pull`, `cd native`, `npm run sync`, in Android St
 11. Klik **Opslaan**.
     Je ziet: "Wijzigingen opgeslagen". Fouten (te lange tekst, ontbrekende afbeelding) staan rood bij het veld.
 12. **Winkelinstellingen**: categorie **Arcade**, tags (zie `store/winkelteksten.md`), e-mail
-    `dont.slice.me@gmail.com`, website `https://pietertmortier-lab.github.io/dont-slice-me/` > **Opslaan**.
-    (Los daarvan, niet verplicht: in je **Accountgegevens** staat nog "Ik heb geen website" aangevinkt. Haal het
-    vinkje weg en vul dezelfde link in.)
+    `dont.slice.me@gmail.com`, website **leeg laten** (het webspel stuur je niemand meer) > **Opslaan**.
+    (In je **Accountgegevens** mag "Ik heb geen website" aangevinkt blijven. Pas als AdMob om app-ads.txt vraagt, komt
+    er een korte pagina op `https://pietertmortier-lab.github.io/` die naar Google Play wijst; nooit `/dont-slice-me/`.)
 
 ---
 

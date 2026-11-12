@@ -50,7 +50,8 @@ nergens een link naar.
 - Alleen spelers met een spelersnaam praten met de server; wie nooit een naam koos (nooit Toernooi of Vrienden opende),
   wordt niet geteld. De echte aantallen downloads staan in de Google Play Console.
 - Spelers met een oudere versie dan v0.32.8 tellen als "onbekend" (niet app, niet web) tot ze bijwerken.
-- Aankopen: de server telt alleen wat de app zelf meldt, en geen enkele versie meldt dat nog. De echte verkoop zie je in de
-  Google Play Console (en in RevenueCat).
+- Aankopen: de server telt alleen wat de app zelf meldt: vanaf v0.32.9 meldt de app elke aankoop via Google Play één keer
+  (alleen welk product, geen bedrag), samen met de online opslag. Een speler zonder spelersnaam meldt niets, en een
+  terugbetaling wordt niet afgetrokken. De echte verkoop zie je in de Google Play Console (en in RevenueCat).
 - Het dagmes en filmpjes voor beloningen gebeuren alleen op het toestel; die telt de server niet.
 - De privacyverklaring (punt 11) zegt nu precies dit: geen analysediensten, alleen dagtotalen.

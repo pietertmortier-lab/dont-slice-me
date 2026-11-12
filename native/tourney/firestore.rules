@@ -31,6 +31,10 @@ service cloud.firestore {
     match /ldpush/{uid} { allow read, write: if false; }
     match /h2h/{id} { allow read, write: if false; }
     match /duelstats/{uid} { allow read, write: if false; }
+    // v0.32.9 player names: reports, report totals and block lists: only through the function.
+    match /reports/{id} { allow read, write: if false; }
+    match /repsum/{uid} { allow read, write: if false; }
+    match /blocks/{uid} { allow read, write: if false; }
     // v0.32.8 own statistics: daily totals only (no player data), written by the function; readable only by the owner's verified Google account (stats.html)
     match /stats/{day} { allow read: if request.auth != null && request.auth.token.email == 'dont.slice.me@gmail.com' && request.auth.token.email_verified == true; allow write: if false; }
   }

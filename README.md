@@ -3,21 +3,22 @@
 A reverse Fruit Ninja for phones: you *are* the fruit and a kitchen knife keeps slashing across the cutting
 board. Survive, collect sugar cubes, climb the levels, unlock 24 fruits.
 
-**Play it in any browser (phone recommended):** https://pietertmortier-lab.github.io/dont-slice-me/
+**The game is played in the Android app** (Google Play, in the test for now). Since v0.32.9 no link in the game points
+to the web version any more: invites and shared scores go to the app on Google Play.
 
-This repository only hosts the playable page. It is a single HTML file with no server, no tracking and no
-real purchases: everything that looks like a purchase is a simulation for playtesting. Progress is kept in
-your own browser.
+This repository holds the game page that the Android app is built from (`index.html`, `native/`), the game's server
+(`native/tourney/`) and the public pages the app and Google Play link to: the privacy policy (`privacy.html`), the
+terms (`voorwaarden.html`) and Pieter's own statistics page (`stats.html`).
 
 The game is developed in the `prototypes/dont-slice-me/` folder of a private repository; this copy is updated
 from there by hand, so the version label in the menu tells you which build you are playing.
 
 ## Voor testers
 
-- Open de link op je telefoon en zet hem eventueel op je beginscherm.
+- Je speelt in de Android-app. Vraag Pieter om op de testerslijst te komen en installeer Don't Slice Me! via de
+  link van Google Play die je dan krijgt.
 - Raak het scherm aan: het fruit hangt boven je vinger. Ontwijk de rode lijnen, verzamel suikerklontjes.
-- Alles wat op een aankoop lijkt, is een simulatie. Er wordt niets aangerekend en niets bewaard buiten je
-  eigen browser.
+- Aankopen in de test zijn testaankopen van Google Play: er wordt niets aangerekend.
 - Feedback: hoe lang overleef je, op welk level wordt het te snel, welk fruit is het leukst, en zou je de
   snijfoto delen?
 
@@ -56,6 +57,45 @@ from there by hand, so the version label in the menu tells you which build you a
 ## Nieuw in v0.12
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
+
+## Nieuw in v0.32.9: account verwijderen, melden en blokkeren, Plus via Google Play, eerlijke duels en uitnodigen via Google Play
+
+Eerst de server bijwerken (`firebase deploy --only functions,firestore` in `native/tourney`), daarna de nieuwe app-versie
+(versionCode 3, versionName 0.32.9). Zonder de nieuwe server zeggen de nieuwe knoppen dat ze pas na de volgende
+serverupdate werken.
+
+- **Account verwijderen (Instellingen).** Een rode knop **Account verwijderen** onder Privacybeleid. Eerst zie je wat er
+  weggaat en wat blijft, daarna typ je je spelersnaam of wacht je 3 seconden en tik je op de rode knop. Alles van jou op
+  de server gaat weg (naam, vriendencode, vrienden, duels, scores, online opslag, meldingen en blokkeringen, ook op een
+  gekoppeld toestel) en het spel begint opnieuw als nieuwe speler. Lukt het niet (geen internet), dan wordt er niets
+  gewist. Aankopen bij Google Play blijven: haal ze terug met Aankopen herstellen. Loopt Plus nog, zeg het dan zelf op in
+  Google Play (de knop staat erbij).
+- **Spelersnamen.** Ongepaste namen (Nederlands en Engels) worden geweigerd: je krijgt de vraag om een andere naam te
+  kiezen, en anderen zien zolang **Speler**. Bij elke andere speler (zoeken, verzoeken, vrienden, duels, rivalen, een
+  live uitnodiging, het einde van een schimmenduel) staat een knopje **⋯** (Meld of blokkeer): je meldt de naam of je
+  blokkeert de speler. Drie verschillende meldingen verbergen een naam tot jij ernaar kijkt. Wie je blokkeert, is geen vriend
+  meer, kan je niet uitdagen of uitnodigen en verschijnt niet meer bij je zoekresultaten en duels. Opheffen kan bij
+  Instellingen > **Geblokkeerde spelers**. Wie een naam kiest, ziet in het naamvak de regel "Met Klaar ga je akkoord met de
+  spelregels" en de link **Spelregels**.
+- **Voorwaarden.** Nieuwe pagina `voorwaarden.html` (Nederlands en Engels) met de regels voor namen, melden,
+  blokkeren en aankopen. Te openen bij het kiezen van je naam, bij Instellingen, bij Hulp en bij Plus in de winkel.
+  **Elke week:** `node tools/reports.cjs list` in `native/tourney` (open meldingen en verborgen namen).
+- **Plus via Google Play (app).** De knoppen tonen de prijs van Google Play. Eronder staat hoe Plus verlengt en hoe je
+  opzegt, met de links Voorwaarden en Privacybeleid. Heb je Plus, dan staat er wanneer Google Play het verlengt (of dat
+  het stopt) en één knop **Beheren in Google Play**. Het spel volgt wat Google Play zegt: opgezegd is opgezegd, en Plus
+  wordt nooit langer dan Google zegt. Elke aankoop wordt één keer meegeteld in de dagtotalen (alleen de productnaam).
+  Op de website verandert er niets.
+- **Eerlijke duels.** In openbare duels en uitdagingen van 24 uur mag je elk van de 20 gewone fruitsoorten lenen, ook
+  fruit dat je nog niet hebt (zoals in het live duel). Kies het bij Vrienden > Duels > **Kies fruit**, of met **Ander
+  fruit** in de vraag "... uitdagen?". Na het duel zie je met welk fruit jullie allebei speelden. Geleend fruit wordt
+  niet van jou.
+- **Fruitmanden tot je level.** Alles-in-één en de Fruitmanden geven meteen het fruit tot je eigen level. De rest is
+  betaald en komt vanzelf als je dat level haalt ("Uit je fruitmand: Kiwi is nu van jou!"). Je betaalt nooit twee keer.
+- **Uitnodigen via Google Play.** Elke deellink (uitnodiging, score, dagmes, ladder) gaat nu naar de app in Google Play,
+  niet meer naar de website. Installeert een vriend de app via jouw link, dan zegt het spel bij de eerste start wie hem
+  uitnodigde en zijn jullie meteen vrienden. Nog in de browser gespeeld? In de app zet je je spel over met een
+  koppelcode (intro, Vrienden of Hulp). De website toont één keer per dag **Speel verder in de app** (zolang de app in de test staat, met
+  hoe je testspeler wordt).
 
 ## Nieuw in v0.32.8: 90 seconden om je fruit te kiezen in het live duel, Volgend hoofdstuk, statusregels die niets meer bedekken en een eigen telling
 

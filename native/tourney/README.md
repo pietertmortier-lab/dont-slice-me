@@ -26,6 +26,7 @@ The game ships with a simulated division (49 seeded opponents) so the whole tour
 | `load` | – | `{ ok, data, rev, level }`: the stored save, if any |
 | `linkcode` | – | `{ ok, code }`: an eight-character code, valid ten minutes, to join this identity from another device |
 | `link` | `code` | `{ ok, data }`: this device becomes an alias of the code's identity (`devices/{uid}.primary`) and receives its save |
+| `invitepeek` | `code` | `{ ok, name }` or `{ ok: false, error: 'unknown' \| 'self' }` (v0.32.9): the name of the player whose Google Play invite (referrer `f=CODE`) installed the app; works before the new player has a name; never the uid |
 
 Plausibility: a score above `seconds × MAX_PER_SEC[event] + 50` is refused. Groups fill to 50 per division in order of arrival; a player stays in their group for the week. `closeWeek` writes a `results/{uid}` document per player (rank, prize, promotion/relegation, fragment for the top 10) that the client claims once.
 
@@ -228,3 +229,54 @@ Reading: `firestore.rules` lets only a signed-in user with the token email `dont
 `stats/*`; no client can write. The private page `stats.html` (next to `index.html`) signs in with Google (enable the Google provider
 once: Authentication > Sign-in method) and shows the last 30 days. Deleting a player (privacy.html section 14): `lastStatDay` goes with
 the profile; the totals hold no personal data.
+
+## Account deletion (v0.32.9)
+
+Google Play wants the deletion to start in the app. Instellingen (the gear) > **Account verwijderen**: two in-game cards (what is
+deleted and what is kept; then the player types the player name or waits 3 s and taps the red button), then the action
+`deleteMe`. It deletes everything of the calling identity (the primary one for a linked device) and nothing of anybody else:
+
+| Deleted | Kept |
+|---|---|
+| `profiles/{uid}`, `codes/{code}`, both sides of every friendship (`friends/*/of/*`), the paid `pairs`, friend requests both ways and refusals, ghosts, `duelwin`, `duelsum`, `duelstats`, old day-duel entries and challenges, 24 h `challenges`, `h2h` records, `tips`, tournament `groups/*/scores/{uid}`, `players`, `results`, `saves/{uid}` and its `history`, `links`, live `ldinv` and `ldlobby` (with `live/*`), `ldpush`, the uid's `limits`, the Firebase Auth users (the identity, the calling device, linked devices) | `stats/*` (daily totals, no player data), `meters`, the hashed-address search counters, the other player's own totals (`duelstats`), notes in another player's inbox that hold only a display name (handed out once) |
+
+Fields of another player's profile that point at the deleted player are removed too (`ldIn`, `ldOut`, `ldLobby`, `ldMiss.<uid>`,
+`ldNo.<uid>`, `ldDone`, `ldLast`, a challenge note). Shared documents (a 24 h challenge, a live lobby and its result, an h2h record)
+are removed rather than renamed: the other player's friend list and duel list simply no longer show the deleted player.
+
+Tombstones: before anything is deleted, `devices/{id}` of every identity of the account becomes `{ gone: true, done: false, of }`; at
+the end `{ gone: true, done: true, at, expireAt }` (no uid any more). The function reads that document on every call anyway, so this
+costs no extra read: while `done` is false only `deleteMe` passes (a retry after a failure finishes the job), afterwards every call
+of a deleted identity gets HTTP 401 `{ error: 'gone' }` (the game then offers to wipe that device too). Optional, once: a TTL policy
+so tombstones go after two days: `gcloud firestore fields ttls update expireAt --collection-group=devices --enable-ttl --project=dont-slice-me`
+(without it they stay; they hold no personal data). The function logs only counts (`deleteMe {"docs":..,"kinds":{..}}`).
+
+Deploy: `firebase deploy --only functions` (no new index: every new query is a single-field equality, the collection-group scan of
+`refused` has no filter). Deletion requests by e-mail: `tools/delete-player.cjs` in this folder (instructions at its top) runs the same code with a
+service-account key on the PC: a dry run first, then `--yes`.
+
+## Player names (v0.32.9)
+
+Google Play's rules for user-generated content: a name filter, a way to report a name and to block a player, and published rules
+(`voorwaarden.html`, NL and EN, linked from Instellingen, Hulp, the Plus card and the store listing).
+
+- The filter (one text in the game and in this function) runs on `profile`: a name that fails it is stored as `Speler` with the chosen
+  name in `nameReal`, `nameAsk: true` and an empty `nameKey` (not findable); `hello` and `profile` answer `rename: 1, rnm` until the
+  player picks another name. Read paths mask bad names in older documents.
+- `nmreport { t: 'u' | 'r' | 'g', id, why: 'name' | 'other' }`: one report per reporter per target and name (`reports/{target}_{reporter}`;
+  a report of an older name of the same player is replaced, not a duplicate), 10 a day per reporter (`limits/rep_{uid}`) and 60 a day
+  per internet address (`limits/repip_{hash}`, never the address itself); 3 distinct reporters of the same name hide it (`repsum/{target}`), unless Pieter approved
+  that name (`nameOk`). `nmblock { t, id }`, `nmunblock { k }`, `nmblocks`: `blocks/{uid}.list` (at most 200); the game only gets a
+  hash key, never another player's uid. A block removes the friendship and requests both ways, expires open 24 h challenges and a
+  pending live invite (an invite that is still open can no longer be accepted: `ldanswer` answers `gone`); `befriend`/`friendreq` then answer `unknown`; search, `duelfind` and rivals skip blocked players. `hello` caps
+  gain `names`. Rules: `reports`, `repsum`, `blocks` are denied to every client.
+- The account deletion also removes the names data: reports about and by the player, `repsum/{uid}`, `blocks/{uid}` and
+  `limits/rep_{uid}`, and it takes the player's id out of other players' `repsum.by` and `blocks.list` (`n`, a count, stays: a hidden name stays
+  hidden, and listed by `reports.cjs list`, until Pieter looks at it).
+- `invitepeek` (the inviter's name for a new app player) is limited to 10 an hour per player and 60 an hour per internet address.
+- A device whose account was deleted elsewhere signs in again with a new anonymous id; while its save has a name, the game sends
+  `prevUid` (the last id that worked on that device), and every action answers 401 `gone` while `devices/{prevUid}` is a tombstone.
+- Pieter's tool, on the PC in this folder after `npm install`, with the same service-account key as `tools/delete-player.cjs`
+  (`GOOGLE_APPLICATION_CREDENTIALS`) or `gcloud auth application-default login`: `node tools/reports.cjs list` (open reports and every hidden name, once a week), then
+  `approve <who> --yes`, `rename <who> --yes` or `clear <who> --yes` (`<who>`: friend code, search handle, uid or exact name; without
+  `--yes` a dry run).

@@ -496,6 +496,14 @@ Voorwaarden:
    **Ter beoordeling sturen**.
 6. Na de goedkeuring: stuur Claude de Play Store-link (voor `STORE_URL` in het spel) en koppel AdMob aan de winkel
    (deel B, stap 7).
+7. Laat Claude in het spel `APP_PUBLIC = true` zetten (dan zegt de webkaart niet meer hoe je tester wordt).
+8. **Filmpjes vervangen en delen** (pas nu, want vóór de productie toont de Google Play-link "niet gevonden" aan wie
+   geen tester is):
+   - de oude filmpjes met de browserlink vervangen door de nieuwe Google Play-versies (in `promo/` van deze map, in een
+     eventueel filmpje in de winkelvermelding, en wat al gedeeld werd);
+   - scan de QR-code op het eindbeeld één keer met je gsm (op een ander scherm) en kijk of je de app in Google Play ziet;
+   - dan delen: de WhatsApp-versie in chats, de versie van 15 seconden voor status, Instagram en TikTok, en zet de
+     Google Play-link ook als tekst in je bericht.
 
 ---
 

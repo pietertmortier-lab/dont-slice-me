@@ -2,6 +2,9 @@
 // the Android back button and the share sheet. The game only talks to window.FV_NATIVE; without it (the web version) the
 // shop shows "In de app te koop" and the ads are the game's own simulation.
 //
+// v0.32.12 shop (15 Nov 2026): FV_NATIVE.oneTimeBuys() lists the one-time transactions RevenueCat knows; the game pays a late purchase of
+//   a product it no longer sells (tickets_5, tickets_15, weekpass) once as sap. RevenueCat's customer-info listener fires 'fvbuys' so the game
+//   looks again when Google completes a pending purchase. The Fruitpas (pass) is a monthly consumable and is not restored.
 // v0.32.11 (13 Nov 2026, D12): ads are loaded ahead (FV_NATIVE.prepareAd, one cached per kind) and showAd(kind, placement, opt)
 //   shows one only while the game still waits for it (cancel token, canShow, window.dontsliceme.adCanShow): an ad that is not
 //   ready within about 4 s (reward video 10 s) is skipped and never shown later, and never over a running game.
@@ -60,6 +63,7 @@
 
   let iapReady = false, lastBuy = null; // v0.32.9: the last completed purchase { sku, id, at } (FV_NATIVE.lastPurchase)
   try { if (Purchases) { await Purchases.configure({ apiKey: REVENUECAT.apiKey }); iapReady = true; } } catch (e) { console.warn('RevenueCat init', e); }
+  try { if (iapReady && typeof Purchases.addCustomerInfoUpdateListener === 'function') Promise.resolve(Purchases.addCustomerInfoUpdateListener(() => { try { window.dispatchEvent(new CustomEvent('fvbuys')); } catch (e) {} })).catch(() => {}); } catch (e) {} // v0.32.12: a completed pending purchase
 
   const openExternal = url => { const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); }; // Capacitor hands non-app URLs to Android (Play Store app, browser)
   const plusFrom = info => { const e = info && info.entitlements && info.entitlements.active && info.entitlements.active.plus; // RevenueCat entitlement "plus"
@@ -141,8 +145,17 @@
         return out;
       } catch (e) { console.warn('prices', e); return null; }
     },
-    // Entitlement ids that are active now (noads, pass, plus). One-time consumables are never restored.
+    // Entitlement ids that are active now (noads, plus; v0.32.12: the entitlement pass is empty, the Fruitpas is not restored). One-time consumables are never restored.
     async restore() { if (!iapReady) return []; try { const { customerInfo } = await Purchases.restorePurchases(); return Object.keys((customerInfo && customerInfo.entitlements && customerInfo.entitlements.active) || {}); } catch (e) { return []; } },
+    // v0.32.12: the one-time transactions RevenueCat knows for this player [{ sku, id, at (ms) }] (customerInfo.nonSubscriptionTransactions; fix12b: plus each subscription's first purchase), [] when
+    // the store cannot answer. The game reads only the products it no longer sells (tickets_5, tickets_15, weekpass). id is RevenueCat's own
+    // transaction id, NOT Google's order id that buy() gets (purchases-hybrid-common maps them differently); at is the purchase time.
+    async oneTimeBuys() { if (!iapReady) return []; try { const { customerInfo } = await Purchases.getCustomerInfo(); const list = (customerInfo && customerInfo.nonSubscriptionTransactions) || [];
+      const out = list.map(t => ({ sku: String((t && t.productIdentifier) || '').split(':')[0], id: String((t && (t.transactionIdentifier || t.revenueCatId)) || ''), at: Date.parse((t && t.purchaseDate) || '') || Number(t && t.purchaseDateMillis) || 0 }));
+      // fix12b: also each subscription's FIRST purchase time (Plus; customerInfo.subscriptionsByProductIdentifier[].originalPurchaseDate). The game never pays
+      // these; a buyNote time of a Plus purchase then pairs with it and not with a ticket purchase that stayed pending. Not the latest renewal time.
+      try { const subs = (customerInfo && customerInfo.subscriptionsByProductIdentifier) || {}; for (const k of Object.keys(subs)) { const s = subs[k] || {}, at = Date.parse(s.originalPurchaseDate || '') || 0; if (at > 0) out.push({ sku: String(s.productIdentifier || k).split(':')[0], id: 'sub:' + k + ':' + at, at }); } } catch (e) {}
+      return out; } catch (e) { return []; } },
     // Plus as Google Play sees it: { active, until (ms), product, willRenew }. The game should use this, not only its own clock.
     async plusStatus() { if (!iapReady) return null; try { const { customerInfo } = await Purchases.getCustomerInfo(); return plusFrom(customerInfo); } catch (e) { return null; } },
     // "Opzeggen": a Play subscription is cancelled in Google Play itself, never in the game.

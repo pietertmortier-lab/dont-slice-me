@@ -58,6 +58,36 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.12: tickets niet meer te koop, Fruitpas met einddatum, alleen Alles-in-één
+
+Geen server-update (geen `firebase deploy`). Kijk eerst de bestellingen na (`PLAY-CONSOLE-v0.32.12.md`, stap 0: ticket- en
+Weekpas-aankopen vanaf 12 november 17:00 van testers die toen nog 0.32.7 of 0.32.8 hadden). Typ daarna in de map `native`
+`npm run sync` (`native/bridge.js` is veranderd); de app wordt versionCode 6, versionName 0.32.12. Testen:
+`TESTLIJST-v0.32.12.md` (stap 0 doe je nog op v0.32.11, vóór je bijwerkt). Pas als v0.32.12 in de interne test staat, zet je
+`tickets_5`, `tickets_15` en `weekpass` in Play Console op inactief (niet verwijderen; `PLAY-CONSOLE-v0.32.12.md`, stap 4).
+
+- **Toernooitickets koop je niet meer.** Iedereen krijgt elke dag 10 gratis tickets (was 3, met Plus 4). De pakketten van
+  5 en 15 tickets, de Weekpas, het ticket voor 1.000 sap, het ticket na een filmpje en het extra ticket van Plus zijn weg.
+  Op de dag van de update tellen de rondes die je in 0.32.11 al speelde mee: samen 10.
+- **Wat je had, wordt sap.** Bewaarde tickets worden één keer 1.000 sap per stuk, een lopende Weekpas 9.000 sap; het
+  fragment van zondag krijg je nog (het tegeltje zegt "al betaald"). Een kaartje "Tickets omgeruild voor sap" zegt het.
+  Ook na een koppelcode wordt niets twee keer betaald.
+- **Een aankoop die later binnenkomt, gaat niet verloren.** Komt er nog een aankoop van 5 of 15 tickets of een Weekpas
+  binnen (een betaling die nog liep, of een aankoop die pas later verwerkt wordt), dan krijg je 5.000, 15.000 of 9.000 sap (en
+  bij de Weekpas het fragment), met het kaartje "Aankoop omgezet in sap". Wat 0.32.10 of 0.32.11 je al gaf, herkent het spel
+  aan het uur van de aankoop en betaalt het niet nog eens; een aankoop van vóór 12 november 17:00 nooit. Zet de klok van je
+  telefoon op automatisch: loopt ze meer dan een halve minuut achter of een paar minuten voor, dan kan het spel twee aankopen van
+  hetzelfde uur verwisselen (zie de testlijst, stap 4).
+- **Fruitpas.** De koopknop zegt tot wanneer het seizoen loopt ("geldt tot 30 november, nog 17 dagen"). In de laatste 3 dagen
+  van de maand is de Fruitpas niet te koop. "Aankopen herstellen" noemt alleen nog Plus en Reclamevrij en geeft de Fruitpas
+  niet meer terug.
+- **Fruitmanden.** Rood, Tropisch, Klein en Zuur zijn weg; alleen Alles-in-één (€ 9,99) blijft. Fruit dat je al kreeg of dat
+  op zijn level wacht, blijft van jou. Een los fruit toont alleen nog zijn prijs in sap (geen "Later ook € 0,99").
+- **Opgeruimd.** De oude code voor een Reeksschild en een stempel met geld is weg (er was nooit een knop). Het Reeksschild
+  koop je nog met sap.
+- **Voorwaarden en privacy.** `voorwaarden.html` zegt niet meer dat je in het toernooi met geld extra rondes kunt spelen;
+  `privacy.html` zegt dat herstellen Plus en Reclamevrij terugbrengt (de Fruitpas geldt per maand). Beide 15 november 2026.
+
 ## Nieuw in v0.32.11: afpakken en messen die om de beurt mikken (stap B van het gedeelde veld)
 
 Eerst de server bijwerken. Open een opdrachtvenster in de map `dont-slice-me` en typ, één regel per keer:

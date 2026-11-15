@@ -1,7 +1,9 @@
-# Don't Slice Me! - het stappenplan naar Google Play (10 november 2026, spel v0.32.6)
+# Don't Slice Me! - het stappenplan naar Google Play (15 november 2026, spel v0.32.10 in de interne test, v0.32.11 uitgebracht in je repo, v0.32.12 in aanbouw)
 
 Dit is het enige actuele stappenplan. Het vervangt de versie van 23 oktober (v0.24.2). Elke stap is één handeling;
-onder de stap staat wat je dan ziet. Stappen met **[GEDAAN]** zijn al klaar (stand 10 november 2026, 's avonds).
+onder de stap staat wat je dan ziet. Stappen met **[GEDAAN]** zijn al klaar (stand 13 november 2026, 's nachts; de delen
+over v0.32.12 zijn van 15 november).
+Wat met **NIET NAGEKEKEN** gemarkeerd staat, kon Claude niet zelf controleren.
 Wat al gedaan is, staat in deel 0 hieronder. Claude houdt daarnaast een volledig overzicht bij (niet in deze
 repository) en leest dat eerst, voor hij je iets vraagt. Log bij Google altijd in met het spelaccount `dont.slice.me@gmail.com` (in Play Console is dat `/u/2/` in het
 adres; Google Cloud-links openen anders met je persoonlijke account).
@@ -10,6 +12,7 @@ Wat erbij hoort, in deze repository:
 - `PLAY-FORMULIEREN.md`: alle formulieren van Play Console, met de antwoorden.
 - `store/winkelteksten.md`: titel, korte en lange beschrijving (NL en EN) en "Wat is er nieuw".
 - `store/producten-play.md`: de producten met ID, prijs en soort.
+- `PLAY-CONSOLE-v0.32.12.md`: wat je in Play Console doet bij v0.32.12 (de drie ticketproducten op inactief).
 - `promo/screens/nl-1.png` ... `nl-6.png` en `en-1.png` ... `en-6.png`: de nieuwe schermafbeeldingen (v0.32.6).
 - `promo/feature-graphic-nl.png` en `-en.png`: bijgewerkt (28 fruitsoorten, live vriendenduel).
 - `native/`: de Android-schil (Capacitor 8) met je AdMob-codes, `native/README.md` voor de technische details,
@@ -32,18 +35,21 @@ Bronnen bij de regels van Google (opgezocht op 10 november 2026):
 
 | Dienst | Gedaan | Nog te doen |
 |---|---|---|
-| Google Play Console | persoonlijk account "Don't Slice Me!" (eigenaar dont.slice.me@gmail.com); identiteit geverifieerd (26 oktober); handelaarsstatus Handelaar en telefoonnummer geverifieerd (10 november); app "Don't Slice Me!" aangemaakt als Game, kosteloos, pakketnaam `com.dontsliceme.app`, standaardtaal Engels (VS) en-US, voorwaarden Play App Signing aanvaard (10 november); formulier Advertenties ingevuld (10 november); privacybeleid en app-toegang waarschijnlijk ook (nakijken) | overige formulieren App-content (bezig: eerst advertentie-ID, dan contentclassificatie; deel D, stap 3), winkelvermelding (Engels, met Nederlandse vertaling; deel D), interne test (deel E), betalingsprofiel koppelen (deel G0), gesloten test (deel F) |
-| Firebase | project `dont-slice-me`, web-app, anonieme login, Firestore, Blaze en Google Cloud betaald account (9 november), regels en functies uitgerold (9 november, alle functies), opruimregel `ghosts` actief (9 november), geheim `LIVEDUEL_VAPID` en live duel (10 november) | niets voor de eerste test (pushmeldingen in de app: later, deel A) |
-| AdMob | account en betalingsprofiel geverifieerd, account goedgekeurd, app met twee blokken (Beloning, Tussenreclame), AVG-toestemmingsbericht gepubliceerd, je telefoon "GSM Pieter" als testapparaat (5 november) | de echte codes komen in je repo met Claude's nieuwe `native/bridge.js` en `capacitor.config.json` (deel B, stap 2), belastinggegevens, inhoudsclassificatie PG, app-ads.txt, later koppelen aan Google Play, eventueel "Alternatieve toestemmingsverzameling" (deel B) |
-| RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus`, `noads`, `pass`, producten `noads` en `pass` (al gekoppeld aan hun entitlement) (23 oktober) | entitlement `don_t_slice_me_pro` van de wizard verwijderen, service-account, producten importeren en koppelen (deel G) |
-| Pc | Node v24.21.0, npm, Git, firebase-tools 15.35.0, Android Studio met SDK en emulator "Medium Phone API 37.0", jbr-17 met het Norton-certificaat (23 oktober); je repo staat in `C:\Users\piete\dont-slice-me` | Android Studio bijwerken en Android 16 (API 36) toevoegen, Java 21 met het Norton-certificaat, de oude map `native\android` (Capacitor 6) vervangen, upload-sleutel, de .aab (deel C) |
-| GitHub | repo `dont-slice-me` met Pages (testlink), privacybeleid online (versie 6 november) | de nieuwe bestanden van Claude ophalen met `git pull` (deel C, stap 6); later de repo `pietertmortier-lab.github.io` voor app-ads.txt (deel B, stap 8) |
+| Google Play Console | persoonlijk account "Don't Slice Me!" (eigenaar dont.slice.me@gmail.com); identiteit geverifieerd (26 oktober); handelaarsstatus Handelaar en telefoonnummer geverifieerd (10 november); app "Don't Slice Me!" aangemaakt als Game, kosteloos, pakketnaam `com.dontsliceme.app`, standaardtaal Engels (VS) en-US, voorwaarden Play App Signing aanvaard (10 november); formulier Advertenties ingevuld (10 november); de andere formulieren van App-content ingevuld (11 november, 's nachts); winkelvermelding Engels met Nederlandse vertaling (11 november); interne test met de lijst "intern" (8 testers): 0.32.7 (versionCode 1, 11 november), 0.32.8 (2, 11 november) en **0.32.10 (versionCode 4, 12 november, "Beschikbaar voor interne testers")**; betalingsprofiel gekoppeld, 11 eenmalige producten en 2 abonnementen actief (12 november, deel G); serviceaccount van RevenueCat met accountrechten (12 november, deel G); realtime meldingen (RTDN) aan (12 november, deel G) | de regel onder FAIR PLAY / EERLIJK SPELEN in de winkelbeschrijving (v0.32.9, zie hieronder); bij v0.32.11 de beschrijving van `hearts_5` (zie hieronder); bij v0.32.12 `tickets_5`, `tickets_15` en `weekpass` op inactief, pas als v0.32.12 in de test staat (zie hieronder); formulier Advertentie-ID (verscheen nog niet, NIET NAGEKEKEN of het er nu staat); gesloten test (deel F); productie (deel H) |
+| Licentietests (Play Console, alle apps > Instellingen > Licentietests) | nieuwe lijst **"licentietesters"** (jij en je vriendin) aangevinkt; de lijst "intern" (8 testers) **niet** meer aangevinkt (13 november). Alleen wie in een aangevinkte lijst staat, koopt met de testkaart en betaalt niet echt | niets. Let op: de andere interne testers betalen nu **echt** als ze iets kopen. Je eerste echte verkoop kan dus al in de test komen; `PLAY-FORMULIEREN.md`, deel 9, raadt aan om voor de eerste echte verkoop met je boekhouder te praten |
+| Google Cloud (voor RevenueCat) | organisatie `dont-slice-me-org`; project hernoemd naar **"Don't Slice Me!"** (het project-ID staat in je Google Cloud-console); API's aan: Google Play Android Developer API, Google Play Developer Reporting API, Cloud Pub/Sub API; serviceaccount `revenuecat@...` (het volledige adres staat in je Google Cloud-console) met de rollen **Pub/Sub Admin** en **Monitoring Viewer**; JSON-sleutel gemaakt en in RevenueCat gezet (12 november). Over de organisatieregel: de regel `iam.disableServiceAccountKeyCreation` verbood een sleutel. Je gaf jezelf de rol Organization Policy Administrator, zette de regel tijdelijk uit voor alleen dit project, maakte de sleutel, en zette de regel daarna terug op "overnemen van bovenliggend" (inherit) | niets. Bewaar het JSON-bestand buiten GitHub en stuur het naar niemand. Dit is een **ander** project dan het Firebase-project `dont-slice-me`: deze sleutel werkt **niet** voor de twee hulpscripts (zie hieronder) |
+| Firebase | project `dont-slice-me`, web-app, anonieme login, Firestore, Blaze en Google Cloud betaald account (9 november), regels en functies uitgerold (9 november, alle functies), opruimregel `ghosts` actief (9 november), geheim `LIVEDUEL_VAPID` en live duel (10 november); Realtime Database in België (11 november); server, Firestore-regels en Realtime Database-regels van v0.32.10 uitgerold (12 november, `firebase deploy --only functions,firestore,database`; dat dekt ook de server van v0.32.9) | sleutel voor de twee hulpscripts en, optioneel, de TTL-regel (zie "Wat jij nog moet doen voor v0.32.9" hieronder); pushmeldingen in de app: later, deel A |
+| AdMob | account en betalingsprofiel geverifieerd, account goedgekeurd, app met twee blokken (Beloning, Tussenreclame), AVG-toestemmingsbericht gepubliceerd, je telefoon "GSM Pieter" als testapparaat (5 november); de echte codes staan in `native/bridge.js` en `capacitor.config.json` en zitten in de app (sinds 0.32.7) | belastinggegevens, inhoudsclassificatie PG, app-ads.txt, later koppelen aan Google Play, eventueel "Alternatieve toestemmingsverzameling" (deel B) |
+| RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus`, `noads`, `pass` (23 oktober); JSON van het serviceaccount geüpload: **Valid credentials**; 9 producten geïmporteerd (`bundle_all` non-consumable, de andere consumable) naast de bestaande `noads` (non-consumable, aan `noads`) en `pass`; `plus_month:monthly` en `plus_year:yearly` aan `plus`; `pass` losgekoppeld van entitlement `pass` (de entitlement blijft, leeg); `don_t_slice_me_pro` is weg; Google-ontwikkelaarsmeldingen gekoppeld (testmelding ontvangen); 2 testaankopen `sap_3000` gelukt, zichtbaar bij Customers > Sandbox (12-13 november, deel G) | testaankoop Reclamevrij en "Aankopen herstellen" (deel G, stap 11). De Fruitpas per seizoen is beslist (15 november, keuze 2A): `pass` blijft aan geen entitlement hangen; niets te doen |
+| Pc | Node v24.21.0, npm, Git, firebase-tools 15.35.0, Android Studio met SDK en emulator "Medium Phone API 37.0", jbr-17 met het Norton-certificaat (23 oktober); je repo staat in `C:\Users\piete\dont-slice-me`; Capacitor 8-project, upload-sleutel (`C:\Users\piete\sleutels\dontsliceme-upload.jks`) en ondertekende bundels gebouwd (11-12 november, laatste versionCode 4) | bij elke nieuwe versie: `git pull`, `npm run sync`, `versionCode` +1 (v0.32.11 wordt versionCode 5, v0.32.12 versionCode 6) |
+| GitHub | repo `dont-slice-me` met Pages (testlink), privacybeleid online (laatste versie met v0.32.10) | later de repo `pietertmortier-lab.github.io` voor app-ads.txt (deel B, stap 8) |
 
 ### Wat Claude nog in het spel moet herstellen (jij hoeft hier niets voor te doen)
 
 Voor de **eerste interne test**:
-1. De knop "Koop de Fruitpas · € 4,99" op het Fruitpas-tabblad en de knop "Laatste stempel · € 0,49" geven in de
-   app hun inhoud gratis. Ze moeten via Google Play lopen.
+1. **[GEDAAN in v0.32.7 en v0.32.12]** De knop "Koop de Fruitpas · € 4,99" op het Fruitpas-tabblad en de knop "Laatste
+   stempel · € 0,49" gaven in de app hun inhoud gratis. De Fruitpas loopt via Google Play (v0.32.7); de stempel voor geld
+   is helemaal weg (v0.32.12, keuze 4A).
 2. De winkel zegt in de app "Alle aankopen zijn een simulatie". Dat moet weg.
 3. Een link naar het privacybeleid in Instellingen/Hulp (Google eist dat).
 4. De deellinks wijzen in de app naar `localhost`. (De nieuwe brug lost dit al op bij het delen.)
@@ -73,13 +79,18 @@ Voor de **gesloten test** (je testers zijn echte mensen in de EU en betalen echt
     gelinkt in Instellingen, bij Hulp, bij Plus en bij het kiezen van een naam (niet in de winkelvermelding: dat hoeft niet).
     Google eist dat voor inhoud die spelers zelf maken.
 
-Wat jij nog moet doen voor v0.32.9 (in deze volgorde):
-- Server en regels online zetten, **voor** de nieuwe app bij testers komt: `cd native/tourney`, dan
-  `firebase deploy --only functions,firestore`. Er is geen nieuwe index.
-- De app bouwen: in `native` eerst `npm install` (nieuwe plugin voor uitnodigingen via Google Play), dan `npm run sync`.
-  In Android Studio `versionCode 3` en `versionName "0.32.9"`, de bundel bouwen en in de interne test zetten (deel C,
-  stap 21 en 24 tot 27). Alles over de uitnodigingen staat ook in `native/UITNODIGEN-VIA-GOOGLE-PLAY.md`.
-- Eén keer een sleutel voor de twee hulpscripts (verwijderverzoeken per mail en meldingen van namen): Firebase-console
+Wat jij nog moet doen voor v0.32.9 (stand 13 november):
+- **[GEDAAN, 12 november, samen met v0.32.10]** Server en regels online zetten, **voor** de nieuwe app bij testers komt:
+  `cd native/tourney`, dan `firebase deploy --only functions,firestore`. Je deed meteen de uitrol van v0.32.10
+  (`firebase deploy --only functions,firestore,database`); die bevat ook alles van v0.32.9.
+- **[GEDAAN, 12 november, als v0.32.10]** De app bouwen: in `native` eerst `npm install` (nieuwe plugin voor
+  uitnodigingen via Google Play), dan `npm run sync`. v0.32.9 zelf hoefde niet meer apart in de test: je zette meteen
+  **v0.32.10 (versionCode 4, versionName "0.32.10")** in de interne test ("Beschikbaar voor interne testers"). Of
+  versionCode 3 (0.32.9) ooit geüpload werd: NIET NAGEKEKEN, en het maakt niet uit: de volgende versie wordt versionCode 5.
+  Alles over de uitnodigingen staat ook in `native/UITNODIGEN-VIA-GOOGLE-PLAY.md`.
+- **[NOG TE DOEN]** Eén keer een sleutel voor de twee hulpscripts (verwijderverzoeken per mail en meldingen van namen).
+  Let op: de JSON-sleutel die je op 12 november voor RevenueCat maakte, is een **andere** sleutel (ander project, andere
+  rechten); gebruik die hier niet. Je hebt een sleutel van het Firebase-project `dont-slice-me` nodig: Firebase-console
   > Projectinstellingen > Serviceaccounts > **Nieuwe privésleutel genereren**. Bewaar het `.json`-bestand buiten GitHub,
   bijvoorbeeld `C:\sleutels\dont-slice-me-admin.json`, en stuur het naar niemand. Daarna in PowerShell, in
   `native\tourney` (na `npm install`):
@@ -90,20 +101,57 @@ Wat jij nog moet doen voor v0.32.9 (in deze volgorde):
     in orde), `rename <wie> --yes` (verbergen en om een nieuwe naam vragen), `clear <wie> --yes` (meldingen weg).
     Zonder `--yes` verandert er niets. **Elke week:** `node tools/reports.cjs list` (open meldingen en verborgen namen;
     spelers krijgen "Bedankt! We kijken het na." als ze melden, dus kijk ook echt).
-- Optioneel, één keer: `gcloud firestore fields ttls update expireAt --collection-group=devices --enable-ttl --project=dont-slice-me`
+- **[NOG TE DOEN, optioneel]** Eén keer: `gcloud firestore fields ttls update expireAt --collection-group=devices --enable-ttl --project=dont-slice-me`
   (de kleine merktekens van verwijderde accounts verdwijnen dan na 2 dagen; zonder blijven ze staan, er staat niets
-  persoonlijks in).
-- Play Console: de beschrijving van `bundle_all` en de volledige winkelbeschrijving vervangen door de nieuwe teksten in
-  `store/producten-play.md` en `store/winkelteksten.md` (pas als 0.32.9 in de test staat). Het veld Website laat je leeg.
-  Gegevensveiligheid: zie PLAY-FORMULIEREN.md, deel 8 (Aankoopgeschiedenis kreeg een zin bij).
-- Testen met TESTLIJST-v0.32.9.md.
+  persoonlijks in). Voor zover Claude weet nog niet gedaan (NIET NAGEKEKEN).
+- Play Console:
+  - **[GEDAAN, 12 november]** De beschrijving van `bundle_all`: je maakte het product meteen met de nieuwe tekst uit
+    `store/producten-play.md` (deel E, punt 4).
+  - **[NOG TE DOEN]** De winkelvermelding (Engels en Nederlands) bestond al. Zet er nu de nieuwe regel van v0.32.9 bij,
+    onder FAIR PLAY (Engels) en EERLIJK SPELEN (Nederlands); v0.32.10 staat in de test, dus het mag nu. De regels staan
+    in `store/winkelteksten.md`:
+    - EN: "In duels only skill counts: everyone may borrow any of the 20 classic fruits, and fruit bonuses do not count there."
+    - NL: "In duels telt alleen hoe goed je speelt: iedereen mag elk van de 20 gewone fruitsoorten lenen, en fruitbonussen tellen daar niet."
+  - Het veld Website laat je leeg.
+  - **[NIET NAGEKEKEN]** Gegevensveiligheid: zie PLAY-FORMULIEREN.md, deel 8 (Aankoopgeschiedenis kreeg een zin bij).
+- Testen: TESTLIJST-v0.32.9.md is vervangen door TESTLIJST-v0.32.10.md (en straks TESTLIJST-v0.32.11.md en TESTLIJST-v0.32.12.md).
+
+Wat jij moet doen bij v0.32.11 (uitgebracht in je repo op 15 november; dit zijn de stappen van die release, doe ze vóór v0.32.12):
+- **Eerst de server**, voor de nieuwe app bij testers komt: `cd native\tourney`, dan
+  `firebase deploy --only functions,firestore,database`. Wacht tot er "Deploy complete!" staat. De nieuwe regels van de
+  Realtime Database en de nieuwe functie horen bij elkaar; oudere apps blijven gewoon werken.
+- Dan de app: in `native` eerst `npm run sync` (er zit een nieuwe `native/bridge.js` in, voor de reclame; zonder sync
+  blijft de oude in de app). De app wordt **versionCode 5**, versionName "0.32.11".
+- Play Console: verander de beschrijving van `hearts_5`, want vanaf v0.32.11 mogen gekochte hartjes boven je maximum
+  gaan (niets wordt nog sap). **Inkomsten genereren** > **Producten** > **Eenmalige producten** > `hearts_5` >
+  beschrijving vervangen > **Opslaan**. Doe dit pas als v0.32.11 in de test staat (zie `store/producten-play.md`, deel E, punt 5):
+  - EN: `5 hearts at once, also above your maximum.`
+  - NL: `5 hartjes meteen, ook boven je maximum.`
+
+Wat jij moet doen bij v0.32.12 (jouw keuzes "1A, 2A, 3A, 4A" van 15 november; nog niet uitgebracht, komt na v0.32.11 en
+voor de gesloten test):
+- Geen server: v0.32.12 verandert niets aan de functies of regels van Firebase. Geen `firebase deploy`.
+- De app: in `native` eerst `npm run sync` (er zit een nieuwe `native/bridge.js` in: hij leest een aankoop die later
+  binnenkomt). De app wordt **versionCode 6**, versionName "0.32.12". Zet hem in de interne test zoals altijd (deel E,
+  stap 4, 6, 7 en 8), met de releaseopmerkingen voor v0.32.12 uit `store/winkelteksten.md`.
+- Pas als v0.32.12 in de interne test staat en je zelf hebt bijgewerkt: zet in Play Console `tickets_5`, `tickets_15` en
+  `weekpass` op **inactief** (de stappen staan in `PLAY-CONSOLE-v0.32.12.md`). Niet eerder: een oudere versie toont de
+  knoppen nog, en die doen dan niets meer. Niet verwijderen.
+- In RevenueCat hoeft niets.
+- Testen: `TESTLIJST-v0.32.12.md`.
+Wat er in het spel verandert: toernooitickets zijn nergens meer te koop (geen pakketten, geen Weekpas, geen ticket voor sap
+of na een filmpje, geen extra ticket met Plus); iedereen krijgt elke dag 10 gratis tickets; bewaarde tickets worden één keer
+1.000 sap per stuk, een lopende Weekpas 9.000 sap (het fragment van zondag komt nog); een aankoop van een ticketproduct die
+nog binnenkomt, wordt sap. De Fruitpas toont "geldt tot 30 november, nog 17 dagen" en is niet te koop in de laatste 3 dagen
+van de maand; "Aankopen herstellen" zegt alleen nog "Plus of Reclamevrij". Van de fruitmanden blijft alleen Alles-in-één.
 
 Voor de **productie**:
-12. De Fruitmanden met wisselende prijs: vaste prijzen of weghalen (zie `store/producten-play.md`).
-13. Jouw beslissingen (zie `store/producten-play.md`, deel B en C):
-    - tickets, Weekpas en het extra ticket van Plus geven meer pogingen in het toernooi: tickets alleen voor
-      oefenrondes, een vast maximum per week, of iets anders;
-    - de Fruitpas per seizoen: één product per seizoen, of herstellen alleen voor het lopende seizoen.
+12. **[BESLIST, 15 november: 3A, gebouwd in v0.32.12]** De Fruitmanden met wisselende prijs zijn weg; alleen Alles-in-één
+    (`bundle_all`) blijft (zie `store/producten-play.md`, deel B).
+13. **[BESLIST, 15 november: 1A en 2A, gebouwd in v0.32.12]** Jouw beslissingen (zie `store/producten-play.md`, deel A2, B en C):
+    - tickets, Weekpas en het extra ticket van Plus: weg; iedereen 10 gratis tickets per dag;
+    - de Fruitpas per seizoen: één product `pass`, niet herstellen via Google, met de einddatum op de koopknop en niet te
+      koop in de laatste 3 dagen van de maand.
 
 ---
 
@@ -339,38 +387,50 @@ Bij elke volgende versie: `git pull`, `cd native`, `npm run sync`, in Android St
 
 ## E. Interne test (jij en een paar vrienden)
 
-1. Klik **Testen en releasen** > **Testen** > **Interne test** > tab **Testers** > **E-maillijst maken**.
-2. Naam "Intern", voeg je eigen Gmail-adres en die van 2 tot 5 vrienden toe > **Opslaan**. Vink de lijst aan >
-   **Opslaan**.
-3. Vul bij **Feedback-URL of e-mailadres** `dont.slice.me@gmail.com` in > **Opslaan**.
-4. Tab **Releases** > **Nieuwe release maken**.
-5. App-ondertekening door Google Play: de voorwaarden aanvaardde je al bij het aanmaken van de app (10 november).
+**[GEDAAN, 11-13 november]** De interne test loopt. Wat er gebeurde, kort: lijst "intern" (8 testers), 0.32.7
+(versionCode 1) op 11 november, 0.32.8 (versionCode 2) op 11 november en 0.32.10 (versionCode 4) op 12 november,
+telkens "Beschikbaar voor interne testers". De stappen hieronder blijven staan als naslag; bij een nieuwe versie doe je
+alleen stap 4, 6, 7 en 8 opnieuw (met de nieuwe versie en releasenaam).
+
+1. **[GEDAAN, 11 november]** Klik **Testen en releasen** > **Testen** > **Interne test** > tab **Testers** > **E-maillijst maken**.
+2. **[GEDAAN, 11 november]** Naam "Intern", voeg je eigen Gmail-adres en die van 2 tot 5 vrienden toe > **Opslaan**.
+   Vink de lijst aan > **Opslaan**. (De lijst "intern" heeft nu 8 testers.)
+3. Vul bij **Feedback-URL of e-mailadres** `dont.slice.me@gmail.com` in > **Opslaan**. (NIET NAGEKEKEN of dit ingevuld is.)
+4. **[GEDAAN]** Tab **Releases** > **Nieuwe release maken**.
+5. **[GEDAAN]** App-ondertekening door Google Play: de voorwaarden aanvaardde je al bij het aanmaken van de app (10 november).
    Vraagt Play Console het hier toch, kies **Doorgaan** (Google maakt en bewaart de echte sleutel; jouw `.jks` wordt
    de uploadsleutel).
    Je ziet: "Ondertekening van releases door Google Play is ingeschakeld" (of geen vraag).
-6. Sleep `app-release.aab` naar **App-bundels**.
+6. **[GEDAAN, laatste keer 12 november]** Sleep `app-release.aab` naar **App-bundels**.
    Je ziet: versie "1 (0.32.6)". Rode fouten (bijvoorbeeld target API of advertentie-ID) moeten weg; gele
    waarschuwingen (bijvoorbeeld "geen symbolen voor native code") mag je meestal negeren. Stuur me elke melding.
-7. Releasenaam: `0.32.6 (1)`. Releaseopmerkingen: vervang alles in het vak door het eerste blok uit
+   (De eerste upload werd "1 (0.32.7)"; de laatste is "4 (0.32.10)".)
+7. **[GEDAAN, laatste keer 12 november]** Releasenaam: `0.32.6 (1)`. Releaseopmerkingen: vervang alles in het vak door het eerste blok uit
    "Releaseopmerkingen om te plakken" in `store/winkelteksten.md` (van `<nl-NL>` tot en met `</en-US>`).
-   Je ziet geen rode melding onder het vak.
-8. **Volgende** > **Opslaan en publiceren** (of **Uitrol naar interne test starten**).
+   Je ziet geen rode melding onder het vak. (Bij een nieuwe versie: laat de releasenaam staan die Play Console zelf
+   invult, zoals bij jouw uploads, bijvoorbeeld `5 (0.32.11)`. Voor de releaseopmerkingen geeft Claude bij elke nieuwe
+   versie een nieuwe tekst "Wat is er nieuw".)
+8. **[GEDAAN, laatste keer 12 november]** **Volgende** > **Opslaan en publiceren** (of **Uitrol naar interne test starten**).
    Je ziet na enkele minuten: "Beschikbaar voor interne testers".
-9. Tab **Testers** > **Link kopiëren** (de opt-inlink). Stuur die naar je interne testers.
-10. Elke tester opent de link op de telefoon, met het Google-account dat in de lijst staat, en tikt
+9. **[GEDAAN]** Tab **Testers** > **Link kopiëren** (de opt-inlink). Stuur die naar je interne testers.
+10. **[GEDAAN]** Elke tester opent de link op de telefoon, met het Google-account dat in de lijst staat, en tikt
     **Word tester** > **Downloaden op Google Play**.
     Je ziet: de app in de Play Store met "(Interne test)".
-11. Licentietesters (zo betaal je niet echt bij testaankopen): klik in de linkerkolom helemaal bovenaan (alle apps)
-    **Instellingen** > **Licentietests** > voeg dezelfde Gmail-adressen toe > **Opslaan**.
-12. Maak nu de producten aan en koppel RevenueCat: doe **deel G** (dat kan pas na deze eerste upload).
+11. **[GEDAAN, 13 november, anders dan eerst gepland]** Licentietesters (zo betaal je niet echt bij testaankopen): klik in
+    de linkerkolom helemaal bovenaan (alle apps) **Instellingen** > **Licentietests**. Je maakte een nieuwe lijst
+    **"licentietesters"** met alleen jou en je vriendin en vinkte die aan; de lijst "intern" (8 testers) vinkte je
+    **uit**. Zo betalen de andere testers (en straks de testers van de gesloten test) echt als ze iets kopen, zoals je
+    wilde. Wil je later nog iemand gratis laten testkopen, zet die dan in de lijst "licentietesters".
+12. **[GEDAAN, 12-13 november]** Maak nu de producten aan en koppel RevenueCat: doe **deel G** (dat kan pas na deze eerste upload).
 13. Test met je telefoon:
-    - toestemmingsformulier bij de eerste start;
-    - een beloningsvideo: je ziet "Test Ad" en krijgt daarna de beloning;
+    - toestemmingsformulier bij de eerste start; **[GEDAAN, 11 november, op de testtelefoon op je pc]**
+    - een beloningsvideo: je ziet "Test Ad" en krijgt daarna de beloning; **[GEDAAN, 11 november, op de testtelefoon op je pc]**
     - een aankoop (bijvoorbeeld 3.000 sap): het Google-venster toont "Testkaart, wordt altijd goedgekeurd"; daarna
-      krijg je de sap;
-    - na Reclamevrij kopen: bij een beloning (bijvoorbeeld +1 hartje) speelt geen video meer, je krijgt ze meteen;
-    - "Aankopen herstellen" na Reclamevrij kopen, de app wissen en opnieuw installeren;
-    - terugknop, Delen, het live vriendenduel met een tweede tester.
+      krijg je de sap; **[GEDAAN, 12-13 november: twee keer `sap_3000`, telkens +3.000 sap, de tweede keer ook gelukt
+      (dus het product wordt goed "verbruikt")]**
+    - na Reclamevrij kopen: bij een beloning (bijvoorbeeld +1 hartje) speelt geen video meer, je krijgt ze meteen; **[NOG TE DOEN]**
+    - "Aankopen herstellen" na Reclamevrij kopen, de app wissen en opnieuw installeren; **[NOG TE DOEN]**
+    - terugknop, Delen, het live vriendenduel met een tweede tester. **[DEELS: live duel met je vriendin op 0.32.10 gespeeld]**
     Meld me alles wat niet werkt, met een schermafbeelding.
 
 ---
@@ -379,6 +439,10 @@ Bij elke volgende versie: `git pull`, `cd native`, `npm run sync`, in Android St
 
 Begin hier pas als Claude de punten 7 tot 11 van deel 0 heeft opgelost en jij ze in de interne test hebt
 geprobeerd (verwijderknop, privacyknop, Plus-tekst, eerlijke duels, namen melden en blokkeren).
+
+Jouw plan (stand 13 november): eerst v0.32.11 in de interne test (jij, je vriendin en een paar anderen), daarna kleine
+verbeterversies. Intussen zoek je eerst ongeveer 20 testers (het peilbericht is klaar). Pas als je die hebt, maak je de
+Google Group en de gesloten test hieronder, dan 14 dagen testen, dan deel H.
 
 De Google Group (de makkelijkste manier om testers toe te voegen):
 1. Open https://groups.google.com met je Google-account > **Groep maken**.
@@ -427,51 +491,90 @@ Het WhatsApp-bericht (kopieer, vul de twee links in):
 
 ## G. RevenueCat: producten en service-account
 
+**[GEDAAN, 12-13 november]** Alles van dit deel is gedaan, behalve de test met Reclamevrij (stap 11). Hieronder staat per
+stap wat je echt deed; de uitleg blijft staan als naslag.
+
 Doe dit direct na de eerste upload (deel E, stap 12).
 
 Het betalingsprofiel (zonder dit kun je geen producten maken):
-0. Je hebt al een Google-betalingsprofiel (van je registratie; je officiële naam en adres in Play Console komen
+0. **[GEDAAN, 12 november]** Je hebt al een Google-betalingsprofiel (van je registratie; je officiële naam en adres in Play Console komen
    eruit). Maak dus geen nieuw. Klik in Play Console in de linkerkolom helemaal bovenaan (alle apps) **Instellingen**
    > **Betalingsprofiel** > kies **Koppelen** of **Bestaand betalingsprofiel gebruiken**, en vul de ontbrekende
    gegevens aan (bankrekening, IBAN) > **Opslaan**. Vraag vooraf je boekhouder of je dit als particulier of met een
    ondernemingsnummer doet (dat besliste je op 4 november zo).
    Je ziet: "Je betalingsprofiel is gekoppeld" (of je profiel met naam en adres). Heet de knop anders, kies wat
    hetzelfde betekent (Google: "Create a payments profile", Play Console Help).
+   (Gedaan: het betalingsprofiel is gekoppeld.)
 
 De producten in Play Console:
-1. **Inkomsten genereren** > **Producten** > **In-app-producten** (of **Eenmalige producten**) > **Product maken**.
-2. Maak elk product uit `store/producten-play.md`, deel A, met exact die **product-ID**, naam, beschrijving en
+1. **[GEDAAN, 12 november]** **Inkomsten genereren** > **Producten** > **In-app-producten** (of **Eenmalige producten**) > **Product maken**.
+2. **[GEDAAN, 12 november]** Maak elk product uit `store/producten-play.md`, deel A, met exact die **product-ID**, naam, beschrijving en
    prijs > **Opslaan** > **Activeren**. (Niet de producten uit deel B of D.)
    Je ziet: elk product met status "Actief".
-3. **Producten** > **Abonnementen** > **Abonnement maken**: ID `plus_month`, naam "Don't Slice Me! Plus" >
+   Wat je deed: alle 11 eenmalige producten staan op **Actief** (`sap_3000`, `sap_10000`, `hearts_5`, `doubler_1h`,
+   `coins_5`, `tickets_5`, `tickets_15`, `weekpass`, `pass`, `noads`, `bundle_all`; vanaf v0.32.12 zijn `tickets_5`,
+   `tickets_15` en `weekpass` uit het spel en zet je ze op inactief, zie `PLAY-CONSOLE-v0.32.12.md`), elk met één aankoopoptie met
+   ID **`buy`** (soort "Bestellen", dus gewoon kopen), leeftijdsclassificatie de laagste, belastingcategorie "Digitale
+   app-verkoop". Prijzen: "Prijzen instellen" las het eurobedrag als bedrag **zonder** btw. Daarom zette je bij
+   **België** en **Nederland** met het potloodje de prijs met btw er zelf in (bijvoorbeeld € 0,99), zodat de prijs in
+   de winkel gelijk is aan de prijs in het spel. Voor de andere landen rekende Google zelf om (NIET NAGEKEKEN welke
+   prijzen daar staan; zie `store/producten-play.md`, deel E).
+3. **[GEDAAN, 12 november]** **Producten** > **Abonnementen** > **Abonnement maken**: ID `plus_month`, naam "Don't Slice Me! Plus" >
    **Basisabonnement toevoegen**: ID `monthly`, **Automatisch verlengen**, elke **1 maand**, prijs € 2,99,
    **geen** proefperiode of aanbieding > **Activeren**.
-4. Herhaal voor `plus_year`: basisabonnement `yearly`, elk **1 jaar**, € 19,99 > **Activeren**.
+   Wat je deed: voordelen (benefits) in het Engels en Nederlands ingevuld; het basisabonnement staat op **"Werkt met
+   eerdere versies"** (achterwaarts compatibel: ook oudere versies van Google Play Billing vinden dit basisabonnement);
+   **pauzeren** staat aan
+   (de standaard van Google).
+4. **[GEDAAN, 12 november]** Herhaal voor `plus_year`: basisabonnement `yearly`, elk **1 jaar**, € 19,99 > **Activeren**.
+   Ook hier voordelen EN en NL, "Werkt met eerdere versies" en pauzeren aan.
 
 Het service-account (zodat RevenueCat aankopen kan controleren):
-5. Open in RevenueCat je project > **Apps** > de Google Play-app > **Service Account credentials JSON**. Volg de
+5. **[GEDAAN, 12 november]** Open in RevenueCat je project > **Apps** > de Google Play-app > **Service Account credentials JSON**. Volg de
    uitleg van RevenueCat ("How to create"): in Google Cloud een service-account maken, een JSON-sleutel downloaden.
-6. In Play Console (alle apps) > **Gebruikers en rechten** > **Nieuwe gebruikers uitnodigen** > plak het
+   Wat je deed, in Google Cloud: in de organisatie `dont-slice-me-org` het project hernoemd naar **"Don't Slice Me!"**
+   (het project-ID staat in je Google Cloud-console); drie API's aangezet (Google Play Android Developer API, Google Play
+   Developer Reporting API, Cloud Pub/Sub API); het serviceaccount
+   `revenuecat@...` (het volledige adres staat in je Google Cloud-console) gemaakt met de rollen **Pub/Sub Admin** en
+   **Monitoring Viewer**; een JSON-sleutel gemaakt. De organisatieregel `iam.disableServiceAccountKeyCreation` verbood
+   dat eerst: je gaf jezelf de rol Organization Policy Administrator, zette de regel tijdelijk uit voor alleen dit
+   project, maakte de sleutel en zette de regel daarna terug op "overnemen" (inherit). Zo is de regel weer zoals hij was.
+6. **[GEDAAN, 12 november]** In Play Console (alle apps) > **Gebruikers en rechten** > **Nieuwe gebruikers uitnodigen** > plak het
    e-mailadres van het service-account > tab **Accountrechten** (niet per app) > vink aan: **App-informatie bekijken
    en bulkrapporten downloaden (alleen lezen)**, **Financiële gegevens, bestellingen en antwoorden op
    opzeggingsenquêtes bekijken**, **Bestellingen en abonnementen beheren** > **Gebruiker uitnodigen**.
    Volg bij twijfel de lijst op de RevenueCat-pagina ("Creating Play Service Credentials"); die is leidend.
-7. Upload het JSON-bestand in RevenueCat > **Save**. Bewaar het JSON-bestand buiten GitHub.
+   (Gedaan met precies die drie rechten.)
+7. **[GEDAAN, 12-13 november]** Upload het JSON-bestand in RevenueCat > **Save**. Bewaar het JSON-bestand buiten GitHub.
    Je ziet in RevenueCat na enige tijd (tot 36 uur) "Valid credentials".
-8. RevenueCat > **Products** > **Import products** (uit Google Play).
+   (RevenueCat toont nu **Valid credentials**.)
+8. **[GEDAAN, 12 november]** RevenueCat > **Products** > **Import products** (uit Google Play).
    Je ziet: alle product-ID's uit stap 2-4.
-9. Zet `noads` en `bundle_all` op **Non-consumable** (de andere eenmalige producten zijn consumable).
-10. **Entitlements**:
+   (Geïmporteerd: 9 eenmalige producten, plus `plus_month:monthly` en `plus_year:yearly`. `noads` en `pass` stonden er
+   al sinds 23 oktober.)
+9. **[GEDAAN, 12 november]** Zet `noads` en `bundle_all` op **Non-consumable** (de andere eenmalige producten zijn consumable).
+10. **[GEDAAN, 12 november]** **Entitlements**:
     - `noads` hangt al sinds 23 oktober aan entitlement `noads`. Niets doen. Zie je na het importeren een tweede
-      `noads`, laat dan alleen het geïmporteerde gekoppeld.
-    - koppel `plus_month` en `plus_year` aan `plus` > **Save**.
+      `noads`, laat dan alleen het geïmporteerde gekoppeld. (Gedaan: `noads`, non-consumable, aan `noads`.)
+    - koppel `plus_month` en `plus_year` aan `plus` > **Save**. (Gedaan: `plus_month:monthly` en `plus_year:yearly`.)
     - het product `pass` hangt sinds 23 oktober aan entitlement `pass`. Koppel het **los** (Detach) tot je beslist hoe
-      de Fruitpas per seizoen werkt (zie `store/producten-play.md`, deel B, en deel 0, punt 13).
+      de Fruitpas per seizoen werkt (zie `store/producten-play.md`, deel B, en deel 0, punt 13). (Gedaan: losgekoppeld;
+      het product `pass` en de lege entitlement `pass` blijven bestaan. Beslist op 15 november: zo laten.)
     - verwijder de entitlement `don_t_slice_me_pro` (met de twee Test Store-producten) die de wizard op 23 oktober
-      maakte, als hij er nog staat.
+      maakte, als hij er nog staat. (Hij is weg.)
     Je ziet: bij `plus` twee producten, bij `noads` één, bij `pass` geen.
+10b. **[GEDAAN, 12 november]** Realtime meldingen van Google (zodat RevenueCat meteen hoort van verlengingen, opzeggingen
+    en terugbetalingen): in RevenueCat **Google developer notifications** gekoppeld aan het Pub/Sub-onderwerp
+    `projects/<jouw-project-ID>/topics/Play-Store-Notifications`. In Play Console (de app, bij de
+    instellingen voor inkomsten; in het Engels "Monetization setup") de realtime ontwikkelaarsmeldingen (RTDN) aangezet
+    met dat onderwerp, en als inhoud gekozen: **abonnementen, ingetrokken aankopen en alle eenmalige producten**.
+    De testmelding kwam aan in RevenueCat.
 11. Test: koop in de app (als licentietester) Reclamevrij.
     Je ziet in RevenueCat > **Customers** een anonieme klant met entitlement `noads` actief.
+    - **[GEDAAN, 12-13 november]** Testaankoop `sap_3000`, twee keer (testkaart, telkens +3.000 sap, de tweede aankoop ook
+      gelukt): zichtbaar in RevenueCat > **Customers** > **Sandbox**.
+    - **[NOG TE DOEN]** Reclamevrij kopen (je bent licentietester, je betaalt niet) en kijken of `noads` actief is; daarna
+      "Aankopen herstellen" (deel E, stap 13).
 
 ---
 
@@ -480,7 +583,8 @@ Het service-account (zodat RevenueCat aankopen kan controleren):
 Voorwaarden:
 - 14 dagen gesloten test met minstens 12 ingeschreven testers (deel F);
 - Claude heeft alle punten van de lijst in deel 0 opgelost en jij hebt ze getest;
-- jouw beslissingen uit deel 0, punt 13 (toernooitickets, Weekpas en Plus-ticket; de Fruitpas per seizoen);
+- jouw beslissingen uit deel 0, punt 13 (toernooitickets, Weekpas en Plus-ticket; de Fruitpas per seizoen): **[GEDAAN]**
+  beslist op 15 november en gebouwd in v0.32.12; test ze in de interne test (`TESTLIJST-v0.32.12.md`);
 - regels voor spelersnamen, melden en blokkeren staan in het spel, met `voorwaarden.html` (deel 0, punt 11);
 - eerlijke duels (deel 0, punt 10);
 - handelaarsstatus: **gedaan** (Handelaar, 10 november). Controleer alleen of je gegevens nog kloppen.

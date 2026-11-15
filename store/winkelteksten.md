@@ -7,6 +7,24 @@ v0.32.9: onder EERLIJK SPELEN / FAIR PLAY staat weer dat in duels alleen telt ho
 gewone fruitsoorten lenen, en de fruitmanden geven alleen fruit tot je eigen level). Plak de nieuwe volledige beschrijving pas in Play Console
 als versie 0.32.9 in de test staat.
 
+Stand 13 november 2026: de winkelvermelding in het Engels (hoofdvermelding) en het Nederlands (vertaling) staat al in
+Play Console (sinds 11 november). **Nog te doen:** de regel van v0.32.9 erbij zetten. v0.32.10 staat in de interne test,
+dus het mag nu. Het gaat om één regel per taal, de derde onder het kopje:
+- onder FAIR PLAY (Engels): "In duels only skill counts: everyone may borrow any of the 20 classic fruits, and fruit bonuses do not count there."
+- onder EERLIJK SPELEN (Nederlands): "In duels telt alleen hoe goed je speelt: iedereen mag elk van de 20 gewone fruitsoorten lenen, en fruitbonussen tellen daar niet."
+Je kunt ook de hele volledige beschrijving hieronder opnieuw plakken; de rest is niet veranderd.
+v0.32.12 (15 november 2026, nog niet uitgebracht): toernooitickets zijn niet meer te koop (iedereen krijgt er elke dag 10
+gratis), de vier fruitmanden zijn weg (alleen Alles-in-één blijft) en de Fruitpas toont tot wanneer het seizoen loopt. De
+beschrijving hieronder noemt geen betaalde tickets, geen Weekpas en geen fruitmanden met een prijs: **je hoeft niets te
+veranderen.** Wil je het eerlijke toernooi in de winkel zetten, dan mag je onder het kopje deze vierde regel bijzetten
+(niet verplicht; doe het pas als v0.32.12 in de test staat):
+- onder EERLIJK SPELEN (Nederlands): "• Toernooitickets koop je niet: iedereen krijgt er elke dag 10 gratis." *(70)*
+- onder FAIR PLAY (Engels): "• Tournament tickets are not for sale: everyone gets 10 free every day." *(71)*
+De volledige beschrijving wordt dan NL 2.341 en EN 2.289 tekens (max 4.000).
+
+Kijk meteen ook bij **Winkelinstellingen** of het veld Website leeg is. Een oudere versie van dit bestand (10 november)
+noemde daar nog `https://pietertmortier-lab.github.io/dont-slice-me/`; staat dat er, maak het veld leeg (NIET NAGEKEKEN wat er nu staat).
+
 Regels van Google die ik heb gevolgd (Play-beleid over metadata): geen namen van andere spellen of merken, geen
 woorden als "beste", "nummer 1" of "gratis" in de titel, geen ranglijst- of prijsclaims, geen emoji of rijen
 hoofdletters, en alleen wat echt in het spel zit.
@@ -121,6 +139,17 @@ First version on Google Play (0.32.6). New: the live friend duel, where you play
 </en-US>
 ```
 
+Voor v0.32.12 in de interne test (vervangt het blok hierboven bij die upload; NL 456 en EN 419 tekens, max 500):
+
+```
+<nl-NL>
+Versie 0.32.12: toernooitickets zijn niet meer te koop, iedereen krijgt elke dag 10 gratis tickets. Bewaarde tickets en een lopende Weekpas worden sap. De koopknop van de Fruitpas zegt tot wanneer het seizoen loopt; in de laatste 3 dagen van de maand is de Fruitpas niet te koop. Van de fruitmanden blijft alleen Alles-in-één. Testadvertenties: tijdens de test zie je alleen voorbeeldreclame van Google. Vind je een fout? Mail naar dont.slice.me@gmail.com.
+</nl-NL>
+<en-US>
+Version 0.32.12: tournament tickets are no longer for sale, everyone gets 10 free tickets every day. Saved tickets and a running Week pass become juice. The Fruit Pass buy button shows when the season ends; in the last 3 days of the month the Fruit Pass is not for sale. Of the fruit baskets only All-in-one stays. Test ads: during the test you only see Google's sample ads. Found a bug? E-mail dont.slice.me@gmail.com.
+</en-US>
+```
+
 Voor de productieversie:
 
 ```
@@ -157,5 +186,6 @@ Don't Slice Me! is on Google Play. Play live against your friends, take on the K
 
 ## Controle (tekens geteld met een script)
 
-Appnaam NL 30, EN 28. Korte beschrijving NL 68, EN 70. Volledige beschrijving NL 2.270, EN 2.217 (max 4.000; nageteld na v0.32.9).
+Appnaam NL 30, EN 28. Korte beschrijving NL 68, EN 70. Volledige beschrijving NL 2.270, EN 2.217 (max 4.000; nageteld na v0.32.9;
+met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500).
 Wat is er nieuw NL 316, EN 286 (max 500). Geen emoji.

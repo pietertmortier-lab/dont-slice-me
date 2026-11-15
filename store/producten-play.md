@@ -17,7 +17,7 @@ Entitlements in RevenueCat (de namen die het spel leest bij "Aankopen herstellen
 |---|---|---|---|---|---|---|
 | `sap_3000` | 3.000 sap | € 0,99 | eenmalig | consumable | - | 3.000 sap |
 | `sap_10000` | 10.000 sap | € 2,49 | eenmalig | consumable | - | 10.000 sap |
-| `hearts_5` | 5 hartjes | € 0,99 | eenmalig | consumable | - | 5 hartjes (wat niet past, wordt sap) |
+| `hearts_5` | 5 hartjes | € 0,99 | eenmalig | consumable | - | 5 hartjes, ook boven je maximum (sinds v0.32.11) |
 | `doubler_1h` | Sapverdubbelaar 1 uur | € 0,99 | eenmalig | consumable | - | 1 uur dubbel sap (max 5 uur opgeteld) |
 | `coins_5` | 5 spelletjesmunten | € 0,99 | eenmalig | consumable | - | 5 munten voor de losse spelletjes onder Dagmes |
 | `tickets_5` | 5 toernooitickets | € 0,99 | eenmalig | consumable | - | 5 extra rondes in het Keukentoernooi (zie C) |

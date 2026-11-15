@@ -324,6 +324,48 @@ async function ldRtRoom(id, host, guest, now) { const d = ldRt(); if (!d || !id 
 async function ldRtDel(id) { const d = ldRt(); if (!d || !id) return; try { await ldRtT(d.ref('ld/' + id).remove()); } catch (e) { console.error('ldrt del', (e && e.message) || e); } }
 async function ldRtSweep(now) { if (!LD_RTDB_URL || now - ldRtSweptAt < LD_RT_SWEEP_MS) return; const d = ldRt(); if (!d) return; ldRtSweptAt = now; try { const s = await ldRtT(d.ref('ld').orderByChild('c').endAt(now - LD_RT_OLD_MS).limitToFirst(LD_RT_SWEEP_N).once('value')); const ids = []; s.forEach(c => { ids.push(c.key); }); await ldRtT(Promise.all(ids.map(k => d.ref('ld/' + k).remove()))); } catch (e) { console.error('ldrt sweep', (e && e.message) || e); } } // rooms older than 1 h, 20 at a time, at most every 10 min per instance (on hello, ldinvite and ldanswer; no scheduler)
 const ldArOk = (l, now) => LD_AR_OK && !!LD_RTDB_URL && l.rt === 1 && (l.cap || 2) === 2 && (l.m || []).length === 2 && l.m.every(s => (s.v || 0) >= 3 && now - (s.rc || 0) <= LD_RC_MS) ? 1 : 0; // fixed once at go, never recomputed
+// ---- v0.32.11 WP5 Stap B (claims and aimed knives): ab is fixed at go when both seats run v >= 4 with the same world id (aw = the
+// world module's 8-char id) and this instance loads arena-world.js (VERSION 'B1', verifyB). Every RTDB call below runs outside every
+// Firestore transaction, is awaited and raced against a time limit (the admin client queues writes while its socket is down and the
+// promise never rejects) and swallows its errors; ldbeat and ldend never wait on RTDB before their transaction.
+const LD_AB_OK = true, LD_AW = 'B1', LD_AB_TRY = 3, LD_RT_SA_MS = 800, LD_VER_READ_MS = 1200, LD_VER_REREAD_MS = 300, LD_VER_BUDGET_MS = 2000; // v0.32.11 WP5: Stap B kill switch, the world version, s write tries, s write limit, settle read limit, re-read pause, total RTDB time per settle call
+let ldArena;
+const ldAwId = A => (A && typeof A.AWID === 'string' ? A.AWID : ''); // v0.32.11 WP5: the world id of a loaded module ('B1' + 6 hex; WP4 names it AWID because AW is Stap A's arena width 360)
+function ldAw() { if (ldArena === undefined) { try { const A = require('./arena-world.js'); ldArena = A && A.VERSION === LD_AW && typeof A.verifyB === 'function' && typeof A.scheduleB === 'function' && typeof A.normLog === 'function' && /^[A-Za-z0-9]{8}$/.test(ldAwId(A)) ? A : null; } catch (e) { console.error('arena', (e && e.message) || e); ldArena = null; } } return ldArena; } // null: Stap B off on this instance (Stap A still runs: it needs no module)
+const ldAwOf = x => String(x || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 8);
+const ldAbOk = l => LD_AB_OK && !!ldAw() && (l.m || []).length === 2 && l.m.every(s => (s.v || 0) >= 4 && s.aw === ldAwId(ldAw()));
+const ldRace = (p, ms, what) => { let t = 0; return Promise.race([p, new Promise((_, no) => { t = setTimeout(() => no(new Error(what + ': slower than ' + ms + ' ms')), ms); })]).finally(() => clearTimeout(t)); }; // the statQuiet pattern
+const ldMono = () => Number(process.hrtime.bigint() / 1000000n); // real elapsed ms for the RTDB budget (Date.now may be a test clock)
+async function ldRtSA(id, startAt) { const d = ldRt(); if (!d || !id) return false; try { await ldRace(d.ref('ld/' + id + '/s').set(startAt), LD_RT_SA_MS, 'ldrt s'); return true; } catch (e) { console.error('ldrt s', (e && e.message) || e); return false; } }
+async function ldVerRead(id, ms) { const d = ldRt(); if (!d || ms < 100) return null; try { const s = await ldRace(d.ref('ld/' + id + '/e').once('value'), Math.min(ms, LD_VER_READ_MS), 'ldver read'); const v = s.val(); return v && typeof v === 'object' ? v : {}; } catch (e) { console.error('ldver read', (e && e.message) || e); return null; } }
+async function ldAbS(id, l, ref) { // v0.32.11 WP5: /ld/{id}/s = startAt once after the go of an ab duel; retried only by ldlobby and ldres (never ldbeat/ldend), at most LD_AB_TRY times
+  if (!l || l.state !== 'go' || l.ab !== 1 || l.abS === 1 || (l.abTry || 0) >= LD_AB_TRY || l.res) return; const ok = await ldRtSA(id, l.startAt || 0), u = ok ? { abS: 1 } : { abTry: (l.abTry || 0) + 1 }; Object.assign(l, u); try { await ref.update(u); } catch (e) {} }
+const ldFl = (x, k) => Math.max(x && x.fin && x.fin[k] ? 1 : 0, x && x.fl && x.fl[k] ? 1 : 0); // a seat's flag: its final or its sticky beats
+async function ldVerPre(id, now) { // v0.32.11 WP5: the settle verification, before the settle transaction (nothing RTDB inside it). Returns null (no verification: today's scoring) or { ver, uids, seen }
+  if (!LD_AB_OK) return null; const t0 = ldMono(), left = () => LD_VER_BUDGET_MS - (ldMono() - t0);
+  const l0 = (await db.doc(`ldlobby/${id}`).get()).data(); if (!l0 || l0.res || l0.ab !== 1 || l0.state !== 'go' || (l0.m || []).length !== 2) return null;
+  const hu = l0.host, gs = l0.m.find(s => s.uid !== hu); if (!l0.m.some(s => s.uid === hu) || !gs) return { ver: { ok: 0, why: 'seat' }, uids: null, seen: null }; // the phones use role host 0 / guest 1
+  const uids = [hu, gs.uid], S = uids.map(u => l0.m.find(s => s.uid === u)), X = [];
+  for (const u of uids) X.push((await db.doc(`ldlobby/${id}/live/${u}`).get()).data() || null);
+  const E = uids.map((u, i) => ldSeatEnd(l0, S[i], X[i], now)); if (!E.every(e => ['fin', 'dead', 'none'].includes(e)) || E.includes('none')) return null; // a seat still playing (the transaction settles nothing) or a no-show (the 24 h challenge): no read
+  const seen = X.map(x => (x && x.fin && x.fin.at) || 0), R = v => ({ ver: v, uids, seen });
+  const flags = X.map(x => ({ so: ldFl(x, 'so'), cm: ldFl(x, 'cm'), ed: ldFl(x, 'ed') })), ne = X.map(x => x && x.fin && typeof x.fin.ne === 'number' && x.fin.ne >= 0 ? x.fin.ne : -1);
+  if (X.some((x, i) => !x.fin || ne[i] < 0 || flags[i].so || flags[i].cm || flags[i].ed)) return R({ ok: 0, why: 'seat' }); // not verifiable whatever the log says (no final, no ne, a flag): no read
+  const A = ldAw(); if (!A) return R({ ok: 0, why: 'module' });
+  let log = await ldVerRead(id, left()); if (log === null) return R({ ok: 0, why: 'read' });
+  const cnt = g => uids.map(u => { try { return A.normLog(g[u]).length; } catch (e) { return 0; } });
+  if (cnt(log).some((n, i) => n < ne[i]) && left() >= 600) { await new Promise(z => setTimeout(z, LD_VER_REREAD_MS)); const l2 = await ldVerRead(id, left()); if (l2 !== null) log = l2; } // at most one re-read, inside the budget
+  try { return R(A.verifyB(A.scheduleB(l0.seed), { startAt: l0.startAt || 0, uids, fruits: S.map(s => s.fruit || 'appel'), ends: X.map(x => (x.fin ? x.fin.t : x.t) || 0), fin: X.map(x => !!x.fin), logs: uids.map(u => A.normLog(log[u])), nm: X.map(x => (x.fin && x.fin.nm) || 0), ne, flags, paths: X.map(x => String(x.gh || '')) })); }
+  catch (e) { console.error('ldver', (e && e.message) || e); return R({ ok: 0, why: 'err' }); } }
+function ldVerApply(V, A, B, a, b, fa, fb) { // v0.32.11 WP5, inside the settle transaction: the counted scores (never above the reported ones) and the verdict for the result
+  if (!V || !V.ver) return null; let ver = V.ver; const at = x => (x && x.fin && x.fin.at) || 0;
+  const iA = V.uids ? V.uids.indexOf(A.uid) : -1, iB = V.uids ? V.uids.indexOf(B.uid) : -1;
+  if (V.seen && (iA < 0 || iB < 0 || at(a) !== V.seen[iA] || at(b) !== V.seen[iB])) ver = { ok: 0, why: 'race' }; // a final arrived between the read and this transaction
+  if (!(ver.ok === 1 || ver.ok === true) || !Array.isArray(ver.seats)) return { ok: 0, why: String(ver.why || 'err') };
+  const NM = ldAw().PB.NM_MAX, sv = [ver.seats[iA] || {}, ver.seats[iB] || {}], one = (f, s, x) => { f.s = Math.max(0, Math.min(f.s || 0, Math.max(0, Math.floor(+s.v || 0)) + Math.min(clampInt(x && x.fin && x.fin.nm, 0, 200), NM))); };
+  one(fa, sv[0], a); one(fb, sv[1], b);
+  const pick = s => ({ ok: s.ok === false || s.ok === 0 ? 0 : 1, v: Math.floor(+s.v || 0), won: Math.floor(+s.won || 0), lost: Math.floor(+s.lost || 0), rej: s.rej && typeof s.rej === 'object' ? s.rej : {}, n: Math.floor(+s.n || 0) });
+  return { ok: 1, a: pick(sv[0]), b: pick(sv[1]) }; }
 const LD_FRUITS = ['appel', 'druif', 'aardbei', 'kersen', 'citroen', 'kiwi', 'banaan', 'kokosnoot', 'sinaasappel', 'pruim', 'avocado', 'watermeloen', 'ananas', 'mandarijn', 'durian', 'granaatappel', 'drakenvrucht', 'lychee', 'stervrucht', 'passievrucht']; // the 20 classic fruits (the client's ORDER), lent for the round
 const LD_PUSH_SUBJECT = 'mailto:dont.slice.me@gmail.com', LD_PUSH_HOSTS = /^(fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|web\.push\.apple\.com|[a-z0-9-]+\.push\.apple\.com|[a-z0-9-]+\.notify\.windows\.com)$/;
 const LD_DEAD = new Set([404, 410, 'messaging/registration-token-not-registered', 'messaging/invalid-registration-token']); // only these remove a subscription at once
@@ -375,7 +417,7 @@ function ldEval(l, now, ro) { // mutates l; returns true when it changed. ro (re
   if (l.state === 'wait' && allIn) { l.state = 'count'; l.countEnd = now + ((l.countLeft || 0) > 0 ? Math.max(LD_RESUME_MIN_MS, l.countLeft) : LD_COUNT_MS); l.countLeft = 0; ch = true; } // v0.32.8: a count that was interrupted resumes with its time left (at least 20 s), never a fresh 90 s
   else if (l.state === 'count' && !allIn) { l.state = 'wait'; l.countLeft = Math.max(1, (l.countEnd || 0) - now); l.countEnd = 0; ch = true; }
   if (l.state === 'count' && (now >= l.countEnd || l.m.every(s => (s.rd || 0) > 0))) { /* v0.32.8: the time is up, or every seat tapped Klaar */ const same = String((l.opts && l.opts.fruit) || '').startsWith('same:') ? ldFruit(l.opts.fruit.slice(5)) : '';
-    l.state = 'go'; l.startAt = now + LD_GO_MS; l.seed = 'L' + ldId().slice(0, 10); for (const s of l.m) s.fruit = same || ldFruit(s.fruit); l.ar = ldArOk(l, now); /* v0.32.10 */ ch = true; } // the fruits are locked here
+    l.state = 'go'; l.startAt = now + LD_GO_MS; l.seed = 'L' + ldId().slice(0, 10); for (const s of l.m) s.fruit = same || ldFruit(s.fruit); l.ar = ldArOk(l, now); /* v0.32.10 */ l.ab = l.ar === 1 && ldAbOk(l) ? 1 : 0; /* v0.32.11 WP5 */ ch = true; } // the fruits are locked here
   return ch;
 }
 const ldRo = (l, now) => { const c = Object.assign({}, l, { m: (l.m || []).map(s => Object.assign({}, s)), kicked: (l.kicked || []).slice() }); ldEval(c, now, true); return c; };
@@ -401,16 +443,16 @@ async function ldPushTo(uid, msg) { // msg { k: 'ldinv' | 'ldlobby', n, id, exp 
 }
 function ldView(l, uid, now, started) { // what a member sees of the lobby: seats by name (the other one's uid only because you are friends), never a uid of anyone else
   const meI = (l.m || []).findIndex(s => s.uid === uid), kicked = (l.kicked || []).find(k => k.uid === uid), pn = l.pn || {}, go = ['go', 'done'].includes(l.state) || !!l.res, duo = (l.cap || 2) <= 2; // duo: a 1-on-1 lobby exists only between friends; a later pool sends no uid until it checks the friendship per seat
-  return { v: 3, rt: l.rt === 1 && LD_RTDB_URL && (l.m || []).every(s => s.joined && (s.v || 0) >= 3) ? 1 : 0, ar: l.ar === 1 ? 1 : 0, /* v0.32.10: the RTDB room exists and both seats joined on v >= 3 (a v0.32.9 host: the guest's phone never opens the room); the shared arena (fixed at go) */ id: l.id || '', state: l.res ? 'done' : l.state, host: l.host === uid, me: meI, cap: l.cap || 2, min: l.min || 2, opts: Object.assign({ powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, l.opts || {}), countEnd: l.countEnd || 0, startAt: l.startAt || 0, seed: go ? l.seed || '' : '',
+  return { v: 4, rt: l.rt === 1 && LD_RTDB_URL && (l.m || []).every(s => s.joined && (s.v || 0) >= 3) ? 1 : 0, ar: l.ar === 1 ? 1 : 0, ab: l.ab === 1 && l.ar === 1 ? 1 : 0, /* v0.32.11 WP5: Stap B (fixed at go) */ /* v0.32.10: the RTDB room exists and both seats joined on v >= 3 (a v0.32.9 host: the guest's phone never opens the room); the shared arena (fixed at go) */ id: l.id || '', state: l.res ? 'done' : l.state, host: l.host === uid, me: meI, cap: l.cap || 2, min: l.min || 2, opts: Object.assign({ powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, l.opts || {}), countEnd: l.countEnd || 0, startAt: l.startAt || 0, seed: go ? l.seed || '' : '',
     why: l.closedWhy || '', kickedMe: kicked ? kicked.why : '', gone: (l.kicked || []).filter(k => k.uid !== uid).map(k => ({ name: k.name, why: k.why, fid: duo ? k.uid : '' })), started: !!started,
-    m: (l.m || []).map((s, i) => { const st = ldSeat(l, s, now); return { name: s.name, fruit: s.fruit || '', role: s.role, me: i === meI, fid: i === meI || !duo ? '' : s.uid, in: st.isIn, away: st.isIn ? 0 : st.from + LD_RETURN_MS, joined: !!s.joined, left: !!s.left, pushed: (pn[s.uid] || 0) > 0, nopush: !!s.pushAt && pn[s.uid] === 0, rd: (s.rd || 0) > 0, v: s.v || 0 }; }), // v0.32.8: rd = tapped Klaar; v = the seat's client protocol (2: has Klaar)
+    m: (l.m || []).map((s, i) => { const st = ldSeat(l, s, now); return { name: s.name, fruit: s.fruit || '', role: s.role, me: i === meI, fid: i === meI || !duo ? '' : s.uid, in: st.isIn, away: st.isIn ? 0 : st.from + LD_RETURN_MS, joined: !!s.joined, left: !!s.left, pushed: (pn[s.uid] || 0) > 0, nopush: !!s.pushAt && pn[s.uid] === 0, rd: (s.rd || 0) > 0, v: s.v || 0, aw: s.aw || '' /* v0.32.11 WP5 */ }; }), // v0.32.8: rd = tapped Klaar; v = the seat's client protocol (2: has Klaar)
     res: l.res ? ldResView(l.res, meI) : null };
 }
 const ldStatOf = S => ({ won: S.won || 0, wins: S.wins || 0, losses: S.losses || 0, draws: S.draws || 0, played: S.played || 0, distinct: S.distinct || 0 });
 function ldResView(r, meI) { // the result for one member: me / them, my verdict, the record from my side, whether my win counted, my stats after it
   if (r.kind === 'noshow') return { r: 'noshow', who: r.who === -1 ? 'both' : r.who === meI ? 'me' : 'them', chal: !!r.chal };
   const me = meI === 1 ? r.b : r.a, them = meI === 1 ? r.a : r.b, win = r.win === -1 ? 'draw' : r.win === meI ? 'win' : 'loss', st = ldStatOf((meI === 1 ? r.stB : r.stA) || {});
-  return { r: win, me, them, counted: win === 'win' && !!r.counted, why: win === 'win' ? r.why || '' : '', rec: meI === 1 ? { w: r.rec.bw, l: r.rec.aw, d: r.rec.d } : { w: r.rec.aw, l: r.rec.bw, d: r.rec.d }, won: st.won, st };
+  return { r: win, me, them, counted: win === 'win' && !!r.counted, why: win === 'win' ? r.why || '' : '', rec: meI === 1 ? { w: r.rec.bw, l: r.rec.aw, d: r.rec.d } : { w: r.rec.aw, l: r.rec.bw, d: r.rec.d }, won: st.won, st, ...(r.ver ? { ver: r.ver } : {}) }; // v0.32.11 WP5: ver (debug overlay only)
 }
 const ldStatView = d => ldStatOf((d && d.data && d.data()) || {});
 // -- record and counted wins, for every friend duel (live and the 24 h challenge); inside a transaction: 7 reads first, then the writes
@@ -440,8 +482,9 @@ function ldSeatEnd(l, s, x, now) { // 'fin' | 'dead' (its last beat counts) | 'n
   if (x && x.go) return now - (x.go || 0) > LD_SEAT_MAX_MS || now - (x.at || 0) > Math.max(0, LD_PAUSE_MS - (x.pause || 0)) + LD_GRACE_MS ? 'dead' : 'play';
   return s.left || now > (l.startAt || 0) + LD_LATE_MS ? 'none' : 'wait';
 }
-async function ldSettle(id, now) {
+async function ldSettle(id, now, lh) { // lh (v0.32.11 WP5): the caller's copy of the lobby; only an ab duel pays for the verification pre-read
   const lref = db.doc(`ldlobby/${id}`);
+  let V = null; if (LD_AB_OK && (!lh || lh.ab === 1)) { try { V = await ldVerPre(id, now); } catch (e) { console.error('ldver pre', (e && e.message) || e); V = null; } } // v0.32.11 WP5
   const out = await db.runTransaction(async tx => {
     const l = (await tx.get(lref)).data(); if (!l) return null; if (l.res) return { l };
     if (l.state !== 'go' || (l.m || []).length !== 2) return null;
@@ -455,8 +498,8 @@ async function ldSettle(id, now) {
           if (fd.exists && !(cur && chalLive(cur, now))) { tx.set(cref, { from: P.uid, to: N.uid, fromName: P.name, toName: N.name, seed: l.seed, ghost: x.gh, t: x.gt || x.fin.t, fromScore: x.fin.s, fromFruit: P.fruit, level: 10, status: 'open', created: now, expires: now + CHALLENGE_MS, live: 1, lobby: id }); chal = cid; note = { to: N.uid, by: P.name, id: cid }; } } }
       res = { kind: 'noshow', who, chal: !!chal };
     } else {
-      const fin = x => x.fin ? { s: x.fin.s, t: x.fin.t, quit: !!x.fin.quit, died: !!x.fin.died } : { s: x.s || 0, t: x.t || 0, cut: true }, fa = fin(a), fb = fin(b), r = await ldRecordTx(tx, A.uid, B.uid, fa, fb, 'live', now);
-      res = { kind: 'live', a: Object.assign({ name: A.name }, fa), b: Object.assign({ name: B.name }, fb), win: r.win, counted: r.counted, why: r.why, rec: r.rec, stA: r.stA, stB: r.stB };
+      const fin = x => x.fin ? { s: x.fin.s, t: x.fin.t, quit: !!x.fin.quit, died: !!x.fin.died } : { s: x.s || 0, t: x.t || 0, cut: true }, fa = fin(a), fb = fin(b), ver = ldVerApply(V, A, B, a, b, fa, fb) /* v0.32.11 WP5: may lower fa.s / fb.s */, r = await ldRecordTx(tx, A.uid, B.uid, fa, fb, 'live', now);
+      res = Object.assign({ kind: 'live', a: Object.assign({ name: A.name }, fa), b: Object.assign({ name: B.name }, fb), win: r.win, counted: r.counted, why: r.why, rec: r.rec, stA: r.stA, stB: r.stB }, ver ? { ver } : {});
     }
     tx.update(lref, { res, state: 'done', doneAt: now }); return { l: Object.assign({}, l, { res, state: 'done', doneAt: now }), note, fresh: res.kind };
   });
@@ -489,7 +532,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
     if (p.ldIn && p.ldIn.id) { if ((p.ldIn.exp || 0) > now) inv = { id: p.ldIn.id, name: playerName(p.ldIn.name), exp: p.ldIn.exp, again: !!p.ldIn.again, fid: p.ldIn.from || '' }; else upd.ldIn = null; }
     if (p.ldOut) { const x = (await db.doc(`ldinv/${p.ldOut}`).get()).data(); if (!x) upd.ldOut = ''; else { const st = x.state === 'open' && (x.exp || 0) <= now ? 'gone' : x.state; out = { id: p.ldOut, name: playerName(x.toName), fid: x.to, state: st, exp: x.exp || 0, lobby: x.lobby || '' }; if (st !== 'open') upd.ldOut = ''; } }
     if (p.ldLobby) { const id = p.ldLobby; let l = (await db.doc(`ldlobby/${id}`).get()).data();
-      if (l && l.state === 'go' && !l.res && (l.m || []).some(s => s.uid === uid) && now >= (l.startAt || 0) + LD_SETTLE_POLL_MS) { const s2 = await ldSettle(id, now); if (s2) l = s2; } // a duel nobody reports any more is settled by a member's poll
+      if (l && l.state === 'go' && !l.res && (l.m || []).some(s => s.uid === uid) && now >= (l.startAt || 0) + LD_SETTLE_POLL_MS) { const s2 = await ldSettle(id, now, l); if (s2) l = s2; } // a duel nobody reports any more is settled by a member's poll
       if (l) { const c = ldRo(l, now); c.id = id; let started = false; if (c.state === 'go' && !c.res && c.m.some(s => s.uid === uid)) started = (await db.doc(`ldlobby/${id}/live/${uid}`).get()).exists;
         lobby = ldView(c, uid, now, started); if (c.res && c.res.kind === 'live') { const o = c.m.find(s => s.uid !== uid); if (o) upd.ldDone = { with: o.uid, at: now }; } }
       if (!l || !ldAlive(ldRo(l, now), now)) upd.ldLobby = ''; } // a dead, done or closed lobby is reported once, then the pointer clears
@@ -559,7 +602,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       if (lm && ldAlive(ldRo(lm, now), now)) return { error: 'inlobby', lobby: mp.ldLobby };
       const here = ldHere(ip, now), L = { kind: 'duel', cap: 2, min: 2, host: x.from, inv: id, created: now, state: 'wait', opts: { powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, countEnd: 0, startAt: 0, seed: '', res: null, kicked: [], closedWhy: '', closedAt: 0, doneAt: 0, pn: {}, expireAt: new Date(now + LD_KEEP_MS),
         m: [{ uid: x.from, name: playerName(x.fromName), fruit: ldFruit(ip.fruit), role: 'host', joined: false, seen: 0, left: false, leftAt: 0, dev: '', v: 0, pw: [], pushAt: here ? 0 : now, chk: now },
-          { uid, name: playerName(mp.name || x.toName), fruit: ldFruit(body.fruit), role: 'guest', joined: true, seen: now, left: false, leftAt: 0, dev: rawUid || uid, v: clampInt(body.v, 0, 99), pw: ldPw(body.pw), pushAt: 0, chk: now }] };
+          { uid, name: playerName(mp.name || x.toName), fruit: ldFruit(body.fruit), role: 'guest', joined: true, seen: now, left: false, leftAt: 0, dev: rawUid || uid, v: clampInt(body.v, 0, 99), aw: ldAwOf(body.aw) /* v0.32.11 WP5 */, pw: ldPw(body.pw), pushAt: 0, chk: now }] };
       if (LM && (LM.n || 0) > 0 && now - (LM.start || 0) < HOUR_MS) tx.set(limRef, { start: LM.start, n: LM.n - 1 }); // Pieter: friend duels are unlimited; only invites nobody accepted count toward the 10 an hour
       tx.update(iref, { state: 'yes', answered: now, lobby: lid }); tx.set(db.doc(`ldlobby/${lid}`), L); tx.set(mref, { ldIn: null, ldLobby: lid }, { merge: true }); tx.set(ipref, { ldLobby: lid }, { merge: true }); // the inviter's ldOut stays: his next ldpoll reports 'yes' once and clears it
       return { l: Object.assign({}, L, { id: lid }), push: here ? null : { uid: x.from, n: L.m[1].name } };
@@ -585,7 +628,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
           if (body.leave) { me.left = true; me.leftAt = now; ch = true; }
           else { if (body.act && !me.joined) { me.joined = true; ch = true; } if (me.joined && now - (me.seen || 0) >= LD_SEEN_LOBBY_MS) { me.seen = now; if (body.rc === 1) me.rc = now; /* v0.32.10: this phone reached RTDB */ ch = true; }
             if (me.joined && now - (me.ps || 0) >= LD_SEEN_WRITE_MS) { me.ps = now; ch = true; pres = true; } // a joined seat keeps the player's presence fresh (the client sends no ldpoll while the lobby is open)
-            if (body.v !== undefined && clampInt(body.v, 0, 99) !== (me.v || 0)) { me.v = clampInt(body.v, 0, 99); ch = true; } if (body.pw !== undefined) { const pw = ldPw(body.pw); if (JSON.stringify(pw) !== JSON.stringify(me.pw || [])) { me.pw = pw; ch = true; } }
+            if (body.v !== undefined && clampInt(body.v, 0, 99) !== (me.v || 0)) { me.v = clampInt(body.v, 0, 99); ch = true; } if (body.aw !== undefined && ldAwOf(body.aw) !== (me.aw || '')) { me.aw = ldAwOf(body.aw); ch = true; } /* v0.32.11 WP5 */ if (body.pw !== undefined) { const pw = ldPw(body.pw); if (JSON.stringify(pw) !== JSON.stringify(me.pw || [])) { me.pw = pw; ch = true; } }
             if (body.fruit !== undefined) { const f = ldFruit(body.fruit); if (f !== me.fruit) { me.fruit = f; me.rd = 0; ch = true; } } // v0.32.8: another fruit takes Klaar back
             if (body.ready !== undefined && me.joined) { const rd = body.ready === true ? (me.rd || now) : 0; if (rd !== (me.rd || 0)) { me.rd = rd; ch = true; } } } // v0.32.8: Klaar (v2 clients send it until it is confirmed)
           if (body.start && l.host === uid && ['wait', 'count'].includes(l.state) && !body.leave && me.joined && !me.rd) { me.rd = now; ch = true; } // v0.32.8: Start nu of an older host (v0.32.5-0.32.7) = the host is Klaar; it never ends the guest's 90 s
@@ -608,6 +651,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
     if (out.err === 'otherdevice') return NO('otherdevice');
     if (out.err) return NO('gone', { lobby: out.l ? ldView(out.l, uid, now, false) : null });
     const l = out.l; if (out.went) await statBump({ ldGo: 1 }); // v0.32.8 stats
+    if (!out.gone) await ldAbS(id, l, ref); // v0.32.11 WP5: /ld/{id}/s after the go of an ab duel (outside the transaction, at most 800 ms)
     if (LD_RTDB_URL) { const gs = (l.m || []).find(s => s.role === 'guest'); // v0.32.10: the room, retried every 10 s while it is missing (outside the transaction); gone with a closed lobby
       if (['wait', 'count'].includes(l.state) && !l.res && l.rt !== 1 && gs && l.m.every(s => !s.joined || (s.v || 0) >= 3) && now - (l.rtTry || 0) >= LD_RT_RETRY_MS) { const ok = await ldRtRoom(id, l.host, gs.uid, now); l.rtTry = now; if (ok) l.rt = 1; try { await ref.update(ok ? { rt: 1, rtTry: now } : { rtTry: now }); } catch (e) {} }
       else if (l.state === 'closed' && l.rt === 1) await ldRtDel(id); }
@@ -636,6 +680,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
     if (l.res) return resReply();
     if (l.state !== 'go') return NO('gone');
     let evr = { ok: [], no: [] }, first = false, mineTx = null;
+    if (action === 'ldres') await ldAbS(id, l, lref); // v0.32.11 WP5: the s retry (never in ldbeat or ldend)
     if (action !== 'ldres') {
       if (now < (l.startAt || 0) - 1500) return NO('early', { startAt: l.startAt });
       const r = await db.runTransaction(async tx => {
@@ -646,11 +691,12 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
         const m = Object.assign({ go: now, t: 0, s: 0, k0: 0, p: [], at: 0, pAt: 0, dead: false, pz: false, pause: 0, lag: 0, ev: [], fin: null, gh: '', gt: 0 }, x || {}, { expireAt: new Date(now + LD_KEEP_MS) });
         if (!m.go) m.go = now;
         if (action === 'ldend' || now - (m.pAt || 0) >= 1000) { // positions at most once a second (events and the rest in every beat)
-          if (!m.dead || action === 'ldend') { const t = Math.max(m.t || 0, Math.min(clampInt(body.t, 0, LD_RUN_MS + 500), Math.max(0, now - (l.ar === 1 ? Math.min(m.go, l.startAt || m.go) : m.go) + 3000))); m.t = t; m.s = Math.max(m.s || 0, Math.min(clampInt(body.s, 0, 1e6), Math.floor(t / 1000 * DUEL_MAX_PER_SEC) + 50)); } // only rises, never above 15 sap a second + 50 (like every duel); frozen after the cut
+          if (!m.dead || action === 'ldend') { const t = Math.max(m.t || 0, Math.min(clampInt(body.t, 0, LD_RUN_MS + 500), Math.max(0, now - (l.ar === 1 ? Math.min(m.go, l.startAt || m.go) : m.go) + 3000))); m.t = t; m.s = action === 'ldend' && l.ab === 1 ? Math.min(clampInt(body.s, 0, 1e6), Math.floor(t / 1000 * DUEL_MAX_PER_SEC) + 50) /* v0.32.11 WP5: an ab final replaces the beat maximum */ : Math.max(m.s || 0, Math.min(clampInt(body.s, 0, 1e6), Math.floor(t / 1000 * DUEL_MAX_PER_SEC) + 50)); } // only rises, never above 15 sap a second + 50 (like every duel); frozen after the cut
           if (body.p !== undefined) { m.k0 = clampInt(body.k0, 0, 5000); m.p = ldPts(body.p); } m.pAt = now; }
         const e = ldEvents(l, meI, m, body, now); m.ev = e.ev; evr = e;
         m.at = now; m.dead = !!m.dead || !!body.dead; m.pz = !!body.pz; m.pause = Math.max(m.pause || 0, clampInt(body.pause, 0, 65000)); m.lag = clampInt(body.lag, -600000, 600000);
-        if (action === 'ldend') { m.fin = { s: m.s, t: m.t, quit: !!body.quit, died: !!body.died, at: now }; m.gh = body.quit ? '' : String(body.ghost || '').replace(/[^0-9,\-]/g, '').slice(0, GHOST_MAX * 8); m.gt = clampInt(body.gt, 0, DUEL_T_MAX); }
+        if (l.ab === 1) { const f0 = m.fl || {}; m.fl = { so: Math.max(f0.so || 0, body.so ? 1 : 0), cm: Math.max(f0.cm || 0, body.cm ? 1 : 0), ed: Math.max(f0.ed || 0, body.ed ? 1 : 0) }; } // v0.32.11 WP5: flags stay set once a beat carried them
+        if (action === 'ldend') { const f1 = m.fl || {}; m.fin = { s: m.s, t: m.t, quit: !!body.quit, died: !!body.died, at: now, nm: clampInt(body.nm, 0, 200), ne: body.ne === undefined || body.ne === null ? -1 : clampInt(body.ne, 0, 400), nr: clampInt(body.nr, 0, 400), so: Math.max(body.so ? 1 : 0, f1.so || 0), cm: Math.max(body.cm ? 1 : 0, f1.cm || 0), ed: Math.max(body.ed ? 1 : 0, f1.ed || 0), cl: clampInt(body.cl, 0, 999) }; /* v0.32.11 WP5 */ m.gh = body.quit ? '' : String(body.ghost || '').replace(/[^0-9,\-]/g, '').slice(0, GHOST_MAX * 8); m.gt = clampInt(body.gt, 0, DUEL_T_MAX); }
         const pr = now - (m.ps || 0) >= LD_SEEN_WRITE_MS; if (pr) m.ps = now; tx.set(mref, m); return { mine: m, fin: action === 'ldend', pr };
       });
       if (r.err === 'done') { l = Object.assign((await lref.get()).data() || {}, { id }); if (l.res) return resReply(); return NO('gone'); }
@@ -660,7 +706,7 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
     if (first) await ldMark(uid); // a played day (counted friend-duel wins need an active loser)
     const mine = mineTx || (await mref.get()).data() || null;
     const od = (await db.doc(`ldlobby/${id}/live/${other.uid}`).get()).data() || null, open = e => ['wait', 'play'].includes(e); // the other seat first: while somebody can still start or play, a settle cannot succeed (and would cost three reads every time the game-over asks)
-    if (((mine && mine.fin) || action === 'ldres' || now > (l.startAt || 0) + LD_RUN_MS) && !open(ldSeatEnd(l, me, mine, now)) && !open(ldSeatEnd(l, other, od, now))) { const s2 = await ldSettle(id, now); if (s2) { l = Object.assign(s2, { id }); if (l.res) await resOnce(); } }
+    if (((mine && mine.fin) || action === 'ldres' || now > (l.startAt || 0) + LD_RUN_MS) && !open(ldSeatEnd(l, me, mine, now)) && !open(ldSeatEnd(l, other, od, now))) { const s2 = await ldSettle(id, now, l); if (s2) { l = Object.assign(s2, { id }); if (l.res) await resOnce(); } }
     const o = ldOther(od, other, l, now), oe = od && od.go ? ldSeatEnd(l, other, od, now) : '';
     const wait = l.res || (o.fin || oe === 'dead') ? 0 : !o.go ? 3000 : Math.min(60000, Math.max(0, LD_RUN_MS - (o.t || 0)) + 3000);
     return J({ ok: true, startAt: l.startAt, started: !!(mine && mine.go), o, evOk: evr.ok, evNo: evr.no, res: l.res ? ldResView(l.res, meI) : null, wait });

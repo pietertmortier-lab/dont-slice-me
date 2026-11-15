@@ -8,9 +8,19 @@
         ".read": "auth != null && data.child('m').child(auth.uid).exists()",
         "c": { ".write": false },
         "m": { ".write": false },
+        "s": { ".write": false },
         "on": { "$uid": { ".write": "auth != null && auth.uid === $uid && root.child('ld').child($room).child('m').child($uid).exists()", ".validate": "!newData.exists() || newData.isNumber()" } },
         "k":  { "$uid": { ".write": "auth != null && auth.uid === $uid && root.child('ld').child($room).child('m').child($uid).exists()", ".validate": "newData.isString() && newData.val().length <= 24" } },
-        "p":  { "$uid": { ".write": "auth != null && auth.uid === $uid && root.child('ld').child($room).child('m').child($uid).exists()", ".validate": "newData.isString() && newData.val().length <= 128" } }
+        "p":  { "$uid": { ".write": "auth != null && auth.uid === $uid && root.child('ld').child($room).child('m').child($uid).exists()", ".validate": "newData.isString() && newData.val().length <= 128" } },
+        "e":  { "$uid": { "$n": {
+          ".write": "auth != null && auth.uid === $uid && root.child('ld').child($room).child('m').child($uid).exists() && !data.exists() && newData.exists()",
+          ".validate": "$n.matches(/^(0|[1-9][0-9]?|[1-3][0-9][0-9])$/) && newData.hasChildren(['k', 't', 'at']) && (!root.child('ld').child($room).child('s').exists() || (newData.child('t').val() >= now - root.child('ld').child($room).child('s').val() - 1500 && newData.child('t').val() <= now - root.child('ld').child($room).child('s').val() + 750))",
+          "k":   { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 3" },
+          "t":   { ".validate": "newData.isNumber() && newData.val() >= -1000 && newData.val() <= 100000" },
+          "d":   { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "at":  { ".validate": "newData.val() === now" },
+          "$other": { ".validate": false }
+        } } }
       }
     }
   }

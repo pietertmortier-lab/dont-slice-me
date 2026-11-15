@@ -58,6 +58,80 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.11: afpakken en messen die om de beurt mikken (stap B van het gedeelde veld)
+
+Eerst de server bijwerken. Open een opdrachtvenster in de map `dont-slice-me` en typ, één regel per keer:
+
+```
+cd native\tourney
+firebase deploy --only functions,firestore,database
+```
+
+Functies en database samen, vóór alles: de nieuwe regels van de Realtime Database (de lijst met gebeurtenissen) en de
+functie die de uitslag narekent (met `arena-world.js` naast `index.js`). Daarna de nieuwe app-versie (versionCode 5,
+versionName 0.32.11). Testen: `TESTLIJST-v0.32.11.md`.
+
+- **Messen die om de beurt mikken.** Spelen jullie allebei met 0.32.11, dan komen de messen ongeveer 1,7 keer zo vaak en
+  mikken ze om de beurt op jou en op je vriend. Elk mes raakt iedereen die in de weg staat. Een mes dat te laat op je
+  telefoon binnenkomt, wordt bleek getekend en kan je niet raken.
+- **Afpakken.** Wie een suikerklontje of bonus het eerst aanraakt, krijgt het. Je ziet je `+1` meteen; was je vriend net
+  eerder, dan verdwijnt het of zie je "Lotte pakte het!" en gaat je `+1` terug (binnen ongeveer een halve seconde). De
+  score van je vriend bovenaan komt uit dezelfde lijst.
+- **Bonussen in duelvorm.** Kokspauze stuurt de messen even naar de ander, Suikerregen laat klontjes aan jouw kant vallen
+  (de ander mag er ook pakken), Stroop maakt de messen trager die op jou mikken; schild, magneet, dubbel sap en krimp
+  werken voor wie ze kreeg. Een bonus werkt pas als vaststaat dat jij hem had.
+- **Het live beeld van je vriend blijft bij.** Loopt het beeld van je vriend steeds verder achter omdat de verbinding
+  berichten ophoopt, dan maakt je telefoon de verbinding opnieuw en zie je meteen weer het nieuwste beeld. Na een haperende
+  verbinding zie je je vriend ook sneller weer live bewegen. In het verborgen vak (5 keer tikken op de duelklok) zegt de
+  regel `vriend: ...` hoeveel seconden het beeld achterloopt (zie de testlijst).
+- **Fruittrucs op het gedeelde veld.** De schil van Banaan, het spoor van Druif, de wolk van Durian en de ster van
+  Stervrucht liggen voor allebei op het veld en vertragen (of vangen) ook de messen van de ander. Kiwi, Durian,
+  Watermeloen, Mandarijn en Pruim werken weer op de messen die op jou mikken. Het fruitkaartje in de lobby zegt het.
+- **Eerlijk nagerekend.** Elke telefoon schrijft tijdens het duel een korte lijst van wat hij deed (aanraken, mikpunten,
+  schil/spoor/wolk/ster, pauze). De server speelt het duel na het einde na met dezelfde regels en telt per speler
+  hoogstens wat klopt. Twijfelt hij (geen lijst, een oude app, geen verbinding, een fout), dan telt het duel voor allebei
+  zoals in 0.32.9: nooit een kapot duel.
+- **Offline.** Zonder verbinding kan je even niet afpakken ("offline" naast het bolletje); na 4 seconden speel je "even
+  alleen verder" en pak je weer je eigen klontjes; daarna "Weer verbonden".
+- **Altijd een duel.** Heeft een van jullie 0.32.10, dan spelen jullie het gedeelde veld van stap A; met 0.32.9 het duel van
+  0.32.9. Solo, toernooi, openbare duels en uitdagingen van 24 uur blijven precies hetzelfde.
+- **Noodschakelaars**, in `native/tourney/index.js`, daarna de functie opnieuw deployen (geen nieuwe app nodig):
+  `LD_AB_OK = false` zet afpakken en mikkende messen uit (elk nieuw duel tussen twee 0.32.11-telefoons speelt dan het veld
+  van stap A); `LD_AR_OK = false` zet het hele gedeelde veld uit (de gewone modus, met het live beeld); `LD_RTDB_URL = ''`
+  zet alles uit wat de Realtime Database gebruikt (precies 0.32.9).
+- **Privacy.** Het privacybeleid (punt 6a, 8, 13 en 14) beschrijft de lijst met gebeurtenissen: wat erin staat, wie hem
+  kan lezen (alleen jij, je vriend in dat duel en de server), waar (België) en wanneer hij gewist wordt (samen met het live
+  beeld). De tellingen bij de uitslag gaan mee met de uitslag (na 24 uur, uiterlijk binnen ongeveer twee dagen).
+
+**Hartjes en reclame (ook nieuw in v0.32.11, los van het duel):**
+
+- **Hoogstens 3 hartjes.** Je hebt er nu hoogstens 3 (was 5). Een extra hartjesplek, de keukenbonussen "Extra hartje" en
+  "Tweede extra hartje" (vroeger "Zesde hartje" en "Zevende hartje") en Plus geven er telkens één meer. Elk uur komt er één
+  terug, tot je maximum. Een nieuwe speler begint met 3 hartjes.
+- **Gekochte en gewonnen hartjes houd je altijd.** De 5 hartjes voor € 0,99 en elk hartje als prijs (dagreeks dag 30,
+  keukenwekker op level 100, Plus-kist, Fruitpas, album, rad, weekendspel, Chefstempels, toernooiwinkel, delen, vergoeding)
+  krijg je helemaal, ook boven je maximum. Er wordt niets meer omgezet in sap, en een prijs met hartjes wacht niet meer tot je
+  een hartje kwijt bent. De knop voor 5 hartjes kan je altijd gebruiken. Wat boven je maximum zit, staat als "+2" naast de
+  hartjes, en bovenaan staat "Alle hartjes vol, +2 extra".
+- **Met sap** koop je nog altijd hoogstens 5 hartjes per dag, maar alleen tot je maximum. Ook een extra hartjesplek (met sap
+  gekocht) vult zijn nieuw hartje alleen tot je maximum.
+- **Wie nu meer heeft, houdt ze.** Had je in 0.32.10 bijvoorbeeld 5 hartjes, dan heb je er na de update nog altijd 5. Pas als
+  je onder je maximum zakt, komt er weer elk uur één bij.
+- **Filmpjes.** Bij 0 hartjes kan je een filmpje kijken voor 1 hartje. Dat filmpje en "Verder" na een snee samen: hoogstens 2
+  per dag (was 2 per level per dag). Het filmpje voor 10 minuten onbeperkte hartjes blijft één keer per dag.
+- **Reclame.** Na elke 2 verloren hartjes (ook een poging die je zelf stopt, of die onderbroken werd omdat de app dichtging,
+  kost een hartje en telt mee) komt er één korte reclame, alleen als je het eindscherm verlaat (was: om de 3
+  pogingen, minstens 3 minuten uit elkaar). Nooit in je eerste 5 pogingen, nooit met Reclamevrij of Plus, nooit tijdens een
+  poging.
+- **Fout opgelost: reclame tijdens het spelen.** Tikte je een paar keer snel op Opnieuw terwijl de reclame nog laadde, dan
+  begon de poging al, kwam de reclame er later over en begon de poging soms nog een keer (een hartje extra weg). Nu staat er
+  "Reclame laden..." en doet een tweede tik niets. Is de reclame er niet binnen ongeveer 4 seconden, dan ga je zonder reclame
+  verder, en een reclame die te laat binnenkomt, wordt nooit getoond. Ook een filmpje voor een beloning start maar één keer.
+  Ga je tijdens "Reclame laden..." naar het startscherm van je telefoon, dan begint er geen poging op de achtergrond: je
+  komt terug op het eindscherm. Staat het toestemmingsvenster van Google open, dan wacht het spel tot je het sluit.
+  Een deel hiervan zit in de app zelf (`native/bridge.js`); het zit in de nieuwe app (versionCode 5).
+- **Google Play Console:** de beschrijving van het product `hearts_5` aanpassen (zie de stappen in het MANIFEST).
+
 ## Nieuw in v0.32.10: het live vriendenduel op één gedeeld veld (stap A)
 
 Eerst de server bijwerken, in `native/tourney`: `firebase deploy --only functions,firestore,database` (of `npm run deploy`).
@@ -289,7 +363,8 @@ serverupdate werken.
 - **Fruitpas, trede 30:** gereedschap. Heb je het al, of heb je de pas alleen via Plus, dan krijg je 5 hartjes en 1.000 sap.
 - **Instellingen > Muziek:** kies zelf welke muziek je hoort tijdens het spelen.
 - De Keukensleutel en de startboosts zijn niet meer voor geld te koop. Met sap kan het nog altijd.
-- Hartjes die niet passen, krijg je als sap: 300 sap per hartje.
+- Hartjes die niet passen, krijg je als sap: 300 sap per hartje. (Sinds v0.32.11 niet meer: gekochte en gewonnen hartjes
+  houd je altijd, ook boven je maximum.)
 
 ## Nieuw in v0.32.2
 

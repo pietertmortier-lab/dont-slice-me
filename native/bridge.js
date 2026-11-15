@@ -2,6 +2,9 @@
 // the Android back button and the share sheet. The game only talks to window.FV_NATIVE; without it (the web version) the
 // shop shows "In de app te koop" and the ads are the game's own simulation.
 //
+// v0.32.11 (13 Nov 2026, D12): ads are loaded ahead (FV_NATIVE.prepareAd, one cached per kind) and showAd(kind, placement, opt)
+//   shows one only while the game still waits for it (cancel token, canShow, window.dontsliceme.adCanShow): an ad that is not
+//   ready within about 4 s (reward video 10 s) is skipped and never shown later, and never over a running game.
 // v0.32.6-play (10 Nov 2026):
 // - Plain script, no bundler: the plugins are taken from window.Capacitor.Plugins (Capacitor Android injects them), never from
 //   import('@capacitor-community/admob'), which a WebView cannot resolve.
@@ -39,19 +42,21 @@
     setTimeout(() => end('timeout'), ms); });
 
   // ---- consent and ads: started after FV_NATIVE exists, so the shop works while the player reads the consent form
-  const ads = { ready: false, canRequest: false, privacyRequired: false, busy: null };
-  const initAds = () => ads.busy || (ads.busy = (async () => {
+  // v0.32.11 D12 (R4 review fix): initAds(false) only asks Google whether consent is needed and never opens the form (preloads); initAds()
+  // may open it (the first start, a video the player asked for). formOpen is true while the form is on screen (FV_NATIVE.consentOpen).
+  const ads = { ready: false, canRequest: false, privacyRequired: false, busy: null, busyForm: false, formOpen: false };
+  const initAds = (form = true) => { if (ads.busy) return ads.busyForm || !form ? ads.busy : ads.busy.then(ok => ok || initAds(true)); ads.busyForm = !!form; return (ads.busy = (async () => {
     if (!AdMob) return false;
     try {
       let info = await AdMob.requestConsentInfo();
-      if (info.isConsentFormAvailable && info.status === 'REQUIRED') info = Object.assign({}, info, await AdMob.showConsentForm());
+      if (info.isConsentFormAvailable && info.status === 'REQUIRED') { if (!form) return false; ads.formOpen = true; try { info = Object.assign({}, info, await AdMob.showConsentForm()); } finally { ads.formOpen = false; } }
       ads.canRequest = !!info.canRequestAds; ads.privacyRequired = info.privacyOptionsRequirementStatus === 'REQUIRED';
       if (!ads.canRequest) return false;
       await AdMob.initialize({ initializeForTesting: ADMOB.testing, maxAdContentRating: ADMOB.maxAdContentRating });
       ads.ready = true; return true;
     } catch (e) { console.warn('AdMob consent/init', e); return false; }
     finally { if (!ads.ready) ads.busy = null; } // offline or refused: try again at the next video
-  })());
+  })()); };
 
   let iapReady = false, lastBuy = null; // v0.32.9: the last completed purchase { sku, id, at } (FV_NATIVE.lastPurchase)
   try { if (Purchases) { await Purchases.configure({ apiKey: REVENUECAT.apiKey }); iapReady = true; } } catch (e) { console.warn('RevenueCat init', e); }
@@ -60,23 +65,53 @@
   const plusFrom = info => { const e = info && info.entitlements && info.entitlements.active && info.entitlements.active.plus; // RevenueCat entitlement "plus"
     return e ? { active: true, until: e.expirationDate ? Date.parse(e.expirationDate) : 0, product: e.productIdentifier || '', willRenew: !!e.willRenew } : { active: false, until: 0, product: '', willRenew: false }; };
 
+  // v0.32.11 D12 hearts and ads: one loaded (or loading) ad per kind, so the game can start loading it early (FV_NATIVE.prepareAd) and
+  // showAd does not wait for a fresh load. { p: promise of true/false, ok: null while loading, at }; a loaded ad older than 50 minutes
+  // (AdMob keeps one about an hour) is loaded again; a failed load is forgotten (tried again next time).
+  const prep = { interstitial: null, rewarded: null };
+  // R4 review fix: form = may Google's consent form open for this load (only showAd, which the game waits for; a preload never opens it)
+  const prepareAd = (kind, form) => {
+    const k = kind === 'interstitial' ? 'interstitial' : 'rewarded', c = prep[k];
+    if (c && c.ok === null && form && !c.form) return c.p.then(ok => ok || prepareAd(kind, true)); // a preload that stopped at the consent question: ask again with the form
+    if (c && (c.ok === null || Date.now() - c.at < 50 * 60000)) return c.p;
+    const e = { ok: null, at: Date.now(), p: null, form: !!form };
+    e.p = (async () => {
+      if (!AdMob || (!ads.ready && !(await initAds(!!form)))) return false; // no consent or no ads
+      try { if (k === 'interstitial') await AdMob.prepareInterstitial({ adId: ADMOB.interstitial, isTesting: ADMOB.testing }); else await AdMob.prepareRewardVideoAd({ adId: ADMOB.rewarded, isTesting: ADMOB.testing }); return true; }
+      catch (err) { console.warn('ad prepare', k, err); return false; }
+    })().then(ok => { e.ok = ok; e.at = Date.now(); if (!ok && prep[k] === e) prep[k] = null; return ok; });
+    prep[k] = e; return e.p;
+  };
+
   window.FV_NATIVE = {
     platform: 'android', adsTesting: ADMOB.testing,
-    // kind: 'rewarded' | 'interstitial'. Resolves true when the player may receive the reward (or the interstitial ended).
-    async showAd(kind, placement) {
-      const fv = window.dontsliceme; if (fv && fv.adFree && fv.adFree()) return true; // Reclamevrij or Plus: no video at all, the reward comes at once (what the shop promises)
-      if (!ads.ready && !(await initAds())) return kind === 'interstitial'; // no consent or no ads: never block the player, never pay a reward
+    // kind: 'rewarded' | 'interstitial'. Resolves true when the player may receive the reward (or the interstitial ended or was skipped).
+    // v0.32.11 D12: opt { token, waitMs, canShow, onShow } from the game. The ad is shown only when it is ready within waitMs (interstitial
+    // 4 s, reward video 10 s) and the game still waits for it (token not cancelled, canShow() true, the game's adCanShow() true): never over
+    // a running game. A late ad is never shown for that request; it stays loaded for the next one. onShow() is called right before it shows.
+    async showAd(kind, placement, opt) {
+      const o = opt || {}, tok = o.token || {}, fv = window.dontsliceme, inter = kind === 'interstitial';
+      if (fv && fv.adFree && fv.adFree()) return true; // Reclamevrij or Plus: no video at all, the reward comes at once (what the shop promises)
+      const may = () => !tok.cancelled && (typeof o.canShow !== 'function' || !!o.canShow()) && !(fv && typeof fv.adCanShow === 'function' && !fv.adCanShow());
+      const wait = o.waitMs > 0 ? o.waitMs : inter ? 4000 : 10000;
+      const ready = await new Promise(res => { let done = false, end = Date.now() + wait; const iv = setInterval(() => { if (ads.formOpen) end = Date.now() + wait; else if (Date.now() >= end) fin('late'); }, 100); // R4 review fix: the wait stands still while the consent form is open and starts again when it closes
+        function fin(v) { if (done) return; done = true; clearInterval(iv); res(v); }
+        prepareAd(kind, true).then(fin, () => fin(false)); });
+      if (ready !== true) return inter; // no consent, no ad, or not ready in time: never block the player, never pay a reward (a late ad keeps loading for next time)
+      if (!may()) return inter; // the game stopped waiting (it went on, or a run is going): never show
+      prep[inter ? 'interstitial' : 'rewarded'] = null; // this loaded ad is used now
       try {
-        if (kind === 'interstitial') {
-          await AdMob.prepareInterstitial({ adId: ADMOB.interstitial, isTesting: ADMOB.testing });
-          const end = first(AdMob, [EV.iDismissed, EV.iFailShow], 120000); await AdMob.showInterstitial(); await end; return true;
-        }
-        await AdMob.prepareRewardVideoAd({ adId: ADMOB.rewarded, isTesting: ADMOB.testing });
+        if (typeof o.onShow === 'function') o.onShow();
+        if (inter) { const end = first(AdMob, [EV.iDismissed, EV.iFailShow], 120000); await AdMob.showInterstitial(); await end; return true; }
         let rewarded = false; const off = listen(AdMob, EV.reward, () => { rewarded = true; });
         const end = first(AdMob, [EV.rDismissed, EV.rFailShow], 180000);
         await AdMob.showRewardVideoAd(); await end; off(); return rewarded;
       } catch (e) { console.warn('ad', placement, e); return false; }
     },
+    // v0.32.11 D12: start loading an ad of this kind in the background (cached); resolves true when one is ready.
+    prepareAd: kind => prepareAd(kind, false), // R4 review fix: a preload never opens Google's consent form
+    // R4 review fix: true while Google's consent form (opened by a video request) is on screen; the game's own wait stands still meanwhile
+    consentOpen: () => !!ads.formOpen,
     // Whether the game should show a "Privacy en advertenties" button (Google's privacy options form exists for this player).
     privacyOptionsRequired: () => ads.privacyRequired,
     async privacyOptions() { if (!AdMob) return false; try { await AdMob.showPrivacyOptionsForm(); const info = await AdMob.requestConsentInfo(); ads.canRequest = !!info.canRequestAds; return true; } catch (e) { console.warn('privacy options', e); return false; } },

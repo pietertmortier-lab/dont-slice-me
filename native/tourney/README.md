@@ -306,3 +306,33 @@ about 5 s). The beats every 3 s, `ldend`, `ldres`, the score caps, the settle an
 - Switches in `index.js`, each followed by a redeploy of the function, no app update needed:
   - `LD_AR_OK = false`: no shared arena; the live view (RTDB) stays.
   - `LD_RTDB_URL = ''`: everything off: no live view, no arena, no RTDB call at all (the full v0.32.9 duel).
+
+## v0.32.11 Stap B (claims and aimed knives) <!-- v0.32.11 WP5 -->
+
+In a live friend duel where both phones run v0.32.11 (client protocol `v: 4`) with the same world id, both reached RTDB in the lobby
+and this function runs the Stap B server, the lobby gets `ab: 1` at go (next to `ar: 1`). Then the knives aim at each seat in turn,
+cubes and bonus symbols are claimed (earliest touch wins), and the function re-runs the duel's world at settle.
+
+- Seat field `aw` (from `ldanswer` / `ldlobby`, `[A-Za-z0-9]`, at most 8 characters): the world id the phone runs (`'B1'` + 6 hex of
+  the world block's hash). `ab` is fixed once at go: both seats `v >= 4`, both `aw` equal to the id of this function's own
+  `arena-world.js` (it must have `VERSION 'B1'`, `verifyB`, `scheduleB` and `normLog`), and `ar: 1`. `ldView` has `v: 4` and `ab`;
+  older clients ignore both. `arena-world.js` lies next to `index.js` and is uploaded by the functions deploy (since v0.32.10;
+  `firebase.json` source `.`).
+- RTDB: after the go of an `ab` duel the function writes `/ld/{id}/s = startAt` once (raced against 800 ms; on success lobby `abS: 1`,
+  on failure `abTry` + 1, retried only by the next `ldlobby` or `ldres`, at most 3 tries; never in `ldbeat` or `ldend`). Each phone
+  writes its own write-once event log `/ld/{id}/e/{uid}/{n}` (`n` 0-399, `{ k, t, d, at: server time }`); `database.rules.json`
+  enforces write-once, the canonical keys and, when `s` exists, the time window `t` in `[now - s - 1500, now - s + 750]`.
+  The room delete (settle, closed lobby, sweep, account deletion) removes `e` and `s` with it.
+- Beats and finals carry `so`, `cm`, `ed` (0/1: solo world used, claims off by a checksum mismatch, claims off by refused event
+  writes); they are stored sticky on the live doc (`m.fl`). The final also stores `nm` (near-miss sap, 0-200), `ne` (acked events,
+  0-400; absent = -1, unknown), `nr`, `cl`. In an `ab` duel the final's own capped score replaces the beat maximum.
+- Settle verification (`ldSettle`, before the transaction): only for an `ab` duel whose two seats have ended. Each seat needs a final
+  with `ne` and no flag; then the function reads `/ld/{id}/e` once (at most 2 s RTDB time per call in total, one re-read when a log
+  is shorter than its `ne`), runs `ARENA.verifyB` and counts per seat `min(reported, verified claims + min(nm, PB.NM_MAX))`.
+  It can only lower a score. Anything doubtful (switch off, module missing, read failure or timeout, a thrown verification, a final
+  that arrived meanwhile, a flag, no final, no `ne`, a short log) gives **both** seats today's scoring (the capped reported score).
+  The result keeps `ver` (`{ ok: 1, a, b }` or `{ ok: 0, why }`) for the debug overlay.
+- Switches in `index.js`: `LD_AB_OK = false` + redeploy: every new duel between two v0.32.11 phones plays the Stap A arena, and
+  settles of running `ab` duels skip the verification. `LD_AR_OK = false` (or `LD_RTDB_URL = ''`): today's mode.
+- Deploy: `firebase deploy --only functions,firestore,database` (or `npm run deploy`), functions and database together, before the
+  game is pushed.

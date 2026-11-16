@@ -1,4 +1,4 @@
-# Don't Slice Me! - het stappenplan naar Google Play (16 november 2026, spel v0.32.10 in de interne test (zo genoteerd op 12 november; staat v0.32.11 er al in, dan is dat de versie), v0.32.11 uitgebracht in je repo, v0.32.12, v0.32.13 en v0.32.14 klaar om te uploaden)
+# Don't Slice Me! - het stappenplan naar Google Play (16 november 2026, spel v0.32.10 in de interne test (zo genoteerd op 12 november; staat v0.32.11 er al in, dan is dat de versie), v0.32.11 uitgebracht in je repo, v0.32.12, v0.32.13, v0.32.14 en v0.32.15 klaar om te uploaden)
 
 Dit is het enige actuele stappenplan. Het vervangt de versie van 23 oktober (v0.24.2). Elke stap is één handeling;
 onder de stap staat wat je dan ziet. Stappen met **[GEDAAN]** zijn al klaar (stand 13 november 2026, 's nachts; de delen
@@ -13,6 +13,7 @@ Wat erbij hoort, in deze repository:
 - `store/winkelteksten.md`: titel, korte en lange beschrijving (NL en EN) en "Wat is er nieuw".
 - `store/producten-play.md`: de producten met ID, prijs en soort.
 - `PLAY-CONSOLE-v0.32.12.md`: wat je in Play Console doet bij v0.32.12 (de drie ticketproducten op inactief).
+- `PLAY-CONSOLE-v0.32.15.md`: wat je in Play Console doet bij v0.32.15 (de namen van de twee sappotten, de verdubbelaar op € 1,99).
 - `promo/screens/nl-1.png` ... `nl-6.png` en `en-1.png` ... `en-6.png`: de nieuwe schermafbeeldingen (v0.32.6).
 - `promo/feature-graphic-nl.png` en `-en.png`: bijgewerkt (28 fruitsoorten, live vriendenduel).
 - `native/`: de Android-schil (Capacitor 8) met je AdMob-codes, `native/README.md` voor de technische details,
@@ -41,7 +42,7 @@ Bronnen bij de regels van Google (opgezocht op 10 november 2026):
 | Firebase | project `dont-slice-me`, web-app, anonieme login, Firestore, Blaze en Google Cloud betaald account (9 november), regels en functies uitgerold (9 november, alle functies), opruimregel `ghosts` actief (9 november), geheim `LIVEDUEL_VAPID` en live duel (10 november); Realtime Database in België (11 november); server, Firestore-regels en Realtime Database-regels van v0.32.10 uitgerold (12 november, `firebase deploy --only functions,firestore,database`; dat dekt ook de server van v0.32.9) | sleutel voor de twee hulpscripts en, optioneel, de TTL-regel (zie "Wat jij nog moet doen voor v0.32.9" hieronder); pushmeldingen in de app: later, deel A |
 | AdMob | account en betalingsprofiel geverifieerd, account goedgekeurd, app met twee blokken (Beloning, Tussenreclame), AVG-toestemmingsbericht gepubliceerd, je telefoon "GSM Pieter" als testapparaat (5 november); de echte codes staan in `native/bridge.js` en `capacitor.config.json` en zitten in de app (sinds 0.32.7) | belastinggegevens, inhoudsclassificatie PG, app-ads.txt, later koppelen aan Google Play, eventueel "Alternatieve toestemmingsverzameling" (deel B) |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus`, `noads`, `pass` (23 oktober); JSON van het serviceaccount geüpload: **Valid credentials**; 9 producten geïmporteerd (`bundle_all` non-consumable, de andere consumable) naast de bestaande `noads` (non-consumable, aan `noads`) en `pass`; `plus_month:monthly` en `plus_year:yearly` aan `plus`; `pass` losgekoppeld van entitlement `pass` (de entitlement blijft, leeg); `don_t_slice_me_pro` is weg; Google-ontwikkelaarsmeldingen gekoppeld (testmelding ontvangen); 2 testaankopen `sap_3000` gelukt, zichtbaar bij Customers > Sandbox (12-13 november, deel G) | testaankoop Reclamevrij en "Aankopen herstellen" (deel G, stap 11). De Fruitpas per seizoen is beslist (15 november, keuze 2A): `pass` blijft aan geen entitlement hangen; niets te doen |
-| Pc | Node v24.21.0, npm, Git, firebase-tools 15.35.0, Android Studio met SDK en emulator "Medium Phone API 37.0", jbr-17 met het Norton-certificaat (23 oktober); je repo staat in `C:\Users\piete\dont-slice-me`; Capacitor 8-project, upload-sleutel (`C:\Users\piete\sleutels\dontsliceme-upload.jks`) en ondertekende bundels gebouwd (11-12 november, laatste versionCode 4) | bij elke nieuwe versie: `git pull`, `npm run sync`, `versionCode` +1 (v0.32.11 wordt versionCode 5, v0.32.12 versionCode 6, v0.32.13 versionCode 7, v0.32.14 versionCode 8; sla je v0.32.12 over, dan wordt v0.32.13 toch versionCode 7; sla je v0.32.12 of v0.32.13 over, dan wordt v0.32.14 toch versionCode 8) |
+| Pc | Node v24.21.0, npm, Git, firebase-tools 15.35.0, Android Studio met SDK en emulator "Medium Phone API 37.0", jbr-17 met het Norton-certificaat (23 oktober); je repo staat in `C:\Users\piete\dont-slice-me`; Capacitor 8-project, upload-sleutel (`C:\Users\piete\sleutels\dontsliceme-upload.jks`) en ondertekende bundels gebouwd (11-12 november, laatste versionCode 4) | bij elke nieuwe versie: `git pull`, `npm run sync`, `versionCode` +1 (v0.32.11 wordt versionCode 5, v0.32.12 versionCode 6, v0.32.13 versionCode 7, v0.32.14 versionCode 8, v0.32.15 versionCode 9; sla je v0.32.12 over, dan wordt v0.32.13 toch versionCode 7; sla je v0.32.12 of v0.32.13 over, dan wordt v0.32.14 toch versionCode 8; sla je v0.32.12, v0.32.13 of v0.32.14 over, dan wordt v0.32.15 toch versionCode 9) |
 | GitHub | repo `dont-slice-me` met Pages (testlink), privacybeleid online (laatste versie met v0.32.10) | later de repo `pietertmortier-lab.github.io` voor app-ads.txt (deel B, stap 8) |
 
 ### Wat Claude nog in het spel moet herstellen (jij hoeft hier niets voor te doen)
@@ -170,6 +171,22 @@ Wat er in het spel verandert: in het Mes van de dag telt de levelbalk klontjes (
 er vallen iets meer klontjes, na een level is er maar een halve seconde rust en de messen worden de hele poging sneller (na ongeveer
 45 seconden ook twee tegelijk), en de prijs voor level 100 kan daar niet meer. Je sap per klontje blijft even hoog. Niets nieuws in
 het bewaarde spel; het privacybeleid blijft zoals in v0.32.13.
+
+Wat jij moet doen bij v0.32.15 (16 november; bevat v0.32.14, v0.32.13 en v0.32.12, dus je mag die overslaan en meteen v0.32.15 uploaden):
+- Staat v0.32.11 nog niet in de interne test? Zet die er dan eerst in ("Wat jij moet doen bij v0.32.11" hierboven en `TESTLIJST-v0.32.11.md`).
+- Sla je v0.32.13 over? Dan gelden `TESTLIJST-v0.32.13.md` stap 0 (alleen als je telefoon nog v0.32.11 heeft, vóór je iets nieuws uploadt) en stap 14 (de drie
+  ticketproducten op inactief, pas nadat je zelf bijwerkte) nog altijd, als je ze nog niet deed.
+- Geen server: v0.32.15 verandert niets aan de functies of regels van Firebase. Geen `firebase deploy`.
+- De app: `git pull`, dan in `native` `npm run sync` (`index.html` is veranderd). De app wordt **versionCode 9**, versionName "0.32.15".
+  Zet hem in de interne test zoals altijd (deel E, stap 4, 6, 7 en 8), met de releaseopmerkingen voor v0.32.15 uit `store/winkelteksten.md`.
+- Pas **daarna** (en nadat je zelf bijwerkte): in Play Console de nieuwe namen van `sap_3000` en `sap_10000` en de prijs € 1,99 van
+  `doubler_1h` (`PLAY-CONSOLE-v0.32.15.md`). In RevenueCat hoeft niets.
+- Testen: `TESTLIJST-v0.32.15.md` (de stappen staan er één voor één in).
+Wat er in het spel verandert: hartjes, startboosts, het Reeksschild en de sapverdubbelaar met sap kosten één keer per ronde van 30
+levels wat meer sap (je hoogste level telt; level 1-30 blijft hetzelfde); de twee sappotten heten Kleine en Grote sappot en geven meer
+sap op hogere levels; de verdubbelaar met geld kost € 1,99; wie al op level 31 of hoger zat, ziet één keer een uitlegkaartje; de
+bonusrun van de Jacht op de Gouden Vork gebruikt geen klaargezette startboost meer. Wat je al had, blijft. Niets nieuws in het
+bewaarde spel; het privacybeleid en de voorwaarden blijven zoals ze waren.
 
 Voor de **productie**:
 12. **[BESLIST, 15 november: 3A, gebouwd in v0.32.12]** De Fruitmanden met wisselende prijs zijn weg; alleen Alles-in-één

@@ -58,6 +58,48 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.15: sapprijzen groeien mee met je ronde
+
+Geen server-update (geen `firebase deploy`). v0.32.15 bevat alles van v0.32.14 en ouder: staat v0.32.12, v0.32.13 of v0.32.14 nog
+niet in de interne test, dan mag je die overslaan en meteen v0.32.15 uploaden. Wat in `TESTLIJST-v0.32.13.md` bij stap 0 (alleen als
+je telefoon nog v0.32.11 heeft, vóór je iets nieuws uploadt) en stap 14 (de drie ticketproducten op inactief, pas nadat je zelf
+bijwerkte) staat, geldt dan nog altijd: doe het als het nog niet gedaan is. Typ daarna in de map `native` `npm run sync`
+(`index.html` en `native/package.json` zijn veranderd); de app wordt versionCode 9, versionName 0.32.15. Testen en uploaden:
+`TESTLIJST-v0.32.15.md`. Pas **na** de upload pas je in Play Console de twee sappotten en de prijs van de verdubbelaar aan
+(`PLAY-CONSOLE-v0.32.15.md`). Dit zijn jouw keuzes van 15 november (1A, 2A, 3A en 4A).
+
+- **Prijzen per ronde van 30 levels.** Je hoogste level telt. Hartjes, startboosts, het Reeksschild en de sapverdubbelaar
+  kosten één keer per ronde wat meer sap. Level 1 tot 30 blijft precies zoals vroeger. Zo is het nu:
+  - **Level 1 tot 30:** een hartje 300 sap (het 4e van de dag 400, het 5e 500), een startboost 150, het Reeksschild 300,
+    een uur verdubbelaar met sap 30.000.
+  - **Level 31 tot 60:** een hartje 500 (4e 650, 5e 850), een startboost 250, het Reeksschild 500, de verdubbelaar 30.000.
+  - **Level 61 tot 90:** een hartje 1.000 (4e 1.300, 5e 1.700), een startboost 500, het Reeksschild 1.000, de verdubbelaar 30.000.
+  - **Level 91 tot 120:** een hartje 2.000 (4e 2.700, 5e 3.300), een startboost 1.000, het Reeksschild 2.000, de verdubbelaar 30.000.
+  - **Level 121 tot 150:** een hartje 3.000 (4e 4.000, 5e 5.000), een startboost 1.500, het Reeksschild 3.000, de verdubbelaar 36.000.
+  - **Vanaf level 151:** een hartje 5.000 (4e 6.500, 5e 8.500), een startboost 2.500, het Reeksschild 5.000, de verdubbelaar
+    60.000. Duurder wordt het daarna niet meer.
+  Nog altijd hoogstens 5 hartjes met sap per dag. Is de verdubbelaar de Dagdeal, dan kost hij de helft. Hartjesplekken, Snelle
+  hartjes, de Keukensleutel en alles met geld behalve de verdubbelaar kosten hetzelfde als vroeger.
+- **De sappotten groeien mee.** Ze heten nu **Kleine sappot** (€ 0,99) en **Grote sappot** (€ 2,49). De Kleine geeft
+  3.000 sap tot level 60, 6.000 op level 61-90, 12.000 op 91-120, 18.000 op 121-150 en 30.000 vanaf 151. De Grote geeft
+  10.000 tot level 60, 20.000 op 61-90, 40.000 op 91-120, 60.000 op 121-150 en 100.000 vanaf 151. Je krijgt altijd minstens
+  het getal dat er stond toen je tikte, en meer als je intussen een ronde verder bent.
+- **De sapverdubbelaar met geld kost € 1,99** (was € 0,99). Het blijft 1 uur dubbel sap. Zet de prijs in Play Console pas op
+  € 1,99 na de upload; tot dan vraagt Google nog € 0,99.
+- **Wat je al hebt, blijft van jou.** Boosts, Reeksschilden, sleutels, hartjes, hartjesplekken en de tijd van een lopende
+  verdubbelaar blijven gewoon.
+- **Uitleg in het spel.** Zat je al op level 31 of hoger toen je bijwerkte, dan zie je één keer een kaartje "Nieuw: sapprijzen
+  groeien mee met je ronde" bovenaan in de winkel (kort ook op het hartjesscherm). Het blijft tot je OK tikt of de app
+  herstart, en komt daarna niet terug. In de winkel en op het hartjesscherm staat altijd een regel "Prijsniveau: ronde N
+  (level ...)". Haal je voor het eerst level 31, 61, 91, 121 of 151, dan zegt de levelbanner één keer "Nieuwe ronde:
+  sapprijzen gaan mee omhoog". Alles ook in het Engels.
+- **Jacht op de Gouden Vork.** In de bonusrun wordt geen klaargezette startboost meer gebruikt (ook niet het gratis Schild van
+  Plus). Hij blijft klaarstaan voor je volgende gewone poging.
+- Ga je omhoog terwijl de winkel, het hartjesscherm of Vandaag (het Reeksschild) openstaat, dan betaal je nooit een oude prijs: de
+  eerste tik toont de nieuwe prijs, de tweede koopt.
+- Niets nieuws in je bewaarde spel (alleen een vinkje "kaartje gezien" in de bestaande opslag); oude spellen laden gewoon. Het
+  privacybeleid en de voorwaarden blijven zoals ze waren (er gaat niets nieuws naar iemand, en ze noemen geen prijzen).
+
 ## Nieuw in v0.32.14: het Mes van de dag is korter en harder
 
 Geen server-update (geen `firebase deploy`). v0.32.14 bevat alles van v0.32.13 en ouder: staat v0.32.12 of v0.32.13 nog niet

@@ -1,4 +1,4 @@
-# Producten voor Google Play en RevenueCat (15 november 2026: spel v0.32.10 in de test; v0.32.11 uitgebracht in je repo, v0.32.12 in aanbouw)
+# Producten voor Google Play en RevenueCat (16 november 2026: spel v0.32.10 in de test; v0.32.11 uitgebracht in je repo, v0.32.12 tot en met v0.32.15 klaar om te uploaden)
 
 Deze lijst komt rechtstreeks uit het spel: `PRODUCTS` en `skuFor()` in `index.html` (v0.32.10: regel 7282-7283) en de prijzen
 op de knoppen van de winkel (`openShop`, v0.32.10: vanaf regel 8374). Vanaf v0.32.12 (jouw keuzes 1A, 2A, 3A en 4A van
@@ -22,14 +22,18 @@ staan in RevenueCat met de soort en entitlement uit de tabel. Wat je precies dee
 Zet ze in Play Console pas op inactief als v0.32.12 in de interne test staat (zie `PLAY-CONSOLE-v0.32.12.md`). In RevenueCat
 hoeft niets.
 
+**Nieuw in v0.32.15 (16 november 2026, nog niet in de interne test):** de sappotten groeien mee met je ronde en heten Kleine
+sappot en Grote sappot; de sapverdubbelaar kost € 1,99. De product-ID's blijven. Pas naam, beschrijving en prijs aan in Play
+Console als v0.32.15 in de interne test staat (zie `PLAY-CONSOLE-v0.32.15.md` en deel E, punt 7). In RevenueCat hoeft niets.
+
 ## A. Maak deze aan voor de interne en de gesloten test
 
 | Product-ID | Naam in de winkel (NL) | Prijs in het spel | Soort in Play | RevenueCat | Entitlement | Wat je krijgt |
 |---|---|---|---|---|---|---|
-| `sap_3000` | 3.000 sap | € 0,99 | eenmalig | consumable | - | 3.000 sap |
-| `sap_10000` | 10.000 sap | € 2,49 | eenmalig | consumable | - | 10.000 sap |
+| `sap_3000` | Kleine sappot (EN: Small juice pot; tot en met v0.32.14: 3.000 sap) | € 0,99 | eenmalig | consumable | - | minstens 3.000 sap, meer op hogere levels. Level 1-60: 3.000 · 61-90: 6.000 · 91-120: 12.000 · 121-150: 18.000 · vanaf 151: 30.000. Het spel geeft het hoogste van "het getal in de winkel toen je tikte" en "het getal nu" (v0.32.15). Oudere versies geven 3.000 |
+| `sap_10000` | Grote sappot (EN: Big juice pot; tot en met v0.32.14: 10.000 sap) | € 2,49 | eenmalig | consumable | - | minstens 10.000 sap, meer op hogere levels. Level 1-60: 10.000 · 61-90: 20.000 · 91-120: 40.000 · 121-150: 60.000 · vanaf 151: 100.000. Zelfde regel als hierboven. Oudere versies geven 10.000 |
 | `hearts_5` | 5 hartjes | € 0,99 | eenmalig | consumable | - | 5 hartjes, ook boven je maximum (sinds v0.32.11). Nieuwe beschrijving in Play Console: deel E, punt 5 |
-| `doubler_1h` | Sapverdubbelaar 1 uur | € 0,99 | eenmalig | consumable | - | 1 uur dubbel sap (max 5 uur opgeteld) |
+| `doubler_1h` | Sapverdubbelaar 1 uur | **€ 1,99** (vanaf v0.32.15; was € 0,99) | eenmalig | consumable | - | 1 uur dubbel sap (max 5 uur opgeteld). Met sap kost een uur 30.000 tot level 120, 36.000 op level 121-150 en 60.000 vanaf level 151 |
 | `coins_5` | 5 spelletjesmunten | € 0,99 | eenmalig | consumable | - | 5 munten voor de losse spelletjes onder Dagmes |
 | `pass` | Fruitpas | € 4,99 | eenmalig | consumable | geen (losgekoppeld op 12 november; de entitlement `pass` blijft, leeg) | het betaalde spoor van dit seizoen (een kalendermaand): hartjes, schilden, sap en gereedschap. Vanaf v0.32.12: de koopknop zegt tot wanneer het seizoen loopt ("geldt tot 30 november, nog 17 dagen"); in de laatste 3 dagen van de maand is hij niet te koop; "Aankopen herstellen" geeft hem nooit terug (keuze 2A) |
 | `noads` | Reclamevrij | € 3,99 | eenmalig | **non-consumable** | `noads` | geen filmpjes meer; je krijgt de beloning meteen (de brug slaat de video over, zie `native/bridge.js`) |
@@ -91,6 +95,10 @@ spelvormen, alles is ook met spelen te verdienen, geen pure cosmetica.
     bijwerkt; een duel tegen zo iemand werkt gewoon. Daarom mag de winkeltekst nu weer zeggen: "in duels telt alleen
     hoe goed je speelt" (zie winkelteksten.md, EERLIJK SPELEN).
   - Sap, hartjes, verdubbelaar, munten, Reclamevrij, Fruitpas: maken het sneller, niet sterker in een wedstrijd.
+  - **[v0.32.15, jouw keuzes 1A-4A]** Sapprijzen groeien per ronde van 30 levels mee (hartjes, startboosts, Reeksschild,
+    verdubbelaar). Hartjes en startboosts tellen alleen in gewone pogingen; sinds v0.32.15 ook niet meer in de bonusrun van
+    de Jacht op de Gouden Vork (die telt op de toernooiladder): daar wordt geen klaargezette startboost gebruikt, ook niet
+    het gratis Schild van Plus. Geen enkel europroduct verkoopt een boost, een Reeksschild of een hartjesplek.
   - **[OPGELOST in v0.32.12, jouw keuze 1A van 15 november]** Toernooitickets zijn nergens meer te koop: `tickets_5`,
     `tickets_15` en `weekpass` zijn weg, Plus geeft geen extra ticket, en het ticket voor sap en het ticket na een
     filmpje zijn ook weg. Iedereen krijgt elke dag 10 gratis tickets. Zo heeft wie betaalt geen extra pogingen in het
@@ -106,7 +114,7 @@ is weg in v0.32.12 (er staat nu alleen "Kost ... sap."): losse fruit is alleen m
 
 ## E. In Play Console en RevenueCat
 
-**[GEDAAN, 12-13 november]** Punt 1 tot 4 zijn gedaan; punt 5 doe je bij v0.32.11, punt 6 bij v0.32.12.
+**[GEDAAN, 12-13 november]** Punt 1 tot 4 zijn gedaan; punt 5 doe je bij v0.32.11, punt 6 bij v0.32.12, punt 7 bij v0.32.15.
 
 1. **[GEDAAN, 12 november]** Prijzen: vul de europrijs in voor België; laat Google de andere landen omrekenen.
    Wat er echt gebeurde: "Prijzen instellen" las het eurobedrag als bedrag **zonder** btw. Daarom zette je bij
@@ -143,3 +151,10 @@ is weg in v0.32.12 (er staat nu alleen "Kost ... sap."): losse fruit is alleen m
 6. **[NOG TE DOEN, bij v0.32.12]** Zet `tickets_5`, `tickets_15` en `weekpass` op **inactief**, maar pas als v0.32.12 in de
    interne test staat en je zelf hebt bijgewerkt (de stappen staan in `PLAY-CONSOLE-v0.32.12.md`). Niet verwijderen: een
    aankoop die nog binnenkomt, zet het spel om in sap. In RevenueCat hoeft niets (laat de producten daar staan).
+7. **[NOG TE DOEN, bij v0.32.15]** `sap_3000` en `sap_10000`: nieuwe naam en beschrijving; `doubler_1h`: prijs € 1,99 met
+   de hand voor België en Nederland (zoals punt 1). Pas als v0.32.15 in de interne test staat en je zelf hebt bijgewerkt
+   (`PLAY-CONSOLE-v0.32.15.md`, stap 3 tot 5). De beschrijvingen:
+   - `sap_3000`: EN "At least 3,000 juice, more at higher levels. You see the amount before you buy." /
+     NL "Minstens 3.000 sap, op hogere levels meer. Je ziet het aantal vóór je koopt."
+   - `sap_10000`: EN "At least 10,000 juice, more at higher levels. You see the amount before you buy." /
+     NL "Minstens 10.000 sap, op hogere levels meer. Je ziet het aantal vóór je koopt."

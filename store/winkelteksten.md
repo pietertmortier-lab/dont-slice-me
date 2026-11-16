@@ -21,6 +21,8 @@ veranderen.** Wil je het eerlijke toernooi in de winkel zetten, dan mag je onder
 - onder EERLIJK SPELEN (Nederlands): "• Toernooitickets koop je niet: iedereen krijgt er elke dag 10 gratis." *(70)*
 - onder FAIR PLAY (Engels): "• Tournament tickets are not for sale: everyone gets 10 free every day." *(71)*
 De volledige beschrijving wordt dan NL 2.341 en EN 2.289 tekens (max 4.000).
+v0.32.13 (16 november 2026): je tegenspeler in het live duel zoals die zichzelf ziet, een venster bij elk fruit en een deuntje
+dat niet opnieuw begint. De beschrijving hoeft niet te veranderen; alleen de releaseopmerkingen zijn nieuw (zie hieronder).
 
 Kijk meteen ook bij **Winkelinstellingen** of het veld Website leeg is. Een oudere versie van dit bestand (10 november)
 noemde daar nog `https://pietertmortier-lab.github.io/dont-slice-me/`; staat dat er, maak het veld leeg (NIET NAGEKEKEN wat er nu staat).
@@ -150,6 +152,18 @@ Version 0.32.12: tournament tickets are no longer for sale, everyone gets 10 fre
 </en-US>
 ```
 
+Voor v0.32.13 in de interne test (vervangt het blok hierboven bij die upload; ook als je v0.32.12 oversloeg, want 0.32.13 bevat
+0.32.12; NL 463 en EN 427 tekens, max 500):
+
+```
+<nl-NL>
+Versie 0.32.13: in een live vriendenduel zie je je tegenspeler zoals die zichzelf ziet (meloenhelften, krimpen, bonussen). Tik je op een fruit, dan opent een venster met de uitleg en de koopknop. Het Level Complete-deuntje begint niet meer opnieuw. Ook nieuw (0.32.12): toernooitickets zijn niet meer te koop, iedereen krijgt er elke dag 10 gratis. Testadvertenties: je ziet alleen voorbeeldreclame van Google. Vind je een fout? Mail naar dont.slice.me@gmail.com.
+</nl-NL>
+<en-US>
+Version 0.32.13: in a live friend duel you see your opponent the way they see themselves (melon halves, shrinking, bonuses). Tap a fruit and a window opens with its explanation and the buy button. The Level Complete jingle no longer restarts. Also new (0.32.12): tournament tickets are no longer for sale, everyone gets 10 free every day. Test ads: you only see Google's sample ads. Found a bug? E-mail dont.slice.me@gmail.com.
+</en-US>
+```
+
 Voor de productieversie:
 
 ```
@@ -187,5 +201,5 @@ Don't Slice Me! is on Google Play. Play live against your friends, take on the K
 ## Controle (tekens geteld met een script)
 
 Appnaam NL 30, EN 28. Korte beschrijving NL 68, EN 70. Volledige beschrijving NL 2.270, EN 2.217 (max 4.000; nageteld na v0.32.9;
-met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500).
+met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500). Releaseopmerkingen v0.32.13: NL 463, EN 427 (max 500).
 Wat is er nieuw NL 316, EN 286 (max 500). Geen emoji.

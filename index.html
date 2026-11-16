@@ -522,6 +522,25 @@ a.btn,a.linkbtn{display:inline-flex;align-items:center;justify-content:center;te
 .detail #detail-cs{grid-column:2;grid-row:4;justify-self:start;width:var(--fruit-s);height:var(--fruit-s);margin:4px 0}
 #detail-pedia{grid-column:2;grid-row:5}
 @media (max-width:359px){#detail-price{grid-column:1/-1;grid-row:9;margin-top:8px}#detail-trait{grid-row:10}#detail-xp{grid-row:11}.detail:has(#detail-cs[hidden]) #detail-icon{grid-column:1/-1;justify-self:center}}
+/* v0.32.13 fruit pop-up: the detail card in its own sheet; over the tabs (5), under the reward card (9) and the other pop-ups (10+) */
+#fruitbox{z-index:8}
+#fruitbox .sheet{gap:6px}
+#fruitbox .detail{background:none;border-radius:0;padding:0 0 2px}
+#fruitbox #detail-name{font-size:24px;padding-right:48px;margin-bottom:6px;overflow-wrap:anywhere}
+#fruitbox #detail-trait{grid-row:7;margin-top:12px;font-size:14.5px;line-height:1.38;color:var(--ink)}
+#fruitbox #detail-xp{grid-row:8;margin-top:6px;font-size:12px;line-height:1.35}
+#fruitbox #detail-price{font-size:13px;line-height:1.35;color:var(--ink)}
+/* Kies / Koop / Houden in one strip that stays at the sheet's bottom edge when a long trait makes the sheet scroll (late fruit at 320 x 568) */
+#fruitbox .fp-acts{grid-column:1/-1;grid-row:10;position:sticky;bottom:0;z-index:1;display:flex;flex-direction:column;gap:8px;margin:18px -16px 0;padding:0 16px;background:#241408;box-shadow:0 30px 0 0 #241408}
+#fruitbox .fp-acts::before{content:'';position:absolute;left:0;right:0;top:-18px;height:18px;background:linear-gradient(rgba(36,20,8,0),#241408);pointer-events:none}
+#fruitbox .fp-acts .btn{margin:0;width:100%}
+@media (max-width:359px){#fruitbox #detail-trait{grid-row:7}#fruitbox #detail-xp{grid-row:8}#fruitbox #detail-price{grid-column:1/-1;grid-row:9;margin-top:10px}}
+/* fp-fix: the X stays at the sheet's top right while a long sheet scrolls (a sticky flex item in the place the absolute X had; top:0 is the sheet's 10 px top padding) */
+#fruitbox .closex{position:sticky;top:0;right:auto;align-self:flex-end;margin:-11px -4px -39px 0;z-index:2;background:rgba(36,20,8,.9)}
+/* fp-fix: at <= 359 px the Fruitpedia line gets the full width under the picture (the narrow column broke '0,0 s' apart) */
+@media (max-width:359px){#fruitbox .detail{grid-template-rows:auto}#fruitbox #detail-icon{grid-row:2/6}#fruitbox #detail-cs{grid-row:2/6;align-self:center}#fruitbox #detail-pedia{grid-column:1/-1;grid-row:6;margin-top:6px}}
+/* fp-fix: while the 'Voorgoed van jou' card of Houden shows, the sheet under it steps further back */
+body:has(#reward:not([hidden])) #fruitbox .sheet{filter:brightness(.45)}
 .rw-icon{width:calc(var(--rw-s,64px) + 28px)}
 .rw-icon canvas{width:var(--rw-s,64px);height:var(--rw-s,64px)}
 .rw-icons{max-height:max(52vh,calc(100vh - 288px))}
@@ -608,13 +627,16 @@ canvas.pvthumb{width:var(--thumb);height:var(--thumb);flex:0 0 var(--thumb)}
     <div class="panel">
       <h2>Fruit</h2>
       <p class="small">Elk fruit heeft een eigen eigenschap. Tik een kaartje voor de uitleg en dan op Kies. Vergrendeld fruit koop je met sap; speeltijd maakt een fruit sterker (niveau 5) en goud (niveau 10).</p>
-      <div class="detail">
-        <div class="dicons"><canvas id="detail-icon" width="152" height="152"></canvas><canvas id="detail-cs" width="80" height="80" hidden></canvas></div>
-        <div class="detail-txt"><div class="nm" id="detail-name"></div><div class="tr" id="detail-trait"></div><div class="eur" id="detail-xp"></div><div class="pedia" id="detail-pedia" hidden></div><div class="eur" id="detail-price"></div><button class="btn" id="btn-choose">Kies</button><button class="btn" id="btn-keep" hidden>Houden</button></div>
-      </div>
       <div class="grid" id="fruit-list"></div>
     </div>
   </section>
+  <!-- v0.32.13 fruit pop-up: the detail card of the tapped fruit, in a sheet over the list (no scrolling back up) -->
+  <div id="fruitbox" class="dialog sheetbox" hidden role="dialog" aria-modal="true" aria-labelledby="detail-name"><div class="sheet fruitsheet"><span class="grab"></span><button class="iconbtn closex" id="btn-fruitbox-close" type="button" aria-label="Sluiten" title="Sluiten"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="detail">
+        <div class="dicons"><canvas id="detail-icon" width="152" height="152"></canvas><canvas id="detail-cs" width="80" height="80" hidden></canvas></div>
+        <div class="detail-txt"><div class="nm" id="detail-name"></div><div class="tr" id="detail-trait"></div><div class="eur" id="detail-xp"></div><div class="pedia" id="detail-pedia" hidden></div><div class="eur" id="detail-price"></div><div class="fp-acts"><button class="btn" id="btn-choose">Kies</button><button class="btn" id="btn-keep" hidden>Houden</button></div></div>
+      </div>
+  </div></div>
 
   <section class="screen" id="scr-pause" hidden>
     <div class="panel">
@@ -4009,7 +4031,7 @@ const MUS = {
     on = !!on; if (on === this.ducked) return; this.ducked = on;
     if (this.gain && AU.ctx) { const t = AU.ctx.currentTime; this.gain.gain.cancelScheduledValues(t); this.gain.gain.setTargetAtTime(on || !this.on ? .0001 : .14, t, on ? .04 : .12); }
     if (on) { if (this.cur && !this.cur.failed) this.fadeTo(this.cur, 0, 150, true); return; }
-    if (!save.music3) return;
+    if (!save.music3 || document.hidden) return; // v0.32.13 review: a jingle that ends while the app is in the background must not start the kitchen music there; MUS.start() on return plays it
     if (this.cur && this.cur.key === this.want) { const a = this.cur.a; try { const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} this.fadeTo(this.cur, .55, 350); }
     else this.play(this.want);
   },
@@ -4064,6 +4086,7 @@ const MUS = {
 // v0.31.7 (Pieter): his Level Complete jingle at every completed level, decoded once from the embedded mp3 after the first tap.
 const LVSND = {
   buf: null, loading: false, failed: false, src: null, gain: null, timer: 0, plays: 0, lastLen: 0, SHORT: 5, SHORT_IF: 45000, VOL: .8,
+  skips: 0, until: 0, // v0.32.13 (Pieter 4A): skips = level-ups that got the pling because the jingle was still playing; until = its end on the audio clock
   load() {
     if (this.buf || this.loading || this.failed || !AU.ctx) return; const el = document.getElementById('snd-level'); if (!el) { this.failed = true; return; } this.loading = true;
     try { const bin = atob(el.textContent.replace(/\s+/g, '')), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
@@ -4071,11 +4094,12 @@ const LVSND = {
       const p = AU.ctx.decodeAudioData(u8.buffer, done, fail); if (p && p.catch) p.catch(fail); } catch (e) { this.loading = false; this.failed = true; }
   },
   lengthFor(levelMs) { return !this.buf ? 0 : levelMs < this.SHORT_IF ? Math.min(this.SHORT, this.buf.duration) : this.buf.duration; }, // Pieter: a fast level gets only the first 5 s
-  play(levelMs) {
+  play(levelMs, full) { // v0.32.13 (Pieter 4A): full = the whole jingle (the daily knife's every 10th level)
     if (!AU.ok() || !this.buf) { this.load(); return false; }
-    this.stop(true); const c = AU.ctx, t = c.currentTime, len = this.lengthFor(levelMs), s = c.createBufferSource(), g = c.createGain();
+    if (this.src && AU.ctx.currentTime < this.until) { this.skips++; return false; } // v0.32.13 (Pieter 4A safety rule, every mode): never restart while it plays; the caller plays the pling and the kitchen music comes back at the jingle's own end. A source past its end whose timer has not fired yet is stopped quietly below (stop(true): no un-duck blip, the new jingle ducks again at once)
+    this.stop(true); const c = AU.ctx, t = c.currentTime, len = full ? this.buf.duration : this.lengthFor(levelMs), s = c.createBufferSource(), g = c.createGain();
     s.buffer = this.buf; g.gain.setValueAtTime(this.VOL, t); if (len < this.buf.duration - .05) { g.gain.setValueAtTime(this.VOL, t + Math.max(0, len - .6)); g.gain.linearRampToValueAtTime(.0001, t + len); }
-    s.connect(g); g.connect(c.destination); s.start(t); s.stop(t + len + .05); this.src = s; this.gain = g; this.plays++; this.lastLen = len;
+    s.connect(g); g.connect(c.destination); s.start(t); s.stop(t + len + .05); this.src = s; this.gain = g; this.plays++; this.lastLen = len; this.until = t + len;
     MUS.duck(true); this.timer = setTimeout(() => this.end(), Math.round(len * 1000) + 60); return true;
   },
   end() { this.src = null; this.gain = null; clearTimeout(this.timer); this.timer = 0; MUS.duck(false); AU.idle(); }, // v0.32.8 heat: the context may rest once the jingle is over
@@ -4899,15 +4923,125 @@ function curEase() {
   if (dayRule('stroop')) e *= .5;
   return e;
 }
+// v0.32.13 peer look: the bodies of a fruit as one pure function of its state. setBodies builds my fruit with it and the live duel's
+// drawing of the friend (pkBodies) builds theirs, so both screens get the same halves, cherries, banana pieces and Krimp scale.
+function bodiesOf(f, form, split, lost, r, kf) { let B;
+  if (form === 'pit') B = [{ ox: 0, oy: 0, lx: 0, ly: 0, r, half: 0, id: 0 }];
+  else if (split) { const o = f.r * .62; B = [{ ox: -o, oy: 0, lx: -o, ly: 0, r: f.r * .78, half: -1, id: 0 }, { ox: o, oy: 0, lx: o, ly: 0, r: f.r * .78, half: 1, id: 1 }]; }
+  else if (f.cherries) B = [{ lx: -15, ly: 6, r, half: 0, id: 0 }, { lx: 15, ly: 6, r, half: 0, id: 1 }].filter(b => !lost.has(b.id)).map(b => Object.assign(b, { ox: b.lx, oy: b.ly }));
+  else if (f.layout) B = f.layout.map(([lx, ly, rr], i) => ({ ox: lx * r, oy: ly * r, lx: lx * r, ly: ly * r, r: rr * r, half: 0, id: i }));
+  else B = [{ ox: 0, oy: 0, lx: 0, ly: 0, r, half: 0, id: 0 }];
+  if (kf !== 1) for (const b of B) { b.r *= kf; b.lx *= kf; b.ly *= kf; b.ox *= kf; b.oy *= kf; }
+  return B; }
 function setBodies() {
   const f = fruitDef(), r = curR();
-  if (G.form === 'pit') G.bodies = [{ ox: 0, oy: 0, lx: 0, ly: 0, r, half: 0, id: 0 }];
-  else if (G.split) { const o = f.r * .62; G.bodies = [{ ox: -o, oy: 0, lx: -o, ly: 0, r: f.r * .78, half: -1, id: 0 }, { ox: o, oy: 0, lx: o, ly: 0, r: f.r * .78, half: 1, id: 1 }]; }
-  else if (f.cherries) G.bodies = [{ lx: -15, ly: 6, r, half: 0, id: 0 }, { lx: 15, ly: 6, r, half: 0, id: 1 }].filter(b => !G.lost.has(b.id)).map(b => Object.assign(b, { ox: b.lx, oy: b.ly }));
-  else if (f.layout) G.bodies = f.layout.map(([lx, ly, rr], i) => ({ ox: lx * r, oy: ly * r, lx: lx * r, ly: ly * r, r: rr * r, half: 0, id: i }));
-  else G.bodies = [{ ox: 0, oy: 0, lx: 0, ly: 0, r, half: 0, id: 0 }];
-  if (G.power && G.power.kind === 'klein') { const kf = kleinFactor(G.level); for (const b of G.bodies) { b.r *= kf; b.lx *= kf; b.ly *= kf; b.ox *= kf; b.oy *= kf; } }
+  G.bodies = bodiesOf(f, G.form, G.split, G.lost, r, G.power && G.power.kind === 'klein' ? kleinFactor(G.level) : 1);
 }
+/* v0.32.13 peer look BEGIN */
+// v0.32.13 (Pieter, 15 Nov 2026: always see your opponent the way they see themselves on their own screen). In an ab live duel every sample
+// (ld/{room}/p/{uid}) ends with one more group after ck, the look: L + the rotation (3 base-36 chars over PK_ANG, a whole turn of every
+// rotation factor drawFruit uses: .1 .15 .2 .25 .3 .4 1), the eyes x and y (1 char each, 0..34 = -1..1), fright (1 char, 0..35), the
+// shape and bonus bits (base 36, empty when 0) and extras: .inv (invulnerable time left in 10 ms: the blink), !krimp (kleinFactor x 1000),
+// ~death (blade angle 2, cut body x 2 + side 1 (body 3: none of them, as my drawPlayer when a Krimp rebuilt the bodies), offset 2, dying time 2). Bits: 0 pit, 1 split, 2-3 wedges lost, 4-5 cherry 0 / 1 lost,
+// 6-7 cracks, 8 burst, 9-10 shrink stage, 11-13 bonus look (PK_POW; 7 = a bonus without a look), 14 sprint, 15 Fever, 16 passion shrink,
+// 17-18 cotton-candy bubbles. The friend's phone rebuilds their bodies with bodiesOf and draws them with the same drawFruit arguments at the
+// playhead. Display only: hits, claims, scoring, events and abPeerAt never read it. A sample without the group (an older app) is drawn
+// as before; an older app ignores the group (it reads groups 0-14). The whole message stays <= LD_RT_PMAX (the database rules' limit):
+// first the extras, then the group are left out.
+const PK_ANG = 40 * Math.PI, PK_POW = ['', 'schild', 'magneet', 'dubbel', 'klein', 'spin', 'honing'], LD_RT_PMAX = 128, PK = { run: '', trail: [], tAt: 0, au: '', parts: [], debris: [], prev: null, prevB: null, dfx: false, evAt: 0 };
+const PK_AU = ['schild', 'spin', 'honing', 'magneet', 'dubbel'], PK_SC = [.5, 2]; // the bonus kinds drawPowerAura draws; the size correction's range (fix13)
+const pk36 = (v, n) => { const q = Number.isFinite(v) ? clamp(Math.round(v), 0, Math.pow(36, n) - 1) : 0; return q.toString(36).padStart(n, '0'); };
+function pkMsg() { // my own look now, as my drawPlayer draws it
+  const f = fruitDef(), P = G.power ? G.power.kind : '', pi = P ? PK_POW.indexOf(P) : 0, ang = f.rotates ? G.spin : G.ang, a = ((ang % PK_ANG) + PK_ANG) % PK_ANG;
+  const bits = (G.form === 'pit' ? 1 : 0) | (G.split ? 2 : 0) | Math.min(3, G.segLost | 0) << 2 | (G.lost && G.lost.has(0) ? 16 : 0) | (G.lost && G.lost.has(1) ? 32 : 0) | clamp((f.armor || 0) - (G.armor | 0), 0, 3) << 6
+    | (G.burstDone ? 256 : 0) | Math.min(3, G.shrinkStage | 0) << 9 | (pi < 0 ? 7 : pi) << 11 | (G.sprint > 0 ? 1 << 14 : 0) | (G.fever > 0 ? 1 << 15 : 0) | (G.passT > 0 ? 1 << 16 : 0) | Math.min(3, G.bubble | 0) << 17;
+  let s = 'L' + pk36(Math.round(a / PK_ANG * 46656) % 46656, 3) + pk36((clamp(G.lookX, -1, 1) + 1) * 17, 1) + pk36((clamp(G.lookY, -1, 1) + 1) * 17, 1) + pk36(clamp(G.scared, 0, 1) * 35, 1) + (bits ? bits.toString(36) : '');
+  if (G.inv > 0 && G.state === 'play') s += '.' + pk36(Math.ceil(G.inv / 10), 2);
+  if (P === 'klein') s += '!' + pk36(kleinFactor(G.level) * 1000, 2);
+  const d = G.death; if (G.state === 'dying' && d) { const bi = G.bodies.indexOf(d.body), ua = ((Math.atan2(d.uy, d.ux) % TAU) + TAU) % TAU, sd = d.nx * -d.uy + d.ny * d.ux >= 0 ? 1 : 0;
+    s += '~' + pk36(Math.round(ua / TAU * 1296) % 1296, 2) + pk36((bi < 0 ? 3 : Math.min(2, bi)) * 2 + sd, 1) + pk36((d.off || 0) * 2 + 648, 2) + pk36(G.dyingT / 10, 2); }
+  return s; }
+function pkCap(m) { let g = ''; try { g = pkMsg(); } catch (e) { return m; } if (m.length + 1 + g.length > LD_RT_PMAX) g = g.replace(/[.!~].*$/, ''); return m.length + 1 + g.length > LD_RT_PMAX ? m : m + '|' + g; } // never over the rules' 128
+function pkParse(g, size, st) { // the friend's look group (with their sample's size and state groups) (untrusted text: a fixed alphabet, masks and clamps); null = none or unreadable
+  const m = /^L([0-9a-z]{3})([0-9a-z])([0-9a-z])([0-9a-z])([0-9a-z]{0,5})((?:[.!~][0-9a-z]{1,7}){0,3})$/.exec(String(g || '')); if (!m) return null;
+  const P = s => parseInt(s, 36) || 0, b = m[5] ? P(m[5]) : 0, L = { ang: P(m[1]) / 46656 * PK_ANG, lx: clamp(P(m[2]) / 17 - 1, -1, 1), ly: clamp(P(m[3]) / 17 - 1, -1, 1), sc: clamp(P(m[4]) / 35, 0, 1),
+    pit: !!(b & 1), split: !!(b & 2), seg: b >> 2 & 3, lost: (b >> 4 & 3) === 3 ? 0 : b >> 4 & 3 /* fix13: never both cherries (their second cut is their death): a look never hides them */, cracks: b >> 6 & 3, burst: !!(b & 256), stage: b >> 9 & 3, pow: PK_POW[b >> 11 & 7] || '', sprint: !!(b >> 14 & 1), fever: !!(b >> 15 & 1),
+    passT: !!(b >> 16 & 1), bubble: b >> 17 & 3, inv: 0, kf: 0, death: null, size: clamp(size || 100, 20, 300), st: clamp(st | 0, 0, 9) };
+  const re = /([.!~])([0-9a-z]+)/g; let x; while ((x = re.exec(m[6]))) { const c = x[1], v = x[2];
+    if (c === '.' && v.length === 2) L.inv = P(v) * 10; else if (c === '!' && v.length === 2) L.kf = clamp(P(v) / 1000, .4, 1); /* kleinFactor is .45-.6 */
+    else if (c === '~' && v.length === 7) { const ua = P(v.slice(0, 2)) / 1296 * TAU, q = P(v[2]), ux = Math.cos(ua), uy = Math.sin(ua), sd = q & 1 ? 1 : -1; L.death = { ux, uy, nx: -uy * sd, ny: ux * sd, body: q >> 1 & 3, off: (P(v.slice(3, 5)) - 648) / 2, t: P(v.slice(5, 7)) * 10 }; } }
+  return L; }
+function pkTag(t, L) { const B = RT.buf; for (let i = B.length - 1; i >= 0; i--) if (B[i][0] === t) { if (!B[i][3]) B[i][3] = L; return; } } // the look rides with its sample's buffered position (index 3; abPeerAt copies 0-2)
+function pkAt(ph, nw) { // the friend's look at the playhead: the shape of the last sample at or before it; rotation, eyes and fright eased to the next one
+  const B = RT.buf; let i = -1, first = -1;
+  for (let j = 0; j < B.length; j++) if (B[j][3]) { if (first < 0) first = j; if (B[j][0] <= ph) i = j; else break; }
+  if (!nw || !nw.lk) return null; if (i < 0) i = first; if (i < 0) return Object.assign({}, nw.lk); // the newest sample has no look: an older app (or a too long message): today's drawing
+  const A = B[i], L = Object.assign({}, A[3]), dt = Math.max(0, ph - A[0]); let j = i + 1; while (j < B.length && !B[j][3]) j++;
+  if (j < B.length && ph > A[0]) { const C = B[j], c = C[3], q = clamp((ph - A[0]) / Math.max(1, C[0] - A[0]), 0, 1); let d = c.ang - L.ang; d -= PK_ANG * Math.round(d / PK_ANG); L.ang += d * q; L.lx += (c.lx - L.lx) * q; L.ly += (c.ly - L.ly) * q; L.sc += (c.sc - L.sc) * q; }
+  L.inv = Math.max(0, L.inv - dt); if (L.death) L.death = Object.assign({}, L.death, { t: L.death.t + dt }); return L; }
+function pkCurR(f, L) { if (L.pit) return 8; let r = f.r - (f.segments ? 4 * L.seg : 0); if (f.shrink) r *= 1 - .18 * L.stage; if (f.burst && L.burst) r *= .72; if (L.passT) r *= .7; return r; } // curR's live-duel part
+function pkBodies(k, L) { // the friend's bodies as their setBodies (+ updatePlayer's banana turn) makes them (Krimp: the exact kleinFactor of the duel level when the sent one, in thousandths, is that one); a size this model does not explain scales them
+  const f = FRUITS[k], r0 = pkCurR(f, L), k0 = kleinFactor(LD_LEVEL), kf = L.pow !== 'klein' ? 1 : !L.kf || Math.abs(L.kf - k0) < .0006 ? k0 : L.kf, B = bodiesOf(f, L.pit ? 'pit' : null, L.split, new Set([0, 1].filter(i => L.lost >> i & 1)), r0, kf);
+  const edge = b => Math.hypot(b.ox, b.oy) + (b.half ? b.r / .78 : b.r), got = 100 * r0 * kf / f.r; // edge: a half disc is drawn from its centre outward with radius r / .78
+  let sc = Math.abs(L.size - Math.round(got)) > 1 ? clamp(L.size / got, PK_SC[0], PK_SC[1]) : 1; // fix13: a size the look does not explain scales them by x0.5..x2 at most (in a live duel curR has no factor outside pkCurR)
+  const e0 = B.reduce((m, b) => Math.max(m, edge(b)), 0); if (e0 * sc > 3 * f.r) sc = 3 * f.r / e0; // and never wider than the old drawing's limit: 3 x the fruit radius
+  if (sc !== 1) for (const b of B) { b.r *= sc; b.lx *= sc; b.ly *= sc; b.ox *= sc; b.oy *= sc; }
+  if (f.rotates) { const c = Math.cos(L.ang), s = Math.sin(L.ang); for (const b of B) { b.ox = c * b.lx - s * b.ly; b.oy = s * b.lx + c * b.ly; } }
+  return { b: B, r0: r0 * sc, ext: B.reduce((m, b) => Math.max(m, edge(b)), 0) }; } // ext: the outer edge of their drawn bodies (the ring, label, "over my fruit" alpha)
+function pkDF(w, cx, cy, bob, fev, type, x, y, r, ang, half, o) { // drawFruit for my fruit (w 0), the friend's with a look (1) or without (2); HOOK.pkRec logs the arguments
+  const H = window.dontsliceme; if (H && H.pkRec && H.pkLog.length < 40000) H.pkLog.push({ w, wt: Math.round(ldWtNow()), ph: w ? RT.ph : null, cx, cy, bob, t: type, ox: x - cx, oy: y - cy - bob, r, ang, half: half || 0, cr: o.cracks || 0, sg: o.segLost || 0, stg: o.stage || 0, bu: !!o.burst, lk: (o.look || [0, 0]).slice(), sc: o.scared || 0, a: +ctx.globalAlpha.toFixed(3), fev: !!fev, au: w ? (w === 1 ? PK.au : '') : (G.state === 'play' && G.power && PK_AU.includes(G.power.kind) ? G.power.kind : '') }); // au: the aura this frame draws
+  drawFruit(type, x, y, r, ang, half, o); }
+function pkCut(w, cx, cy, bob, i, x, y, b, f, type, P) { // drawCutFruit for my cut fruit (w 0) or the friend's (1); HOOK.pkRec logs the cut
+  const H = window.dontsliceme; if (H && H.pkRec && H.pkLog.length < 40000) { const d = P ? P.death : G.death; H.pkLog.push({ w, cut: 1, i, wt: Math.round(ldWtNow()), ph: w ? RT.ph : null, cx, cy, t: type, ox: x - cx, oy: y - cy - bob, r: b.r, half: b.half || 0, k: clamp((P ? P.t : G.dyingT) / DYING_MS, 0, 1), off: d.off, ux: d.ux, uy: d.uy, nx: d.nx, ny: d.ny, a: +ctx.globalAlpha.toFixed(3) }); }
+  drawCutFruit(x, y, b, f, type, P); }
+function drawFeverGlow(px, py, bodies, bob) { for (const b of bodies) { const x = px + b.ox, y = py + b.oy + bob, rr = b.r * (2.2 + .25 * Math.sin(drawNow() / 110)), g = ctx.createRadialGradient(x, y, b.r * .6, x, y, rr); g.addColorStop(0, 'rgba(255,200,60,.55)'); g.addColorStop(1, 'rgba(255,140,20,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rr, 0, TAU); ctx.fill(); } }
+// fix13: the friend's hit, bonus and cut effects, as their own onHit / activatePower / updateTricks / die() spawn them on their screen: the juice
+// burst, the eyes-only debris of the pit and of a lost cherry, their hit text ("In twee!", "Partje kwijt!", "De pit!", "Krimp!" ...) in their
+// colours, and at their cut the 60-drop juice burst and the death debris (eyes, tongue, sunglasses, seeds ...). Spawned once when their look
+// at the playhead changes (no new fields), at their drawn position, drawn in my ghost alpha from their own lists (PK.parts / PK.debris; never
+// my G.parts / G.debris, so my share picture and my effects stay mine). Not mirrored: their stains, screen flash / shake, sounds, the lokaas.
+function pkFxDo(fn) { const gp = G.parts, gd = G.debris; G.parts = PK.parts; G.debris = PK.debris; // burst / deathDebris / updateDebris on the friend's lists
+  try { fn(); } catch (e) {} finally { PK.parts = G.parts; PK.debris = G.debris; G.parts = gp; G.debris = gd; }
+  if (PK.parts.length > 240) PK.parts.splice(0, PK.parts.length - 240); if (PK.debris.length > 60) PK.debris.splice(0, PK.debris.length - 60); }
+function pkFxEvents(p, k, L, Q, PB, bob) { const f = FRUITS[k], J = f.juice, D = L.death;
+  if (D && !(Q && Q.death)) { const b = PB.b[D.body] || { ox: 0, oy: 0, r: PB.r0, half: 0 }, bx = p.x + b.ox, by = p.y + b.oy + bob; PK.dfx = true; // their cut: die()'s burst and debris
+    pkFxDo(() => { burst(bx, by, 60, J, 420, D.nx, D.ny); deathDebris(L.pit ? 'pit' : k, bx, by, b.r, D.nx, D.ny, false, b.half); }); return; }
+  const now = nowMs(); if (!Q || D || Q.death || now - PK.evAt < 150) return; // hostile flapping bits: at most one effect every 150 ms (two real hits are >= 700 ms apart)
+  const x = p.x, y = p.y + bob, top = p.y - PB.ext, a = Math.random() * TAU, nx = Math.cos(a), ny = Math.sin(a), T = [], fx = [];
+  if (L.pit && !Q.pit) { fx.push(() => { burst(x, y, 36, J, 340); deathDebris('avocado', x, y, f.r, nx, ny, true); }); T.push(['De pit!', '#fff', 12]); }
+  const nl = L.lost & ~Q.lost; if (nl && f.cherries) { const id = nl & 1 ? 0 : 1, b = (PK.prevB || []).find(q => q.id === id) || { ox: id ? 15 : -15, oy: 6, r: PB.r0 }, cx = x + b.ox, cy = y + b.oy;
+    fx.push(() => { burst(cx, cy, 24, J, 320); deathDebris('kersen', cx, cy, b.r, nx, ny, true); }); T.push(['Eén kers minder!', '#fff', 12]); }
+  if (L.split && !Q.split) { fx.push(() => burst(x, y, 30, J, 320)); T.push(['In twee!', '#fff', 12]); }
+  if (L.seg > Q.seg) { fx.push(() => burst(x, y, 24, J, 300)); T.push(['Partje kwijt!', '#fff', 10]); }
+  if (L.cracks > Q.cracks) { const wipe = f.armorWipe && !arOn(); fx.push(() => burst(x, y, wipe ? 50 : 18, J, wipe ? 520 : 260));
+    if (f.burst && L.burst && !Q.burst) T.push(['Pitten! Ze slurpen sap op', J[0], 26]); if (f.milk) T.push(['Kokosmelk: klontjes glijden naar je toe', '#fff', 26]);
+    if (wipe) { T.push(['Zuur! Alle messen weg', '#fff', 10]); if (f.goldWipe) T.push(['Zure regen: 12 s alleen goud', '#ffd54a', 26]); } else T.push([(f.armor || 0) - L.cracks > 0 ? 'Gekraakt! Nog één' : 'Gekraakt!', '#fff', 10]); }
+  if (Q.pow === 'spin' && L.bubble < Q.bubble) { fx.push(() => burst(x, y, 14, ['#ff9ad5', '#ffffff'], 220)); T.push([L.bubble > 0 ? `Suikerspin! Nog ${L.bubble}` : 'Suikerspin op!', '#ff9ad5', 10]); }
+  if (L.pow && L.pow !== Q.pow && POWERS[L.pow]) { const P = POWERS[L.pow]; fx.push(() => burst(p.x, p.y, 30, [P.col, '#ffffff'], 300)); T.push([P.name + '!', P.col, 22]); }
+  if (f.shrink && L.stage > Q.stage) T.push([L.stage >= 3 ? 'Rozijn! Het mes mikt grof' : 'Gekrompen!', '#e0c6ff', 26]);
+  if (!fx.length && !T.length) return; PK.evAt = now; pkFxDo(() => fx.forEach(g => g())); for (const [s, c, dy] of T) addText(p.x, top - dy, s, c); }
+function pkFxDraw(fa, dying, fever, dt) { const d = dt * (dying ? .12 : fever ? FEVER_SLOW : 1); // their particles in their time scale (die(): .12, Fever slower); their debris flies while they are cut (as their updateDebris)
+  for (const q of PK.parts) { q.t += d; q.vy += q.g * d / 1000; q.x += q.vx * d / 1000; q.y += q.vy * d / 1000; q.vx *= Math.pow(.25, d / 1000); } PK.parts = PK.parts.filter(q => q.t < q.life);
+  if (dying && PK.debris.length) pkFxDo(() => updateDebris(dt * .45));
+  for (const q of PK.debris) { ctx.globalAlpha = fa; drawPiece(q); }
+  for (const q of PK.parts) { ctx.globalAlpha = fa * clamp(1 - q.t / q.life, 0, 1); ctx.fillStyle = q.col; ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, TAU); ctx.fill(); } ctx.globalAlpha = fa; }
+function pkDraw(p, k, L, PB, fa) { // the friend's fruit as their own drawPlayer draws it (trail, stems, Fever glow, blink, bob, cut pieces, then their bonus aura) and their effects (fix13), in my ghost alpha fa
+  if (PK.run !== RT.run) Object.assign(PK, { run: RT.run, trail: [], tAt: 0, parts: [], debris: [], prev: null, prevB: null, dfx: false, evAt: 0 });
+  const f = FRUITS[k], type = L.pit ? 'pit' : k, B = PB.b, bob = Math.sin(drawNow() / 350) * 2, D = L.death, dying = !!D, now = nowMs(), dt = PK.tAt ? clamp(now - PK.tAt, 0, 200) : 0, T = PK.trail, Q = PK.prev; PK.tAt = now; PK.au = !dying && PK_AU.includes(L.pow) ? L.pow : '';
+  if (Q && Q.death && !dying) { PK.parts = []; PK.debris = []; PK.dfx = false; } // they went on after their cut (Verder)
+  pkFxEvents(p, k, L, Q, PB, bob); PK.prev = L; PK.prevB = B;
+  if (dying) T.length = 0; else if (L.sprint) { T.push({ x: p.x, y: p.y, a: .5 }); if (T.length > 10) T.shift(); } else if (T.length) T.shift(); // the sprint trail (Druif, Kersen) from the drawn positions, one point per frame like their updatePlayer (here update and render share each frame); their die() clears it
+  for (const t of T) { t.a *= Math.pow(.02, dt / 1000); ctx.globalAlpha = fa * t.a * .5; ctx.fillStyle = f.juice[1]; ctx.beginPath(); ctx.arc(t.x, t.y, PB.r0 * .8, 0, TAU); ctx.fill(); } ctx.globalAlpha = fa;
+  if (f.cherries && !L.pit) drawCherryStems(p.x, p.y, B);
+  if (L.fever && !dying) drawFeverGlow(p.x, p.y, B, bob);
+  const blink = !dying && L.inv > 0 && Math.floor(L.inv / 90) % 2 === 0;
+  B.forEach((b, i) => { const x = p.x + b.ox, y = p.y + b.oy + bob;
+    if (D && D.body === i) { pkCut(1, p.x, p.y, bob, i, x, y, b, f, type, { death: D, t: D.t, seg: L.seg, cracks: L.cracks, ang: L.ang }); return; }
+    ctx.globalAlpha = fa * (blink ? .45 : 1); drawShadow(x, y, b.r);
+    pkDF(1, p.x, p.y, bob, L.fever && !dying, type, x, y, b.r, L.ang, b.half, { look: [L.lx, L.ly], scared: dying ? 1 : L.sc, cracks: L.cracks, segLost: L.seg, stage: L.stage, burst: L.burst }); ctx.globalAlpha = fa; });
+  if (!dying && L.pow) drawPowerAura(L.pow, p.x, p.y, B, L.bubble);
+  pkFxDraw(fa, dying, L.fever, dt); }
+/* v0.32.13 peer look END */
 // mode: 'normal' (costs a heart), 'daily' (Mes van de dag, seeded, free, one attempt), 'rain' / 'exam' / 'knife'
 // (weekend games, seeded, free). free skips the heart check (tests).
 function startRun(type, free, mode) {
@@ -4978,7 +5112,8 @@ function gainSap(v, bar) { // v0.31: v goes to the wallet, bar (default v) to th
       else addText(G.px, G.py - curR() - 44, `Plus: nog ${10 - pm.n} level${10 - pm.n === 1 ? '' : 's'} en ${FRUITS[G.fruit].name} is van jou`, '#f6c25a');
     }
     const fromLevel = G.level; G.levelSap -= goal; G.level++; G.levelsGained++; G.stepIn = 0;
-    const jingled = LVSND.play(G.t - (G.lvStartT || 0)); G.lvStartT = G.t; /* v0.31.7: the Level Complete jingle; 5 s after a fast level */
+    const dmTen = G.mode === 'daily' ? G.level % 10 === 0 : null; /* v0.32.13 (Pieter 4A): the daily knife gives the short pling per level and the whole jingle at every 10th level (20, 30, ...) */
+    const jingled = dmTen === false ? false : LVSND.play(G.t - (G.lvStartT || 0), dmTen === true); G.lvStartT = G.t; /* v0.31.7: the Level Complete jingle; 5 s after a fast level; v0.32.13: never restarted while it plays (then the pling, SFX.go below) */
     if (G.mode === 'normal' && G.level > save.level) { save.level = G.level; fairLevelUp(); /* v0.32.9 */ const nf = LATE.find(k => FRUITS[k].minLevel === G.level); if (nf) { save.seen['late:' + nf] = true; markFresh('fruit'); G.note = `Nieuw fruit te koop: ${FRUITS[nf].name}`; G.noteT = 4000; } G.topStore = true; } // a reached level is saved the moment it is reached, not only when the run ends (v0.32.8: after its +5, below)
     // the tour jumps stop to stop
     if (G.mode === 'tour' && G.tour) { const nx = G.tour.stops.find(st => st >= G.level); if (nx) G.level = nx; if (G.tour.stops.includes(G.level)) tourArrive(G.level); }
@@ -6831,15 +6966,15 @@ function drawDrop() {
   drawGlyph(d.kind, d.r); ctx.restore();
   ctx.font = `800 ${Math.round(11 + 3 * (powerScale(G.level) - 1))}px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.strokeText('bonus', d.x, d.y + d.r + 6); ctx.fillStyle = '#fff'; ctx.fillText('bonus', d.x, d.y + d.r + 6);
 }
-function drawPowerAura() {
-  const p = G.power; if (!p) return;
-  for (const b of G.bodies) {
-    const x = G.px + b.ox, y = G.py + b.oy;
-    if (p.kind === 'schild') { ctx.fillStyle = 'rgba(90,200,255,.22)'; ctx.beginPath(); ctx.arc(x, y, b.r + 9, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(200,240,255,.8)'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.ellipse(x - b.r * .5, y - b.r * .7, b.r * .35, b.r * .15, -.7, 0, TAU); ctx.fill(); }
-    else if (p.kind === 'spin') { ctx.fillStyle = 'rgba(255,154,213,.28)'; ctx.beginPath(); ctx.arc(x, y, b.r + 11, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,200,235,.9)'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#ff9ad5'; for (let i = 0; i < (G.bubble || 0); i++) { ctx.beginPath(); ctx.arc(x - 10 + i * 10, y - b.r - 18, 3.5, 0, TAU); ctx.fill(); } }
-    else if (p.kind === 'honing') { ctx.save(); ctx.strokeStyle = 'rgba(255,176,32,.8)'; ctx.lineWidth = 3; ctx.setLineDash([3, 7]); ctx.lineDashOffset = -drawNow() / 30; ctx.beginPath(); ctx.arc(x, y, b.r + 12, 0, TAU); ctx.stroke(); ctx.restore(); }
-    else if (p.kind === 'magneet') { ctx.save(); ctx.strokeStyle = 'rgba(255,90,138,.7)'; ctx.lineWidth = 2; ctx.setLineDash([5, 6]); ctx.lineDashOffset = -drawNow() / 20; ctx.beginPath(); ctx.arc(x, y, b.r + 12, 0, TAU); ctx.stroke(); ctx.restore(); }
-    else if (p.kind === 'dubbel') { ctx.fillStyle = 'rgba(255,213,74,.5)'; for (let i = 0; i < 3; i++) { const a = drawNow() / 400 + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (b.r + 10), y + Math.sin(a) * (b.r + 10) * .5 - 4, 2.2, 0, TAU); ctx.fill(); } }
+function drawPowerAura(kind, px, py, bodies, bubble) {
+  if (kind === undefined) { const p = G.power; if (!p) return; kind = p.kind; px = G.px; py = G.py; bodies = G.bodies; bubble = G.bubble; } // v0.32.13 peer look: the friend's aura passes their own
+  for (const b of bodies) {
+    const x = px + b.ox, y = py + b.oy;
+    if (kind === 'schild') { ctx.fillStyle = 'rgba(90,200,255,.22)'; ctx.beginPath(); ctx.arc(x, y, b.r + 9, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(200,240,255,.8)'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.ellipse(x - b.r * .5, y - b.r * .7, b.r * .35, b.r * .15, -.7, 0, TAU); ctx.fill(); }
+    else if (kind === 'spin') { ctx.fillStyle = 'rgba(255,154,213,.28)'; ctx.beginPath(); ctx.arc(x, y, b.r + 11, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,200,235,.9)'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#ff9ad5'; for (let i = 0; i < (bubble || 0); i++) { ctx.beginPath(); ctx.arc(x - 10 + i * 10, y - b.r - 18, 3.5, 0, TAU); ctx.fill(); } }
+    else if (kind === 'honing') { ctx.save(); ctx.strokeStyle = 'rgba(255,176,32,.8)'; ctx.lineWidth = 3; ctx.setLineDash([3, 7]); ctx.lineDashOffset = -drawNow() / 30; ctx.beginPath(); ctx.arc(x, y, b.r + 12, 0, TAU); ctx.stroke(); ctx.restore(); }
+    else if (kind === 'magneet') { ctx.save(); ctx.strokeStyle = 'rgba(255,90,138,.7)'; ctx.lineWidth = 2; ctx.setLineDash([5, 6]); ctx.lineDashOffset = -drawNow() / 20; ctx.beginPath(); ctx.arc(x, y, b.r + 12, 0, TAU); ctx.stroke(); ctx.restore(); }
+    else if (kind === 'dubbel') { ctx.fillStyle = 'rgba(255,213,74,.5)'; for (let i = 0; i < 3; i++) { const a = drawNow() / 400 + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (b.r + 10), y + Math.sin(a) * (b.r + 10) * .5 - 4, 2.2, 0, TAU); ctx.fill(); } }
   }
 }
 function drawCubes() { for (const c of G.cubes) { if (c.fork) { drawForkPickup(c); continue; } if (c.seed && c.t < 0) { drawSprout(c); continue; } if (c.cherry) { drawCherryPick(c); continue; } ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x + 3, c.y + c.r + 5, c.r * 1.1, c.r * .35, 0, 0, TAU); ctx.fill(); drawSugar(c.x, c.y, c.r, c.gold, c.rot); } }
@@ -7209,16 +7344,17 @@ function drawFruit(type, x, y, r, ang, half, o) {
   const fc = FACE[type] || { y: 0, s: 1 }; ctx.rotate(faceRot); ctx.translate(0, fc.y * r); drawFace(r * fc.s, o, half, type);
   ctx.restore();
 }
-function drawCherryStems() {
-  const top = { x: G.px, y: G.py - 26 }; ctx.strokeStyle = '#4f8a3a'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
-  for (const b of G.bodies) { ctx.beginPath(); ctx.moveTo(G.px + b.ox, G.py + b.oy - b.r * .9); ctx.quadraticCurveTo(G.px + b.ox * .5, top.y + 6, top.x, top.y); ctx.stroke(); }
+function drawCherryStems(px = G.px, py = G.py, bodies = G.bodies) { // v0.32.13 peer look: the friend's cherries pass their own
+  const top = { x: px, y: py - 26 }; ctx.strokeStyle = '#4f8a3a'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+  for (const b of bodies) { ctx.beginPath(); ctx.moveTo(px + b.ox, py + b.oy - b.r * .9); ctx.quadraticCurveTo(px + b.ox * .5, top.y + 6, top.x, top.y); ctx.stroke(); }
   ctx.fillStyle = '#5cae4a'; ctx.beginPath(); ctx.ellipse(top.x + 7, top.y - 2, 7, 3.2, -.5, 0, TAU); ctx.fill();
 }
 // The cut fruit: two pieces split along the blade's actual line. Each piece keeps its clipped outside and shows
 // its inside on the cut: an ellipse along the cut (a disc tilted towards the viewer) with that fruit's own
 // cross-section. An off-centre cut gives a small cap and a big piece; the cap flies further and spins more.
-function drawCutFruit(x, y, b, f, type) {
-  const d = G.death, k = clamp(G.dyingT / DYING_MS, 0, 1), L = 400, r = b.r;
+function drawCutFruit(x, y, b, f, type, P) {
+  P = P || { death: G.death, t: G.dyingT, seg: G.segLost, cracks: (f.armor || 0) - G.armor, ang: f.rotates ? G.spin : G.ang }; // v0.32.13 peer look: the friend's cut fruit passes their own
+  const d = P.death, k = clamp(P.t / DYING_MS, 0, 1), L = 400, r = b.r;
   const off = clamp(d.off || 0, -r * .85, r * .85), lx = x + d.nx * off, ly = y + d.ny * off;
   const chord = Math.max(r * .3, Math.sqrt(Math.max(0, r * r - off * off))), depth = Math.max(3, r * .36), ang = Math.atan2(d.uy, d.ux);
   for (const side of [-1, 1]) {
@@ -7227,7 +7363,7 @@ function drawCutFruit(x, y, b, f, type) {
     ctx.save(); ctx.translate(d.nx * side * sep, d.ny * side * sep + drop); ctx.translate(cx, cy); ctx.rotate(side * k * .4 * m); ctx.translate(-cx, -cy);
     ctx.save(); ctx.beginPath(); ctx.moveTo(lx + d.ux * L, ly + d.uy * L); ctx.lineTo(lx + d.ux * L + d.nx * side * L, ly + d.uy * L + d.ny * side * L);
     ctx.lineTo(lx - d.ux * L + d.nx * side * L, ly - d.uy * L + d.ny * side * L); ctx.lineTo(lx - d.ux * L, ly - d.uy * L); ctx.closePath(); ctx.clip();
-    drawFruit(type, x, y, r, f.rotates ? G.spin : G.ang, b.half, { look: [0, .4], dead: true, segLost: G.segLost, cracks: (f.armor || 0) - G.armor });
+    drawFruit(type, x, y, r, P.ang, b.half, { look: [0, .4], dead: true, segLost: P.seg, cracks: P.cracks });
     ctx.restore();
     ctx.save(); ctx.translate(lx, ly); ctx.rotate(ang); ctx.scale(1, depth / chord); drawCrossSection(type, chord, f); ctx.restore();
     // a juice drip hanging from the lower edge of the face
@@ -7279,13 +7415,13 @@ function drawPlayer() {
   const f = fruitDef(), type = curType(), bob = Math.sin(drawNow() / 350) * 2, dying = G.state === 'dying', LL = lateLook(), LJ = lateJig();
   for (const t of G.trail) { ctx.globalAlpha = t.a * .5; ctx.fillStyle = f.juice[1]; ctx.beginPath(); ctx.arc(t.x, t.y, curR() * .8, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1;
   if (f.cherries && !G.form) drawCherryStems();
-  if (G.fever > 0 && !dying) for (const b of G.bodies) { const x = G.px + b.ox, y = G.py + b.oy + bob, rr = b.r * (2.2 + .25 * Math.sin(drawNow() / 110)), g = ctx.createRadialGradient(x, y, b.r * .6, x, y, rr); g.addColorStop(0, 'rgba(255,200,60,.55)'); g.addColorStop(1, 'rgba(255,140,20,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rr, 0, TAU); ctx.fill(); }
+  if (G.fever > 0 && !dying) drawFeverGlow(G.px, G.py, G.bodies, bob); // v0.32.13 peer look: one glow for my fruit and the friend's
   for (const b of G.bodies) {
     const x = G.px + b.ox + LJ.x, y = G.py + b.oy + bob + LJ.y;
-    if (dying && G.death && G.death.body === b) { drawCutFruit(x, y, b, f, type); continue; }
+    if (dying && G.death && G.death.body === b) { pkCut(0, G.px, G.py, bob, G.bodies.indexOf(b), x, y, b, f, type); continue; } // v0.32.13: drawCutFruit (+ the test log)
     if (G.inv > 0 && G.state === 'play' && Math.floor(G.inv / 90) % 2 === 0) ctx.globalAlpha = .45;
     drawShadow(x, y, b.r);
-    drawFruit(type, x, y, b.r, f.rotates ? G.spin : G.ang, b.half, Object.assign({ look: [G.lookX, G.lookY], scared: dying ? 1 : G.scared, cracks: (f.armor || 0) - G.armor, segLost: G.segLost, stage: G.shrinkStage, burst: G.burstDone }, LL));
+    pkDF(0, G.px, G.py, bob, G.fever > 0 && !dying, type, x, y, b.r, f.rotates ? G.spin : G.ang, b.half, Object.assign({ look: [G.lookX, G.lookY], scared: dying ? 1 : G.scared, cracks: (f.armor || 0) - G.armor, segLost: G.segLost, stage: G.shrinkStage, burst: G.burstDone }, LL)); // v0.32.13: drawFruit (+ the test log)
     ctx.globalAlpha = 1;
   }
 }
@@ -7457,7 +7593,7 @@ function buildFruitGrid() {
     const c = document.createElement('canvas'); c.width = c.height = gp * 2; menuIcon(c.getContext('2d'), key, gp, !own); card.append(c);
     const nm = document.createElement('span'); nm.textContent = f.name; card.append(nm);
     const st = document.createElement('span'); st.className = 'st' + (own && fruitMedal(key) ? ' medal ' + fruitMedal(key) : ''); st.textContent = own ? (!save.owned.includes(key) && !HOOK.testAll ? (plusActive() && key === fruitOfMonth() ? 'Plus · deze maand' : 'Seizoensfruit') : (fruitMedal(key) || (save.fruit === key ? 'gekozen' : 'vrij'))) : f.event ? `Toernooi ${Math.min(3, TS().fragments[key] || 0)}/3` : levelLocked(key) ? `Level ${f.minLevel}` : (save.sap >= f.price ? `Koop! ${f.price}` : `${fmtSap(f.price)} sap`); card.append(st);
-    card.addEventListener('click', () => { SFX.click(); menuSel = key; buildFruitGrid(); });
+    card.addEventListener('click', () => { if (fruitPopShut()) return; SFX.click(); fruitPopOpen(key); }); // v0.32.13: the explanation and Kies / Koop open in a pop-up over the list
     list.append(card);
   }
   const f = FRUITS[menuSel], own = owned(menuSel);
@@ -7480,6 +7616,23 @@ $('#btn-choose').addEventListener('click', () => {
   else if (save.sap >= f.price && !levelLocked(menuSel)) { save.sap -= f.price; save.owned.push(menuSel); save.fruit = menuSel; SFX.collect(); ok = true; showReward({ fruit: menuSel }, 'Nieuw fruit', FRUITS[menuSel].trait || ''); }
   store(); if (ok) openMenu(); else buildFruitGrid(); // a chosen fruit takes you straight back to Spelen
 });
+// v0.32.13 fruit pop-up (Pieter 15 Nov 2026, option 1): a tapped fruit shows its explanation, level line and Kies / Koop / Houden in a sheet
+// over the list, so a fruit low in the list needs no scrolling back up. The list keeps its scroll position. It closes with its X, a tap
+// outside it and the Android back button (navBack -> closeSheets); every screen change closes it (showScreen -> closeSheets).
+SHEETS.push('fruitbox'); MODALS.push('fruitbox');
+// A quick double tap stays harmless (fp-fix): the second tap of a double tap on a card above the sheet's top edge lands on the backdrop and
+// must not close the sheet it just opened; the second tap of a double tap on the X (or outside) must not reopen the card that lies under it.
+var fpOpenAt = -1e9, fpShutAt = -1e9; const FP_TAP_GAP = 300; // ms
+function fruitPopShut() { return performance.now() - fpShutAt < FP_TAP_GAP; } // a card tap right after the X / a tap outside closed the sheet
+function fruitPopOpen(key, reveal) {
+  if (!FRUITS[key]) return false;
+  const sc = $('#scr-fruit'), top = sc.scrollTop; menuSel = key; buildFruitGrid(); sc.scrollTop = top; // defensive: the rebuild does not move the list today
+  if (reveal) { const c = $(`#fruit-list .fcard[data-fruit="${key}"]`); if (c) sc.scrollTop = Math.max(0, c.offsetTop - (sc.clientHeight - c.offsetHeight) / 2); } // 'Naar Fruit': its card behind the sheet
+  openSheet('fruitbox'); fpOpenAt = performance.now(); return true;
+}
+function fruitPopClose() { const was = !$('#fruitbox').hidden; if (was) closeSheets(); return was; }
+$('#fruitbox').addEventListener('click', e => { if (e.target.id !== 'fruitbox' || performance.now() - fpOpenAt < FP_TAP_GAP) return; fpShutAt = performance.now(); closeSheets(); }); // a tap outside the sheet
+$('#btn-fruitbox-close').addEventListener('click', () => { SFX.click(); fpShutAt = performance.now(); closeSheets(); });
 // The fruit screen: all fruits with their traits, one tap away from the menu's "Je speelt als" row and the hub.
 // A "!" on both means a new fruit is affordable right now.
 const levelLocked = k => !!(FRUITS[k].minLevel && save.level < FRUITS[k].minLevel); // late fruit waits for the level, not only the sap
@@ -8179,7 +8332,7 @@ $('#pv-acts').addEventListener('click', e => {
   const b = e.target.closest('[data-pa]'), spec = pvSpec; if (!b || !spec) return; const { fruit } = pvKeys(spec), k = b.dataset.pa; SFX.click(); if (spec.album) { albumPvAct(k); return; } // v0.32.1
   if (k === 'close') { closePrize(); return; }
   if (k === 'pick' && owned(fruit)) { save.fruit = fruit; store(); }
-  else if (k === 'tofruit') { closePrize(); openFruit(); menuSel = fruit; buildFruitGrid(); return; }
+  else if (k === 'tofruit') { closePrize(); openFruit(); fruitPopOpen(fruit, true); return; } // v0.32.13: straight to that fruit's pop-up
   pvRefresh(); openPrize(spec);
 });
 $('#prevbox').addEventListener('click', e => { if (e.target.id === 'prevbox') closePrize(); });
@@ -9617,7 +9770,7 @@ function ldPauseMount() { const r = $('#btn-resume'); if (!r || $('#btn-ldgo')) 
 function ldBox(mode) { ldMount(); ldBoxMode = mode; const box = $('#ldbox'), first = box.hidden; box.hidden = false; ldPaint(true); if (first) navPushModal(); }
 function ldBoxClose() { ldBoxMode = ''; ldSheetClose(); const b = $('#ldbox'); if (b) b.hidden = true; }
 function ldEnter(id, view, manual) { id = ldClean(id); if (!id || ldBusyRun() || ldShut.has(id)) return; if (ldRun && (ldRun.res || ldRun.fin)) ldRun = null; if (ldWantLobby === id) ldWantLobby = '';
-  if (ldLobId !== id) { ldRdSend = null; ldSheetK = ''; } ldLobId = id; ldLob = view && view.id === id ? view : null; ldLobFail = 0; ldPollAt = 0; ldManual = !!manual; ldFruitPick = ldFruitPick || ldPickDefault(); closeReward(); ldBox('lobby'); SFX.jingle(); ldRtLobby(ldLob); }
+  if (ldLobId !== id) { ldRdSend = null; ldSheetK = ''; } ldLobId = id; ldLob = view && view.id === id ? view : null; ldLobFail = 0; ldPollAt = 0; ldManual = !!manual; ldFruitPick = ldFruitPick || ldPickDefault(); closeReward(); fruitPopClose(); /* v0.32.13 int game: a lobby never opens over the fruit pop-up */ ldBox('lobby'); SFX.jingle(); ldRtLobby(ldLob); }
 function ldLeave() { if (!RT.run) ldRtClose(); /* v0.32.10 */ ldLobId = ''; ldLob = null; ldManual = false; ldRdSend = null; ldPollAt = 0; ldBoxClose(); if (G.state === 'friends') renderFriends(); } // ldPollAt 0: the presence goes out at once, so a new invite right after a closed lobby finds me online
 const ldLobBody = x => Object.assign({ id: ldLobId, fruit: ldFruitPick, act: ldManual || nowMs() - ldTouch < 60000, v: LD_PROTO, aw: ldAwMe() /* v0.32.11 WP5 */, pw: Object.keys(LD_FX) }, ldRdSend !== null ? { ready: ldRdSend } : {}, ldRtRc() ? { rc: 1 } : {} /* v0.32.10: this phone reached RTDB */, x || {}); // v0.32.8: my Klaar until confirmed // a seat joins only with a tap (accepting, Naar de lobby, a push, [Ik ben er], or a touch in the last minute)
 const ldNeedTap = L => { const me = L && L.m.find(s => s.me); return !!me && !me.joined && L.state === 'wait' && !ldManual && nowMs() - ldTouch >= 60000; }; // the lobby opened by itself and nobody touched the phone for a minute: the box asks for one tap
@@ -9868,9 +10021,9 @@ function ldRtTick(X, now) { const d = RT.db; if (!d || RT.run !== X.id) return; 
   RT.wAt = RT.wAt && now - RT.wAt < iv * 2 ? RT.wAt + iv : now; RT.seq = (RT.seq + 1) % 1e6; ldRtSet(ldRtMsg(X, RT.seq, ldRtSt()), RT.seq); }
 function ldRtMsg(X, seq, st) { // seq|t|x0,y0|d1,x1,y1|d2,x2,y2|score|hits|state|size|tx,ty|fl (board units; t on the duel clock)
   const t = Math.round(ldWtNow()), x = Math.round(G.px), y = Math.round(G.py), h = RT.hist, a = h[0] || [t, x, y], b = h[1] || a; RT.hist = [[t, x, y], a];
-  let sz = 100; try { sz = Math.round(100 * curR() / fruitDef().r); } catch (e) {}
+  let sz = 100; try { sz = Math.round(100 * curR() * (G.power && G.power.kind === 'klein' ? kleinFactor(G.level) : 1) / fruitDef().r); } catch (e) {} // v0.32.13 peer look: Krimp too (an older friend draws the shrink as well)
   const fl = (G.fever > 0 ? 1 : 0) | (G.power && G.power.kind === 'schild' ? 2 : 0);
-  const m = `${seq}|${t}|${x},${y}|${t - a[0]},${a[1]},${a[2]}|${t - b[0]},${b[1]},${b[2]}|${G.sapRun}|${X.hits || 0}|${st}|${sz}|${Math.round(G.tx)},${Math.round(G.ty)}|${fl}`; return X.ab ? m + abMsgTail() : m; } // v0.32.11 WP5: |ne|nm|lm|ck in ab runs
+  const m = `${seq}|${t}|${x},${y}|${t - a[0]},${a[1]},${a[2]}|${t - b[0]},${b[1]},${b[2]}|${G.sapRun}|${X.hits || 0}|${st}|${sz}|${Math.round(G.tx)},${Math.round(G.ty)}|${fl}`; return X.ab ? pkCap(m + abMsgTail()) : m; } // v0.32.11 WP5: |ne|nm|lm|ck in ab runs; v0.32.13: + |look (pkMsg), never over 128
 function ldRtSet(msg, seq) { const d = RT.db; if (!d || !RT.run || !RT.uid) return; const at = nowMs(), par = seq & 1; RT.pend[par] = seq || 1e6; RT.sent++; RT.wq.push([seq, at]); if (RT.wq.length > 64) RT.wq.shift(); RT.unAt = RT.wq[0][1]; RT.last = msg;
   let p = null; try { p = d.ref('ld/' + RT.run + '/p/' + RT.uid).set(msg); } catch (e) { RT.pend[par] = 0; RT.lastErr = 'p'; return; }
   const g = RT.gen; rtP(p, 'p').then(() => { if (g !== RT.gen) return; if (RT.pend[par] === (seq || 1e6)) RT.pend[par] = 0; RT.acked++; RT.ackAt = nowMs(); const i = RT.wq.findIndex(w => w[0] === seq); if (i >= 0) RT.wq.splice(0, i + 1); RT.unAt = RT.wq.length ? RT.wq[0][1] : 0; }, () => { if (RT.pend[par] === (seq || 1e6)) RT.pend[par] = 0; });
@@ -9907,7 +10060,8 @@ function ldRtIn(v) { const f = String(v).split('|'); if (f.length < 10) return; 
   RT.got++; RT.gotAt = now; RT.reatt = false; ldRtLagIn(t, a, now); /* v0.32.11 D11 */
   const add = (tt, x, y) => { if (B.some(q => q[0] === tt)) return; let i = B.length; while (i > 0 && B[i - 1][0] > tt) i--; B.splice(i, 0, [tt, x, y]); }; // keyed by t: duplicates and repeats ignored
   add(t - p2[0], bx(p2[1]), by(p2[2])); add(t - p1[0], bx(p1[1]), by(p1[2])); add(t, bx(p0[0]), by(p0[1]));
-  const nw = RT.newest; if (!nw || t > nw.t) { const tg = P(9); RT.newest = { t, aw: a, seq: n(f[0]), x: bx(p0[0]), y: by(p0[1]), s: clamp(n(f[5]), 0, 1e6), hits: clamp(n(f[6]), 0, 999), st: n(f[7]), size: clamp(n(f[8]) || 100, 20, 300), tx: bx(tg[0]), ty: by(tg[1]), fl: n(f[10]), at: now };
+  const lk = f.length >= 16 ? pkParse(f[15], n(f[8]), n(f[7])) : null; if (lk) pkTag(t, lk); /* v0.32.13 peer look: group 15 (after ck), display only */
+  const nw = RT.newest; if (!nw || t > nw.t) { const tg = P(9); RT.newest = { t, aw: a, seq: n(f[0]), x: bx(p0[0]), y: by(p0[1]), s: clamp(n(f[5]), 0, 1e6), hits: clamp(n(f[6]), 0, 999), st: n(f[7]), size: clamp(n(f[8]) || 100, 20, 300), tx: bx(tg[0]), ty: by(tg[1]), fl: n(f[10]), at: now, lk };
     RT.lat.push(a - t); if (RT.lat.length > LD_RT_WIN) RT.lat.shift(); const q = RT.lat.slice().sort((x, y) => x - y); RT.D = Math.min(LD_RT_DMAX, q[Math.max(0, Math.ceil(LD_RT_Q * q.length) - 1)] + LD_RT_PAD); if (f.length >= 15 && ldRun && ldRun.ab) abPeerIn(f, t); /* v0.32.11 WP5 */ } // no lower clamp: a clock offset moves L and D together
   const keep = (RT.newest ? RT.newest.t : t) - LD_RT_KEEP; while (B.length > 2 && B[0][0] < keep) B.shift(); if (B.length > 200) B.splice(0, B.length - 200); }
 function ldRtPos(ph, nw) { const B = RT.buf; if (!B.length) return [nw.x, nw.y]; if (ph <= B[0][0]) return [B[0][1], B[0][2]]; const L = B[B.length - 1];
@@ -9934,16 +10088,16 @@ function ldRtMode() { const X = ldRun; if (!X || !X.ar) return 'off'; const nw =
 function ldRtState() { const now = nowMs(); return { on: !!RT.db && !!RT.lob, conn: RT.conn, acked: RT.acked, ackAge: RT.ackAt ? now - RT.ackAt : -1, mode: ldRun && ldRun.ar ? ldRtMode() : 'off', D: Math.round(RT.D), age: RT.newest && ldRun ? Math.round(ldWtNow() - RT.newest.t - RT.D) : -1, seq: RT.seq, got: RT.got, sent: RT.sent, lastErr: RT.lastErr, lob: RT.lob, run: RT.run, redials: RT.redials, cuts: RT.cuts, dmode: RT.dMode }; } // H6 (v0.32.11 D11: cuts, dmode)
 function ldRtRecPush(x, y, mode) { const H = window.dontsliceme; if (!H || !H.ldRtRec) return; if (H.ldRtLog.length < 20000) H.ldRtLog.push({ at: performance.now(), wt: ldWtNow(), x, y, mode, ph: RT.ph }); } // ph: the playhead (the friend's duel time drawn now)
 function ldRtDraw(m) { // the live ghost (design 4): alpha by state, the ring, size, hits pulse, Fever glow, shield ring, the label
-  const X = ldRun, O = X.o, nw = RT.newest; if (!nw) return; const p = ldLiveAt(); if (!p) return; const k = FRUITS[O.fruit] ? O.fruit : 'appel', r = FRUITS[k].r * clamp(nw.size, 10, 300) / 100;
+  const X = ldRun, O = X.o, nw = RT.newest; if (!nw) return; const p = ldLiveAt(); if (!p) return; const k = FRUITS[O.fruit] ? O.fruit : 'appel', L = pkAt(RT.ph, nw), PB0 = L ? pkBodies(k, L) : null, PB = PB0 && PB0.b.length ? PB0 : null /* fix13: no bodies: the old drawing */, r = PB ? PB.ext : FRUITS[k].r * clamp(nw.size, 10, 300) / 100, cut = !!(PB && L.death && L.death.t < DYING_MS); // v0.32.13: with the friend's look, r = the outer edge of their bodies; cut: their dying pieces still fly
   if (nw.st === 0 && RT.cutShown) { RT.cutShown = false; O.shown = false; } // the friend went on after the cut (Verder): the ghost comes back
-  if (nw.st >= 2 && nw.st <= 4 && RT.ph >= nw.t - 1) { if (!O.shown) { O.shown = true; RT.cutShown = true; if (nw.st !== 4) { burst(p.x, p.y, 24, ['#ffffff', '#7fd4ff'], 260); addText(p.x, p.y - 30, `${O.name} is ${nw.st === 3 ? 'gestopt' : 'gesneden'} na ${Math.round(nw.t / 1000)} s`, '#7fd4ff'); SFX.pop(); } } return; } // the friend's end at the live position, then hidden
-  if (nw.st === 1 || O.shown) return; // K6: hidden while the friend pauses
-  if (RT.hitsSeen < 0) RT.hitsSeen = nw.hits; if (nw.hits > RT.hitsSeen) { RT.hitsSeen = nw.hits; RT.pulseAt = nowMs(); addText(p.x, p.y - r - 14, '-1', '#7fd4ff'); }
+  if (nw.st >= 2 && nw.st <= 4 && (RT.ph >= nw.t - 1 || (PB && L.st >= 2 && !cut))) { if (!O.shown) { O.shown = true; RT.cutShown = true; if (nw.st !== 4) { if (!(PB && (L.death || (PK.run === RT.run && PK.dfx)))) burst(p.x, p.y, 24, ['#ffffff', '#7fd4ff'], 260); /* fix13: not with their own cut burst (their look carries the cut, or it was drawn) */ addText(p.x, p.y - 30, `${O.name} is ${nw.st === 3 ? 'gestopt' : 'gesneden'} na ${Math.round(nw.t / 1000)} s`, '#7fd4ff'); SFX.pop(); } } if (!cut) return; } // the friend's end at the live position, then hidden (v0.32.13: after their cut pieces, as long as their own screen shows them)
+  if (nw.st === 1 || (O.shown && !cut)) return; // K6: hidden while the friend pauses
+  if (RT.hitsSeen < 0) RT.hitsSeen = nw.hits; if (nw.hits > RT.hitsSeen) { RT.hitsSeen = nw.hits; RT.pulseAt = nowMs(); if (!PB) addText(p.x, p.y - r - 14, '-1', '#7fd4ff'); } // fix13: with their look their own hit text replaces the -1 (pkFxEvents)
   const over = Math.hypot(p.x - G.px, p.y - G.py) < curR() + r; let fa = .6, ra = .75; if (m === 'weak') { fa = .6 - .3 * clamp((p.age - LD_RT_WEAK) / 1000, 0, 1); ra = .4; } else if (over) { fa = .35; ra = .5; }
-  ctx.save(); ctx.globalAlpha = fa; drawShadow(p.x, p.y, r); drawFruit(k, p.x, p.y, r, 0, undefined, { look: [0, 0], scared: 0, hat: 'none' });
+  ctx.save(); ctx.globalAlpha = fa; if (PB) pkDraw(p, k, L, PB, fa); else { drawShadow(p.x, p.y, r); pkDF(2, p.x, p.y, 0, false, k, p.x, p.y, r, 0, undefined, { look: [0, 0], scared: 0, hat: 'none' }); } // v0.32.13: the friend as they see themselves; an older app's friend as before
   ctx.lineWidth = 2; ctx.globalAlpha = ra; ctx.strokeStyle = '#bfe8ff'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 5, 0, TAU); ctx.stroke();
-  if (p.fl & 1) { ctx.globalAlpha = Math.min(1, fa + .3); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,170,40,.5)'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 9, 0, TAU); ctx.stroke(); } // Fever: a soft orange glow
-  if (p.fl & 2) { ctx.globalAlpha = Math.min(1, fa + .3); ctx.lineWidth = 2; ctx.strokeStyle = '#5ac8ff'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 7, 0, TAU); ctx.stroke(); } // the shield
+  if (!PB && p.fl & 1) { ctx.globalAlpha = Math.min(1, fa + .3); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,170,40,.5)'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 9, 0, TAU); ctx.stroke(); } // Fever: a soft orange glow
+  if (!PB && p.fl & 2) { ctx.globalAlpha = Math.min(1, fa + .3); ctx.lineWidth = 2; ctx.strokeStyle = '#5ac8ff'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 7, 0, TAU); ctx.stroke(); } // the shield
   { const pa = nowMs() - RT.pulseAt; if (RT.pulseAt && pa < 150) { ctx.globalAlpha = 1 - pa / 150; ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.arc(p.x, p.y, r + 5 + pa / 15, 0, TAU); ctx.stroke(); } } // a hit: a white pulse of 150 ms
   ctx.globalAlpha = .95; ctx.font = `800 12px ${FU}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.miterLimit = 2; ctx.strokeStyle = 'rgba(0,0,0,.6)'; const lbl = m === 'weak' ? `${O.name} · verbinding zwak` : O.name, lx = ldRtLx(lbl, p.x); ctx.strokeText(lbl, lx, p.y + r + 9); ctx.fillStyle = '#bfe8ff'; ctx.fillText(lbl, lx, p.y + r + 9); ctx.restore();
   ldRtRecPush(p.x, p.y, m); }
@@ -10361,7 +10515,7 @@ $('#gear-music').addEventListener('click', e => { const b = e.target.closest ? e
 const HOOK = window.dontsliceme = {
   difficulty, updateTricks,
   LVSND,
-  version: '0.32.12', freeze: false, /* v0.32.12 shop: no tournament tickets for money (10 free a day), Fruitpas season line, only the Alles-in-een basket */ /* v0.32.11 live friend duel: aimed knives, claims (earliest touch wins), event log, settle verification (Stap B) */ /* v0.32.10 live friend duel: RTDB live view, one clock, one board, shared arena (Stap A) */ /* v0.32.9 delete account, names, Plus via Google Play, fair duels, Play invites */ /* v0.32.8 lobby 90 s, app-test fixes */ /* v0.32.7 Google Play fixes */ /* v0.32.6 big menu icons */ /* v0.32.5 live duel */ /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
+  version: '0.32.13', freeze: false, /* v0.32.13 peer look: the friend's fruit in a live duel as their own phone draws it */ /* v0.32.12 shop: no tournament tickets for money (10 free a day), Fruitpas season line, only the Alles-in-een basket */ /* v0.32.11 live friend duel: aimed knives, claims (earliest touch wins), event log, settle verification (Stap B) */ /* v0.32.10 live friend duel: RTDB live view, one clock, one board, shared arena (Stap A) */ /* v0.32.9 delete account, names, Plus via Google Play, fair duels, Play invites */ /* v0.32.8 lobby 90 s, app-test fixes */ /* v0.32.7 Google Play fixes */ /* v0.32.6 big menu icons */ /* v0.32.5 live duel */ /* v0.32.4 geen cosmetica */ pollOff: false, DOUBLER_SAP, DOUBLER_MAX_H, BOOST_SAP_CAP, BUYING, doublerLeftMs, doublerRoom, doublerInfo, dblSapRow, dealRow, shopBlocked, fmtHm, TOUGH_SHELL_CAP, VIDEO_PER_LEVEL_DAY, videoLeft, videoDay, canContinueRun, heartVideoLevel, interPay, interLevel, interMult, interCeil, interTop, INTER_PAR_PAY, INTER_GOAL_PAY, INTER_MIN_BAR, INTER_TOP, INTER_TOP_LEVEL, INTER_SOLO_MAX, CANDLE_FL, SLIP_HOLD, SLIP_SLOW, APPLIANCES, APPLIANCE_KEYS, KITCHEN_TIERS, ORDER_POOL, ORDER_REWARDS, CHEFS, ensureKitchen, kitchenLevels, kitchenTier, kitchenTierName, kitchenRate, kitchenRateOf, kitchenReady, kitchenCollect, buyAppliance, kitchenScore, kitchenPayload, ensureOrders, claimOrder, kitchenBadge, openKitchen, tipFriend, drawKitchenScene, track, KITCHEN_CAP_MS, TIP_COST, TIP_SAP, FORM_NAMES, seasonById, seasonAt, curSeason, seasonNo, keepSeasonForm, SEASON_SERIES, CHEF_RULE_POOL, SEASON_WEEKS, ensureSeason, seasonWeek, seasonChapter, seasonForm, seasonFx, seasonFruitOk, seasonOver, chapterOpen, chapterBadge, chapterDate, chefLevel, startChef, chefFinish, startDuel, duelBot, botPos, ghostPos, duelPlayedToday, duelInit, setDuelOpp: o => { duelOpp = o; }, todayChallenges, canChallenge, applyNotes, challengeFriend, fetchRivals, checkRivals, DUEL_MS, DUEL_WIN_SAP, DUEL_LEVEL, CHEF_MS, CHAPTER_SAP, SEASON_SAP, RIVAL_SAP, GHOST_STEP, nemesis, NEMESIS, nemesisLine, nemesisName, spawnPattern, addFlow, feverStart, feverOn, FEVER_MS, FEVER_SLOW, REVENGE_AT, REVENGE_SAP, NEMESIS_SLOW, countHit, todayBadge, hubBadges, renderIcon, setFaceMood: m => { FACE_MOOD = m; board = null; }, faceMood: () => FACE_MOOD, store, mergeSaves, parseSave, adoptSave, cloudPush, cloudPull, linkWith, linkCodeNew, storedRev: () => storedRev, NET, openFriends, renderFriends, tryBefriend, syncProfile, fetchFriends, netTick, parseInvite, inviteLink, inviteText, FRIEND_SAP, god: false, testAll: false, aiFrozen: false, G, save, FRUITS, ORDER,
   get state() { return G.state; },
   get SEASON() { return curSeason(); }, // v0.30.3: the current season of the series
   start: (t, mode) => startRun(t, true, mode), theme: () => boardTheme, themeIndex, THEMES, WEEKEND, EXAM, weekendGame, weekendOpen, dayKey, weekKey, xpLevel, PERKS, perkAt, perkKitchen, hasPerk, maxHearts, HAZ,
@@ -10879,6 +11033,7 @@ Object.assign(HOOK, { ldSheetOpen, ldSheetClose, ldSheetAct, ldSheetHTML, ldShee
 Object.assign(HOOK, { AB_TXT, abTxt, LD_DUEL_NOTE_AB, LD_FAIR_AB, abPredict, abSheetAw, abSheetNote, abSheetFair, abTxtEnv: () => ({ AW: ARENA.AW, PB: ARENA.PB || null, FU, stapA: (() => { try { return { fair: LD_FAIR_AR, note: LD_DUEL_NOTE_AR, arOn: typeof arOn === 'function' }; } catch (e) { return null; } })() }) }); // v0.32.11 WP6 arena texts HOOK
 Object.assign(HOOK, { ldRtState, ldLiveAt, ldWtNow, ldRtFrame, LD_RT_HZ, LD_RT_DMAX, LD_RT_WEAK, LD_RT_CONNECT, ldRtImpl: null, ldRtEmu: null, ldRtRec: false, ldRtLog: [], ldRtIn, ldRtMode, ldRtLobby, ldRtRun, ldRtClose, ldRtRc, ldRtMsg, ldRtHit, ldRtEnd, ldRtThem, rtEmu, LD_RT_MS, LD_RT_LOST, LD_RT_BACK, LD_RT_REDIAL, LD_RT_EXTRA, LD_RT_JUMP, LD_RT_KEEP, ldRtPos, ldRtDot, NET_CONFIG, drawHud, RT_: RT }); // v0.32.10 live view (WP1)
 Object.assign(HOOK, { ldRtDrawMode, ldRtStale, ldRtOvLine, ldRtCutDue, ldRtLagMin, ldRtReset, LD_RT_CUT, LD_RT_CUT_RX, LD_RT_LAGWIN, LD_RT_STALEWIN }); // v0.32.11 D11
+Object.assign(HOOK, { bodiesOf, pkCut, pkMsg, pkCap, pkParse, pkAt, pkBodies, pkCurR, pkDraw, PK_ANG, PK_POW, PK_AU, PK_SC, LD_RT_PMAX, PK_: PK, pkRec: false, pkLog: [] }); // v0.32.13 peer look
 abHookInit(); /* v0.32.11 WP5 */
 Object.assign(HOOK, { safeRead, safeTopU, SAFE, overFit }); // v0.32.8 safe area
 Object.assign(HOOK, { hudLay, hudBtns }); // v0.32.8 HUD lines
@@ -10970,6 +11125,10 @@ function fairFruitMarks() { // the fruit screen: a paid fruit that waits for its
   if (W.includes(menuSel)) $('#btn-keep').hidden = true; // the Plus month fruit you already paid in a basket is never sold again for sap
 }
 dfWrap('buildFruitGrid', () => buildFruitGrid, f => { buildFruitGrid = f; }, base => function () { const r = base.apply(this, arguments); try { fairFruitMarks(); } catch (e) {} return r; });
+Object.assign(HOOK, { fruitPopOpen, fruitPopClose, fruitPopShown: () => !$('#fruitbox').hidden }); // v0.32.13 fruit pop-up
+// v0.32.13 fruit pop-up: the detail card left #scr-fruit, so showScreen's trTree no longer reaches it; translate it right after every build
+// (as before, not only a microtask later through i18nObs), after the basket marks above
+dfWrap('buildFruitGrid', () => buildFruitGrid, f => { buildFruitGrid = f; }, base => function () { const r = base.apply(this, arguments); if (lang === 'en') try { trTree($('#fruitbox')); } catch (e) {} return r; });
 // -- the duel fruit: the row on Vrienden > Duels, the picker and the row in the challenge question
 const DF_CSS = '/* v0.32.9 fair */:root{--df-pick:40px}@media (max-width:359px){:root{--df-pick:34px}}@media (max-height:700px){:root{--df-pick:34px}}.dfrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:4px 0;text-align:left}.dfrow canvas{width:var(--fruit-row,36px);height:var(--fruit-row,36px);flex:none}.dfrow .mt{flex:1 1 140px;min-width:0;font-size:13px;line-height:1.3;overflow-wrap:break-word}.dfrow .btn{flex:0 0 auto;margin:0 0 0 auto;font-size:15px;padding:9px 16px;min-height:44px;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.35)}#duel-fruit-wrap{margin-top:6px}#ask-df{text-align:left;margin:2px 0}#ask-df .mt{font-size:15px}#ask-df .dfgrid{margin-top:6px}#askbox .rw-card{max-height:94%;overflow-y:auto}#dfbox{z-index:11}#dfbox .rw-card{display:flex;flex-direction:column;gap:8px;max-height:94%;overflow:hidden;width:min(360px,100%);text-align:left}#dfbox .rw-title,#df-rules,#df-grid,#df-acts{flex:none}#dfbox .rw-title{text-align:center}#df-rules{margin:0}#df-info{flex:1 1 auto;min-height:0;overflow-y:auto}#df-info .nm{font-weight:800;font-size:18px}#df-info p{margin:4px 0}#df-info .st{opacity:.85}#df-acts{flex-wrap:nowrap;gap:6px}#df-acts .btn{flex:1 1 0;min-width:0;min-height:44px;font-size:min(17px,4.6vw);white-space:nowrap;padding-left:10px;padding-right:10px}.dfgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}.dfgrid button{position:relative;background:rgba(255,255,255,.06);border:2px solid transparent;border-radius:10px;padding:1px;min-height:44px;min-width:0;display:flex;align-items:center;justify-content:center;color:inherit}.dfgrid button.on{border-color:#ffd54a;background:rgba(255,213,74,.18)}.dfgrid canvas{width:var(--df-pick);height:var(--df-pick);pointer-events:none}.dfgrid .dfdot{position:absolute;top:2px;right:2px;width:10px;height:10px;border-radius:50%;background:#4aa8ff;box-shadow:0 0 0 2px #2a170a;pointer-events:none}';
 const DF_HTML = '<div id="dfbox" class="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="df-title"><div class="rw-card"><div class="rw-title" id="df-title">Kies je duelfruit</div><p class="small" id="df-rules"></p><div id="df-grid" class="dfgrid"></div><div id="df-info"></div><div class="row" id="df-acts"><button class="btn primary" id="df-pick" type="button">Kies dit fruit</button><button class="btn ghost" id="df-close" type="button">Sluiten</button></div></div></div>';

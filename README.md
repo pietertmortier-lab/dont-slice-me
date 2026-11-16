@@ -58,6 +58,42 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.13: je tegenspeler zoals die zichzelf ziet, een venster bij elk fruit en een deuntje dat niet opnieuw begint
+
+Geen server-update (geen `firebase deploy`). v0.32.13 bevat alles van v0.32.12: je mag v0.32.12 overslaan en meteen
+v0.32.13 uploaden. Doe wel eerst, nog op v0.32.11, stap 0 van `TESTLIJST-v0.32.12.md` en stap 0 van `PLAY-CONSOLE-v0.32.12.md`
+(staat v0.32.11 nog niet in de interne test, zet die er dan eerst in: `TESTLIJST-v0.32.11.md`).
+Typ daarna in de map `native` `npm run sync` (`native/package.json` is veranderd); de app wordt versionCode 7, versionName
+0.32.13. Testen en uploaden: `TESTLIJST-v0.32.13.md`.
+
+- **Live vriendenduel: je ziet je tegenspeler zoals die zichzelf ziet.** Snijdt je tegenspeler de watermeloen een eerste
+  keer, dan zie jij ook de twee helften en hoe breed die worden. Pakt die Krimp, dan zie je het fruit even klein worden en
+  daarna weer groot. Ook de rest is hetzelfde als op het andere scherm: de pit van de avocado, de twee kersen (en dat er een
+  weg is), de drie draaiende stukjes banaan, een sinaasappel met een partje minder, de barstjes, de pruim die een rozijn
+  wordt, het knipperen na een snee, de ogen en het bange gezichtje, het draaien, de Fever-gloed, het schild, de magneet- en
+  dubbel-sap-ring, het spoortje bij het sprinten en de stukken bij de laatste snee.
+- **Ook wat rond het fruit gebeurt.** Het sap dat wegspat, de oogjes en de pit die eruit vliegen, en bij de laatste snee de
+  zonnebril, de ogen en de pitjes. Boven het fruit staan de eigen woorden van je tegenspeler ("In twee!", "De pit!",
+  "Krimp!", ...) in plaats van het blauwe "-1". Niet overgenomen: de vlekken op de vloer (die zouden op je eigen vloer lijken),
+  het flitsen en schudden van het scherm en de geluiden (dat zou aanvoelen alsof jij geraakt wordt), en het lokaas van de
+  Mandarijn (daar is in het live beeld geen plaats voor).
+- Je tegenspeler blijft een beetje doorzichtig, met de naam en de lichtblauwe ring, zodat je die niet met jezelf
+  verwart. Speelt je tegenspeler nog met een oudere versie, dan zie je die zoals vroeger. Een tegenspeler met v0.32.12 of
+  ouder die Krimp pakt, zie je nog op gewone grootte; dat verdwijnt zodra jullie allebei v0.32.13 hebben. De data per duel
+  groeit maar een paar procent.
+- **Fruit: een venster met de uitleg.** Tik je in de fruitlijst op een fruit (bijvoorbeeld Sinaasappel), dan schuift er
+  onderaan een venster omhoog met de prent, de naam, de voordelen, je niveau en meteen de knop Koop of Kies (en Houden voor
+  het Plus-fruit van de maand). Je hoeft dus niet meer naar boven te scrollen. Het venster sluit met het kruisje, door
+  ernaast te tikken of met de terugknop van je telefoon; de lijst staat daarna nog op dezelfde plek. Op een klein scherm
+  met een lange uitleg scrol je in het venster; de knop en het kruisje blijven in beeld. Komt er een live duel binnen (de lobby)
+  terwijl het venster open is, dan sluit het venster eerst. Prijzen en regels zijn dezelfde als in v0.32.12.
+- **Het Level Complete-deuntje begint nooit meer opnieuw.** Haal je een level terwijl het deuntje nog speelt, dan hoor je
+  een korte pling en speelt het deuntje gewoon verder; daarna komt de keukenmuziek terug. In het Mes van de dag hoor je per
+  level een pling en het hele deuntje alleen op level 20, 30, 40, ... Staat de app op de achtergrond als het deuntje
+  stopt, dan begint de keukenmuziek daar niet vanzelf; ze speelt weer als je terugkomt.
+- **Privacybeleid.** `privacy.html` zegt nu dat het live beeld ook toont hoe je fruit eruitziet (de vorm na een snee,
+  gekrompen of niet, welke bonus, welke kant het op kijkt en draait). Bijgewerkt op 16 november 2026.
+
 ## Nieuw in v0.32.12: tickets niet meer te koop, Fruitpas met einddatum, alleen Alles-in-één
 
 Geen server-update (geen `firebase deploy`). Kijk eerst de bestellingen na (`PLAY-CONSOLE-v0.32.12.md`, stap 0: ticket- en

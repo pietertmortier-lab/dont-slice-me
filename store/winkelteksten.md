@@ -29,6 +29,9 @@ levelbalk); alleen de releaseopmerkingen zijn nieuw (zie hieronder).
 v0.32.15 (16 november 2026): sapprijzen groeien mee met je ronde, de sappotten groeien mee en de sapverdubbelaar met geld
 kost € 1,99. De beschrijving hoeft niet te veranderen (ze noemt geen sapprijzen); alleen de releaseopmerkingen zijn nieuw
 (zie hieronder). De nieuwe namen van de twee sappotten zet je in Play Console bij het product (`PLAY-CONSOLE-v0.32.15.md`).
+v0.32.16 (16 november 2026): Engelse woordjes tijdens het spel (ook in het live duel), de prijsregel vanaf level 151 zegt "het
+hoogste" prijsniveau en de levelbanner past op een kleine telefoon. De beschrijving hoeft niet te veranderen; alleen de
+releaseopmerkingen zijn nieuw (zie hieronder).
 
 Kijk meteen ook bij **Winkelinstellingen** of het veld Website leeg is. Een oudere versie van dit bestand (10 november)
 noemde daar nog `https://pietertmortier-lab.github.io/dont-slice-me/`; staat dat er, maak het veld leeg (NIET NAGEKEKEN wat er nu staat).
@@ -194,6 +197,18 @@ Version 0.32.15: juice prices grow with your round. Every round of 30 levels, he
 </en-US>
 ```
 
+Voor v0.32.16 in de interne test (vervangt het blok hierboven bij die upload; ook als je v0.32.12, v0.32.13, v0.32.14 of
+v0.32.15 oversloeg, want 0.32.16 bevat die; NL 456 en EN 409 tekens, max 500):
+
+```
+<nl-NL>
+Versie 0.32.16: kleine verbeteringen. Speel je in het Engels, dan zijn nu ook de woordjes tijdens het spel Engels (zoals Split in two!), ook in het live duel. Vanaf level 151 zegt de prijsregel dat je op het hoogste prijsniveau zit. De levelbanner past nu ook op een kleine telefoon. Ook nieuw (0.32.15): sapprijzen groeien mee met je ronde. Testadvertenties: je ziet alleen voorbeeldreclame van Google. Vind je een fout? Mail naar dont.slice.me@gmail.com.
+</nl-NL>
+<en-US>
+Version 0.32.16: small improvements. If you play in English, the words during a run are now English too (like Split in two!), also in a live duel. From level 151 the price line says you are on the highest price level. The level banner now fits on a small phone too. Also new (0.32.15): juice prices grow with your round. Test ads: you only see Google's sample ads. Found a bug? E-mail dont.slice.me@gmail.com.
+</en-US>
+```
+
 Voor de productieversie:
 
 ```
@@ -231,5 +246,5 @@ Don't Slice Me! is on Google Play. Play live against your friends, take on the K
 ## Controle (tekens geteld met een script)
 
 Appnaam NL 30, EN 28. Korte beschrijving NL 68, EN 70. Volledige beschrijving NL 2.270, EN 2.217 (max 4.000; nageteld na v0.32.9;
-met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500). Releaseopmerkingen v0.32.13: NL 463, EN 427 (max 500). Releaseopmerkingen v0.32.14: NL 444, EN 427 (max 500). Releaseopmerkingen v0.32.15: NL 465, EN 441 (max 500).
+met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500). Releaseopmerkingen v0.32.13: NL 463, EN 427 (max 500). Releaseopmerkingen v0.32.14: NL 444, EN 427 (max 500). Releaseopmerkingen v0.32.15: NL 465, EN 441 (max 500). Releaseopmerkingen v0.32.16: NL 456, EN 409 (max 500).
 Wat is er nieuw NL 316, EN 286 (max 500). Geen emoji.

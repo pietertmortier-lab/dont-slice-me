@@ -58,6 +58,30 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.16: Engelse woorden tijdens het spel, de prijsregel vanaf level 151 en de levelbanner
+
+Geen server-update (geen `firebase deploy`). v0.32.16 bevat alles van v0.32.15 en ouder: je uploadt alleen deze nieuwste versie.
+Staat v0.32.12, v0.32.13, v0.32.14 of v0.32.15 nog niet in de interne test, dan sla je die over. Wat nog niet gedaan is, doe je
+nog altijd: stap 0 van `TESTLIJST-v0.32.13.md` (alleen als je telefoon nog v0.32.11 heeft, vóór je iets nieuws uploadt), de drie
+ticketproducten op inactief (stap 14 daar) en de stappen van `PLAY-CONSOLE-v0.32.15.md` (de namen van de twee sappotten en de
+verdubbelaar op € 1,99, pas **na** de upload). Typ daarna in de map `native` `npm run sync` (`index.html` en `native/package.json`
+zijn veranderd); de app wordt versionCode 10, versionName 0.32.16. Testen en uploaden: `TESTLIJST-v0.32.16.md`.
+
+- **Engelse woorden tijdens het spel.** Speel je in het Engels, dan stonden een paar woordjes boven je fruit nog in het
+  Nederlands. Nu zijn ze Engels: "Split in two!" (Watermeloen), "Segment lost!" (Sinaasappel), "One cherry down!" (Kersen),
+  "Shrunk!" (Pruim), "Seed planted" (Aardbei), "2 at once! +3" (het weekendspel Jij bent het mes) en de trucjes van de
+  Regenboogkiwi ("Rainbow: peel", "magnet", "syrup", "small"). Ook "Cherries are yours for good!" is nu goed Engels (was "is").
+- **Ook in het live duel.** Je ziet de woordjes van je vriend in de taal van je eigen telefoon. Er gaat niets nieuws over het
+  internet: je telefoon maakt die woordjes zelf.
+- **De prijsregel vanaf level 151.** Daar stond "ronde 6 en verder", terwijl de levelbanner vanaf level 181 "ronde 7" zegt (de
+  keukens gaan door, de prijzen niet). Nu staat er: "Prijsniveau: het hoogste (level 151 en hoger). Duurder wordt het niet meer."
+  Het uitlegkaartje zegt "Jij zit op het hoogste prijsniveau". In het Engels: "Price level: the highest". Geen enkele prijs is
+  veranderd.
+- **De levelbanner past.** De regel "Nieuwe keuken: Houten plank · ronde 6: Feestkeuken" (level 151, en "ronde 7" op level 181)
+  raakte de randen van het scherm, op een kleine telefoon en zelfs op een gewone. Nu blijft er links en rechts wat ruimte: zo'n
+  lange regel wordt een beetje kleiner. Kortere regels blijven precies zoals ze waren.
+- Niets nieuws in je bewaarde spel; oude spellen laden gewoon. Het privacybeleid en de voorwaarden blijven zoals ze waren.
+
 ## Nieuw in v0.32.15: sapprijzen groeien mee met je ronde
 
 Geen server-update (geen `firebase deploy`). v0.32.15 bevat alles van v0.32.14 en ouder: staat v0.32.12, v0.32.13 of v0.32.14 nog

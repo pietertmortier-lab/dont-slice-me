@@ -58,6 +58,37 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.32.14: het Mes van de dag is korter en harder
+
+Geen server-update (geen `firebase deploy`). v0.32.14 bevat alles van v0.32.13 en ouder: staat v0.32.12 of v0.32.13 nog niet
+in de interne test, dan mag je die overslaan en meteen v0.32.14 uploaden. Wat in `TESTLIJST-v0.32.13.md` bij stap 0 (alleen als je
+telefoon nog v0.32.11 heeft, vóór je iets nieuws uploadt) en stap 14 (de drie ticketproducten op inactief, pas nadat je zelf bijwerkte) staat,
+geldt dan nog altijd: doe het als het nog niet gedaan is. Typ daarna in de map `native` `npm run sync`
+(`native/package.json` is veranderd); de app wordt versionCode 8, versionName 0.32.14. Testen en uploaden:
+`TESTLIJST-v0.32.14.md`. Dit zijn jouw keuzes van 15 november (1A, 2B en 3A).
+
+- **De levelbalk telt klontjes.** In het Mes van de dag vult een gewoon klontje de balk met 1, een gouden met 2. In Fruit
+  Fever zijn alle nieuwe klontjes goud. Een level is 5 klontjes, plus 1 per 10 levels: 6 op level 10, 7 op level 20, 8 op level 30.
+  Rechtsboven staat bijvoorbeeld "level 11 · 0/6".
+- **Je sap blijft even hoog.** Combo, Fruit Fever, Dubbel sap en de Drakenvrucht geven nog evenveel sap als vroeger, maar ze
+  vullen je levelbalk niet sneller. Daardoor geeft een Fruit Fever nog 2 à 3 levels, niet meer 4 tot 11.
+- **Er komen iets meer klontjes.** Anders ging het te traag (in de test lukte level 30 bijna nooit). Een goede speler haalt
+  nu level 20 na ongeveer 1 minuut en level 30 na ongeveer 2,5 minuten.
+- **Bijna geen rust.** Na een level krijg je maar een halve seconde rust. De messen worden niet meer rustig na een level:
+  ze worden de hele poging sneller. Na ongeveer 45 seconden komen er ook twee messen tegelijk (ongeveer 4 op de 10 keer;
+  nooit drie, ook niet op een dag met Dubbel mes).
+- **Geen prijs voor level 100 in het Mes van de dag.** Die prijs (5 hartjes) haal je alleen nog in het gewone spel. De
+  5 sap per level, de drie dagdoelen (250 sap per doel, alle drie samen nog eens 500) en de Chefstempel blijven.
+- **Teksten.** Bij een nieuw level staat "Kort en hard · 6 klontjes nodig" (Engels: "Short and sharp · 6 cubes needed"). De
+  uitleg onder Spelen › Dagmes zegt de nieuwe regels, in het Nederlands en het Engels. In het Engels bleef daar de uitleg van
+  de eerste dagregel (tussen haakjes) nog Nederlands als er twee dagregels waren; nu is die ook Engels.
+- **Zwaar?** In de test met de testspelers haalt een gemiddelde speler level 20 meestal, maar level 30 alleen op een goede dag:
+  vooral tussen 1 en 2,5 minuten gaan veel pogingen dood. Speel het zelf; in `TESTLIJST-v0.32.14.md` (deel 4) staan twee
+  zachtere keuzes, en je kiest met een letter.
+- Niets nieuws in je bewaarde spel: oude spellen (ook een spel dat midden in een Mes van de dag gesloten werd) laden gewoon.
+  Wie op de dag van de update nog de oude app heeft, speelt hetzelfde mes met de oude regels; die tijden zijn niet goed te
+  vergelijken.
+
 ## Nieuw in v0.32.13: je tegenspeler zoals die zichzelf ziet, een venster bij elk fruit en een deuntje dat niet opnieuw begint
 
 Geen server-update (geen `firebase deploy`). v0.32.13 bevat alles van v0.32.12: je mag v0.32.12 overslaan en meteen

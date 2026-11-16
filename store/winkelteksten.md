@@ -23,6 +23,9 @@ veranderen.** Wil je het eerlijke toernooi in de winkel zetten, dan mag je onder
 De volledige beschrijving wordt dan NL 2.341 en EN 2.289 tekens (max 4.000).
 v0.32.13 (16 november 2026): je tegenspeler in het live duel zoals die zichzelf ziet, een venster bij elk fruit en een deuntje
 dat niet opnieuw begint. De beschrijving hoeft niet te veranderen; alleen de releaseopmerkingen zijn nieuw (zie hieronder).
+v0.32.14 (16 november 2026): het Mes van de dag is korter en harder (de levelbalk telt klontjes, bijna geen rust na een level,
+geen prijs voor level 100 in het Mes van de dag). De beschrijving hoeft niet te veranderen (ze noemt geen regels van de
+levelbalk); alleen de releaseopmerkingen zijn nieuw (zie hieronder).
 
 Kijk meteen ook bij **Winkelinstellingen** of het veld Website leeg is. Een oudere versie van dit bestand (10 november)
 noemde daar nog `https://pietertmortier-lab.github.io/dont-slice-me/`; staat dat er, maak het veld leeg (NIET NAGEKEKEN wat er nu staat).
@@ -164,6 +167,18 @@ Version 0.32.13: in a live friend duel you see your opponent the way they see th
 </en-US>
 ```
 
+Voor v0.32.14 in de interne test (vervangt het blok hierboven bij die upload; ook als je v0.32.12 of v0.32.13 oversloeg, want
+0.32.14 bevat die; NL 444 en EN 427 tekens, max 500):
+
+```
+<nl-NL>
+Versie 0.32.14: het Mes van de dag is korter en harder. De levelbalk telt klontjes (een gouden telt dubbel): 5 per level, plus 1 per 10 levels. Na een level is er maar een halve seconde rust en na 45 seconden komen er ook twee messen tegelijk. Ook nieuw (0.32.13): je ziet je tegenspeler in het live duel zoals die zichzelf ziet. Testadvertenties: je ziet alleen voorbeeldreclame van Google. Vind je een fout? Mail naar dont.slice.me@gmail.com.
+</nl-NL>
+<en-US>
+Version 0.32.14: the Knife of the day is shorter and harder. The level bar counts cubes (a gold one counts double): 5 per level, plus 1 per 10 levels. After a level there is only half a second of rest, and after 45 seconds two knives also come at once. Also new (0.32.13): in a live duel you see your opponent the way they see themselves. Test ads: you only see Google's sample ads. Found a bug? E-mail dont.slice.me@gmail.com.
+</en-US>
+```
+
 Voor de productieversie:
 
 ```
@@ -201,5 +216,5 @@ Don't Slice Me! is on Google Play. Play live against your friends, take on the K
 ## Controle (tekens geteld met een script)
 
 Appnaam NL 30, EN 28. Korte beschrijving NL 68, EN 70. Volledige beschrijving NL 2.270, EN 2.217 (max 4.000; nageteld na v0.32.9;
-met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500). Releaseopmerkingen v0.32.13: NL 463, EN 427 (max 500).
+met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500). Releaseopmerkingen v0.32.13: NL 463, EN 427 (max 500). Releaseopmerkingen v0.32.14: NL 444, EN 427 (max 500).
 Wat is er nieuw NL 316, EN 286 (max 500). Geen emoji.

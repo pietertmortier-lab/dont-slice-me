@@ -1,4 +1,4 @@
-# Don't Slice Me! - het stappenplan naar Google Play (16 november 2026, spel v0.32.10 in de interne test (zo genoteerd op 12 november; staat v0.32.11 er al in, dan is dat de versie), v0.32.11 uitgebracht in je repo, v0.32.12, v0.32.13, v0.32.14, v0.32.15 en v0.32.16 klaar om te uploaden)
+# Don't Slice Me! - het stappenplan naar Google Play (17 november 2026, spel v0.32.10 in de interne test (zo genoteerd op 12 november; staat v0.32.11 er al in, dan is dat de versie), v0.32.11 uitgebracht in je repo, v0.32.12, v0.32.13, v0.32.14, v0.32.15, v0.32.16 en v0.33.1 klaar om te uploaden; v0.33.0 is nooit uitgebracht, die zit in v0.33.1)
 
 Dit is het enige actuele stappenplan. Het vervangt de versie van 23 oktober (v0.24.2). Elke stap is één handeling;
 onder de stap staat wat je dan ziet. Stappen met **[GEDAAN]** zijn al klaar (stand 13 november 2026, 's nachts; de delen
@@ -42,7 +42,7 @@ Bronnen bij de regels van Google (opgezocht op 10 november 2026):
 | Firebase | project `dont-slice-me`, web-app, anonieme login, Firestore, Blaze en Google Cloud betaald account (9 november), regels en functies uitgerold (9 november, alle functies), opruimregel `ghosts` actief (9 november), geheim `LIVEDUEL_VAPID` en live duel (10 november); Realtime Database in België (11 november); server, Firestore-regels en Realtime Database-regels van v0.32.10 uitgerold (12 november, `firebase deploy --only functions,firestore,database`; dat dekt ook de server van v0.32.9) | sleutel voor de twee hulpscripts en, optioneel, de TTL-regel (zie "Wat jij nog moet doen voor v0.32.9" hieronder); pushmeldingen in de app: later, deel A |
 | AdMob | account en betalingsprofiel geverifieerd, account goedgekeurd, app met twee blokken (Beloning, Tussenreclame), AVG-toestemmingsbericht gepubliceerd, je telefoon "GSM Pieter" als testapparaat (5 november); de echte codes staan in `native/bridge.js` en `capacitor.config.json` en zitten in de app (sinds 0.32.7) | belastinggegevens, inhoudsclassificatie PG, app-ads.txt, later koppelen aan Google Play, eventueel "Alternatieve toestemmingsverzameling" (deel B) |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus`, `noads`, `pass` (23 oktober); JSON van het serviceaccount geüpload: **Valid credentials**; 9 producten geïmporteerd (`bundle_all` non-consumable, de andere consumable) naast de bestaande `noads` (non-consumable, aan `noads`) en `pass`; `plus_month:monthly` en `plus_year:yearly` aan `plus`; `pass` losgekoppeld van entitlement `pass` (de entitlement blijft, leeg); `don_t_slice_me_pro` is weg; Google-ontwikkelaarsmeldingen gekoppeld (testmelding ontvangen); 2 testaankopen `sap_3000` gelukt, zichtbaar bij Customers > Sandbox (12-13 november, deel G) | testaankoop Reclamevrij en "Aankopen herstellen" (deel G, stap 11). De Fruitpas per seizoen is beslist (15 november, keuze 2A): `pass` blijft aan geen entitlement hangen; niets te doen |
-| Pc | Node v24.21.0, npm, Git, firebase-tools 15.35.0, Android Studio met SDK en emulator "Medium Phone API 37.0", jbr-17 met het Norton-certificaat (23 oktober); je repo staat in `C:\Users\piete\dont-slice-me`; Capacitor 8-project, upload-sleutel (`C:\Users\piete\sleutels\dontsliceme-upload.jks`) en ondertekende bundels gebouwd (11-12 november, laatste versionCode 4) | bij elke nieuwe versie: `git pull`, `npm run sync`, `versionCode` +1 (v0.32.11 wordt versionCode 5, v0.32.12 versionCode 6, v0.32.13 versionCode 7, v0.32.14 versionCode 8, v0.32.15 versionCode 9, v0.32.16 versionCode 10; sla je v0.32.12 over, dan wordt v0.32.13 toch versionCode 7; sla je v0.32.12 of v0.32.13 over, dan wordt v0.32.14 toch versionCode 8; sla je v0.32.12, v0.32.13 of v0.32.14 over, dan wordt v0.32.15 toch versionCode 9; sla je een of meer van v0.32.12 tot en met v0.32.15 over, dan wordt v0.32.16 toch versionCode 10) |
+| Pc | Node v24.21.0, npm, Git, firebase-tools 15.35.0, Android Studio met SDK en emulator "Medium Phone API 37.0", jbr-17 met het Norton-certificaat (23 oktober); je repo staat in `C:\Users\piete\dont-slice-me`; Capacitor 8-project, upload-sleutel (`C:\Users\piete\sleutels\dontsliceme-upload.jks`) en ondertekende bundels gebouwd (11-12 november, laatste versionCode 4) | bij elke nieuwe versie: `git pull`, `npm run sync`, `versionCode` +1 (v0.32.11 wordt versionCode 5, v0.32.12 versionCode 6, v0.32.13 versionCode 7, v0.32.14 versionCode 8, v0.32.15 versionCode 9, v0.32.16 versionCode 10; sla je v0.32.12 over, dan wordt v0.32.13 toch versionCode 7; sla je v0.32.12 of v0.32.13 over, dan wordt v0.32.14 toch versionCode 8; sla je v0.32.12, v0.32.13 of v0.32.14 over, dan wordt v0.32.15 toch versionCode 9; sla je een of meer van v0.32.12 tot en met v0.32.15 over, dan wordt v0.32.16 toch versionCode 10; v0.33.1 wordt versionCode 11, ook als je een of meer van v0.32.12 tot en met v0.32.16 oversloeg (v0.33.0 kwam nooit uit en kreeg geen versionCode)) |
 | GitHub | repo `dont-slice-me` met Pages (testlink), privacybeleid online (laatste versie met v0.32.10) | later de repo `pietertmortier-lab.github.io` voor app-ads.txt (deel B, stap 8) |
 
 ### Wat Claude nog in het spel moet herstellen (jij hoeft hier niets voor te doen)
@@ -203,6 +203,27 @@ Wat er in het spel verandert: speel je in het Engels, dan zijn ook de woordjes t
 "Prijsniveau: het hoogste (level 151 en hoger)" in plaats van "ronde 6 en verder" (geen prijs veranderd); de lange regel in de levelbanner
 op level 151 en 181 raakt de randen van het scherm niet meer. Niets nieuws in het bewaarde spel; het privacybeleid en de voorwaarden
 blijven zoals ze waren.
+
+Wat jij moet doen bij v0.33.1 (17 november; één versie met alles samen: de Eetzaal "De deur" (v0.33.0, nooit apart uitgebracht), De brigade
+en de verbeteringen van deze week; bevat v0.32.16, v0.32.15, v0.32.14, v0.32.13 en v0.32.12, dus je uploadt alleen v0.33.1):
+- Staat v0.32.11 nog niet in de interne test? Zet die er dan eerst in ("Wat jij moet doen bij v0.32.11" hierboven en `TESTLIJST-v0.32.11.md`).
+- Sla je v0.32.13 over? Dan gelden `TESTLIJST-v0.32.13.md` stap 0 (alleen als je telefoon nog v0.32.11 heeft, vóór je iets nieuws uploadt) en stap 14 (de drie
+  ticketproducten op inactief, pas nadat je zelf bijwerkte) nog altijd, als je ze nog niet deed.
+- Geen server: v0.33.1 verandert niets aan de functies of regels van Firebase (`native/tourney` is niet veranderd). Geen `firebase deploy`.
+- De app: `git pull`, dan in `native` `npm run sync` (`index.html` en `native/package.json` zijn veranderd). De app wordt **versionCode 11**, versionName "0.33.1".
+  Zet hem in de interne test zoals altijd (deel E, stap 4, 6, 7 en 8), met de releaseopmerkingen voor v0.33.1 uit `store/winkelteksten.md`.
+- Werk daarna **allebei je telefoons** (S26+ en OnePlus 5) bij naar 0.33.1, vóór je een live duel test. Kijk bij het tandwiel: "Versie v0.33.1".
+- Deed je de stappen van `PLAY-CONSOLE-v0.32.15.md` nog niet (de namen van `sap_3000` en `sap_10000`, `doubler_1h` op € 1,99)? Doe ze
+  dan **na** deze upload en nadat je zelf bijwerkte. In RevenueCat hoeft niets: v0.33.1 heeft geen nieuw product.
+- Testen: `TESTLIJST-v0.33.1.md` (korte tests van een paar minuten, met per test "ok / niet ok").
+Wat er in het spel verandert: de Eetzaal achter je keuken (vanaf level 100 een deur, open met level 120, een volle keuken en 60.000 sap;
+Menukaart, gasten, pluimen, Commis en Chef de partie met De Bar en de koperen keuken) en De brigade (Souschef, Chef, Chef-kok en
+Sterrenchef met huisspecialiteit, zilveren en gouden keuken, Chefspecial, snijplank, extra hartjesplek en sterren zonder einde; vorken
+alleen nog in de Jacht-bonusrun); geen dubbele reclame meer bij 0 hartjes; in het live duel begint je fruit met zijn schil en haalt je
+vriend na een wifi-hapering meteen weer in; de prijsteksten zeggen "tot level 151"; het scherm blijft aan tijdens het spelen; de duels
+heten Schimduel, Uitdaging (24 u) en Live duel; onder "Live duel" staat de knop "Daag een vriend uit · naar Vrienden". Jouw keuze A
+blijft: een sappot kan het sap van een rang betalen, nooit het level of de pluimen. Oude spellen laden gewoon; nieuw in het bewaarde
+spel zijn alleen de gegevens van de Eetzaal. Het privacybeleid en de voorwaarden blijven zoals ze waren.
 
 Voor de **productie**:
 12. **[BESLIST, 15 november: 3A, gebouwd in v0.32.12]** De Fruitmanden met wisselende prijs zijn weg; alleen Alles-in-één

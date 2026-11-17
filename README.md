@@ -58,6 +58,117 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.33.1: de Eetzaal en De brigade, geen dubbele reclame, het live duel met schil en minder haperen, het scherm blijft aan en nieuwe duelnamen
+
+Geen server-update (geen `firebase deploy`). v0.33.1 is **één versie met alles samen**, zodat je maar één versie hoeft te testen: de
+Eetzaal ("De deur", die als v0.33.0 klaarstond maar nooit uitkwam), De brigade en de andere verbeteringen van deze week. v0.33.1 bevat
+alles van v0.32.16 en ouder: je uploadt alleen deze nieuwste versie. Wat nog niet gedaan is, doe je nog altijd: stap 0 en stap 14 van
+`TESTLIJST-v0.32.13.md` (alleen als dat nog niet gebeurde) en de stappen van `PLAY-CONSOLE-v0.32.15.md` (de namen van de twee sappotten en
+de verdubbelaar op € 1,99, pas **na** de upload). Typ daarna in de map `native` `npm run sync` (`index.html` en `native/package.json` zijn
+veranderd); de app wordt **versionCode 11**, versionName **0.33.1**. Werk **allebei je telefoons** (S26+ en OnePlus 5) bij naar 0.33.1
+voor je een live duel test: de schil en de betere verbinding werken alleen goed als beide telefoons de nieuwe versie hebben. Testen en
+uploaden: `TESTLIJST-v0.33.1.md`. Keuze 5 (de Weekkeuring) en de meldingen komen pas in v0.33.2.
+
+**Keuken, stap 1: De deur (de Eetzaal).** Jouw keuzes 1A, 2B, 3C, 4A en 6A van 15 november.
+
+- **De deur.** Vanaf level 100 staat er in je keukentekening (Vandaag > Keuken) een houten deur met een hangslotje. Tik erop: je ziet wat
+  erachter zit en wat je nodig hebt.
+- **De deur open: level 120, een volle keuken (20/20) en 60.000 sap.** Dan gloeit de deur en staat bovenaan je keukenscherm "Er is iets
+  achter je keuken…" met de knop **Open de deur · 60.000 sap**. Je betaalt eerst (het spel bewaart dat meteen), daarna volgt een kort
+  toneeltje: de eetzaal wordt gebouwd, jij snijdt het lint door met één veeg (of het knipt na 3 seconden vanzelf), je Menukaart klapt open,
+  Chef Rosa maakt je **Commis** en je eerste gasten komen binnen. Overslaan, tikken of de terugknop sluit het altijd. Drie keer kloppen hoor
+  je alleen op het moment dat de deur klaar wordt.
+- **De Menukaart: 24 gerechten.** De sterren komen uit je fruitmedailles (10, 25, 50 en 100 levels met dat fruit). Elke ster maakt een
+  gewone poging met dat fruit sneller en sappiger: de balk +5% en het sap +10% per ster. Niet in duels, toernooien, het Mes van de dag, De
+  Chef, de weekendspellen, de Jacht-bonusrun of een tussenspel, en nooit voor de Drakenvrucht.
+- **Elke dag 3 gasten** (om 7 uur). Speel een gewone poging van minstens 40 seconden met hun fruit en haal hun sap en pluimen op met
+  **Ontvang alles**. Een gast betaalt nooit twee keer, ook niet met twee telefoons of een teruggedraaide klok.
+- **Pluimen** krijg je voor gerechtsterren (10 per ster), gasten en de bestellingen van de chef. Je geeft ze nooit uit en ze zijn nergens
+  te koop.
+- **Chef de partie** (level 140, 150 pluimen, 100.000 sap): De Bar (+1 hartje als alle gasten van vandaag geserveerd zijn) en de
+  **koperen keuken**: dubbel sap dat meegroeit met je level (333 naar 799 sap per uur op level 140) en 16 uur bewaren.
+
+**Keuken, stap 2: De brigade.** Je groeit verder van Commis tot Sterrenchef. Elke promotie heeft een kort filmpje dat je altijd kunt
+overslaan. "Nu te doen" zegt het wanneer je kunt promoveren ("Je kunt Souschef worden").
+
+- **Souschef** (level 165, 400 pluimen, 150.000 sap): De Houtoven in je zaal en een **Huisspecialiteit** voor gewone pogingen. Je kiest
+  er één: **Houtovenpizza** (een minispel om de 4 stappen) of **Gouden regen** (8 gouden klontjes bij elk nieuw level aan je top, alleen
+  voor je spaarpot, je balk gaat er niet sneller van). Later komen **Honingstart** (Chef-kok: 4 seconden honing bij elk nieuw level aan je
+  top) en **Picknickmand** (Sterrenchef: een kwart minder gevaren) erbij. Geen enkele werkt in duels, toernooien, het Mes van de dag of de
+  Jacht-bonusrun, en geen enkele maakt je balk sneller (jouw keuze 2B).
+- **Chef** (level 190, 750 pluimen, 200.000 sap): een **zilveren keuken** (drie keer sap, 24 uur bewaren; 1.449 sap per uur op level
+  190), een 4de gast, **Het Doorgeefluik** (bestellingen die meegroeien met je level: op level 190 2.530, 5.050 en 7.580 sap, en 10.110
+  extra voor alle drie), de **snijplank** (elke dag een gratis startboost: jij kiest schild, stroop of magneet, zolang je er minder dan 2
+  van hebt) en elke week een **Chefspecial** (geef een van je eigen gerechten zijn volgende ster: 2 hartjes, een reeksschild en 40 pluimen).
+- **Chef-kok** (level 220, 1.200 pluimen, 250.000 sap): een extra hartjesplek.
+- **Sterrenchef** (level 250, 1.800 pluimen, 300.000 sap): een **gouden keuken** (vier keer sap: 2.331 sap per uur op level 250), een
+  5de gast en **De Gouden Zaal** (alle gasten geserveerd: 2 hartjes en een reeksschild in plaats van één hartje).
+- **Sterren zonder einde.** Na Sterrenchef krijg je elke 250 pluimen een ster (de eerste bij 2.050 pluimen): een hartje en een
+  reeksschild, elke vijfde ster 5 hartjes. Elke ster poetst je keuken 5% sappiger, tot 10 keer.
+- **De Jacht op de Gouden Vork (jouw keuze 3C).** De gouden vorken vallen nu **alleen in de bonusrun** (3 per stap). Die speelt zonder
+  bonussen, vanaf je hoogste level. Gewone pogingen houden al je bonussen, ook de gerechtbonus. Een oude fout is opgelost: de 1.000 sap
+  van de volle meter werd in de praktijk nooit uitbetaald; nu krijgt iedereen met minstens één vork ze.
+
+**Geen dubbele reclame meer bij 0 hartjes.** Jouw melding van 16 november: na je laatste hartje gaf **Opnieuw** eerst een gewone reclame
+en daarna het hartjesscherm met het filmpje. Nu ga je meteen naar het hartjesscherm, zonder reclame ervoor; daar kies je zelf of je het
+filmpje voor +1 hartje kijkt. Ook vlak na **Filmpje: nog eens +… sap** (je sap verdubbelen) komt er geen gewone reclame meer. De
+overgeslagen reclame komt ook later niet alsnog. Met hartjes over blijft alles zoals het was.
+
+**Live duel: je fruit begint met zijn eigen schil (jouw keuze 2A).** Kokosnoot, Citroen, Granaatappel en Lychee vangen één snee op,
+Ananas twee, zoals de uitleg in de lobby al zei. Je vriend ziet je schil heel bij de start en gebarsten na een snee. Schimduels en
+gewone uitdagingen houden de oude regel (geen schil), omdat hun schimmen zonder schil zijn opgenomen. Alleen de uitdaging die volgt als
+je vriend niet in het live duel kwam, houdt de schil (zoals dat live duel).
+
+**Prijzen "tot level 151" (jouw keuze 3B).** De sappotten in de winkel ("Groeit mee met je ronde, tot level 151."), de uitlegkaart en de
+korte kaart op het hartjesscherm zeggen nu dat de prijzen maar tot level 151 meegroeien. Geen enkele prijs is veranderd.
+
+**Live duel: je vriend haalt weer meteen in.** Wat je zag (je vriend staat plots stil en speelt daarna met vertraging verder) komt van
+korte haperingen in de wifi, om de 10 à 20 seconden. Twee dingen in het spel maakten zo'n hapering groter dan nodig; die zijn verbeterd.
+Na een hapering springt je vriend nu meteen terug naar waar hij echt is en beweegt hij weer vloeiend (vroeger liep hij daarna nog tot 10
+seconden ongeveer 0,4 seconde achter), en bij trage wifi stuurt je telefoon weer 15 in plaats van 5 beelden per seconde. Eerlijk gezegd:
+**een korte stilstand terwijl de wifi zelf hapert, blijft**. Die kan het spel niet wegtoveren; een sterkere wifi helpt dan het meest.
+
+**Het scherm blijft aan.** Tijdens een poging (ook een duel of live duel), in de lobby en het aftellen van een live duel, zolang het
+wachtvenster van een live-uitnodiging open staat en op het reclame- en filmpjesscherm gaat je scherm niet meer op slot. In de menu's volgt
+de game gewoon de schermtijd van je telefoon (zo spaar je batterij). Of het scherm ook aan blijft tijdens een echte Google-reclame, kunnen
+we alleen op je telefoon zien: daar ligt de reclame bovenop de game.
+
+**Nieuwe duelnamen (jouw keuze A).** Het openbare duel heet nu overal **Schimduel**, de vriendenuitdaging **Uitdaging (24 u)** en het live
+duel blijft **Live duel** (Engels: Ghost duel, Challenge (24 h), Live duel). Ook bovenaan het speelscherm ("Schimduel · nog 90 s"), op het
+eindscherm en in de teller ("Nog 4 van 5 schimduels vandaag"). "Hoe werkt het?" en de Hulp leggen duidelijker uit wat een schim is: de
+opname van een echte speler van ongeveer jouw niveau die dezelfde messen kreeg.
+
+**Nieuw: "Daag een vriend uit · naar Vrienden".** In Vrienden > Duels staat onder "Live duel" een knop **Daag een vriend uit · naar
+Vrienden**. Tik je erop, dan ga je naar je vriendenlijst; daar tik je op een vriend en kies je **Live duel**. Heb je nog geen vrienden,
+dan zie je meteen hoe je er een toevoegt. Met de terugknop van je telefoon kom je weer bij Duels.
+
+**Kleine verbeteringen na vier controles.** Een live uitnodiging van een vriend staat altijd onder "Nu te doen" (ze verdween soms achter de
+keukenregels); de Engelse keukenzin is helemaal Engels; grote getallen in de beloningstegels hebben een puntje (+10.110 sap); de deelknop
+op het eindscherm heet "Deel je score · +1 hartje", zodat hij niet lijkt op "Daag een vriend uit"; in de lobby staat "Het duel begint zo."
+als jullie allebei klaar zijn; "1 suikerklontje" zonder s; op een beloningskaart die je moet scrollen, steekt geen halve regel meer door
+"Scroll voor meer".
+
+**Wat je al beslist hebt (zo gebouwd):** keuken 1A (Eetzaal en verbouwing), 2B (+5% balk en +10% sap per ster), 3C (vorken alleen in de
+Jacht-bonusrun), 4A (Plus en gerechten aanvaard), 6A (geen wachttijd bij bouwen); antwoord A van 16 november (een sappot kan het sap van een
+rang betalen, nooit het level of de pluimen); 2A (live duel met schil); 3B (prijsteksten tot level 151); duelnamen A.
+
+**Kan nog aangepast worden na jouw test** (zo staat het nu; zeg het als je iets anders wilt):
+
+- Pluimen voor de rangen: 400, 750, 1.200 en 1.800 (ongeveer dag 8, 20, 31 en 46). Kan ook 350, 650, 1.000 en 1.500.
+- De poetsbeurt na Sterrenchef stopt na 10 sterren (+50%). Kan ook zonder einde.
+- De Gouden Zaal geeft 2 hartjes en een reeksschild per dag. Kan ook 1 hartje.
+- De Jacht-bonusrun begint altijd op je hoogste level. Kan ook op het level dat je zelf kiest bij "Start op level".
+- Onder "Nu te doen" komen eerst je beloningen, dan een live uitnodiging, dan de keuken. Een andere volgorde kan.
+- De Jacht-meter (105.000 tot 120.000 vorken per week) en de robots in de oefenladder zijn een schatting; pas een echte week toont of het
+  goed voelt.
+- Bij 0 hartjes komt er na **Opnieuw** nooit een reclame, ook niet als je je filmpjes van vandaag al gebruikt hebt; en **Ander fruit** bij
+  0 hartjes geeft nog wel de gewone reclame. Beide kunnen anders.
+- De woorden "Deel je score", "Het duel begint zo." en de titels "Schimduel" en "Uitdaging" op het eindscherm.
+
+Oude spellen laden gewoon: die van v0.32.16 en ook een spel van de nooit uitgebrachte 0.33.0. Er verandert niets tot je de deur opent.
+Nieuw in je bewaarde spel zijn alleen de gegevens van de Eetzaal (die beginnen leeg; wat De brigade bewaart, komt er pas bij als je het
+gebruikt). Er gaat niets nieuws over het internet; het privacybeleid en de voorwaarden blijven zoals ze waren.
+
 ## Nieuw in v0.32.16: Engelse woorden tijdens het spel, de prijsregel vanaf level 151 en de levelbanner
 
 Geen server-update (geen `firebase deploy`). v0.32.16 bevat alles van v0.32.15 en ouder: je uploadt alleen deze nieuwste versie.

@@ -32,6 +32,12 @@ kost € 1,99. De beschrijving hoeft niet te veranderen (ze noemt geen sapprijze
 v0.32.16 (16 november 2026): Engelse woordjes tijdens het spel (ook in het live duel), de prijsregel vanaf level 151 zegt "het
 hoogste" prijsniveau en de levelbanner past op een kleine telefoon. De beschrijving hoeft niet te veranderen; alleen de
 releaseopmerkingen zijn nieuw (zie hieronder).
+v0.33.1 (17 november 2026; v0.33.0 kwam nooit apart uit en zit hierin): de Eetzaal en De brigade (vanaf level 100 een deur, open met
+level 120, een volle keuken en 60.000 sap; gasten, pluimen, koksrangen van Commis tot Sterrenchef, een koperen, zilveren en gouden keuken),
+geen dubbele reclame bij 0 hartjes, het live duel met schil en minder haperen, het scherm blijft aan, de duelnamen Schimduel, Uitdaging
+(24 u) en Live duel. De beschrijving hoeft niet te veranderen (de regels "Daag een vriend uit voor een duel van 24 uur, of speel tegen de
+schim van een speler van jouw niveau." en "Bouw je eigen keuken uit en bezoek de keuken van je vrienden." kloppen nog); alleen de
+releaseopmerkingen zijn nieuw (zie hieronder).
 
 Kijk meteen ook bij **Winkelinstellingen** of het veld Website leeg is. Een oudere versie van dit bestand (10 november)
 noemde daar nog `https://pietertmortier-lab.github.io/dont-slice-me/`; staat dat er, maak het veld leeg (NIET NAGEKEKEN wat er nu staat).
@@ -209,6 +215,18 @@ Version 0.32.16: small improvements. If you play in English, the words during a 
 </en-US>
 ```
 
+Voor v0.33.1 in de interne test (vervangt het blok hierboven bij die upload; ook als je v0.32.12 tot en met v0.32.16 oversloeg, want
+0.33.1 bevat die; v0.33.0 kwam nooit apart uit; NL 494 en EN 476 tekens, max 500):
+
+```
+<nl-NL>
+Versie 0.33.1: De Eetzaal en De brigade. Met level 120, een volle keuken en 60.000 sap open je de Eetzaal: gasten, pluimen en koksrangen tot Sterrenchef, met een koperen, zilveren en gouden keuken. Geen dubbele reclame bij 0 hartjes. Live duel: je fruit start met zijn schil en je vriend hapert minder (werk allebei bij). Het scherm blijft aan tijdens het spel. Nieuwe duelnamen. Testadvertenties: je ziet alleen voorbeeldreclame van Google. Vind je een fout? Mail naar dont.slice.me@gmail.com.
+</nl-NL>
+<en-US>
+Version 0.33.1: The Dining Room and The brigade. With level 120, a full kitchen and 60,000 juice you open the Dining Room: guests, compliments and chef ranks up to Star chef, with a copper, silver and gold kitchen. No double ad at 0 hearts. Live duel: your fruit starts with its shell and your friend lags less (both need this update). The screen stays on while you play. New duel names. Test ads: you only see Google's sample ads. Found a bug? E-mail dont.slice.me@gmail.com.
+</en-US>
+```
+
 Voor de productieversie:
 
 ```
@@ -246,5 +264,5 @@ Don't Slice Me! is on Google Play. Play live against your friends, take on the K
 ## Controle (tekens geteld met een script)
 
 Appnaam NL 30, EN 28. Korte beschrijving NL 68, EN 70. Volledige beschrijving NL 2.270, EN 2.217 (max 4.000; nageteld na v0.32.9;
-met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500). Releaseopmerkingen v0.32.13: NL 463, EN 427 (max 500). Releaseopmerkingen v0.32.14: NL 444, EN 427 (max 500). Releaseopmerkingen v0.32.15: NL 465, EN 441 (max 500). Releaseopmerkingen v0.32.16: NL 456, EN 409 (max 500).
+met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500). Releaseopmerkingen v0.32.13: NL 463, EN 427 (max 500). Releaseopmerkingen v0.32.14: NL 444, EN 427 (max 500). Releaseopmerkingen v0.32.15: NL 465, EN 441 (max 500). Releaseopmerkingen v0.32.16: NL 456, EN 409 (max 500). Releaseopmerkingen v0.33.1: NL 494, EN 476 (max 500).
 Wat is er nieuw NL 316, EN 286 (max 500). Geen emoji.

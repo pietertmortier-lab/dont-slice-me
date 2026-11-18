@@ -38,6 +38,11 @@ geen dubbele reclame bij 0 hartjes, het live duel met schil en minder haperen, h
 (24 u) en Live duel. De beschrijving hoeft niet te veranderen (de regels "Daag een vriend uit voor een duel van 24 uur, of speel tegen de
 schim van een speler van jouw niveau." en "Bouw je eigen keuken uit en bezoek de keuken van je vrienden." kloppen nog); alleen de
 releaseopmerkingen zijn nieuw (zie hieronder).
+v0.33.2 (18 november 2026): Duels staat onder Spelen, de bonusrun van de Jacht telt alleen voor het toernooi, geen reclame op Ander
+fruit bij 0 hartjes, de Weekkeuring van Chef Ada met proeven bij vrienden, meldingen die je zelf kiest (nooit 's nachts, hoogstens
+3 per dag, nooit reclame), en live beeld in het live duel, ook na "Nog een keer". De beschrijving hoeft niet te veranderen (ze noemt
+geen meldingen, geen Keuken van de week en geen bonusrun, en "Bouw je eigen keuken uit en bezoek de keuken van je vrienden." klopt
+nog); alleen de releaseopmerkingen zijn nieuw (zie hieronder).
 
 Kijk meteen ook bij **Winkelinstellingen** of het veld Website leeg is. Een oudere versie van dit bestand (10 november)
 noemde daar nog `https://pietertmortier-lab.github.io/dont-slice-me/`; staat dat er, maak het veld leeg (NIET NAGEKEKEN wat er nu staat).
@@ -145,7 +150,7 @@ Play Console aanvaardt meerdere talen in één vak alleen met taalcodes eromheen
 "Releaseopmerkingen" door het blok hieronder (kopieer van `<nl-NL>` tot en met `</en-US>`). Je ziet dan geen rode
 melding onder het vak.
 
-Voor de interne en de gesloten test:
+Voor de eerste upload (0.32.6) in de interne test:
 
 ```
 <nl-NL>
@@ -227,6 +232,18 @@ Version 0.33.1: The Dining Room and The brigade. With level 120, a full kitchen 
 </en-US>
 ```
 
+Voor v0.33.2 in de interne test (vervangt het blok hierboven bij die upload; ook als je v0.33.1 oversloeg, want 0.33.2 bevat die;
+NL 495 en EN 489 tekens, max 500):
+
+```
+<nl-NL>
+Versie 0.33.2: Duels staat nu onder Spelen. De Jacht-bonusrun telt alleen voor het toernooi; nog een bonusrun kost 1 ticket. Geen reclame op Ander fruit bij 0 hartjes. Nieuw in je Eetzaal: de Weekkeuring van Chef Ada en proeven bij vrienden (werk allebei bij). Meldingen: je kiest zelf, nooit 's nachts, hoogstens 3 per dag. Live duel: ook na "Nog een keer" zie je je vriend live. Testadvertenties: je ziet alleen voorbeeldreclame van Google. Vind je een fout? Mail naar dont.slice.me@gmail.com.
+</nl-NL>
+<en-US>
+Version 0.33.2: Duels are now under Play. The Hunt bonus run only counts for the tournament; after a bonus run, one ticket starts the next one. No more ad on Other fruit at 0 hearts. New in your Dining Room: Chef Ada's Weekly Inspection and tasting at friends' (both need this update). Notifications: you choose, never at night, at most 3 a day. Live duel: after "Again" you see your friend live too. Test ads: you only see Google's sample ads. Found a bug? E-mail dont.slice.me@gmail.com.
+</en-US>
+```
+
 Voor de productieversie:
 
 ```
@@ -264,5 +281,5 @@ Don't Slice Me! is on Google Play. Play live against your friends, take on the K
 ## Controle (tekens geteld met een script)
 
 Appnaam NL 30, EN 28. Korte beschrijving NL 68, EN 70. Volledige beschrijving NL 2.270, EN 2.217 (max 4.000; nageteld na v0.32.9;
-met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500). Releaseopmerkingen v0.32.13: NL 463, EN 427 (max 500). Releaseopmerkingen v0.32.14: NL 444, EN 427 (max 500). Releaseopmerkingen v0.32.15: NL 465, EN 441 (max 500). Releaseopmerkingen v0.32.16: NL 456, EN 409 (max 500). Releaseopmerkingen v0.33.1: NL 494, EN 476 (max 500).
+met de vrije regel van v0.32.12 NL 2.341, EN 2.289). Releaseopmerkingen v0.32.12: NL 456, EN 419 (max 500). Releaseopmerkingen v0.32.13: NL 463, EN 427 (max 500). Releaseopmerkingen v0.32.14: NL 444, EN 427 (max 500). Releaseopmerkingen v0.32.15: NL 465, EN 441 (max 500). Releaseopmerkingen v0.32.16: NL 456, EN 409 (max 500). Releaseopmerkingen v0.33.1: NL 494, EN 476 (max 500). Releaseopmerkingen v0.33.2: NL 495, EN 489 (max 500).
 Wat is er nieuw NL 316, EN 286 (max 500). Geen emoji.

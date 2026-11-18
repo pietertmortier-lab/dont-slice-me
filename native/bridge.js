@@ -192,7 +192,7 @@
   // ---- the Android back button: the game's own back logic (navBack in index.html: pause a run, close a pop-up or sheet, one screen up,
   // the same as the browser's back button on the web). On the main screen with nothing open, the app goes to the background.
   const App = P.App || null;
-  const POPUPS = ['askbox', 'ldbox', 'reward', 'langbox', 'confirm', 'stormbox', 'prevbox', 'gearbox', 'perkbox', 'stkbox', 'compbox']; // not namebox: it has no close button, so back on it leaves the app
+  const POPUPS = ['askbox', 'ldbox', 'reward', 'langbox', 'confirm', 'stormbox', 'prevbox', 'gearbox', 'perkbox', 'stkbox', 'compbox', 'pnbox'] /* v0.33.2: the notification card */; // not namebox: it has no close button, so back on it leaves the app
   if (App) listen(App, 'backButton', () => {
     const fv = window.dontsliceme, vis = id => { const e = document.getElementById(id); return !!(e && !e.hidden && e.getClientRects().length); };
     if (window.FV_BACK && window.FV_BACK() === true) return;       // the game may take over later
@@ -217,22 +217,55 @@
 // ---- Online features (tournament submissions, the player profile, friends) are handled by the game itself: see NET_CONFIG and
 // NET_URL in index.html, which sign in anonymously to Firebase and talk to the function in native/tourney. Nothing to configure here.
 
-// v0.32.5 live duel: push notifications in the app (Firebase Cloud Messaging through @capacitor/push-notifications). OFF until Pieter has
-// added google-services.json (native/tourney/README.md, "Live friend duels and push"); then he sets FCM_READY = true and rebuilds.
-// This block has its own global window.FV_PUSH and never creates or changes the ad and purchase bridge above: the game treats
-// that object as "the store is ready".
+// v0.32.5 live duel, v0.33.2 push332 all notifications (Pieter, 17 Nov 2026, 7B). This block has its own globals and never creates or changes
+// the ad and purchase bridge above (the game treats window.FV_NATIVE as "the store is ready").
+// - window.FV_PUSH (Firebase Cloud Messaging through @capacitor/push-notifications) exists only when Firebase is really in this build:
+//   copy-www.cjs writes `window.FV_FCM_FILE = true` at the top of www/bridge.js only when native/android/app/google-services.json exists,
+//   parses and names com.dontsliceme.app. Without that file PushNotifications.register() would crash the app natively (no FirebaseApp),
+//   so it is never called then: push simply stays off and the game's Settings say so. Nothing to switch by hand any more.
+// - window.FV_LOCAL (@capacitor/local-notifications) exists only when that plugin is in the build (Capacitor.isPluginAvailable); the
+//   game plans hearts / kitchen / tournament / Fruitpas / daily-knife reminders with it when the app goes to the background and cancels
+//   them when it comes back. Inexact times: every reminder is scheduled with isExactNotification: false (plugin 8.3 schedules exact alarms by
+//   default and then, on Android 12+ without the exact-alarm permission, opens Android's "Wekkers en herinneringen" screen on schedule()). The
+//   plugin's own manifest still declares SCHEDULE_EXACT_ALARM; native/README.md removes it with one tools:node="remove" line (npm run sync
+//   checks it). Every call is wrapped: a missing plugin never throws. When FV_LOCAL is ready the bridge sends the window event 'fvlocalready'
+//   (a cold start: the game, loaded before this file, then cancels and books what was planned while it was closed).
+// - Android channels (their pop-up and sound are fixed once a phone has them): liveduel "Live duels" (pop-up), vrienden "Vrienden"
+//   (pop-up, 3A; private on the lock screen: no name there), spel "Herinneringen" (sound, no pop-up).
 (async () => {
-  const FCM_READY = false; // Pieter: true only after google-services.json is in android/app (the plugin itself is in package.json)
-  const C = window.Capacitor; if (!FCM_READY || !C || !C.isNativePlatform || !C.isNativePlatform() || !(C.isPluginAvailable && C.isPluginAvailable('PushNotifications'))) return;
-  const PN = C.Plugins && C.Plugins.PushNotifications; if (!PN) return;
-  let token = '', reg = null; const waiters = [], got = v => { token = v || ''; waiters.splice(0).forEach(w => w(token)); if (!token) reg = null; };
-  PN.addListener('registration', t => got(t && t.value)); PN.addListener('registrationError', () => got(''));
-  PN.addListener('pushNotificationActionPerformed', a => { const d = (a && a.notification && a.notification.data) || {}, v = { k: String(d.k || ''), id: String(d.id || '') }; window.FV_PUSH_OPEN = v; window.dispatchEvent(new CustomEvent('fvpushopen', { detail: v })); });
-  PN.addListener('pushNotificationReceived', () => { window.dispatchEvent(new CustomEvent('fvpushopen', { detail: { k: 'poll' } })); }); // the app is open: no system notification, the game asks the server now and shows its own card
-  const register = () => reg || (reg = new Promise(ok => { waiters.push(ok); setTimeout(() => { ok(token); if (!token) reg = null; }, 10000); Promise.resolve(PN.register()).catch(() => got('')); })); // a failed or slow registration may be tried again
-  try { await PN.createChannel({ id: 'liveduel', name: 'Live duels', description: 'Een vriend daagt je uit of wacht in de lobby', importance: 4, visibility: 1, vibration: true }); } catch (e) {}
-  window.FV_PUSH = { supported: true,
-    async enable() { try { let p = await PN.checkPermissions(); if (p.receive === 'prompt' || p.receive === 'prompt-with-rationale') p = await PN.requestPermissions(); return p.receive === 'granted' ? await register() : ''; } catch (e) { return ''; } }, // after the game's own card
-    async token() { try { const p = await PN.checkPermissions(); return p.receive === 'granted' ? await register() : ''; } catch (e) { return ''; } } }; // silent: never asks
-  try { if ((await PN.checkPermissions()).receive === 'granted') register(); } catch (e) {} // after a restart: the token exists again, so refresh and off keep working
+  const C = window.Capacitor; if (!C || !C.isNativePlatform || !C.isNativePlatform()) return;
+  const has = n => { try { return !!(C.isPluginAvailable && C.isPluginAvailable(n)); } catch (e) { return false; } };
+  const FCM_READY = window.FV_FCM_FILE === true; // written by copy-www.cjs (google-services.json found); the plugin itself is in package.json
+  const PN = has('PushNotifications') && C.Plugins ? C.Plugins.PushNotifications || null : null, LN = has('LocalNotifications') && C.Plugins ? C.Plugins.LocalNotifications || null : null;
+  const open = v => { window.FV_PUSH_OPEN = v; try { window.dispatchEvent(new CustomEvent('fvpushopen', { detail: v })); } catch (e) {} };
+  const CH = [{ id: 'liveduel', name: 'Live duels', description: 'Een vriend daagt je uit of wacht in de lobby', importance: 4, visibility: 1, vibration: true },
+    { id: 'vrienden', name: 'Vrienden', description: 'Een vriend begint te spelen, daagt je uit of wil je vriend worden', importance: 4, visibility: 0, vibration: true },
+    { id: 'spel', name: 'Herinneringen', description: 'Hartjes vol, keuken vol, toernooi en Fruitpas', importance: 3, visibility: 1, vibration: false }];
+  const chans = async P => { for (const c of CH) { try { await P.createChannel(c); } catch (e) {} } };
+  if (FCM_READY && PN) {
+    let token = '', reg = null; const waiters = [], got = v => { token = v || ''; waiters.splice(0).forEach(w => w(token)); if (!token) reg = null; };
+    try {
+      PN.addListener('registration', t => got(t && t.value)); PN.addListener('registrationError', () => got(''));
+      PN.addListener('pushNotificationActionPerformed', a => { const d = (a && a.notification && a.notification.data) || {}; open({ k: String(d.k || ''), id: String(d.id || ''), n: String(d.n || ''), c: String(d.c || '') }); });
+      PN.addListener('pushNotificationReceived', () => { try { window.dispatchEvent(new CustomEvent('fvpushopen', { detail: { k: 'poll' } })); } catch (e) {} }); // the app is open: no system notification, the game asks the server now
+    } catch (e) { console.warn('push listeners', e); }
+    const register = () => reg || (reg = new Promise(ok => { waiters.push(ok); setTimeout(() => { ok(token); if (!token) reg = null; }, 10000); try { Promise.resolve(PN.register()).catch(() => got('')); } catch (e) { got(''); } })); // a failed or slow registration may be tried again
+    await chans(PN);
+    window.FV_PUSH = { supported: true,
+      async enable() { try { let p = await PN.checkPermissions(); if (p.receive === 'prompt' || p.receive === 'prompt-with-rationale') p = await PN.requestPermissions(); return p.receive === 'granted' ? await register() : ''; } catch (e) { return ''; } }, // after the game's own card
+      async token() { try { const p = await PN.checkPermissions(); return p.receive === 'granted' ? await register() : ''; } catch (e) { return ''; } }, // silent: never asks
+      async perm() { try { return String((await PN.checkPermissions()).receive || ''); } catch (e) { return ''; } } }; // 'granted' | 'denied' | 'prompt'
+    try { if ((await PN.checkPermissions()).receive === 'granted') register(); } catch (e) {} // after a restart: the token exists again, so refresh and off keep working
+  } else if (LN) await chans(LN); // no Firebase: the channels for the local reminders only
+  if (LN) {
+    try { LN.addListener('localNotificationActionPerformed', a => { const x = (a && a.notification && a.notification.extra) || {}; open({ k: String(x.k || ''), id: '' }); }); } catch (e) {}
+    const perm = async () => { try { return String((await LN.checkPermissions()).display || ''); } catch (e) { return ''; } };
+    window.FV_LOCAL = { supported: true, perm,
+      async enable() { try { let p = await LN.checkPermissions(); if (p.display === 'prompt' || p.display === 'prompt-with-rationale') p = await LN.requestPermissions(); return p.display === 'granted'; } catch (e) { return false; } }, // the same Android permission as push
+      async schedule(list) { try { if ((await perm()) !== 'granted') return 0; const now = Date.now(), n = (Array.isArray(list) ? list : []).filter(x => x && x.id > 0 && x.at > now).slice(0, 10)
+          .map(x => ({ id: Math.floor(x.id), title: String(x.title || '').slice(0, 80), body: String(x.body || '').slice(0, 160), schedule: { at: new Date(x.at), allowWhileIdle: false }, channelId: 'spel', extra: { k: String(x.k || '') }, isExactNotification: false })); // inexact: never the exact-alarm screen
+        if (!n.length) return 0; await LN.schedule({ notifications: n }); return n.length; } catch (e) { console.warn('local schedule', e); return 0; } },
+      async cancel(ids) { try { const n = (Array.isArray(ids) ? ids : []).filter(x => x > 0).map(id => ({ id: Math.floor(id) })); if (n.length) await LN.cancel({ notifications: n }); return true; } catch (e) { return false; } } };
+    try { window.dispatchEvent(new CustomEvent('fvlocalready')); } catch (e) {} // the game (loaded before this file) books and cancels what was planned now
+  }
 })();

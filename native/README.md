@@ -46,6 +46,24 @@ van 23 oktober: die had de testcode van Google (`ca-app-pub-3940256099942544~334
 Zet in dezelfde file bij `<activity ... android:name=".MainActivity"` ook `android:screenOrientation="portrait"`
 (het spel is staand).
 
+## Geen exacte wekkers in AndroidManifest.xml (v0.33.2, één keer)
+
+De herinneringen van de telefoon zelf (hartjes, keuken, toernooi, Fruitpas) hoeven niet op de minuut juist te komen. De
+meldingsmodule `@capacitor/local-notifications` zet toch de toestemming "Wekkers en herinneringen" (`SCHEDULE_EXACT_ALARM`)
+in de app. Haal die zo weg:
+
+1. Open `android/app/src/main/AndroidManifest.xml` in Kladblok.
+2. Zoek de regel die begint met `<manifest`. Staat daar nog geen `xmlns:tools`, zet dan net na `<manifest` een spatie en
+   `xmlns:tools="http://schemas.android.com/tools"`.
+3. Zet vlak boven de laatste regel (`</manifest>`) deze regel:
+
+```xml
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />
+```
+
+4. Bewaar het bestand.
+5. Doe `npm run sync`. Daar moet nu `exact alarms (SCHEDULE_EXACT_ALARM): removed` staan.
+
 ## AdMob-codes van Pieter (aangemaakt op 5 november 2026, ingevuld op 10 november 2026)
 
 Deze codes zijn geen geheimen: ze staan ook in de app zelf.
@@ -85,8 +103,11 @@ als testapparaat toegevoegd ("GSM Pieter").
   hoofdscherm met niets open zet hij de app op de achtergrond.
 - Met Reclamevrij of Plus (`adFree()` in het spel) toont `showAd` geen video: de beloning komt meteen, zoals de
   winkel belooft.
-- Pushmeldingen staan uit (`FCM_READY = false`) tot `google-services.json` in `android/app` staat
-  (zie `tourney/README.md`).
+- Pushmeldingen (v0.33.2 push332): de app gebruikt ze vanzelf zodra `google-services.json` in `android/app` staat en je
+  `npm install` en `npm run sync` deed (`npm run sync` toont dan `app push (FCM): ON`). Zonder dat bestand blijven ze uit en
+  crasht er niets. De herinneringen van de telefoon zelf (hartjes, keuken, toernooi, Fruitpas) komen van
+  `@capacitor/local-notifications` en werken ook zonder Firebase (zie `tourney/README.md`). Ze komen niet op de minuut juist en
+  gebruiken geen exacte wekkers (zie "Geen exacte wekkers in AndroidManifest.xml" hierboven).
 - Zonder internet of zonder sleutels doet de brug niets; het spel blijft speelbaar.
 
 ## Wat niet in GitHub hoort

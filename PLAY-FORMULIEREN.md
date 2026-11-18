@@ -175,11 +175,24 @@ privacybeleid noemt nu eerst die knop en daarna de mail. Een verzoek per mail vo
 | App-activiteit > **Andere door gebruikers gemaakte content** | Nee | | | | (niet aanvinken: er is geen chat of vrije tekst behalve de naam, die staat al bij Naam) |
 | App-info en prestaties > **Crashlogs** | Ja | Ja (Google AdMob) | Verplicht | Advertenties of marketing, Analyse, Fraudepreventie | De AdMob-software (Google noemt crashlogs bij de diagnostische gegevens van de Mobile Ads SDK) |
 | App-info en prestaties > **Diagnostiek** | Ja | Ja (Google AdMob) | Verplicht | Advertenties of marketing, Analyse, Fraudepreventie | De AdMob-software (prestaties van advertenties, fouten bij laden). Het spel zelf verzamelt geen crashrapporten of statistieken. |
-| Apparaat- of andere ID's | Ja | Ja (Google AdMob: het advertentie-ID) | Verplicht | Advertenties of marketing, Analyse, Fraudepreventie, App-functionaliteit | Advertentie-ID (AdMob); later ook een pushtoken van Firebase Cloud Messaging als meldingen aan staan |
+| Apparaat- of andere ID's | Ja | Ja (Google AdMob: het advertentie-ID) | Verplicht | Advertenties of marketing, Analyse, Fraudepreventie, App-functionaliteit | Advertentie-ID (AdMob); vanaf v0.33.2 ook de meldingscode (token) van Firebase Cloud Messaging, alleen als de speler meldingen aanzet: voor App-functionaliteit, niet gedeeld, weg zodra meldingen uit gaan of na 60 dagen zonder vernieuwing |
 
 Niet aanvinken (het spel doet dit niet): e-mailadres, adres, telefoonnummer, nauwkeurige locatie, betaalgegevens
 (Google regelt het betalen), contacten, berichten, foto's, video's, audio, bestanden, agenda, gezondheid,
 webgeschiedenis, geïnstalleerde apps.
+
+v0.33.2 (meldingen, keuze 1A 2A 3A 4A 5A 6A 7B) verandert niets aan de vinkjes: de rij "Apparaat- of andere ID's" stond al op
+"verzameld" (voor het advertentie-ID) en App-functionaliteit staat er al bij; alleen de uitleg in die rij verandert (zie hierboven). De
+keuzes voor meldingen, de lijst "Geen meldingen over" en de dagtellers horen bij App-interacties (App-functionaliteit), net als de rest
+van je profiel. De herinneringen voor hartjes, keuken, toernooi en Fruitpas plant de telefoon zelf in: daarvoor gaat er niets naar de
+server. Geen nieuwe categorie, niets gedeeld.
+
+v0.33.2 (de Weekkeuring: proeven bij vrienden) verandert ook niets aan de vinkjes. De samenvatting van je Eetzaal (rang,
+gerechten met een ster, borden van deze week, doelen, gasten per dag) hoort bij je profiel en alleen je vrienden zien ze. Een
+proefbezoek (wie bij wie proefde, dag, week, gerecht, tijdstip) en de tellers per dag en per week zijn spelactiviteit: App-interacties,
+al aangevinkt met App-functionaliteit en Fraudepreventie (de server telt er de grenzen mee: één keer per vriend per dag, hoogstens 3
+keer per dag). De vriend bij wie je proeft krijgt een bericht met je spelersnaam en het gerecht. Niets gedeeld, weg met het account.
+Het privacybeleid (punt 5, 13 en 14) beschrijft het; de link blijft dezelfde.
 
 v0.32.10 (het live beeld in het vriendenduel, via de Firebase Realtime Database) verandert niets aan deze antwoorden: het
 is de plaats van je fruit op het speelveld (geen locatie van je toestel) en je score, het valt onder App-interacties,
@@ -238,5 +251,9 @@ link naar het privacybeleid en de link om je account te verwijderen (hierboven).
 
 ## 10. Wat je pas later invult
 
-- **Rechten voor meldingen**: pas als pushmeldingen aan staan (`FCM_READY = true`), geen apart formulier nodig.
+- **Rechten voor meldingen** (v0.33.2): geen apart formulier nodig. De app vraagt de Android-toestemming voor meldingen pas na de eigen
+  kaart van het spel. De herinneringen worden op de telefoon zelf ingepland, niet op de minuut juist (geen exacte wekkers). De
+  meldingsmodule zet zelf wel de toestemming "Wekkers en herinneringen" (SCHEDULE_EXACT_ALARM) in de app: haal die weg met de stap
+  "Geen exacte wekkers in AndroidManifest.xml" in `native/README.md` van de prototypemap (`npm run sync` meldt of het gebeurd is).
+  Dan hoeft er in de Play Console niets over wekkers ingevuld te worden.
 - **app-ads.txt**: AdMob controleert dit op je website (zie UITROL-STAPPEN.md, deel B).

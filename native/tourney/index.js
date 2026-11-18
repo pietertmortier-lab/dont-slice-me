@@ -21,7 +21,7 @@ const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', MAX_FRIENDS = 50, FRIEND_
 // Duels (v0.29): one seeded knife sequence a day; a player is paired with a finished entry of a similar level and sees
 // its ghost. Friend challenges are settled when both have played that day's duel. Rivals: two players just above you.
 const TIP_SAP = 100, APPLIANCES = ['plank', 'oven', 'koelkast', 'vitrine'];
-const kitchenOf = k => { if (!k || typeof k !== 'object') return null; const lv = {}; for (const a of APPLIANCES) lv[a] = clampInt(k.lv && k.lv[a], 0, 5); return { lv, tier: clampInt(k.tier, 0, 3), fruit: String(k.fruit || 'appel').slice(0, 24), hat: String(k.hat || 'none').slice(0, 24), tips: clampInt(k.tips, 0, 1e6), score: clampInt(k.score, 0, 1e6) }; };
+const kitchenOf = k => { if (!k || typeof k !== 'object') return null; const lv = {}; for (const a of APPLIANCES) lv[a] = clampInt(k.lv && k.lv[a], 0, 5); return zaalOf(k.zaal, { lv, tier: clampInt(k.tier, 0, 3), fruit: String(k.fruit || 'appel').slice(0, 24), hat: String(k.hat || 'none').slice(0, 24), tips: clampInt(k.tips, 0, 1e6), score: clampInt(k.score, 0, 1e6) }); }; // v0.33.2: + the Eetzaal summary
 const DUEL_MAX_PER_SEC = 15, CHALLENGE_SAP = 200, LOSER_HAT = 'pannetje', GHOST_MAX = 2400, DAY_RX = /^\d{4}-\d{2}-\d{2}$/;
 const bandOf = level => Math.floor(Math.max(1, Number(level) || 1) / 15);
 // v0.32 duels per hour, ghosts and friend requests. hello tells a client what this server can do. A ghost is one finished duel
@@ -39,7 +39,7 @@ const bandOf = level => Math.floor(Math.max(1, Number(level) || 1) / 15);
 // FRIEND_SAP is paid once per pair.
 const crypto = require('crypto');
 const SAVE_HISTORY_DAYS = 7; // v0.32.2: one copy of the save per day, the last 7 days (saves/{uid}/history/{YYYY-MM-DD})
-const SERVER_V = 34, CLIENT_V = 32, POLL_V = 33, CAPS = ['find', 'request', 'duel2', 'duel3'], DUEL_DAY_MAX = 15, HOUR_MS = 3600000, GHOST_KEEP = 20, GHOST_DAYS = 3, GHOST_RECENT_MS = 48 * HOUR_MS;
+const SERVER_V = 35 /* v0.33.2 push332 */, CLIENT_V = 32, POLL_V = 33, CAPS = ['find', 'request', 'duel2', 'duel3'], DUEL_DAY_MAX = 15, HOUR_MS = 3600000, GHOST_KEEP = 20, GHOST_DAYS = 3, GHOST_RECENT_MS = 48 * HOUR_MS;
 const CHALLENGE_MS = 24 * HOUR_MS, CHALLENGE_GRACE_MS = 20000, CHALLENGE_PLAY_MS = 3 * 60000, DUEL_T_MAX = 95000;
 const FIND_MAX = 20, FIND_IP_MAX = 60, FIND_WINDOW_MS = 10 * 60000, REQ_IN_MAX = 20, REQ_OUT_DAY = 20, REQ_TTL_MS = 14 * 86400000, REFUSED_MS = 7 * 86400000, MAX_JOIN_REWARDS = 10, SEED_RX = /^[A-Za-z0-9.\-]{4,40}$/;
 const ghostBand = level => Math.floor(Math.max(1, Number(level) || 1) / 10);
@@ -53,6 +53,44 @@ const playerName = v => { const n = String(v || 'Fruit').replace(/[^\p{L}\p{N} \
 // Blocks: blocks/{uid}.list [{ u, n, at }]; the game only ever sees a key (a hash), never the uid of a non-friend.
 const NM_HID = 'Speler', NM_REP_DAY = 10, NM_REP_IP_DAY = 60, PEEK_HOUR = 10, PEEK_IP_HOUR = 60, NM_REP_HIDE = 3, NM_BLOCK_MAX = 200, NM_WHY = ['name', 'other'];
 CAPS.push('names'); // hello: the game shows the report / block buttons only with this server
+CAPS.push('proef'); // v0.33.2 hello: this server takes proeven (the Weekkeuring); an older server does not list it, so the game offers no Proef
+// v0.33.2 proef BEGIN: proeven for the Weekkeuring. A friend taps Proef on a dish in my Eetzaal: I get 1 plate and 2 pluimen (by note), the taster 2 pluimen
+// (his client, after ok). Only between friends who were friends before this week began (friends.since), never with a block either way, never from a fresh
+// account (Firebase Auth older than 7 days and 3 played game days of the last 14, the live-duel rules), once per friend per day (tastes/{day}_{from}_{to}),
+// at most PROEF_GIVE a day given and PROEF_GET a day / PROEF_WEEK a week received (profiles/{uid}.zw, only written here, in one transaction with the
+// tastes document). The day and the week turn at 07:00 UTC (isoWeek), like the game's keuring. The host needs an Eetzaal in its profile (kitchen.zaal,
+// sent only by v0.33.2 clients), so a v0.33.1 client never gets a proef note. Rivals (non-friends) never see the Eetzaal summary.
+const PROEF_GIVE = 3, PROEF_GET = 5, PROEF_WEEK = 12, PROEF_AGE_MS = 7 * 86400000, PROEF_ACT = 3;
+function zaalOf(z, out) { // the Eetzaal summary of a v0.33.2 client: { r, d, b, t, w, g }; anything else is dropped (an older client sends none)
+  if (!z || typeof z !== 'object') return out; const r = clampInt(z.r, 0, 6); if (r < 1) return out;
+  const t = (Array.isArray(z.t) ? z.t : []).slice(0, 3).map(x => clampInt(x, 1, 999)); if (t.length !== 3) return out;
+  const d = [...new Set((Array.isArray(z.d) ? z.d : []).map(String).filter(x => DUEL_FRUITS.includes(x)))].slice(0, 30), w = String(z.w || '');
+  out.zaal = { r, d, b: clampInt(z.b, 0, 9999), t, w: /^\d{4}-W\d{2}$/.test(w) ? w : '', g: clampInt(z.g, 1, 9) }; return out;
+}
+function zaalHide(v) { if (!v || !v.kitchen || !v.kitchen.zaal) return v; const k = Object.assign({}, v.kitchen); delete k.zaal; return Object.assign({}, v, { kitchen: k }); } // rivals: friends only
+function proefWeekStart(key) { const [y, w] = String(key).split('-W').map(Number), j4 = Date.UTC(y, 0, 4), day = (new Date(j4).getUTCDay() + 6) % 7; return j4 - day * 86400000 + (w - 1) * 7 * 86400000 + 7 * 3600000; } // Monday 07:00 UTC of an isoWeek key
+async function proefAction(uid, body, res) { // { uid, k } -> { ok, w } | { ok: false, error: notfriend | fresh | nozaal | new | already | limit | full }
+  const other = String(body.uid || '').slice(0, 128); if (!other || other === uid || other.includes('/')) { res.status(400).json({ error: 'uid' }); return; }
+  const now = Date.now(), wk = isoWeek(new Date(now)), day = new Date(now - 7 * 3600000).toISOString().slice(0, 10), ws = proefWeekStart(wk);
+  const [fr, mp, op] = await Promise.all([db.doc(`friends/${uid}/of/${other}`).get(), db.doc(`profiles/${uid}`).get(), db.doc(`profiles/${other}`).get()]);
+  if (!fr.exists || await nmBlocked(uid, other)) { res.json({ ok: false, error: 'notfriend' }); return; } // a block looks like no friendship
+  const since = msOf((fr.data() || {}).since); if (!(since > 0) || since >= ws) { res.json({ ok: false, error: 'fresh' }); return; }
+  const me = mp.data() || {}, ho = op.data() || {}, hz = ho.kitchen && ho.kitchen.zaal;
+  if (!op.exists || !hz || !(hz.r >= 1)) { res.json({ ok: false, error: 'nozaal' }); return; }
+  let first = me.firstMs || 0; if (!first) { first = await ldFirstMs(uid, now); if (first) await db.doc(`profiles/${uid}`).set({ firstMs: first }, { merge: true }); }
+  if (!(first > 0) || now - first < PROEF_AGE_MS || ldActive(me, now) < PROEF_ACT) { res.json({ ok: false, error: 'new' }); return; }
+  const k = DUEL_FRUITS.includes(String(body.k || '')) ? String(body.k) : '', tref = db.doc(`tastes/${day}_${uid}_${other}`), mref = db.doc(`profiles/${uid}`), href = db.doc(`profiles/${other}`);
+  const out = await db.runTransaction(async tx => { const t = await tx.get(tref), m = await tx.get(mref), h = await tx.get(href);
+    if (t.exists) return 'already'; const mz = (m.data() || {}).zw || {}, hw = (h.data() || {}).zw || {};
+    const give = mz.d === day ? mz.g || 0 : 0, rDay = hw.rd === day ? hw.r || 0 : 0, rWk = hw.w === wk ? hw.rw || 0 : 0;
+    if (give >= PROEF_GIVE) return 'limit'; if (rDay >= PROEF_GET || rWk >= PROEF_WEEK) return 'full';
+    tx.set(tref, { from: uid, to: other, day, week: wk, k, at: now }); tx.set(mref, { zw: Object.assign({}, mz, { d: day, g: give + 1 }) }, { merge: true });
+    tx.set(href, { zw: Object.assign({}, hw, { rd: day, r: rDay + 1, w: wk, rw: rWk + 1 }) }, { merge: true }); return ''; });
+  if (out) { res.json({ ok: false, error: out }); return; }
+  await noteTo(other, { type: 'proef', by: me.name ? nmShow(me.name) : '', k, w: wk, id: `p_${uid}_${other}` }); // the id names both: a deletion removes the note; the name as friends see it (nmShow: an old unfiltered name shows 'Speler'), none: the game says "Een vriend" in the player's language (review W-R8)
+  res.json({ ok: true, w: wk });
+}
+// v0.33.2 proef END
 // v0.32.9 name filter (the same text in the game and in the server; the server decides). NL, EN and FR slurs, insults, sexual and hate terms.
 // W: whole words only (a name word that IS the term). P: a name word that starts with the term. S: anywhere, also across spaces and separators.
 // Before matching: case, accents, look-alike letters, leetspeak (0 o, 1 i or l, 3 e, 4 a, 5 s, 7 t, @ a, $ s, ...) and repeated letters
@@ -254,6 +292,10 @@ async function settleStale(ref) { // a friend duel that was started (duelfind) b
 }
 const dayOk = day => { if (!DAY_RX.test(String(day || ''))) return false; const t = Date.parse(day + 'T12:00:00Z'); return Math.abs(t - Date.now()) < 2 * 86400000; }; // today, give or take a day of timezone
 const noteTo = (other, note) => db.doc(`profiles/${other}`).set({ notes: admin.firestore.FieldValue.arrayUnion(Object.assign({ at: Date.now() }, note)) }, { merge: true });
+const NOTE_MAX = 20; // v0.33.2 int-fix1 (review V3): the friends action hands out at most this many notes per call; the rest wait for the next call (nothing is dropped)
+async function notesTake(ref, pending, max) { // one transaction: the oldest notes up to max (and, with pending, every reward) out, the rest kept; a note that arrives meanwhile is never lost
+  return db.runTransaction(async tx => { const d = (await tx.get(ref)).data() || {}, all = Array.isArray(d.notes) ? d.notes : [], out = all.slice(0, Math.max(0, max)), pend = pending && Array.isArray(d.pending) ? d.pending : [], upd = {};
+    if (out.length) upd.notes = all.slice(out.length); if (pend.length) upd.pending = []; if (Object.keys(upd).length) tx.set(ref, upd, { merge: true }); return { pend, out }; }); }
 async function settleChallenge(day, c, ref) { // both entries present: the higher score wins; a tie pays nothing
   const [a, b] = await Promise.all([db.doc(`duels/${day}/entries/${c.from}`).get(), db.doc(`duels/${day}/entries/${c.to}`).get()]);
   if (!a.exists || !b.exists) return false; const sa = a.data().score || 0, sb = b.data().score || 0;
@@ -399,6 +441,72 @@ function ldVapid() { // the VAPID key pair from the Firebase secret LIVEDUEL_VAP
   try { const j = JSON.parse(String(v || '').trim()); if (j && j.publicKey && j.privateKey) ldVapidV = { publicKey: String(j.publicKey), privateKey: String(j.privateKey) }; } catch (e) {}
   return ldVapidV;
 }
+// v0.33.2 LDFIX332 SERVER BLOCK: the live view in quick lobbies, and a live duel left by a restarted app (Pieter's phones on v0.33.1). Every
+// older client keeps working: only the moment of a go, the run doc of a seat that leaves after its start and the inlobby / busy answers for a
+// player whose seat ended change; the replies keep their shape (the lobby view adds hold).
+//  S1 rc: a joined seat's rc is stored by ANY ldlobby call that carries rc 1 when the stored one is missing or LD_RC_STORE_MS old (so the
+//     first one at once); the 4 s seen tick keeps refreshing it as before. v0.33.1 stored it only on that tick, never earlier than ~4 s after
+//     a seat joined, so a quick Klaar fixed ar 0 at go (no live view).
+//  S2 the go hold: when the go of a live-view lobby (ldHoldable: 1-on-1, the RTDB room, both seats v >= 3) is due (both Klaar, or the time is
+//     up) while a seat has no rc within LD_RC_MS, the lobby keeps counting until every seat has one (then the go, ar 1) or until LD_RC_HOLD_MS
+//     after the hold began (then the go as before, ar may be 0). holdAt is written once per hold; the view says hold: 1 meanwhile (an older
+//     client simply keeps its count screen); the go keeps holdMs (how long it held, diagnostics). A lobby that cannot get ar is never held.
+//  S3 a leave (ldlobby { leave: true }) after the go: a seat that already started ends like a quit final (its last beat's s and t, quit, no
+//     ghost, via 'leave') in the same transaction; then the settle is tried when the other seat ended, is dead or never started, so two killed
+//     apps get their result at once. A 'go' lobby no longer holds a player whose seat ended (a final, or a no-show that left or missed the
+//     start): ldinvite / ldanswer give no inlobby / busy for it, while the profile pointer stays so that ldpoll still reports the result. A
+//     seat that still plays (beats) keeps the lobby alive for the friend, as before.
+//  hello caps 'ldhold': this server holds the go itself, so the game needs no gate of its own.
+const LD_RC_STORE_MS = 5000, LD_RC_HOLD_MS = 8000; // 5 s: the first rc at once, then the seen tick (every >= 4 s) refreshes it, so no extra lobby write per 2 s poll
+const LD_PLAYS_MS = 10000; // fix2 RR1-2: a seat whose last beat is at most 10 s old is being played right now (the game beats every 3 s, also while paused)
+CAPS.push('ldhold');
+const ldHoldable = l => LD_AR_OK && !!LD_RTDB_URL && l.rt === 1 && (l.cap || 2) === 2 && (l.m || []).length === 2 && l.m.every(s => (s.v || 0) >= 3); // ldArOk without the rc
+function ldHoldOf(l, now) { // S2, in ldEval when the go is due: 0 go now, 1 keep counting, 2 keep counting (the hold starts now: one write)
+  if (!ldHoldable(l) || ldArOk(l, now) === 1) return 0;
+  if (!((l.holdAt || 0) > 0)) { l.holdAt = now; return 2; }
+  return now < l.holdAt + LD_RC_HOLD_MS ? 1 : 0;
+}
+const ldHoldView = (l, now) => l.state === 'count' && !l.res && (l.holdAt || 0) > 0 && now < l.holdAt + LD_RC_HOLD_MS ? 1 : 0;
+async function ldHeldTx(tx, l, id, uid, now, info) { // S3, inside a transaction before its writes: true while the stored lobby l (document id) still holds player uid; fix2 RR1-2: info.play = that seat still beats (the player plays it now)
+  if (!l || !id) return false; const c = ldRo(l, now); if (!ldAlive(c, now)) return false; if (c.state !== 'go') return true; // waiting or counting: held as before
+  const s = (c.m || []).find(x => x.uid === uid); if (!s) return true; if (s.left) return false; // a no-show that left: free without a read
+  const x = (await tx.get(db.doc(`ldlobby/${id}/live/${uid}`))).data() || null; if (info) info.play = !!(x && x.go && !x.fin && now - (x.at || 0) <= LD_PLAYS_MS);
+  return !['fin', 'none'].includes(ldSeatEnd(c, s, x, now)); // still playing, cut off but not settled yet, or may still start: held
+}
+const ldByeFin = (x, now) => { const f = x.fl || {}; return { s: x.s || 0, t: x.t || 0, quit: true, died: false, at: now, nm: 0, ne: -1, nr: 0, so: f.so ? 1 : 0, cm: f.cm ? 1 : 0, ed: f.ed ? 1 : 0, cl: 0, via: 'leave' }; }; // what ldend writes for a quit that carries no body fields
+async function ldByeTx(tx, l, id, uid, me, x, now) { // S3, in the ldlobby transaction of a leave after the go: the reads first, then my run's write
+  const xd = x && x.exists ? x.data() || null : null, quit = !!(xd && xd.go && !xd.fin);
+  const mine = quit ? Object.assign({}, xd, { fin: ldByeFin(xd, now), gh: '', gt: 0, expireAt: new Date(now + LD_KEEP_MS) }) : xd;
+  const o = (l.m || []).find(s => s.uid !== uid), ended = ['fin', 'none'].includes(ldSeatEnd(l, me, mine, now));
+  const od = o && ended ? (await tx.get(db.doc(`ldlobby/${id}/live/${o.uid}`))).data() || null : undefined; // the other seat: is a settle possible now?
+  if (quit) tx.set(db.doc(`ldlobby/${id}/live/${uid}`), mine);
+  return { quit, settle: od !== undefined && !['wait', 'play'].includes(ldSeatEnd(l, o, od, now)) };
+}
+async function ldByeAfter(id, uid, l, bye, now) { // S3, after the transaction: the played day of a final (as ldend), then the settle (as ldpoll, without its 110 s wait)
+  if (bye.quit) await ldMark(uid);
+  if (!bye.settle) return;
+  try { const s2 = await ldSettle(id, now, l); if (s2) Object.assign(l, s2); } catch (e) { console.error('ld332 settle', (e && e.message) || e); } // a later ldpoll / ldres settles it
+}
+function ldDoneWith(mp, lm, to, now) { // fix1 F1-soon: my last live duel with this friend ended after my last invite to him (the 2-minute 'same' wait was for that duel's
+  // invite): a new invite is a rematch, from the friend card too (v0.33.1: only 'Nog een keer' with again; after two killed apps the S3 settle came
+  // so early that the friend card said 'Even wachten' for up to 2 minutes). Once a new invite went out, the wait counts again.
+  const last = (mp.ldLast && mp.ldLast.to === to && mp.ldLast.at) || 0;
+  if (mp.ldDone && mp.ldDone.with === to && now - (mp.ldDone.at || 0) < LD_AGAIN_MS && (mp.ldDone.at || 0) >= last) return true;
+  return !!lm && !!lm.res && lm.res.kind === 'live' && (lm.m || []).some(s => s.uid === to) && now - (lm.doneAt || 0) < LD_AGAIN_MS && (lm.doneAt || 0) >= last; } // settled, my poll has not reported it yet
+function ldPrevOf(l, id, p, uid) { // fix1 F1 + fix2 RR1-1: ldanswer moves, ldinvite clears a lobby pointer (profile p, player uid) that still points at a duel that started: keep its id in
+  // ldPrev, so ldpoll still settles it and reports its result once. A pointer that still points there means no poll reported the result yet (ldpoll, ldres and ldend clear it when
+  // they hand it out). fix1 kept only an unsettled one (ldanswer); a result settled by the friend's leave between my leave and my next poll was lost when I invited or accepted
+  // first. Never in place of another earlier duel (it may still need my poll for its settle).
+  if (!l || !id || !(l.state === 'go' || l.res) || !(l.m || []).some(s => s.uid === uid) || (p.ldPrev && p.ldPrev !== id)) return {};
+  return { ldPrev: id }; }
+async function ldPrevPoll(id, uid, now, report) { // fix1 F1, in ldpoll: that earlier duel is settled by my poll from LD_SETTLE_POLL_MS on (as the pointer's own lobby); its result is reported
+  // once as the poll's lobby when the poll reports no other lobby (report), so every client shows it with its normal code (v0.33.2: the result of a shut lobby, C5)
+  let l = (await db.doc(`ldlobby/${id}`).get()).data();
+  if (!l || !(l.m || []).some(s => s.uid === uid)) return { view: null, clear: true };
+  if (l.state === 'go' && !l.res && now >= (l.startAt || 0) + LD_SETTLE_POLL_MS) { try { const s2 = await ldSettle(id, now, l); if (s2) l = s2; } catch (e) { console.error('ld332 prev', (e && e.message) || e); } }
+  if (l.res) { if (!report) return { view: null, clear: false }; const c = ldRo(l, now); c.id = id; const o = c.m.find(s => s.uid !== uid); return { view: ldView(c, uid, now, false), clear: true, done: c.res.kind === 'live' && o ? { with: o.uid, at: now } : null }; } // settled: kept until the poll reports no other lobby
+  return { view: null, clear: !ldAlive(ldRo(l, now), now) }; } // still running (or dead but not settled yet): ask again with the next poll
+// v0.33.2 LDFIX332 SERVER BLOCK END
 // -- the lobby: a seat's state comes from its timestamps only
 function ldSeat(l, s, now) { // in, since when it is away, and whether the 2-minute rule removes it now
   const isIn = !s.left && !!s.joined && now - (s.seen || 0) <= LD_IN_MS;
@@ -416,8 +524,9 @@ function ldEval(l, now, ro) { // mutates l; returns true when it changed. ro (re
   const allIn = l.m.every(s => ldSeat(l, s, now).isIn);
   if (l.state === 'wait' && allIn) { l.state = 'count'; l.countEnd = now + ((l.countLeft || 0) > 0 ? Math.max(LD_RESUME_MIN_MS, l.countLeft) : LD_COUNT_MS); l.countLeft = 0; ch = true; } // v0.32.8: a count that was interrupted resumes with its time left (at least 20 s), never a fresh 90 s
   else if (l.state === 'count' && !allIn) { l.state = 'wait'; l.countLeft = Math.max(1, (l.countEnd || 0) - now); l.countEnd = 0; ch = true; }
-  if (l.state === 'count' && (now >= l.countEnd || l.m.every(s => (s.rd || 0) > 0))) { /* v0.32.8: the time is up, or every seat tapped Klaar */ const same = String((l.opts && l.opts.fruit) || '').startsWith('same:') ? ldFruit(l.opts.fruit.slice(5)) : '';
-    l.state = 'go'; l.startAt = now + LD_GO_MS; l.seed = 'L' + ldId().slice(0, 10); for (const s of l.m) s.fruit = same || ldFruit(s.fruit); l.ar = ldArOk(l, now); /* v0.32.10 */ l.ab = l.ar === 1 && ldAbOk(l) ? 1 : 0; /* v0.32.11 WP5 */ ch = true; } // the fruits are locked here
+  if (l.state === 'count' && (now >= l.countEnd || l.m.every(s => (s.rd || 0) > 0))) { /* v0.32.8: the time is up, or every seat tapped Klaar */ { const hd = ldHoldOf(l, now); if (hd) return ch || hd === 2; } /* v0.33.2 ld332 S2: the go waits for the live view */ const same = String((l.opts && l.opts.fruit) || '').startsWith('same:') ? ldFruit(l.opts.fruit.slice(5)) : '';
+    l.state = 'go'; l.startAt = now + LD_GO_MS; l.seed = 'L' + ldId().slice(0, 10); for (const s of l.m) s.fruit = same || ldFruit(s.fruit); l.ar = ldArOk(l, now); /* v0.32.10 */ l.ab = l.ar === 1 && ldAbOk(l) ? 1 : 0; /* v0.32.11 WP5 */ if (l.holdAt) { l.holdMs = now - l.holdAt; delete l.holdAt; } /* v0.33.2 ld332 S2 */ ch = true; } // the fruits are locked here
+  else if (l.holdAt) { delete l.holdAt; ch = true; } // v0.33.2 ld332 S2: no go due any more (a Klaar taken back, a seat away): the next due go gets its own hold
   return ch;
 }
 const ldRo = (l, now) => { const c = Object.assign({}, l, { m: (l.m || []).map(s => Object.assign({}, s)), kicked: (l.kicked || []).slice() }); ldEval(c, now, true); return c; };
@@ -438,12 +547,101 @@ async function ldPushTo(uid, msg) { // msg { k: 'ldinv' | 'ldlobby', n, id, exp 
   await Promise.race([Promise.allSettled(subs.map(one)), new Promise(r => setTimeout(r, LD_PUSH_WAIT_MS))]); // the reply never waits longer than 2.5 s (the client waits 5-6 s); a late answer is not counted
   const got = n, drop = dead.concat(bad.filter(s => (s.fail || 0) + 1 >= LD_PUSH_FAILS)); // answers that came in time only
   if (drop.length || bad.length || good.length) { const keep = all.filter(s => !drop.includes(s)).map(s => bad.includes(s) ? Object.assign({}, s, { fail: (s.fail || 0) + 1 }) : good.includes(s) ? Object.assign({}, s, { fail: 0 }) : s); // a push service that keeps refusing this subscription (a changed key pair: 403): dropped after LD_PUSH_FAILS in a row, so friends stop reading "krijgt een melding"
-    await Promise.all([ref.set({ subs: keep, expireAt: new Date(keep.reduce((m, s) => Math.max(m, s.until || 0), now)) })].concat(drop.length ? [db.doc(`profiles/${uid}`).set({ ldPuUntil: ldPuOf(keep) }, { merge: true })] : [])); }
+    await Promise.all([ref.set({ subs: keep, expireAt: new Date(keep.reduce((m, s) => Math.max(m, s.until || 0), now)) }, { merge: true })].concat(drop.length ? [db.doc(`profiles/${uid}`).set({ ldPuUntil: ldPuOf(keep), ldFrUntil: pnFrOf(keep) }, { merge: true })] : [])); }
   return got;
 }
+// v0.33.2 PUSH332 SERVER BLOCK: all notifications (Pieter, 17 Nov 2026: 1A 2A 3A 4A 5A 6A 7B). New kinds, only for subscriptions of a v0.33.2
+// client (v 2, with their own flags; an older subscription keeps getting only ldinv/ldlobby, which its service worker knows):
+//   frplay  "Lotte speelt nu" - a friend opened the game after 3 hours away and lets friends know (2A, ldTell, off by default; ldHide wins);
+//   chal    a 24 h challenge arrived; freq a friend request arrived; tnend/tnres the tournament (web subscriptions only, pnWeek; the app plans
+//           these on the phone). Limits per receiver (6A) on the receiver's own day: frplay 1 per friend and 2 a day, the web tournament 1 a
+//           day, all of them together 3 a day (2 when a phone of that player plans its own game reminders, loc); a frplay within 15 minutes
+//           of the previous one joins it, not counted again: a phone keeps the first notification (an FCM update would sound and pop up
+//           again), a browser's is replaced quietly ("Tom en nog 1 vriend spelen nu", same tag, renotify off). Quiet hours 21:00-08:00 on
+//           each phone (4A, every new kind); nothing new for a player who did not play for 14 days. Per-friend mute (profiles/{uid}.pnMute,
+//           set only by pnmute) for frplay, chal and ldinv. The counters live in ldpush/{uid}.cnt (a friend only as a short hash, no name; the
+//           counter starts again with the first notification of a new day, and a deleted account's hash leaves its friends' counters at once);
+//           the fan-out rides on ldpoll (no scheduler, no extra phone work).
+const PN_AWAY_MS = 3 * HOUR_MS, PN_FAN_GAP_MS = 3 * HOUR_MS, PN_FAN_MS = 2000, PN_MERGE_MS = 15 * 60000, PN_IDLE_MS = 14 * 86400000, PN_DAY_MAX = 3, PN_DAY_MAX_LOC = 2, PN_FP_DAY = 2, PN_G_DAY = 1, PN_MUTE_MAX = 50, PN_FP_TTL = 600, PN_TTL = 6 * 3600, PN_WEEK_PAR = 20;
+const PN_CAT = { frplay: 'fp', chal: 'fc', freq: 'fc', tnend: 'gt', tnres: 'gt' };
+CAPS.push('pn2'); // a v0.33.2 client knows this server keeps the new flags
+const PN_TEXT = { // only a display name, never a uid (the web gets the same keys and builds the text in sw.js)
+  nl: { frplay: (n, c) => c > 0 ? [`${n} en nog ${c} ${c === 1 ? 'vriend' : 'vrienden'} spelen nu`, 'Daag iemand uit voor een live duel!'] : [`${n} speelt nu`, `Daag ${n} uit voor een live duel!`],
+    chal: n => [`${n} daagt je uit (24 uur)`, 'Klop de score binnen 24 uur.'], freq: n => [`${n} wil je vriend worden`, 'Tik om te antwoorden.'],
+    tnend: () => ['Het toernooi sluit vanavond', 'Nog een paar uur om je plaats te verbeteren.'], tnres: () => ['De toernooi-uitslag is er', 'Kijk welke plaats je haalde.'] },
+  en: { frplay: (n, c) => c > 0 ? [`${n} and ${c} more ${c === 1 ? 'friend' : 'friends'} are playing`, 'Challenge someone to a live duel!'] : [`${n} is playing now`, `Challenge ${n} to a live duel!`],
+    chal: n => [`${n} challenged you (24 hours)`, 'Beat the score within 24 hours.'], freq: n => [`${n} wants to be friends`, 'Tap to answer.'],
+    tnend: () => ['The tournament closes tonight', 'A few more hours to improve your place.'], tnres: () => ['The tournament result is in', 'See which place you got.'] } };
+const pnV2 = s => !!s && (s.v || 0) >= 2;
+const pnDayOf = (tz, now) => new Date(now + clampInt(tz, -840, 840) * 60000).toISOString().slice(0, 10); // the receiver's own calendar day
+const pnHash = uid => hashOf('pn', uid).slice(0, 12); // a friend in the day counter: never the uid itself
+const pnFrOf = subs => subs.filter(s => pnV2(s) && s.fp).reduce((m, s) => Math.max(m, s.until || 0), 0); // "can get a frplay push" (profile ldFrUntil): friends who did not opt in cost no ldpush read
+const pnMuteOf = v => (Array.isArray(v) ? v : []).map(x => String(x || '').slice(0, 128)).filter(x => x && !x.includes('/')).filter((x, i, a) => a.indexOf(x) === i).slice(-PN_MUTE_MAX);
+const pnMuted = (p, from) => !!from && Array.isArray(p && p.pnMute) && p.pnMute.includes(from);
+function pnSubOf(body, kind) { if (!((Number(body.v) || 0) >= 2)) return {}; return { v: 2, fp: body.fp === true, fc: body.fc === true, gt: body.gt === true && kind === 'web', loc: body.loc === true && kind === 'fcm' }; } // ldpush: an older client sends no v
+function pnProfOf(subs) { const v2 = subs.filter(pnV2), o = { ldFrUntil: pnFrOf(subs) }; if (v2.length) o.pnTz = v2[v2.length - 1].tz || 0; return o; } // the mute list is never taken from ldpush: a device with an older save would undo a mute made on another device
+function pnPollFields(p, body, hide, now, upd) { // ldpoll: the 2A switch (only a boolean changes it: an older client leaves it) and whether this poll starts a fan-out
+  const t = typeof body.tell === 'boolean' ? body.tell : null; if (t !== null && !!p.ldTell !== t) upd.ldTell = t; const tell = t !== null ? t : !!p.ldTell;
+  if (!tell || hide || (p.ldSeen || 0) > now - PN_AWAY_MS || (p.frAt || 0) > now - PN_FAN_GAP_MS) return false; upd.frAt = now; return true; } // written before the fan-out: a retried poll never sends twice
+async function pnFanOut(uid, p, now) { // "Lotte speelt nu" to every friend who wants it, raced to PN_FAN_MS (the client waits 5 s)
+  try { const list = await db.collection(`friends/${uid}/of`).get(); if (list.empty) return 0;
+    const [docs, mine] = await Promise.all([db.getAll(...list.docs.map(d => db.doc(`profiles/${d.id}`))), nmMine(uid)]), name = playerName(p.name); let sent = 0;
+    const jobs = docs.filter(s => s.exists && !mine.has(s.id)).map(s => { const o = s.data() || {};
+      if (!((o.lv || 0) >= 1) || !((o.ldFrUntil || 0) > now) || ldHere(o, now) || ldQuietAt(o.pnTz !== undefined ? o.pnTz : o.ldTz, now) || pnMuted(o, uid) || pnIdle(o, now)) return null; // the friend plays now, sleeps, muted me or has not played for 14 days
+      return pnSend(s.id, { k: 'frplay', n: name, from: uid }).then(x => { sent += x; }, e => console.error('pn fan', (e && e.message) || e)); }).filter(Boolean);
+    await Promise.race([Promise.allSettled(jobs), new Promise(r => setTimeout(r, PN_FAN_MS))]); return sent; } catch (e) { console.error('pn fan', (e && e.message) || e); return 0; } }
+const pnIdle = (o, now) => Math.max(o.ldSeen || 0, o.updatedMs || 0) < now - PN_IDLE_MS; // did not play for 14 days: no friend notification any more (never a "come back" nudge)
+async function pnPing(to, msg, op) { // chal / freq: only when the friend's game is not open (the card shows it then), not idle for 14 days and not muted; at most PN_FAN_MS
+  try { const now = Date.now(); if (!op || ldHere(op, now) || pnIdle(op, now) || (msg.k === 'chal' && pnMuted(op, msg.from))) return 0; return await Promise.race([pnSend(to, msg), new Promise(r => setTimeout(() => r(0), PN_FAN_MS))]); } catch (e) { console.error('pn ping', (e && e.message) || e); return 0; } }
+async function pnSend(uid, msg) { // msg { k, n, from?, id? }: one transaction reserves the slot (limits, merging), then every allowed device at once
+  const cat = PN_CAT[msg.k]; if (!cat) return 0; const ref = db.doc(`ldpush/${uid}`), now = Date.now();
+  const R = await db.runTransaction(async tx => {
+    const d = (await tx.get(ref)).data() || {}, all = Array.isArray(d.subs) ? d.subs : [], live = all.filter(s => (s.until || 0) > now);
+    let subs = live.filter(s => pnV2(s) && s[cat] === true && !ldQuietAt(s.tz, now) && (cat !== 'gt' || s.kind === 'web')); if (!subs.length) return null;
+    const day = pnDayOf(subs[subs.length - 1].tz || 0, now), c0 = d.cnt && d.cnt.day === day ? d.cnt : null, c = { day, n: c0 ? c0.n || 0 : 0, fp: c0 ? c0.fp || 0 : 0, g: c0 ? c0.g || 0 : 0, by: Object.assign({}, (c0 && c0.by) || {}), grp: (c0 && c0.grp) || null };
+    const max = live.some(s => pnV2(s) && s.loc === true) ? PN_DAY_MAX_LOC : PN_DAY_MAX; let n = playerName(msg.n), merged = 0;
+    if (msg.k === 'frplay') { const fk = pnHash(msg.from || ''); if (c.by[fk]) return null; // 1 a day about one friend
+      if (c.grp && now - (c.grp.at || 0) < PN_MERGE_MS) { merged = (c.grp.c || 0) + 1; c.grp = { at: c.grp.at, c: merged }; subs = subs.filter(s => s.kind === 'web'); } // joins the one already shown: only a browser's is replaced (quietly); a phone keeps its first one
+      else { if (c.fp >= PN_FP_DAY || c.n >= max) return null; c.fp++; c.n++; c.grp = { at: now, c: 0 }; } // no name in the counter
+      c.by[fk] = 1; }
+    else if (cat === 'gt') { if (c.g >= PN_G_DAY || c.n >= max) return null; c.g++; c.n++; }
+    else { if (c.n >= max) return null; c.n++; }
+    tx.update(ref, { cnt: c }); return { subs, n, merged }; // v0.33.2 int-fix1 (review V1): the whole day counter is replaced (set with merge kept yesterday's friends in cnt.by on real Firestore); the document exists here
+  });
+  return R && R.subs.length ? pnDeliver(uid, ref, R.subs, Object.assign({}, msg, { n: R.n, c: R.merged }), now) : 0; }
+async function pnDeliver(uid, ref, subs, msg, now) { // like ldPushTo: web-push or FCM, at most LD_PUSH_WAIT_MS, dead subscriptions dropped, refusals counted
+  const ttl = msg.k === 'frplay' ? PN_FP_TTL : PN_TTL, v = ldVapid(), dead = [], bad = [], good = [], chan = PN_CAT[msg.k] === 'gt' ? 'spel' : 'vrienden', id = String(msg.id || '').slice(0, 12);
+  const tag = msg.k === 'frplay' ? 'frplay' : msg.k === 'freq' ? 'freq' : PN_CAT[msg.k] === 'gt' ? 'tn' : 'chal' + id; let got = 0;
+  const one = async s => { const lang = s.lang === 'en' ? 'en' : 'nl', L = PN_TEXT[lang][msg.k](msg.n, msg.c || 0);
+    try {
+      if (s.kind === 'web') { if (!ldWebPush || !v) return; await ldWebPush.sendNotification({ endpoint: s.ep, keys: s.keys }, JSON.stringify({ v: 2, k: msg.k, n: msg.n, c: msg.c || 0, id, lang }), { TTL: ttl, urgency: 'normal', topic: tag, timeout: LD_PUSH_WAIT_MS, vapidDetails: { subject: LD_PUSH_SUBJECT, publicKey: v.publicKey, privateKey: v.privateKey } }); got++; if (s.fail) good.push(s); }
+      else if (s.kind === 'fcm') { await admin.messaging().send({ token: s.tok, notification: { title: L[0], body: L[1] }, data: { k: msg.k, id, n: msg.n, c: String(msg.c || 0) }, android: { priority: 'normal', ttl: ttl * 1000, collapseKey: tag, notification: { tag, channelId: chan, visibility: 'private' } } }); got++; if (s.fail) good.push(s); }
+    } catch (e) { const c = e && (e.statusCode || (e.errorInfo && e.errorInfo.code) || e.code); if (LD_DEAD.has(c)) dead.push(s); else { if (LD_BAD(c)) bad.push(s); console.error('pnpush', c || e); } } };
+  await Promise.race([Promise.allSettled(subs.map(one)), new Promise(r => setTimeout(r, LD_PUSH_WAIT_MS))]);
+  if (dead.length || bad.length || good.length) { const key = s => s.ep || s.tok, has = (list, s) => list.some(x => key(x) === key(s)), d = (await ref.get()).data() || {}, all = Array.isArray(d.subs) ? d.subs : [], drop = dead.concat(bad.filter(s => (s.fail || 0) + 1 >= LD_PUSH_FAILS));
+    const keep = all.filter(s => !has(drop, s)).map(s => has(bad, s) ? Object.assign({}, s, { fail: (s.fail || 0) + 1 }) : has(good, s) ? Object.assign({}, s, { fail: 0 }) : s);
+    await Promise.all([ref.set({ subs: keep, expireAt: new Date(keep.reduce((m, s) => Math.max(m, s.until || 0), now)) }, { merge: true })].concat(drop.length ? [db.doc(`profiles/${uid}`).set({ ldPuUntil: ldPuOf(keep), ldFrUntil: pnFrOf(keep) }, { merge: true })] : [])); }
+  return got; }
+async function pnMuteAct(uid, body) { // pnmute { to, on } -> { ok, n }: "Geen meldingen over X" for a friend (on false takes it back, also for an ex-friend)
+  const to = String(body.to || '').slice(0, 128); if (!to || to === uid || to.includes('/')) return { ok: false, error: 'uid' };
+  const on = body.on !== false; if (on && !(await db.doc(`friends/${uid}/of/${to}`).get()).exists) return { ok: false, error: 'notfriend' };
+  const pref = db.doc(`profiles/${uid}`), p = (await pref.get()).data() || {}, cur = pnMuteOf(p.pnMute).filter(x => x !== to), list = on ? cur.concat([to]).slice(-PN_MUTE_MAX) : cur;
+  await pref.set({ pnMute: list }, { merge: true }); return { ok: true, n: list.length }; }
+async function pnUnmute(a, b) { try { await Promise.all([[a, b], [b, a]].map(async ([x, y]) => { const r = db.doc(`profiles/${x}`), p = (await r.get()).data(); if (p && Array.isArray(p.pnMute) && p.pnMute.includes(y)) await r.set({ pnMute: p.pnMute.filter(u => u !== y) }, { merge: true }); })); } catch (e) {} } // unfriend: both sides forget the mute
+async function pnWeekRun(now) { // the scheduled tournament push for web subscriptions (the app plans its own): Sunday 16:00 "closes tonight", Monday 09:00 "the result is in"
+  const parts = {}; try { new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Brussels', weekday: 'short', hour: 'numeric', hourCycle: 'h23' }).formatToParts(new Date(now)).forEach(x => { parts[x.type] = x.value; }); } catch (e) { return 0; }
+  const h = Number(parts.hour), k = parts.weekday === 'Sun' && h === 16 ? 'tnend' : parts.weekday === 'Mon' && h === 9 ? 'tnres' : ''; if (!k) return 0;
+  const ids = new Set();
+  if (k === 'tnend') { const gs = await db.collection('groups').where('week', '==', isoWeek(new Date(now))).get(); for (const g of gs.docs) for (const s of (await db.collection(`groups/${g.id}/scores`).get()).docs) ids.add(s.id); }
+  else for (const r of (await db.collection('results').where('week', '==', isoWeek(new Date(now - 7 * 86400000))).get()).docs) ids.add(r.id);
+  const all = [...ids].filter(x => x && !x.includes('/')), want = [];
+  for (let i = 0; i < all.length; i += DEL_READ) { const part = all.slice(i, i + DEL_READ); for (const s of await db.getAll(...part.map(u => db.doc(`ldpush/${u}`)))) { const d = s.data(); if (d && Array.isArray(d.subs) && d.subs.some(x => x.kind === 'web' && pnV2(x) && x.gt === true && (x.until || 0) > now)) want.push(s.id); } }
+  let sent = 0; for (let i = 0; i < want.length; i += PN_WEEK_PAR) await Promise.all(want.slice(i, i + PN_WEEK_PAR).map(u => pnSend(u, { k }).then(x => { sent += x; }, e => console.error('pn week', (e && e.message) || e))));
+  console.log('pnWeek', JSON.stringify({ k, players: all.length, web: want.length, sent })); return sent; }
+// v0.33.2 PUSH332 SERVER BLOCK END
 function ldView(l, uid, now, started) { // what a member sees of the lobby: seats by name (the other one's uid only because you are friends), never a uid of anyone else
   const meI = (l.m || []).findIndex(s => s.uid === uid), kicked = (l.kicked || []).find(k => k.uid === uid), pn = l.pn || {}, go = ['go', 'done'].includes(l.state) || !!l.res, duo = (l.cap || 2) <= 2; // duo: a 1-on-1 lobby exists only between friends; a later pool sends no uid until it checks the friendship per seat
-  return { v: 4, rt: l.rt === 1 && LD_RTDB_URL && (l.m || []).every(s => s.joined && (s.v || 0) >= 3) ? 1 : 0, ar: l.ar === 1 ? 1 : 0, ab: l.ab === 1 && l.ar === 1 ? 1 : 0, /* v0.32.11 WP5: Stap B (fixed at go) */ /* v0.32.10: the RTDB room exists and both seats joined on v >= 3 (a v0.32.9 host: the guest's phone never opens the room); the shared arena (fixed at go) */ id: l.id || '', state: l.res ? 'done' : l.state, host: l.host === uid, me: meI, cap: l.cap || 2, min: l.min || 2, opts: Object.assign({ powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, l.opts || {}), countEnd: l.countEnd || 0, startAt: l.startAt || 0, seed: go ? l.seed || '' : '',
+  return { v: 4, hold: ldHoldView(l, now) /* v0.33.2 ld332 S2 */, rt: l.rt === 1 && LD_RTDB_URL && (l.m || []).every(s => s.joined && (s.v || 0) >= 3) ? 1 : 0, ar: l.ar === 1 ? 1 : 0, ab: l.ab === 1 && l.ar === 1 ? 1 : 0, /* v0.32.11 WP5: Stap B (fixed at go) */ /* v0.32.10: the RTDB room exists and both seats joined on v >= 3 (a v0.32.9 host: the guest's phone never opens the room); the shared arena (fixed at go) */ id: l.id || '', state: l.res ? 'done' : l.state, host: l.host === uid, me: meI, cap: l.cap || 2, min: l.min || 2, opts: Object.assign({ powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, l.opts || {}), countEnd: l.countEnd || 0, startAt: l.startAt || 0, seed: go ? l.seed || '' : '',
     why: l.closedWhy || '', kickedMe: kicked ? kicked.why : '', gone: (l.kicked || []).filter(k => k.uid !== uid).map(k => ({ name: k.name, why: k.why, fid: duo ? k.uid : '' })), started: !!started,
     m: (l.m || []).map((s, i) => { const st = ldSeat(l, s, now); return { name: s.name, fruit: s.fruit || '', role: s.role, me: i === meI, fid: i === meI || !duo ? '' : s.uid, in: st.isIn, away: st.isIn ? 0 : st.from + LD_RETURN_MS, joined: !!s.joined, left: !!s.left, pushed: (pn[s.uid] || 0) > 0, nopush: !!s.pushAt && pn[s.uid] === 0, rd: (s.rd || 0) > 0, v: s.v || 0, aw: s.aw || '' /* v0.32.11 WP5 */ }; }), // v0.32.8: rd = tapped Klaar; v = the seat's client protocol (2: has Klaar)
     res: l.res ? ldResView(l.res, meI) : null };
@@ -536,7 +734,9 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       if (l) { const c = ldRo(l, now); c.id = id; let started = false; if (c.state === 'go' && !c.res && c.m.some(s => s.uid === uid)) started = (await db.doc(`ldlobby/${id}/live/${uid}`).get()).exists;
         lobby = ldView(c, uid, now, started); if (c.res && c.res.kind === 'live') { const o = c.m.find(s => s.uid !== uid); if (o) upd.ldDone = { with: o.uid, at: now }; } }
       if (!l || !ldAlive(ldRo(l, now), now)) upd.ldLobby = ''; } // a dead, done or closed lobby is reported once, then the pointer clears
-    if (Object.keys(upd).length) await pref.set(upd, { merge: true });
+    if (p.ldPrev) { const pv = await ldPrevPoll(p.ldPrev, uid, now, !lobby); if (pv.clear) upd.ldPrev = ''; if (pv.view) { lobby = pv.view; if (pv.done && !upd.ldDone) upd.ldDone = pv.done; } } // v0.33.2 ld332 fix1: the earlier duel of a moved pointer, settled; its result once as the lobby when no other lobby is reported
+    const pnF = pnPollFields(p, body, hide, now, upd); // v0.33.2: tell (2A) and a fan-out when this player came back after 3 hours
+    if (Object.keys(upd).length) await pref.set(upd, { merge: true }); if (pnF) await pnFanOut(uid, p, now);
     return J({ ok: true, inv, out, lobby });
   }
   if (action === 'ldfriends') { // -> { on: [{ uid, lv, on, busy, pu }] }: the green dots while Vrienden is open (friends only)
@@ -555,28 +755,28 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       if (!fd.exists) return { error: 'notfriend' };
       if (!((op.lv || 0) >= 1)) return { error: 'oldapp' };
       if (mp.ldIn && mp.ldIn.from === to && (mp.ldIn.exp || 0) > now) return { error: 'theyasked', id: mp.ldIn.id }; // both tapped Live duel: the client accepts the friend's invite
-      if (myLobby) return { error: 'inlobby', lobby: mp.ldLobby };
+      if (myLobby && await ldHeldTx(tx, lm, mp.ldLobby, uid, now)) return { error: 'inlobby', lobby: mp.ldLobby }; // v0.33.2 ld332 S3: not for a go lobby whose seat of mine ended (the pointer stays for the result)
       if (xo && xo.state === 'open' && (xo.exp || 0) > now) return { error: 'open', id: mp.ldOut, name: playerName(xo.toName) };
-      const inLobby = !!lo && ldAlive(ldRo(lo, now), now);
-      if (inLobby && !op.ldHide) return { error: 'busy' }; // a friend in a lobby is busy, never "offline" (a hidden friend keeps the order below)
+      const hi = {}, inLobby = !!lo && ldAlive(ldRo(lo, now), now) && await ldHeldTx(tx, lo, op.ldLobby, to, now, hi); // v0.33.2 ld332 S3: a friend whose seat ended is not busy (fix2 RR1-2: hi.play = her seat still beats)
+      if (inLobby && !op.ldHide) return { error: 'busy', same: op.ldLobby === mp.ldLobby ? (hi.play ? 2 : 1) : 0 }; // a friend in a lobby is busy, never "offline" (a hidden friend keeps the order below); v0.33.2 ld332 fix1: same = her seat in our own interrupted duel (fix2 RR1-2: 2 it still beats, 1 it does not)
       if (!ldOnline(op, now) && !ldPushable(op, now)) return { error: 'offline' };
-      if ((op.ldIn && op.ldIn.id && (op.ldIn.exp || 0) > now) || inLobby) return { error: 'busy' };
+      if ((op.ldIn && op.ldIn.id && (op.ldIn.exp || 0) > now) || inLobby) return { error: 'busy', same: inLobby && op.ldLobby === mp.ldLobby ? (hi.play ? 2 : 1) : 0 }; // v0.33.2 ld332 fix1 (fix2 RR1-2)
       if (no && no.day === day && (no.n || 0) >= LD_NO_DAY) return { error: 'noday' };
       if (no && now - (no.at || 0) < LD_NO_MS) return { error: 'soon', why: 'no', wait: Math.ceil((no.at + LD_NO_MS - now) / 1000) };
       const again = !!body.again && !!mp.ldDone && mp.ldDone.with === to && now - (mp.ldDone.at || 0) < LD_AGAIN_MS;
-      if (!again && mp.ldLast && mp.ldLast.to === to && now - (mp.ldLast.at || 0) < LD_SAME_MS) return { error: 'soon', why: 'same', wait: Math.ceil((mp.ldLast.at + LD_SAME_MS - now) / 1000) };
+      if (!again && !ldDoneWith(mp, lm, to, now) && mp.ldLast && mp.ldLast.to === to && now - (mp.ldLast.at || 0) < LD_SAME_MS) return { error: 'soon', why: 'same', wait: Math.ceil((mp.ldLast.at + LD_SAME_MS - now) / 1000) }; // v0.33.2 ld332 fix1: not right after our duel ended (that wait was for its invite)
       if (missN >= LD_MISS_MAX && now - (ms.at || 0) < LD_MISS_MS) return { error: 'soon', why: 'miss', wait: Math.ceil((ms.at + LD_MISS_MS - now) / 1000) }; // two invites in a row without an answer: the next one 30 minutes after the last (the friend can still invite me)
       let start = L.start || 0, n = L.n || 0; if (!(now >= start && now - start < HOUR_MS)) { start = now; n = 0; } if (n >= LD_INV_HOUR) return { error: 'slow' }; // 10 an hour; an accepted invite gives its count back (ldanswer), so rematches are unlimited
       const id = ldId(), exp = now + LD_INV_MS, fromName = playerName(mp.name), toName = playerName(op.name);
       tx.set(lim, { start, n: n + 1 });
       tx.set(db.doc(`ldinv/${id}`), { from: uid, to, fromName, toName, created: now, exp, state: 'open', lobby: '', again, answered: 0, expireAt: new Date(exp + LD_KEEP_MS) });
       tx.set(oref, { ldIn: { id, from: uid, name: fromName, exp, again } }, { merge: true });
-      tx.set(mref, Object.assign({ ldOut: id, ldLast: { to, at: now }, ldMiss: Object.assign({}, mp.ldMiss || {}, { [to]: { id, n: missN, at: now } }) }, lm && !myLobby ? { ldLobby: '' } : {}), { merge: true });
-      return { id, exp, fromName, here: ldHere(op, now), hid: !!op.ldHide };
+      tx.set(mref, Object.assign({ ldOut: id, ldLast: { to, at: now }, ldMiss: Object.assign({}, mp.ldMiss || {}, { [to]: { id, n: missN, at: now } }) }, lm && !myLobby ? Object.assign({ ldLobby: '' }, ldPrevOf(lm, mp.ldLobby, mp, uid)) /* v0.33.2 ld332 fix2 RR1-1: a started duel no poll reported yet stays in ldPrev */ : {}), { merge: true });
+      return { id, exp, fromName, here: ldHere(op, now), hid: !!op.ldHide, mu: pnMuted(op, uid) }; // v0.33.2 mu: she muted me
     });
     if (out.error) return J(Object.assign({ ok: false }, out));
     await statBump({ ldInv: 1 }); // v0.32.8 stats
-    const pushed = out.here ? 0 : await ldPushTo(to, { k: 'ldinv', n: out.fromName, id: out.id, exp: out.exp }); // push only when the friend's app is not open
+    const pushed = out.here || out.mu ? 0 : await ldPushTo(to, { k: 'ldinv', n: out.fromName, id: out.id, exp: out.exp }); // push only when the friend's app is not open
     await ldRtSweep(now); // v0.32.10: old RTDB rooms (throttled: once per 10 min per instance)
     return J({ ok: true, id: out.id, exp: out.exp, here: out.here && !out.hid, pushed: out.hid && out.here ? 1 : pushed }); // a friend who hides her online status: the reply is the same whether her game is open (the card) or closed (the push)
   }
@@ -598,13 +798,13 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       if (x.state !== 'open' || (x.exp || 0) <= now) { if (mp.ldIn && mp.ldIn.id === id) tx.set(mref, { ldIn: null }, { merge: true }); return { error: x.state === 'cancel' ? 'cancel' : 'gone' }; }
       if (!body.yes) { const old = (ip.ldNo || {})[uid] || {}, day = ldDay(now); tx.update(iref, { state: 'no', answered: now }); tx.set(mref, { ldIn: null }, { merge: true });
         tx.update(ipref, { ['ldNo.' + uid]: { at: now, day, n: (old.day === day ? old.n || 0 : 0) + 1 } }); return { refused: true }; }
-      if (li && ldAlive(ldRo(li, now), now)) return { error: 'busy' }; // the inviter is in another lobby meanwhile
-      if (lm && ldAlive(ldRo(lm, now), now)) return { error: 'inlobby', lobby: mp.ldLobby };
+      if (li && ldAlive(ldRo(li, now), now) && await ldHeldTx(tx, li, ip.ldLobby, x.from, now)) return { error: 'busy' }; // the inviter is in another lobby meanwhile (v0.33.2 ld332 S3: not one whose seat of the inviter ended)
+      if (lm && ldAlive(ldRo(lm, now), now) && await ldHeldTx(tx, lm, mp.ldLobby, uid, now)) return { error: 'inlobby', lobby: mp.ldLobby }; // v0.33.2 ld332 S3
       const here = ldHere(ip, now), L = { kind: 'duel', cap: 2, min: 2, host: x.from, inv: id, created: now, state: 'wait', opts: { powers: false, fruit: 'any', level: 10, ms: LD_RUN_MS }, countEnd: 0, startAt: 0, seed: '', res: null, kicked: [], closedWhy: '', closedAt: 0, doneAt: 0, pn: {}, expireAt: new Date(now + LD_KEEP_MS),
         m: [{ uid: x.from, name: playerName(x.fromName), fruit: ldFruit(ip.fruit), role: 'host', joined: false, seen: 0, left: false, leftAt: 0, dev: '', v: 0, pw: [], pushAt: here ? 0 : now, chk: now },
           { uid, name: playerName(mp.name || x.toName), fruit: ldFruit(body.fruit), role: 'guest', joined: true, seen: now, left: false, leftAt: 0, dev: rawUid || uid, v: clampInt(body.v, 0, 99), aw: ldAwOf(body.aw) /* v0.32.11 WP5 */, pw: ldPw(body.pw), pushAt: 0, chk: now }] };
       if (LM && (LM.n || 0) > 0 && now - (LM.start || 0) < HOUR_MS) tx.set(limRef, { start: LM.start, n: LM.n - 1 }); // Pieter: friend duels are unlimited; only invites nobody accepted count toward the 10 an hour
-      tx.update(iref, { state: 'yes', answered: now, lobby: lid }); tx.set(db.doc(`ldlobby/${lid}`), L); tx.set(mref, { ldIn: null, ldLobby: lid }, { merge: true }); tx.set(ipref, { ldLobby: lid }, { merge: true }); // the inviter's ldOut stays: his next ldpoll reports 'yes' once and clears it
+      tx.update(iref, { state: 'yes', answered: now, lobby: lid }); tx.set(db.doc(`ldlobby/${lid}`), L); tx.set(mref, Object.assign({ ldIn: null, ldLobby: lid }, ldPrevOf(lm, mp.ldLobby, mp, uid)), { merge: true }); tx.set(ipref, Object.assign({ ldLobby: lid }, ldPrevOf(li, ip.ldLobby, ip, x.from)), { merge: true }); /* v0.33.2 ld332 fix1: ldPrev (fix2 RR1-1: also a settled duel no poll reported yet) */ // the inviter's ldOut stays: his next ldpoll reports 'yes' once and clears it
       return { l: Object.assign({}, L, { id: lid }), push: here ? null : { uid: x.from, n: L.m[1].name } };
     });
     if (out.error) return NO(out.error, out.lobby ? { lobby: out.lobby } : null);
@@ -620,13 +820,13 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       const l = (await tx.get(ref)).data(); if (!l) return { err: 'gone' }; l.id = id;
       let me = l.m.find(s => s.uid === uid); if (!me) { if (!(l.kicked || []).some(k => k.uid === uid)) return { err: 'gone' }; tx.set(db.doc(`profiles/${uid}`), { ldLobby: '' }, { merge: true }); return { err: 'gone', l }; } // the view only for a seat that was removed, never for somebody who merely knows the id
       if (me.dev && rawUid && me.dev !== rawUid) return { err: 'otherdevice' }; // another device of mine holds this seat
-      let ch = false, started = false, pres = false, went = false; const pushes = [];
+      let ch = false, started = false, pres = false, went = false, bye = null; /* v0.33.2 ld332 S3 */ const pushes = [];
       if (!me.dev && rawUid) { me.dev = rawUid; ch = true; }
       if (['wait', 'count'].includes(l.state) && !l.res) {
         if (ldEval(l, now, true)) ch = true; me = l.m.find(s => s.uid === uid); // first the removals as they stand: a seat back after its 2:00 is still removed
         if (me && ['wait', 'count'].includes(l.state)) {
           if (body.leave) { me.left = true; me.leftAt = now; ch = true; }
-          else { if (body.act && !me.joined) { me.joined = true; ch = true; } if (me.joined && now - (me.seen || 0) >= LD_SEEN_LOBBY_MS) { me.seen = now; if (body.rc === 1) me.rc = now; /* v0.32.10: this phone reached RTDB */ ch = true; }
+          else { if (body.act && !me.joined) { me.joined = true; ch = true; } if (me.joined && now - (me.seen || 0) >= LD_SEEN_LOBBY_MS) { me.seen = now; if (body.rc === 1) me.rc = now; /* v0.32.10: this phone reached RTDB */ ch = true; } if (body.rc === 1 && me.joined && now - (me.rc || 0) >= LD_RC_STORE_MS) { me.rc = now; ch = true; } /* v0.33.2 ld332 S1: rc from any call (the first at once), not only on the seen tick */
             if (me.joined && now - (me.ps || 0) >= LD_SEEN_WRITE_MS) { me.ps = now; ch = true; pres = true; } // a joined seat keeps the player's presence fresh (the client sends no ldpoll while the lobby is open)
             if (body.v !== undefined && clampInt(body.v, 0, 99) !== (me.v || 0)) { me.v = clampInt(body.v, 0, 99); ch = true; } if (body.aw !== undefined && ldAwOf(body.aw) !== (me.aw || '')) { me.aw = ldAwOf(body.aw); ch = true; } /* v0.32.11 WP5 */ if (body.pw !== undefined) { const pw = ldPw(body.pw); if (JSON.stringify(pw) !== JSON.stringify(me.pw || [])) { me.pw = pw; ch = true; } }
             if (body.fruit !== undefined) { const f = ldFruit(body.fruit); if (f !== me.fruit) { me.fruit = f; me.rd = 0; ch = true; } } // v0.32.8: another fruit takes Klaar back
@@ -642,15 +842,17 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       } else if (l.state === 'go' && !l.res) {
         const x = await tx.get(db.doc(`ldlobby/${id}/live/${uid}`)); started = x.exists;
         if (body.leave && !x.exists && !me.left) { me.left = true; me.leftAt = now; ch = true; } // after the start was fixed: a no-show, the other plays on
+        if (body.leave) bye = await ldByeTx(tx, l, id, uid, me, x, now); // v0.33.2 ld332 S3: a seat that already started ends like a quit final; the settle is tried after the transaction
       }
       const mine = l.m.find(s => s.uid === uid);
       if (ch) { const keep = Object.assign({}, l); delete keep.id; tx.set(ref, keep); }
       const pf = Object.assign(!mine || l.state === 'closed' ? { ldLobby: '' } : {}, pres ? { ldSeen: now, ldBusy: false } : {}); if (Object.keys(pf).length) tx.set(db.doc(`profiles/${uid}`), pf, { merge: true });
-      return { l, pushes, started, gone: !mine, went };
+      return { l, pushes, started, gone: !mine, went, bye }; /* v0.33.2 ld332 S3 */
     });
     if (out.err === 'otherdevice') return NO('otherdevice');
     if (out.err) return NO('gone', { lobby: out.l ? ldView(out.l, uid, now, false) : null });
     const l = out.l; if (out.went) await statBump({ ldGo: 1 }); // v0.32.8 stats
+    if (out.bye) await ldByeAfter(id, uid, l, out.bye, now); // v0.33.2 ld332 S3: the played day, then the settle
     if (!out.gone) await ldAbS(id, l, ref); // v0.32.11 WP5: /ld/{id}/s after the go of an ab duel (outside the transaction, at most 800 ms)
     if (LD_RTDB_URL) { const gs = (l.m || []).find(s => s.role === 'guest'); // v0.32.10: the room, retried every 10 s while it is missing (outside the transaction); gone with a closed lobby
       if (['wait', 'count'].includes(l.state) && !l.res && l.rt !== 1 && gs && l.m.every(s => !s.joined || (s.v || 0) >= 3) && now - (l.rtTry || 0) >= LD_RT_RETRY_MS) { const ok = await ldRtRoom(id, l.host, gs.uid, now); l.rtTry = now; if (ok) l.rt = 1; try { await ref.update(ok ? { rt: 1, rtTry: now } : { rtTry: now }); } catch (e) {} }
@@ -719,10 +921,10 @@ async function ldAction(action, uid, body, req, res, rawUid) { // every live-due
       entry = { kind, ep, keys: { p256dh: String(k.p256dh || '').replace(/[^A-Za-z0-9_\-=]/g, '').slice(0, 120), auth: String(k.auth || '').replace(/[^A-Za-z0-9_\-=]/g, '').slice(0, 40) } }; }
     else { const tok = String(body.tok || '').replace(/[^A-Za-z0-9_:\-.]/g, '').slice(0, 300); if (tok.length < 20) return NO('token'); key = tok; entry = { kind, tok }; }
     subs = subs.filter(s => (s.until || 0) > now && (s.ep || s.tok) !== key);
-    if (!body.off) subs.push(Object.assign(entry, { lang: body.lang === 'en' ? 'en' : 'nl', inv: body.inv !== false, tz: clampInt(body.tz, -840, 840), at: now, until: now + LD_PUSH_DAYS * 86400000 }));
+    if (!body.off) subs.push(Object.assign(entry, { lang: body.lang === 'en' ? 'en' : 'nl', inv: body.inv !== false, tz: clampInt(body.tz, -840, 840), at: now, until: now + LD_PUSH_DAYS * 86400000 }, pnSubOf(body, kind))); // v0.33.2: a v 2 client's flags
     subs = subs.slice(-4); // at most 4 devices, the newest
     const invs = subs.filter(s => s.inv !== false), tz = invs.length ? invs[invs.length - 1].tz || 0 : 0;
-    await Promise.all([ref.set({ subs, expireAt: new Date(subs.reduce((m, s) => Math.max(m, s.until || 0), now)) }), db.doc(`profiles/${uid}`).set({ ldPuUntil: ldPuOf(subs), ldTz: tz }, { merge: true })]);
+    await Promise.all([ref.set({ subs, expireAt: new Date(subs.reduce((m, s) => Math.max(m, s.until || 0), now)) }, { merge: true }), db.doc(`profiles/${uid}`).set(Object.assign({ ldPuUntil: ldPuOf(subs), ldTz: tz }, pnProfOf(subs, body)), { merge: true })]); // v0.33.2: merge keeps the day counter (cnt)
     return J({ ok: true, n: subs.length });
   }
   return false;
@@ -777,6 +979,7 @@ async function deleteAccount(uid, opt) { // opt { rawUid, dryRun } -> { docs, fi
     for (const d of h2a.docs.concat(h2b.docs)) { const h = d.data() || {}; other(h.a); other(h.b); kill(d.ref, 'duels', 'early', true); }
     for (const d of chf.docs.concat(cht.docs)) { const c = d.data() || {}; other(c.from); other(c.to); kill(d.ref, 'duels', 'early', true); }
     for (const d of tif.docs.concat(tit.docs)) { const t = d.data() || {}; other(t.from); other(t.to); kill(d.ref, 'friends', 'early', true); }
+    { const [taf, tat] = await Promise.all([q('tastes', 'from'), q('tastes', 'to')]); for (const d of taf.docs.concat(tat.docs)) { const t = d.data() || {}; other(t.from); other(t.to); kill(d.ref, 'friends', 'early', true); } } // v0.33.2 proeven (the partners' proef notes go with their id)
     for (const d of links.docs) kill(d.ref, 'devices', 'early', true);
     for (const d of ivf.docs.concat(ivt.docs)) { const v = d.data() || {}; other(v.from); other(v.to); invIds.add(d.id); if (v.lobby) lobIds.add(ldClean(v.lobby)); kill(d.ref, 'live', 'late', true); } // an invite is the anchor of its lobby
     for (const d of lobH.docs) lobIds.add(d.id); if (p && p.ldLobby) lobIds.add(ldClean(p.ldLobby));
@@ -800,12 +1003,15 @@ async function deleteAccount(uid, opt) { // opt { rawUid, dryRun } -> { docs, fi
     for (const s of docs) { if (!s.exists || seen.has(s.ref.path)) continue; const o = s.data() || {}, u = {};
       if (o.ldIn && mine.has(o.ldIn.from)) u.ldIn = null; if (o.ldOut && invIds.has(o.ldOut)) u.ldOut = ''; if (o.ldLobby && lobIds.has(o.ldLobby)) u.ldLobby = '';
       for (const X of ids) { if (o.ldMiss && o.ldMiss[X] !== undefined) u['ldMiss.' + X] = FV.delete(); if (o.ldNo && o.ldNo[X] !== undefined) u['ldNo.' + X] = FV.delete(); }
-      if (o.ldDone && mine.has(o.ldDone.with)) u.ldDone = FV.delete(); if (o.ldLast && mine.has(o.ldLast.to)) u.ldLast = FV.delete();
+      if (Array.isArray(o.pnMute) && o.pnMute.some(x => mine.has(x))) u.pnMute = o.pnMute.filter(x => !mine.has(x)); /* v0.33.2 */ if (o.ldDone && mine.has(o.ldDone.with)) u.ldDone = FV.delete(); if (o.ldLast && mine.has(o.ldLast.to)) u.ldLast = FV.delete();
       if (Array.isArray(o.notes)) { const keep = o.notes.filter(n => !(n && holds(n.id))); if (keep.length !== o.notes.length) u.notes = keep; } // a challenge note carries the challenge id (from-to)
       if (Object.keys(u).length) { upd.push(['upd', s.ref, u]); cnt.fields += Object.keys(u).length; } } }
   { const [rs, bl] = await Promise.all([db.collection('repsum').get(), db.collection('blocks').get()]); // v0.32.9 integration: the other players' report summaries and block lists lose this account's id
     for (const d of rs.docs) { if (seen.has(d.ref.path)) continue; const r = d.data() || {}; if (Array.isArray(r.by) && r.by.some(u => mine.has(u))) { const by = r.by.filter(u => !mine.has(u)); upd.push(['upd', d.ref, { by }]); /* n (a count, no personal data) stays: a hidden name keeps its trace for tools/reports.cjs */ cnt.fields++; } }
     for (const d of bl.docs) { if (seen.has(d.ref.path)) continue; const l = (d.data() || {}).list; if (Array.isArray(l) && l.some(e => e && mine.has(e.u))) { upd.push(['upd', d.ref, { list: l.filter(e => !(e && mine.has(e.u))) }]); cnt.fields++; } } }
+  { const hs = new Set(ids.map(x => pnHash(x))), ps = [...partners]; // v0.33.2 push332: this account's code leaves its friends' day counters (ldpush/{friend}.cnt.by)
+    for (let i = 0; i < ps.length; i += DEL_READ) for (const s of await db.getAll(...ps.slice(i, i + DEL_READ).map(id => db.doc(`ldpush/${id}`)))) { if (!s.exists || seen.has(s.ref.path)) continue;
+      const by = (((s.data() || {}).cnt || {}).by) || {}, u = {}; for (const k of Object.keys(by)) if (hs.has(k)) u['cnt.by.' + k] = FV.delete(); if (Object.keys(u).length) { upd.push(['upd', s.ref, u]); cnt.fields += Object.keys(u).length; } } }
   if (dry) { cnt.auth = ids.length; return cnt; }
   await delCommit(upd.concat(ops.early, ops.late, ops.final), cnt);
   for (const id of ids) { try { await admin.auth().deleteUser(id); cnt.auth++; } catch (e) { const c = e && (e.code || (e.errorInfo && e.errorInfo.code)); if (c !== 'auth/user-not-found') throw e; } } // a missing user is deleted already
@@ -881,8 +1087,8 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       const meRef = db.doc(`profiles/${uid}`), me = (await meRef.get()).data() || {}; const list = await db.collection(`friends/${uid}/of`).get();
       const refs = list.docs.map(d => db.doc(`profiles/${d.id}`)); const docs = refs.length ? await db.getAll(...refs) : [];
       const recOf = new Map(list.docs.map(d => [d.id, d.data() || {}])), nowF = Date.now(); const friends = docs.map(d => { const v = profileView(d.id, d.data()); if (v) { const r = recOf.get(d.id) || {}, p = d.data() || {}; Object.assign(v, { rec: { w: r.w || 0, l: r.l || 0, d: r.d || 0 }, lv: (p.lv || 0) >= 1, on: ldOnline(p, nowF), busy: !!p.ldBusy && ldOnline(p, nowF), pu: ldPushable(p, nowF) }); } return v; }).filter(Boolean); // v0.32.5: the record and the green dot (friends only, never in rivals)
-      const rewards = Array.isArray(me.pending) ? me.pending : [], notes = Array.isArray(me.notes) ? me.notes.slice(0, 20) : [];
-      if (rewards.length || notes.length) await meRef.set({ pending: [], notes: [] }, { merge: true });
+      const got = (Array.isArray(me.pending) && me.pending.length) || (Array.isArray(me.notes) && me.notes.length) ? await notesTake(meRef, true, NOTE_MAX) : { pend: [], out: [] }; // v0.33.2 int-fix1 (review V3): at most NOTE_MAX notes, the rest kept (was: 20 out, all cleared)
+      const rewards = got.pend, notes = got.out;
       let challenges = [];
       if (dayOk(body.day)) { // today's open friend duels involving me, with who has played
         const [asFrom, asTo] = await Promise.all([db.collection(`duels/${body.day}/challenges`).where('from', '==', uid).get(), db.collection(`duels/${body.day}/challenges`).where('to', '==', uid).get()]);
@@ -890,7 +1096,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
         const ids = Array.from(new Set(all.flatMap(c => [c.from, c.to]))); const ents = ids.length ? await db.getAll(...ids.map(i => db.doc(`duels/${body.day}/entries/${i}`))) : []; const played = new Set(ents.filter(e => e.exists).map(e => e.id));
         for (const c of all) if (!c.resolved && played.has(c.from) && played.has(c.to)) { await settleChallenge(body.day, c, db.doc(`duels/${body.day}/challenges/${c.id}`)); c.resolved = true; }
         challenges = all.map(c => ({ from: c.from, to: c.to, mine: c.from === uid ? 'from' : 'to', fromName: c.fromName || '', toName: c.toName || '', fromPlayed: played.has(c.from), toPlayed: played.has(c.to), resolved: !!c.resolved }));
-        const fresh = (await meRef.get()).data() || {}; if (Array.isArray(fresh.notes) && fresh.notes.length) { notes.push(...fresh.notes.slice(0, 20)); await meRef.set({ notes: [] }, { merge: true }); }
+        if (notes.length < NOTE_MAX) { const fresh = (await meRef.get()).data() || {}; if (Array.isArray(fresh.notes) && fresh.notes.length) notes.push(...(await notesTake(meRef, false, NOTE_MAX - notes.length)).out); } // v0.33.2 int-fix1: the same cap for the notes this call made, the rest kept
       }
       const C = f => db.collection('challenges').where(f, '==', uid); // v0.32: open and started friend duels are queried apart, so none is ever cut off by a limit
       const [rin, rout, sum, ...cq] = await Promise.all([freshRequests(uid), db.collection(`requests/${uid}/out`).limit(REQ_IN_MAX * 2).get(), db.doc(`duelsum/${uid}`).get(),
@@ -949,7 +1155,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
         if (!isFriend.exists) error = 'notfriend'; else if (!((o.cv || 0) >= CLIENT_V)) error = 'oldapp'; else if (!seenG.empty || (seenD && seenD.exists)) error = 'seen'; // an older app cannot play a v2 challenge; never knives the friend already played
         else { const id = `${uid}-${to}`, cref = db.doc(`challenges/${id}`), [cur, old] = (await Promise.all([cref.get(), db.doc(`challenges/${[uid, to].sort().join('_')}`).get()])).map(s => s.data()); // v0.32.3: one open challenge per direction; a uid has no '-', a v0.32 pair id has '_'
           if ((cur && chalLive(cur, now)) || (old && old.from === uid && chalLive(old, now))) error = 'already';
-          else { await cref.set({ from: uid, to, fromName: name, toName: String(o.name || 'vriend').slice(0, 16), seed, ghost, t, fromScore: score, fromFruit: fruit, level, status: 'open', created: now, expires: now + CHALLENGE_MS }); await noteTo(to, { type: 'challenge', v: 2, by: name, id }); challenge = id; } } } } // the note reaches the friend's next hello (inbox.notes) and its card plays this id
+          else { await cref.set({ from: uid, to, fromName: name, toName: String(o.name || 'vriend').slice(0, 16), seed, ghost, t, fromScore: score, fromFruit: fruit, level, status: 'open', created: now, expires: now + CHALLENGE_MS }); await noteTo(to, { type: 'challenge', v: 2, by: name, id }); challenge = id; await pnPing(to, { k: 'chal', n: name, id: ldId(), from: uid }, o); /* v0.33.2 */ } } } } // the note reaches the friend's next hello (inbox.notes) and its card plays this id
       await statBump({ du: slot.ok && !friendly ? 1 : 0, fdSent: challenge ? 1 : 0, fdPlay: settled ? 1 : 0 }); // v0.32.8 stats
       res.json(Object.assign(slot.ok ? { ok: true, stored: true, settled, challenge, error } : { ok: true, stored: false, limit: true, settled, challenge, error }, ldRep ? { ld: ldRep } : {}));
     } else if (action === 'duel') { // { day, score, seconds, level, fruit, name, ghost, t, vs, vsScore }: my finished duel; settles friend challenges that are complete now
@@ -977,13 +1183,14 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       if (keep.length) { const docs = await db.getAll(...keep.map(u => db.doc(`profiles/${u}`))); rows = docs.filter(d => d.exists).map(d => profileView(d.id, d.data())); }
       if (rows.length < 2) { const lvl = clampInt(body.level, 1, 500); const snap = await db.collection('profiles').where('level', '>', lvl).orderBy('level', 'asc').limit(8).get();
         for (const d of snap.docs) { if (rows.length >= 2) break; if (d.id === uid || rows.some(r => r.uid === d.id)) continue; rows.push(profileView(d.id, d.data())); } }
-      { const nbR = await nmMine(uid); res.json({ ok: true, rivals: rows.filter(r => !nbR.has(r.uid)).slice(0, 2) }); } // v0.32.9: no blocked rival
+      { const nbR = await nmMine(uid); res.json({ ok: true, rivals: rows.filter(r => !nbR.has(r.uid)).slice(0, 2).map(zaalHide) }); } // v0.33.2: no Eetzaal for non-friends // v0.32.9: no blocked rival
     } else if (action === 'tip') { // { uid, day }: a tip for a friend's kitchen, once per friend per day; the receiver gets TIP_SAP by note
       const other = String(body.uid || '').slice(0, 128); if (!other || other === uid || !dayOk(body.day)) { res.status(400).json({ error: 'uid' }); return; }
       const [isFriend, mp] = await Promise.all([db.doc(`friends/${uid}/of/${other}`).get(), db.doc(`profiles/${uid}`).get()]); if (!isFriend.exists) { res.json({ ok: false, error: 'notfriend' }); return; }
       const ref = db.doc(`tips/${body.day}_${uid}_${other}`); if ((await ref.get()).exists) { res.json({ ok: false, error: 'already' }); return; }
       await ref.set({ from: uid, to: other, day: body.day, at: Date.now() }); await noteTo(other, { type: 'tip', by: String((mp.data() || {}).name || 'Een vriend').slice(0, 16), sap: TIP_SAP }); await db.doc(`profiles/${other}`).set({ 'kitchen.tips': admin.firestore.FieldValue.increment(1) }, { merge: true }).catch(() => {});
       res.json({ ok: true, sap: TIP_SAP });
+    } else if (action === 'proef') { await proefAction(uid, body, res); // v0.33.2 Weekkeuring
     } else if (action === 'passed') { // { uid }: tell a rival I passed them
       const other = String(body.uid || '').slice(0, 128); if (!other || other === uid) { res.status(400).json({ error: 'uid' }); return; }
       if (await nmBlocked(uid, other)) { res.json({ ok: true }); return; } /* v0.32.9: no note between blocked players */ const mp = (await db.doc(`profiles/${uid}`).get()).data() || {}; await noteTo(other, { type: 'passed', by: String(mp.name || 'Een speler').slice(0, 16), level: mp.level || 1 }); res.json({ ok: true });
@@ -1011,7 +1218,7 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       if (!(await rateOk(`req_${uid}`, REQ_OUT_DAY, 86400000))) { res.json({ ok: false, error: 'slow' }); return; }
       const myRef = mp.ref || await ensureRef(uid), at = Date.now();
       await Promise.all([db.doc(`requests/${oid}/in/${uid}`).set({ ref: myRef, name: playerName(mp.name), level: mp.level || 1, fruit: mp.fruit || 'appel', at }), db.doc(`requests/${uid}/out/${oid}`).set({ ref: op.ref, name: playerName(op.name), level: op.level || 1, fruit: op.fruit || 'appel', at })]);
-      await noteTo(oid, { type: 'request', by: playerName(mp.name) }); res.json({ ok: true, sent: true });
+      await noteTo(oid, { type: 'request', by: playerName(mp.name) }); await pnPing(oid, { k: 'freq', n: playerName(mp.name), id: ldId() }, op); /* v0.33.2 */ res.json({ ok: true, sent: true });
     } else if (action === 'friendans') { // v0.32 { ref, yes }: accept or refuse a request; a refusal keeps the same player from asking again for a week
       const other = await byRef(body.ref); if (!other) { res.json({ ok: false, error: 'gone' }); return; }
       const oid = other.id, req = await db.doc(`requests/${uid}/in/${oid}`).get(); if (!req.exists) { res.json({ ok: false, error: 'gone' }); return; }
@@ -1019,9 +1226,10 @@ exports.tourney = onRequest({ region: 'europe-west1', cors: true, secrets: [LIVE
       const [mpd, mine, theirs] = await Promise.all([db.doc(`profiles/${uid}`).get(), db.collection(`friends/${uid}/of`).get(), db.collection(`friends/${oid}/of`).get()]);
       if (mine.size >= MAX_FRIENDS || theirs.size >= MAX_FRIENDS) { res.json({ ok: false, error: 'full' }); return; }
       const mp = mpd.data() || {}, made = await makeFriends(uid, oid, mp, other.data()); await noteTo(oid, { type: 'accepted', by: playerName(mp.name) }); res.json({ ok: true, friend: made.friend, reward: made.reward });
+    } else if (action === 'pnmute') { res.json(await pnMuteAct(uid, body)); // v0.33.2 { to, on } -> { ok, n }: "Geen meldingen over X"
     } else if (action === 'unfriend') { // { uid }
       const other = String(body.uid || '').slice(0, 128); if (!other) { res.status(400).json({ error: 'uid' }); return; }
-      const batch = db.batch(); batch.delete(db.doc(`friends/${uid}/of/${other}`)); batch.delete(db.doc(`friends/${other}/of/${uid}`)); await batch.commit(); res.json({ ok: true });
+      const batch = db.batch(); batch.delete(db.doc(`friends/${uid}/of/${other}`)); batch.delete(db.doc(`friends/${other}/of/${uid}`)); await batch.commit(); await pnUnmute(uid, other); /* v0.33.2 */ res.json({ ok: true });
     } else if (action === 'save') { // { data, rev, level, runs }: the save blob (the game's own FV1 code), kept unless the stored one is ahead
       const data = String(body.data || ''); if (!data.startsWith('FV1.') || data.length > 300000) { res.status(400).json({ error: 'data' }); return; }
       const rev = clampInt(body.rev, 0, 1e9), level = clampInt(body.level, 1, 500), runs = clampInt(body.runs, 0, 1e6), ref = db.doc(`saves/${uid}`), cur = (await ref.get()).data() || {};
@@ -1078,3 +1286,7 @@ exports.closeWeek = onSchedule({ schedule: '0 23 * * 0', timeZone: 'Europe/Bruss
     await g.ref.update({ closed: true });
   }
 });
+// v0.33.2 push332: the tournament notification for browser players who chose "Alle meldingen" (the app plans its own on the phone). Sunday 16:00
+// "Het toernooi sluit vanavond" to this week's players, Monday 09:00 "De toernooi-uitslag is er" to last week's; the other two firings do nothing.
+exports.pnWeek = onSchedule({ schedule: '0 9,16 * * 0,1', timeZone: 'Europe/Brussels', region: 'europe-west1', secrets: [LIVEDUEL_VAPID] }, async () => { await pnWeekRun(Date.now()); });
+Object.defineProperty(exports, '_pn', { value: { pnWeekRun, pnSend, pnFanOut }, enumerable: false }); // for the server checks; not enumerable, so a deploy sees only the functions

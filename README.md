@@ -58,6 +58,215 @@ from there by hand, so the version label in the menu tells you which build you a
 
 - Muziek: een rustig deuntje in de menu's, wat levendiger tijdens het spelen, met een eigen schakelaar onderaan het menu. Nieuwe geluidjes: aftelling bij het tussenspel, alarm bij de vork, fanfare bij Plus, fruitmanden en een volle rij.
 
+## Nieuw in v0.33.2: Duels onder Spelen, de bonusrun telt alleen voor het toernooi, geen reclame op Ander fruit bij 0 hartjes, de Weekkeuring, alle meldingen en het live duel na "Nog een keer"
+
+Deze keer is er **één server-update**: één keer `firebase deploy` in de map `native\tourney` (de server, de regel voor het proeven,
+de meldingen en de herstelling van het live duel). Doe die **als eerste**: de oude app (0.33.1) werkt gewoon met de nieuwe server,
+en de nieuwe app ook met de oude server (dan zonder proeven en zonder vriendmeldingen, en het live duel wacht dan langer: zie "Het
+live duel na Nog een keer" hieronder). Voor de meldingen in de app haal je één keer het bestand
+`google-services.json` uit de Firebase-console en zet je het in `native\android\app`. Typ daarna in de map `native` eerst
+`npm install` (er is een nieuwe meldingsmodule) en dan `npm run sync`. De app wordt **versionCode 12**, versionName **0.33.2**.
+v0.33.2 bevat alles van v0.33.1 en ouder: je uploadt alleen deze versie. Werk **allebei je telefoons** (S26+ en OnePlus 5) bij
+naar 0.33.2: proeven en meldingen tussen de twee telefoons werken alleen als beide de nieuwe versie hebben. Alle stappen staan in
+`UITROL-STAPPEN.md` ("Wat jij moet doen bij v0.33.2"), de tests in `TESTLIJST-v0.33.2.md`.
+
+Eerlijk over wat wanneer werkt:
+- **Meteen, zonder iets extra:** Duels onder Spelen, de bonusrun, geen reclame op Ander fruit bij 0 hartjes, de borden en het
+  oordeel van de Weekkeuring in je eigen Eetzaal, en live beeld in het live duel, ook na "Nog een keer" (met de oude server wacht
+  het spel na **Klaar** wel 4 tot 10 seconden).
+- **Pas na de `firebase deploy`:** proeven bij een vriend, de borden van je vrienden in je keuken, alle meldingen van vrienden en
+  de knop "Geen meldingen over ...". Zonder de nieuwe server staat bij elke vriend in je keuken "Nog geen eetzaal" en is er geen
+  knop "Proef bij ...". Ook het live duel op volle snelheid komt pas met de nieuwe server: na **Klaar** start het duel dan meestal
+  binnen 1 seconde, en na een duel waarin jullie allebei de app afsloten, kan je meteen opnieuw uitnodigen. Mislukt de deploy, dan
+  werkt de app toch, maar wacht die eerste uitnodiging een paar minuten (een kaart in de game zegt waarom).
+- **Pas met `google-services.json` in de app:** alle meldingen van vrienden op je telefoon (ook de live-duel-uitnodigingen) en de
+  keuze "Alleen vrienden". Zonder dat bestand crasht er niets: Instellingen › Meldingen toont dan alleen Alle en Uit, en na Alle
+  staat er "Vriendmeldingen werken nog niet in deze versie van de app."
+- **Pas na `npm install` en `npm run sync`:** de herinneringen die je telefoon zelf inplant (hartjes, keuken, toernooi, Fruitpas).
+  Die hebben het Firebase-bestand niet nodig.
+
+**Duels staat nu onder Spelen (jouw keuze A).** Onderaan tik je op **Spelen**; bovenaan staan nu **Levels · Dagmes · Duels ·
+Toernooi · Seizoen**. Onder **Vrienden** staan **Vrienden** en **Rivalen**. Alles wat naar de duels gaat, gaat nu naar Spelen ›
+Duels: de regels onder "Nu te doen" ("Lotte daagt je uit / Spelen · Duels"), de regel "Duels spelen / Spelen › Duels" bij Dagmes,
+de Hulp ("Duels (onder Spelen › Duels)"), de kaartjes en de meldingen. Het kaartje van een vriend onder Vrienden houdt de knoppen
+**Live duel** en **Uitdaging (24 u)**. De knop **Daag een vriend uit · naar Vrienden** onder "Live duel" brengt je nog altijd naar
+je vriendenlijst; met de terugknop kom je weer bij Spelen › Duels. De vijf knoppen passen helemaal op een kleine en een grote
+telefoon, in het Nederlands en het Engels (de letters van die vijf knoppen zijn iets kleiner). Het teller-bolletje "5/5" van de
+duels staat nu op elk scherm van Spelen. Je bewaarde spel verandert er niet door.
+
+**De bonusrun van de Jacht op de Gouden Vork (jouw keuze A).** De bonusrun telt nu **alleen voor het toernooi** (je gouden
+vorken). Je level, je sap, je stempels, je opdrachten, de Fruitpas, je records, je rivalen, de gasten van je Eetzaal en de borden
+van de Weekkeuring veranderen er niet door. Dat staat er ook: in de uitleg bij Toernooi ("Een bonusrun telt alleen voor het
+toernooi (de vorken): niet voor je levels, sap, stempels of opdrachten.") en op het eindscherm ("Bonusrun: telt alleen voor het
+toernooi, niet voor je levels."). Op dat eindscherm staat nu **Nog een bonusrun · 1 ticket (nog N)**: dat gebruikt een ticket en
+start meteen een nieuwe bonusrun, zonder hartje. Heb je geen tickets meer, of is de Jacht-week voorbij, dan staat er **Terug naar
+Toernooi**. Vroeger startte **Opnieuw** daar een gewone poging die een hartje kostte; dat kan niet meer. Een gewone poging start
+je via Spelen. De terugknop op het eindscherm en **Stoppen** in de pauze brengen je naar Spelen › Toernooi. Bij een suikerklontje
+staat in de bonusrun "+3" in plaats van "+3 sap", want sap krijg je daar niet. In de bonusrun is er **geen knop Verder** met een
+filmpje meer (jouw keuze van 18 november): je 2 filmpjes van de dag blijven voor je gewone pogingen, en een gewone poging heeft
+**Verder** zoals altijd. Bij een nieuwe stap of een nieuw level komt er in de bonusrun ook **geen grote balk "LEVEL 123!"** meer
+(jouw keuze); de gouden vorken ("+1 gouden vork (N)") en de regel bovenaan blijven. Je eerste poging van de dag met dubbel sap
+blijft bewaard voor je volgende gewone poging.
+
+**Geen reclame meer op "Ander fruit" bij 0 hartjes.** Jouw beslissing: tik je op het eindscherm van je laatste hartje op **Ander
+fruit**, dan ga je meteen naar je fruit, zonder gewone reclame (die komt ook later niet alsnog). Hetzelfde voor **Fruit kopen**.
+Met hartjes over blijft alles zoals het was. De oplossing van v0.33.1 voor de dubbele reclame (**Opnieuw** bij 0 hartjes en het
+filmpje om je sap te verdubbelen) blijft.
+
+**Keuken, stap 3: De Weekkeuring (jouw keuze 5A, het gastenboek weg).** In je Eetzaal staat een kaart **Weekkeuring**. Je
+verzamelt **borden**:
+- elke gast die je serveert: 1 bord;
+- elke bestelling van de chef ("Bestellingen van deze week"): 1 bord, en als je alle drie haalt nog 1 extra;
+- de Chefspecial (vanaf de rang Chef): 2 borden;
+- elke vriend die bij jou komt proeven: 1 bord (hoogstens 2 dagen aan gasten per week).
+
+Telt een bord mee, dan zie je dat nu ook (jouw keuze van 18 november): bij een geserveerde gast bijvoorbeeld
+"Tafel 1 geserveerd: Bananenbrood · +1 bord", op het kaartje van een bestelling "+1 bord" (bij de laatste van de drie
+"+2 borden"), bij de Chefspecial "+2 borden", en alles samen bij **Ontvang alles**. In het Engels staat er "+1 plate". Telt een
+bord niet mee, dan staat er niets bij.
+
+De teller begint elke maandag om 8 uur 's ochtends weer bij 0 (in de zomer om 9 uur; de server rekent met 07:00 UTC). Je geeft
+borden nooit uit en ze zijn nergens te koop. Op maandag keurt **Chef Ada** je zaal met een stempel van ongeveer 2 seconden (tikken
+slaat over), daarna volgt een kaartje. Het oordeel werkt **de hele volgende week, alleen in je gewone pogingen**:
+
+| Oordeel | Doel | Bij 3 / 4 / 5 gasten per dag | Wat je de volgende week krijgt |
+|---|---|---|---|
+| **Lekker** | 3 dagen aan gasten | 9 / 12 / 15 borden | **Proeverssap**: elk klontje geeft 10% extra sap in je spaarpot (de Sapverdubbelaar en Plus tellen er niet op, je balk gaat niet sneller). In de afrekening staat een eigen regel, bijvoorbeeld "Proeverssap +10%: +1.240 sap". |
+| **Heerlijk** | 5 dagen | 15 / 20 / 25 borden | Proeverssap plus **Proefschil**: een extra schil vangt de eerste snee op ("Lisa vangt het mes!" met de naam van een vriend die deze of vorige week bij je proefde, anders "Proefschil!"). Geen citroenregen, geen kokosmelk, geen pitten; na "Verder" komt hij niet terug. |
+| **Verrukkelijk** | 7 dagen | 21 / 28 / 35 borden | Alle drie: ook **Lange smaak**, bonusvoorwerpen duren 25% langer ("Lange smaak +25%"). |
+
+Heb je een oordeel, dan staat bij de start van een gewone poging bijvoorbeeld "Keuring: Heerlijk ✓". Het werkt **nooit** in duels,
+het live duel, Sapstorm, De Lange Nacht, de Estafette, de Jacht-bonusrun, het Mes van de dag, De Chef, de weekendspellen, het
+testparcours en de minispellen. Als Commis, Chef de partie en Souschef krijg je 3 gasten per dag (doelen 9, 15 en 21), als Chef en
+Chef-kok 4, als Sterrenchef 5. Je **eerste week** (gerekend vanaf je eerste gewone poging of je eerste bezoek aan de Eetzaal met
+0.33.2) telt naar rato van de dagen die nog over zijn: dan staan er lagere doelen op de kaart (op woensdagavond 7, 11 en 15, op
+donderdag 6, 9 en 12).
+
+**Proeven.** Onder je keuken staat nu **Je vrienden**: een hulplijst, zonder volgorde op score, zonder kroon en zonder nummers.
+Bovenaan staan de vrienden bij wie je vandaag nog kunt proeven ("Tom · 13/15 borden" met de knop **Proef bij Tom**). In de
+Eetzaal van een vriend tik je op een gerecht: jullie krijgen allebei **2 pluimen** en je vriend krijgt **1 bord**. Die vriend
+krijgt een kaartje van het spel, bijvoorbeeld "Lisa proefde je Kiwismoothie" met "+1 bord, nog 2 tot Heerlijk." De server telt
+het, zoals de fooi: één keer per vriend per dag; hoogstens 3 keer per dag proeven; hoogstens 5 proevers per dag en 12 per week
+krijgen; alleen vrienden van vóór die week; geen nieuw account (minstens 7 dagen oud en 3 speeldagen in de laatste 14);
+geblokkeerde spelers tellen niet. De fooi (50 sap) blijft. **Keuken van de week** met de kroon is weg. Het gastenboek, de kroon
+van Zaak van de week en je rang bij duels waren nooit gebouwd, dus daar viel niets weg te halen.
+
+**Alle meldingen (jouw keuzes 1A, 2A, 3A, 4A, 5A, 6A en 7B).**
+- **1A, de kaart.** Het spel vraagt het nooit bij het opstarten en nooit op je eerste speeldag, maar met een eigen kaart op een
+  goed moment (na een nieuwe vriend, een live duel of een uitdaging van 24 uur): **"Mogen we je een seintje geven?"** met **Alle
+  meldingen**, **Alleen vrienden** en **Niet nu**. Pas na Alle of Alleen vrienden vraagt Android zelf toestemming. Na "Niet nu"
+  komt de kaart ten vroegste na 14 dagen terug, hoogstens 3 keer in totaal. Het spel werkt gewoon verder, ook zonder meldingen.
+- **2A, het vakje.** Boven de knoppen staat **"Laat mijn vrienden ook weten wanneer ik ga spelen"**. Het staat standaard uit en
+  het spel onthoudt het ook als je "Niet nu" kiest. Staat "Vrienden zien dat ik online ben" uit, dan krijgt niemand een melding
+  over jou.
+- **3A, een echte pop-up** voor vriendmeldingen (het kanaal "Vrienden" in Android): "Lotte speelt nu" ("Daag Lotte uit voor een
+  live duel!"), "Lotte daagt je uit (24 uur)" ("Klop de score binnen 24 uur.") en "Lotte wil je vriend worden". "Lotte speelt
+  nu" komt alleen als Lotte minstens 3 uur niet speelde, nooit terwijl je zelf speelt, en vervalt na 10 minuten. Meer vrienden
+  binnen 15 minuten worden één melding. De live-duel-uitnodigingen van vroeger komen nu ook in de app (kanaal "Live duels").
+- **4A, stille uren:** van 21:00 tot 08:00 op de klok van wie de melding krijgt, voor alles. Een melding in de stille uren vervalt;
+  ze komt 's ochtends niet alsnog. (Zoals vroeger is er één uitzondering: "Lotte zit in de lobby!" van een live duel dat je zelf
+  startte of aannam.)
+- **5A:** geen herinnering voor je dagreeks.
+- **6A, grenzen:** "vriend speelt nu" hoogstens 1 keer per dag over dezelfde vriend en 2 keer per dag in totaal; herinneringen van
+  het spel hoogstens 1 per dag; alles samen hoogstens 3 per dag (met Alle meldingen in de app hoogstens 2 van vrienden en 1
+  herinnering). Wie 14 dagen niet speelde, krijgt geen vriendmeldingen meer.
+  Live-duel-uitnodigingen houden hun eigen grens (hoogstens 3 per uur).
+- **7B, alles in v0.33.2.** Met **Alle meldingen** plant je telefoon zelf herinneringen in (daarvoor gaat er niets naar de server):
+  **Je 5 hartjes zijn terug** (met jouw maximum aan hartjes; alleen als je stopte met 0 hartjes), **Je keuken zit vol** ("12 uur
+  sap staat klaar", of zoveel uur als je keuken bewaart), **Het toernooi sluit vanavond** (zondag 16:00) en
+  **De toernooi-uitslag is er** (maandag 09:00), alleen als je die week meedeed, **Je Fruitpas eindigt over 2 dagen** (alleen als er
+  gratis beloningen klaarliggen) en, alleen als je het zelf aanzet, **Het mes van de dag is nieuw** (08:00). Niets in de eerste 24
+  uur, niets op de minuut juist (daarom is er geen extra Android-toestemming voor wekkers nodig), en alles wat nog gepland staat,
+  verdwijnt als je de game opent.
+- **Instellingen › Meldingen** (het tandwiel): Alle / Alleen vrienden / Uit, de groepen **Vrienden** en **Spel** met elke soort
+  apart, "Laat vrienden weten wanneer ik ga spelen", "Vrienden zien dat ik online ben" en de stille uren. Op het kaartje van een
+  vriend: **Geen meldingen over Lotte**.
+- **Tik op een melding** en de game opent de juiste plek: een uitdaging Spelen › Duels, "Lotte speelt nu" Vrienden met Lotte, een
+  vriendverzoek Vrienden, de hartjes het hartjesscherm, de keuken je Keuken, het toernooi Spelen › Toernooi. Tik je erop tijdens
+  een poging, dan opent de game die plek na je poging (na Stoppen, of als je daarna naar Spelen gaat).
+
+**Het live duel na "Nog een keer" (hersteld na jullie test).** Wat er misging in 0.33.1: tikten jullie na "Nog een keer" meteen op
+**Klaar**, dan startte het duel voor het live beeld klaar was. Je zag je vriend dan een paar seconden te laat en nooit op de plek
+waar hij echt was, en het zwarte vak (5 tikken op de klok) deed niets. En sloten jullie allebei de app af tijdens een live duel,
+dan deed de knop **Live duel** daarna één tot vijf minuten niets en kwam de uitslag nooit. Wat er nu gebeurt:
+- Het spel wacht heel even tot het live beeld klaar is en start dan pas. Soms zie je even "Live beeld verbinden…"; meestal duurt
+  dat minder dan 1 seconde, hoogstens ongeveer 10 seconden. Lukt het live beeld toch niet (bijvoorbeeld door slechte wifi), dan
+  staat er bij de start "Geen live beeld: je ziet (naam) een paar seconden later." Het duel telt dan gewoon.
+- Na het afsluiten van beide apps zie je "Live duel onderbroken" en daarna de uitslag, en je kan meteen opnieuw uitnodigen. Moet
+  het spel toch nog even wachten, dan zegt een kaart waarom: "Jullie vorige live duel wordt nog afgesloten" (je vriend opende de
+  game nog niet opnieuw), "Jullie vorige live duel loopt nog" (je vriend speelt het nog uit) of "Je vorige live duel wordt nog
+  afgesloten". De knop doet nooit meer niets.
+- Het zwarte vak werkt in elk live duel en staat bij de start van elk duel uit. Het staat linksonder; met live beeld is de regel
+  "vriend:" de 5de regel (niet de onderste, zoals de testlijst van 0.33.1 zei), zonder live beeld de eerste ("vriend: uit · ...").
+- Wacht je op antwoord van een vriend, dan staat op zijn kaart onder de grijze knop **Live duel** "Je wacht op antwoord van
+  (naam)." met de knop **Annuleer**.
+- Met de oude server (vóór de `firebase deploy`, of als die mislukt) is er ook live beeld, maar wacht het spel na **Klaar** 4 tot 10
+  seconden (op de knop staat dan "live verbinding…"). Na het afsluiten van beide apps toont de knop dan een paar minuten de kaart
+  "Je vorige live duel wordt nog afgesloten"; daarna komt de uitslag en werkt de knop weer.
+- Een vriend die nog 0.33.1 heeft, krijgt met de nieuwe server ook live beeld na "Nog een keer".
+
+De tests staan in `TESTLIJST-v0.33.2.md` (test 15 tot en met 19).
+
+**Privacy.** Het privacybeleid (Nederlands en Engels) is bijgewerkt: punt 5 (wat je vrienden van je Eetzaal zien en wat de server
+bij proeven bewaart), punt 6a ("Laat vrienden weten wanneer ik ga spelen"), punt 6b (alle meldingen, wat we per toestel bewaren,
+de stille uren, hoogstens 3 per dag, nooit reclame; de meldingscode verdwijnt als je meldingen uitzet, of na 60 dagen zonder
+vernieuwing), punt 13 (hoe lang) en punt 14 (wat er weggaat als je je account verwijdert: ook je proefbezoeken, je
+meldingsadressen, je keuzes voor meldingen, je lijst "Geen meldingen over" en je tellers).
+Bovenaan staat "Laatst bijgewerkt: 17 november 2026 (spelversie 0.33.2, Android-app op Google Play)". De lijst bij **Account
+verwijderen** in het spel zegt nu hetzelfde. Bij Google Play komt er geen nieuw vinkje bij: `PLAY-FORMULIEREN.md` geeft de nieuwe
+uitleg bij "Apparaat- of andere ID's" (de meldingscode van Firebase) en twee nieuwe alinea's. De link naar het privacybeleid blijft
+dezelfde.
+
+**Kleine verbeteringen na de controles.** Vier controleurs en twee hercontroles keken alles na; wat zeker fout was, is hersteld en
+opnieuw getest. Op de server begint de teller van de meldingen nu echt elke dag opnieuw (anders kreeg je na de eerste dag geen
+"speelt nu" meer van die vriend), en wie een paar dagen niet speelt, verliest geen fooien of proevers meer (de server bewaart wat
+na de eerste 20 berichten komt). In het spel: een melding waarop je tikt, gaat nooit meer verloren; de Weekkeuring zegt wat je
+deze week al haalde ("Je haalde deze week al Verrukkelijk: vanaf maandag werken ..."); na een schimduel staat er geen "Meld of
+blokkeer" meer op het volgende eindscherm; de uitleg bij Uitdaging (24 u) zegt "Open onder Vrienden het kaartje van een vriend";
+de rijen onder "Vrienden: aan" en "Spel: aan" springen in; het vakje op de meldingenkaart staat boven de knoppen; zonder het
+Firebase-bestand staat er nergens "Alleen vrienden"; de Engelse fooizin is Engels; een live duel dat je wint tijdens een bonusrun
+telt mee voor de bestelling "Win een duel". Daarna keken nog drie controleurs en één hercontrole de versie met het live duel na: ze
+vonden geen fout in het spel, wel in de testlijst, en die is verbeterd.
+
+**Wat je al beslist hebt (zo gebouwd):** Duels onder Spelen (A, 17 november); de bonusrun telt alleen voor het toernooi (A); geen
+reclame op Ander fruit bij 0 hartjes (ja); keuken stap 3 = de Weekkeuring (5A) en het gastenboek weg; meldingen 1A, 2A, 3A, 4A,
+5A, 6A en 7B. En op 18 november: in de bonusrun geen **Verder** met een filmpje en geen grote balk "LEVEL ..."; "+1 bord" bij een
+gast, een bestelling en de Chefspecial; het vergrendelscherm blijft op "privé" (een vriendmelding toont de naam, behalve als je
+telefoon gevoelige inhoud verbergt).
+
+**Kan nog aangepast worden na jouw test** (zo staat het nu; zeg het als je iets anders wilt):
+
+- In de bonusrun staat bovenaan nog "Level 123 · 0/1126" met je klontjespunten (de getallen voor level 122), en bij een nieuwe
+  stap of een nieuw level een klein tekstje "Stap 2/7" of "Level 123" bij je fruit (geen grote balk meer). Dat telt alleen binnen
+  die run. Kan ook "BONUSRUN · STAP 2" en "3 gouden vorken per stap", en de kleine tekstjes kunnen ook weg.
+- Het eindscherm van de bonusrun houdt **Ander fruit**. Kan ook weg.
+- De bestelling "Speel een toernooironde" telt een bonusrun niet mee (zoals in v0.33.1). Kan ook wel.
+- Het bolletje "5/5" van de duels staat op elk scherm van Spelen. Kan ook alleen bij Duels.
+- Bij 0 hartjes geeft ook **Fruit kopen** geen reclame meer, net als Ander fruit.
+- De Engelse namen: Tasting juice (Proeverssap), Tasting peel (Proefschil) en Lasting taste (Lange smaak).
+- Een vriend zonder Eetzaal die bij jou proeft, krijgt de 2 pluimen ook (ze wachten tot die vriend een Eetzaal opent). Kan ook
+  alleen met een Eetzaal.
+- Onder Vrienden staat nog een kroon bij de vriend met het hoogste level (dat gaat niet over de keuken). Kan ook weg.
+- De stempel van Chef Ada komt bij je eerste bezoek aan de keuken na maandag 8 uur; "Nu te doen" wijst ernaar. Gaat je oordeel
+  daarna nog omhoog door een late proever, dan staat dat alleen op een kaartje. Kan ook met de stempel.
+- Onder "Nu te doen" staan de regels van de keuken (ook die van Chef Ada) vóór een uitdaging van 24 uur. Die uitdaging zie je
+  altijd onder Spelen › Duels.
+- "Geen meldingen over Lotte" stopt ook Lottes uitdagingen en live-uitnodigingen als melding (in het spel zie je ze nog).
+- Een vriendverzoek telt mee in de 3 meldingen per dag. Kan ook apart.
+- Er is geen knop "Open Android-instellingen" (daarvoor is een extra module nodig); de game zegt in woorden waar het staat.
+- De herinneringen voor het toernooi plant je telefoon zelf (zondag 16:00 en maandag 09:00, jouw klok); in de browser komen ze van
+  de server, op dezelfde uren in Brussel.
+- Een tweede telefoon met hetzelfde account toont "Op dit toestel staan de meldingen nog uit" met de knop "Zet aan op dit
+  toestel": je keuze reist mee met je spel, de toestemming van Android niet.
+- Het kleine icoontje van de herinneringen bovenaan je scherm is dat van Android zelf. Een eigen icoon kan later.
+- Tik je op een melding tijdens een poging, dan opent de game die plek pas na je poging (na Stoppen of bij Spelen), zonder
+  tijdslimiet. Kan ook op het eindscherm, of met een regel onder "Nu te doen".
+
+Oude spellen laden gewoon: die van v0.32.16, de nooit uitgebrachte 0.33.0 en v0.33.1. Nieuw in je bewaarde spel zijn alleen je
+keuzes voor meldingen (ze beginnen leeg: "Je koos nog niets") en, zodra je de Eetzaal gebruikt, de borden en het oordeel van de
+Weekkeuring en bij wie je vandaag proefde. Open je een spel van 0.33.2 op een telefoon met 0.33.1, dan blijft alles bewaard. De
+herstelling van het live duel en "+1 bord" bewaren niets nieuws.
+
 ## Nieuw in v0.33.1: de Eetzaal en De brigade, geen dubbele reclame, het live duel met schil en minder haperen, het scherm blijft aan en nieuwe duelnamen
 
 Geen server-update (geen `firebase deploy`). v0.33.1 is **één versie met alles samen**, zodat je maar één versie hoeft te testen: de

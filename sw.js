@@ -1,7 +1,7 @@
 // Don't Slice Me! service worker: the page itself is fetched network-first (so a new version shows up on the next
 // visit) and falls back to the cached copy offline; icons, the manifest and fonts are cached on first use.
 // Other pages (privacy.html, voorwaarden.html, stats.html) are network-first as well and fall back to their own cached copy (v0.32.8).
-const CACHE = 'dontsliceme-v0.33.1';
+const CACHE = 'dontsliceme-v0.33.2';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -26,20 +26,27 @@ self.addEventListener('fetch', e => {
 const LD_SW_TEXT = {
   nl: { ldinv: n => [`${n} daagt je uit voor een live duel`, 'Tik om te antwoorden. De uitnodiging loopt 10 minuten.'], ldlobby: n => [`${n} zit in de lobby!`, 'Je hebt 2 minuten om terug te komen.'] },
   en: { ldinv: n => [`${n} challenges you to a live duel`, 'Tap to answer. The invite is open for 10 minutes.'], ldlobby: n => [`${n} is in the lobby!`, 'You have 2 minutes to come back.'] } };
+// v0.33.2 push332: the new kinds (sent only to subscriptions of a v0.33.2 page: v 2). c = how many more friends play (one notification replaces the other).
+const PN_SW_K = ['frplay', 'chal', 'freq', 'tnend', 'tnres'];
+const PN_SW_TEXT = {
+  nl: { frplay: (n, c) => c > 0 ? [`${n} en nog ${c} ${c === 1 ? 'vriend' : 'vrienden'} spelen nu`, 'Daag iemand uit voor een live duel!'] : [`${n} speelt nu`, `Daag ${n} uit voor een live duel!`], chal: n => [`${n} daagt je uit (24 uur)`, 'Klop de score binnen 24 uur.'], freq: n => [`${n} wil je vriend worden`, 'Tik om te antwoorden.'],
+    tnend: () => ['Het toernooi sluit vanavond', 'Nog een paar uur om je plaats te verbeteren.'], tnres: () => ['De toernooi-uitslag is er', 'Kijk welke plaats je haalde.'] },
+  en: { frplay: (n, c) => c > 0 ? [`${n} and ${c} more ${c === 1 ? 'friend' : 'friends'} are playing`, 'Challenge someone to a live duel!'] : [`${n} is playing now`, `Challenge ${n} to a live duel!`], chal: n => [`${n} challenged you (24 hours)`, 'Beat the score within 24 hours.'], freq: n => [`${n} wants to be friends`, 'Tap to answer.'],
+    tnend: () => ['The tournament closes tonight', 'A few more hours to improve your place.'], tnres: () => ['The tournament result is in', 'See which place you got.'] } };
 self.addEventListener('push', e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = {}; }
-  const k = d.k === 'ldlobby' ? 'ldlobby' : 'ldinv', n = String(d.n || 'Een vriend').replace(/[^\p{L}\p{N} \-]/gu, '').slice(0, 16) || 'Een vriend', id = String(d.id || '').replace(/[^A-Z0-9]/g, '').slice(0, 12);
-  const [title, body] = LD_SW_TEXT[d.lang === 'en' ? 'en' : 'nl'][k](n), url = './?' + (k === 'ldlobby' ? 'ld=' : 'li=') + id;
+  const pk = PN_SW_K.includes(d.k) ? d.k : '', k = pk || (d.k === 'ldlobby' ? 'ldlobby' : 'ldinv'), n = String(d.n || 'Een vriend').replace(/[^\p{L}\p{N} \-]/gu, '').slice(0, 16) || 'Een vriend', id = String(d.id || '').replace(/[^A-Z0-9]/g, '').slice(0, 12);
+  const c = Math.max(0, Math.min(49, Math.floor(+d.c) || 0)), L = d.lang === 'en' ? 'en' : 'nl', [title, body] = pk ? PN_SW_TEXT[L][pk](n, c) : LD_SW_TEXT[L][k](n), url = pk ? './?pk=' + pk + (pk === 'frplay' && !c ? '&pn=' + encodeURIComponent(n) : '') + '&pc=' + c : './?' + (k === 'ldlobby' ? 'ld=' : 'li=') + id;
   e.waitUntil((async () => {
     const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true }); for (const w of wins) w.postMessage({ ldpush: { k, id, n } });
-    await self.registration.showNotification(title, { body, tag: 'ld' + id, renotify: true, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', data: { k, id, url }, vibrate: [120, 60, 120] });
+    await self.registration.showNotification(title, { body, tag: pk ? (pk === 'frplay' || pk === 'freq' ? pk : pk === 'chal' ? 'chal' + id : 'tn') : 'ld' + id, renotify: !(pk === 'frplay' && c > 0), icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', data: { k, id, url, n, c }, vibrate: pk === 'tnend' || pk === 'tnres' ? [] : [120, 60, 120] });
   })());
 });
 self.addEventListener('notificationclick', e => {
   e.notification.close(); const d = e.notification.data || {}, url = new URL(d.url || './', self.registration.scope).href;
   e.waitUntil((async () => {
     const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const w of wins) if (w.url.startsWith(self.registration.scope)) { try { await w.focus(); } catch (x) {} w.postMessage({ ldopen: { k: d.k, id: d.id } }); return; }
+    for (const w of wins) if (w.url.startsWith(self.registration.scope)) { try { await w.focus(); } catch (x) {} w.postMessage({ ldopen: { k: d.k, id: d.id, n: d.n, c: d.c } }); return; }
     await self.clients.openWindow(url);
   })());
 });

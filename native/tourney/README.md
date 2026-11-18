@@ -35,7 +35,7 @@ Plausibility: a score above `seconds × MAX_PER_SEC[event] + 50` is refused. Gro
 - `duelfind` `{ day, level }` -> `{ opp }`: a finished entry of today's duel from a similar level band (its score, time and ghost path), or `null`.
 - `duel` `{ day, score, seconds, level, fruit, name, ghost, t, vs, vsScore }`: stores my entry once per day (`duels/{day}/entries/{uid}`), notes the picked opponent, settles friend challenges whose both sides played.
 - `challenge` `{ uid, day }`: challenges a friend to today's duel (`duels/{day}/challenges/{a_b}`); the loser pays 200 juice and wears the pan hat for a day (applied client-side from the note).
-- `friends` now also takes `{ day }` and returns `notes` (duel results, challenges, picks, passes; handed out once) and today's `challenges`.
+- `friends` now also takes `{ day }` and returns `notes` (duel results, challenges, picks, passes; handed out once) and today's `challenges`. (v0.33.2 int-fix1: at most 20 notes per call; the rest stay for the next call, nothing is dropped.)
 - `rivals` `{ level, keep }` -> two profiles just above my level (fresh views of `keep` while the week lasts); `passed` `{ uid }` notes a rival that I passed them.
 - Deploy again after pulling: `firebase deploy --only functions,firestore` from this folder. No new indexes are needed (equality filters and a single-field order on `profiles.level`).
 
@@ -180,9 +180,29 @@ firebase deploy --only functions,firestore
 The deploy adds the rules, the four TTL policies (`ldinv`, `ldlobby`, `live`, `ldpush`) and gives the function access to the secret.
 Never put the keys in `index.html`, `bridge.js` or a commit. Then publish the game (`index.html`, `sw.js`).
 
-The Android app later (nothing on the server): add an Android app in the Firebase console (package `com.dontsliceme.app`), put
-`google-services.json` in `native\android\app\`, `cd prototypes\dont-slice-me\native` and `npm install @capacitor/push-notifications@6`,
-set `const FCM_READY = true;` in `native\bridge.js`, then `npm run sync` and build. Until then the app behaves like a browser without push.
+The Android app (v0.33.2 push332, nothing to change in the code any more): add an Android app in the Firebase console (package
+`com.dontsliceme.app`), download its `google-services.json` into `native\android\app\`, then in `prototypes\dont-slice-me\native` run
+`npm install` (it installs `@capacitor/push-notifications` 8.1.3 and `@capacitor/local-notifications` 8.3.1 from package.json) and
+`npm run sync`, and build. `npm run sync` prints `app push (FCM): ON` when the file is there and names the app; it then writes
+`window.FV_FCM_FILE = true` at the top of `www/bridge.js`. Without the file it prints `OFF` and the app never calls the push plugin's
+`register()` (which would crash the app without Firebase): the game then shows "Meldingen werken nog niet in deze versie van de app" or
+only the phone's own reminders. The Capacitor Android template applies the Gradle plugin `com.google.gms.google-services` only when the
+file exists (check `android/app/build.gradle` for that block once).
+
+### All notifications (v0.33.2 push332, Pieter 1A 2A 3A 4A 5A 6A 7B)
+
+| What | Where | Rules |
+|---|---|---|
+| `frplay` "Lotte speelt nu" | `ldpoll` of the friend who comes back after 3 hours away, only with `tell` (Laat vrienden weten wanneer ik ga spelen, off by default); never when `ldHide` | to friends with a v 2 subscription and `fp`; not when the friend is in the game, sleeps (21-8 on its phone), muted the player or did not play for 14 days; 1 per friend and 2 a day; a friend within 15 min of the previous one joins it (not counted): the phone keeps its first notification (an FCM update would sound again), a browser's is replaced quietly by "Tom en nog 1 vriend spelen nu"; TTL 10 min, priority normal, channel `vrienden` |
+| `chal` 24 h challenge, `freq` friend request | `duel` with `challengeTo`, `friendreq` | only when the friend's game is not open and the friend played in the last 14 days; `chal` honours the mute; category `fc` |
+| `tnend` / `tnres` | scheduled `pnWeek` (Sunday 16:00 / Monday 09:00 Brussels) | web subscriptions with `gt` only (the app plans these locally); 1 a day |
+| all new kinds | `pnSend` | quiet hours 21:00-08:00 on each phone; at most 3 a day per player (2 when a phone of that player plans its own game reminders: `loc`); counters in `ldpush/{uid}.cnt` (a friend only as a 12-char hash, no name; the counter starts again with the first notification of a new day; the account deletion removes the hash from its friends' counters) |
+
+New fields: subscription `v: 2, fp, fc, gt, loc` (an older client's subscription has no `v` and keeps getting only `ldinv`/`ldlobby`);
+profile `ldTell`, `frAt` (last fan-out), `ldFrUntil` (can get frplay), `pnTz`, `pnMute` (at most 50 friend uids; set only by
+`pnmute { to, on }`, never from `ldpush`, so a device with an older save cannot undo a mute; cleaned by `unfriend` and by the account
+deletion). `ldinv` is not pushed to a friend who muted the inviter. `hello`: `v 35`, caps `pn2` (the game shows "Geen meldingen over X" and
+the new Settings rows only with it).
 
 ### Cost (measured on the mock, billed like Firestore, the device lookup of every call included)
 
@@ -199,7 +219,7 @@ Levers if needed: the menu poll every 20 s instead of 10 s, beats every 4 s.
 
 ### Deleting a player's data on request (privacy.html section 14)
 
-Besides the existing list: the live-duel fields of `profiles/{uid}` (above); `ldpush/{uid}`; `duelstats/{uid}`; the `h2h` documents whose
+Besides the existing list: the live-duel fields of `profiles/{uid}` (above; v0.33.2 push332: also `ldTell`, `frAt`, `ldFrUntil`, `pnTz`, `pnMute`, the account's uid in other players' `pnMute` and its hash in their day counters `cnt.by`); `ldpush/{uid}` (with its day counter `cnt`); `duelstats/{uid}`; the `h2h` documents whose
 `a` or `b` is the uid (console: filter `a == uid`, then `b == uid`); `limits/ldinv_{uid}` and `limits/ldpushin_{uid}`. The mirrors on
 `friends/*/of/{uid}` go with the friendships. Invites, lobbies and live documents expire by themselves within about one to two days
 (Firestore TTL deletes typically within 24 hours after `expireAt`).
@@ -336,3 +356,37 @@ cubes and bonus symbols are claimed (earliest touch wins), and the function re-r
   settles of running `ab` duels skip the verification. `LD_AR_OK = false` (or `LD_RTDB_URL = ''`): today's mode.
 - Deploy: `firebase deploy --only functions,firestore,database` (or `npm run deploy`), functions and database together, before the
   game is pushed.
+
+## v0.33.2 live-duel fixes (ldfix332) <!-- v0.33.2 ldfix332 -->
+
+Two problems from Pieter's phones on v0.33.1: a quick lobby (both tap Klaar within a few seconds, typical after "Nog een keer") started
+without the live view (`ar: 0`), and after both apps were killed during a duel the Live duel button did nothing for up to 4.6 minutes.
+
+- `rc`: a joined seat's `rc` is stored by any `ldlobby` call that carries `rc: 1` when the stored one is missing or at least
+  `LD_RC_STORE_MS` (5 s) old, so the first one at once; the 4 s `seen` tick keeps refreshing it (v0.33.1: only on that tick, see the
+  v0.32.10 section above).
+- Go hold: when the go of a live-view lobby (1-on-1, the room exists, both seats `v >= 3`) is due (both Klaar, or the time is up) and a
+  seat has no `rc` within `LD_RC_MS` (10 s), the lobby stays in `count` until every seat has one (then the go with `ar: 1`) or until
+  `LD_RC_HOLD_MS` (8 s) after the hold began (then the go as before; `ar` may be 0). Lobby fields `holdAt` (while it holds, written once)
+  and `holdMs` (at the go: how long it held); the view has `hold: 1` meanwhile. Older clients keep showing their count screen. A lobby
+  that cannot get `ar` (an older seat, no room, `LD_AR_OK = false`, `LD_RTDB_URL = ''`) is never held.
+- `ldlobby { leave: true }` after the go from a seat that already started (its live doc exists, no final): the seat ends like a quit
+  final (`fin` with the last beat's `s` and `t`, `quit: true`, `via: 'leave'`, no ghost) in the same transaction, then the settle is
+  tried, so two killed apps get their result at once. A `go` lobby no longer holds a player whose seat ended (a final, or a no-show
+  that left or missed the start): `ldinvite` / `ldanswer` answer no `inlobby` / `busy` for it, and the profile's lobby pointer stays so
+  that `ldpoll` still reports the result. A seat that still plays keeps the lobby alive for the friend.
+- After a live duel ended (also by the leaves of two killed apps) an invite to that friend is a rematch: no `soon` / `same` 2-minute
+  wait for the invite of the duel that is over (from the friend card too); once a new invite went out the wait counts again.
+- `busy` carries `same` when the friend's seat in our own interrupted duel still holds her: `2` while that seat still beats (she plays
+  the duel out; her last beat at most `LD_PLAYS_MS` = 10 s old), `1` when it does not (her app is closed or away), `0` for any other
+  lobby. The game then says she still plays that duel, or that it is still being closed.
+- When `ldanswer` moves or `ldinvite` clears a profile's `ldLobby` while it still points at a duel that started (settled or not: a
+  pointer that still points there means no poll has reported its result yet), the old id stays in `ldPrev`, never in place of another
+  one: `ldpoll` settles it from `LD_SETTLE_POLL_MS` on (as for the pointer's own lobby), reports its result once as the poll's `lobby`
+  (with `res`) when it reports no other lobby, and then clears `ldPrev`. Without this a duel whose other seat never came back was never
+  settled, and the result of a duel settled by the friend's leave was lost when the player invited or accepted before his next poll.
+  (The `ldpoll` reply line is not edited: push332 anchors on it.)
+- `hello` caps `ldhold`: the game leaves the waiting for the live view to this server.
+- Cost: one extra lobby write for a seat's first `rc` (and after a lapse) and one per held lobby; one live-doc write per leave of a
+  started seat (plus the normal settle); one extra read in `ldinvite` / `ldanswer` only while a lobby in `go` points at the player;
+  one extra read per `ldpoll` only while `ldPrev` is set.

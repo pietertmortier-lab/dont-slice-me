@@ -1,4 +1,4 @@
-# Don't Slice Me! - het stappenplan naar Google Play (17 november 2026, spel v0.32.10 in de interne test (zo genoteerd op 12 november; staat v0.32.11 er al in, dan is dat de versie), v0.32.11 uitgebracht in je repo, v0.32.12, v0.32.13, v0.32.14, v0.32.15, v0.32.16 en v0.33.1 klaar om te uploaden; v0.33.0 is nooit uitgebracht, die zit in v0.33.1)
+# Don't Slice Me! - het stappenplan naar Google Play (18 november 2026, spel v0.32.10 in de interne test (zo genoteerd op 12 november; staat er al een nieuwere versie in, dan is dat de versie), v0.32.11 tot en met v0.33.1 uitgebracht in je repo, v0.33.2 klaar om te uploaden (met één `firebase deploy` en `google-services.json`); v0.33.0 is nooit uitgebracht, die zit in v0.33.1)
 
 Dit is het enige actuele stappenplan. Het vervangt de versie van 23 oktober (v0.24.2). Elke stap is één handeling;
 onder de stap staat wat je dan ziet. Stappen met **[GEDAAN]** zijn al klaar (stand 13 november 2026, 's nachts; de delen
@@ -39,10 +39,10 @@ Bronnen bij de regels van Google (opgezocht op 10 november 2026):
 | Google Play Console | persoonlijk account "Don't Slice Me!" (eigenaar dont.slice.me@gmail.com); identiteit geverifieerd (26 oktober); handelaarsstatus Handelaar en telefoonnummer geverifieerd (10 november); app "Don't Slice Me!" aangemaakt als Game, kosteloos, pakketnaam `com.dontsliceme.app`, standaardtaal Engels (VS) en-US, voorwaarden Play App Signing aanvaard (10 november); formulier Advertenties ingevuld (10 november); de andere formulieren van App-content ingevuld (11 november, 's nachts); winkelvermelding Engels met Nederlandse vertaling (11 november); interne test met de lijst "intern" (8 testers): 0.32.7 (versionCode 1, 11 november), 0.32.8 (2, 11 november) en **0.32.10 (versionCode 4, 12 november, "Beschikbaar voor interne testers")**; betalingsprofiel gekoppeld, 11 eenmalige producten en 2 abonnementen actief (12 november, deel G); serviceaccount van RevenueCat met accountrechten (12 november, deel G); realtime meldingen (RTDN) aan (12 november, deel G) | de regel onder FAIR PLAY / EERLIJK SPELEN in de winkelbeschrijving (v0.32.9, zie hieronder); bij v0.32.11 de beschrijving van `hearts_5` (zie hieronder); bij v0.32.12 `tickets_5`, `tickets_15` en `weekpass` op inactief, pas als v0.32.12 in de test staat (zie hieronder); formulier Advertentie-ID (verscheen nog niet, NIET NAGEKEKEN of het er nu staat); gesloten test (deel F); productie (deel H) |
 | Licentietests (Play Console, alle apps > Instellingen > Licentietests) | nieuwe lijst **"licentietesters"** (jij en je vriendin) aangevinkt; de lijst "intern" (8 testers) **niet** meer aangevinkt (13 november). Alleen wie in een aangevinkte lijst staat, koopt met de testkaart en betaalt niet echt | niets. Let op: de andere interne testers betalen nu **echt** als ze iets kopen. Je eerste echte verkoop kan dus al in de test komen; `PLAY-FORMULIEREN.md`, deel 9, raadt aan om voor de eerste echte verkoop met je boekhouder te praten |
 | Google Cloud (voor RevenueCat) | organisatie `dont-slice-me-org`; project hernoemd naar **"Don't Slice Me!"** (het project-ID staat in je Google Cloud-console); API's aan: Google Play Android Developer API, Google Play Developer Reporting API, Cloud Pub/Sub API; serviceaccount `revenuecat@...` (het volledige adres staat in je Google Cloud-console) met de rollen **Pub/Sub Admin** en **Monitoring Viewer**; JSON-sleutel gemaakt en in RevenueCat gezet (12 november). Over de organisatieregel: de regel `iam.disableServiceAccountKeyCreation` verbood een sleutel. Je gaf jezelf de rol Organization Policy Administrator, zette de regel tijdelijk uit voor alleen dit project, maakte de sleutel, en zette de regel daarna terug op "overnemen van bovenliggend" (inherit) | niets. Bewaar het JSON-bestand buiten GitHub en stuur het naar niemand. Dit is een **ander** project dan het Firebase-project `dont-slice-me`: deze sleutel werkt **niet** voor de twee hulpscripts (zie hieronder) |
-| Firebase | project `dont-slice-me`, web-app, anonieme login, Firestore, Blaze en Google Cloud betaald account (9 november), regels en functies uitgerold (9 november, alle functies), opruimregel `ghosts` actief (9 november), geheim `LIVEDUEL_VAPID` en live duel (10 november); Realtime Database in België (11 november); server, Firestore-regels en Realtime Database-regels van v0.32.10 uitgerold (12 november, `firebase deploy --only functions,firestore,database`; dat dekt ook de server van v0.32.9) | sleutel voor de twee hulpscripts en, optioneel, de TTL-regel (zie "Wat jij nog moet doen voor v0.32.9" hieronder); pushmeldingen in de app: later, deel A |
+| Firebase | project `dont-slice-me`, web-app, anonieme login, Firestore, Blaze en Google Cloud betaald account (9 november), regels en functies uitgerold (9 november, alle functies), opruimregel `ghosts` actief (9 november), geheim `LIVEDUEL_VAPID` en live duel (10 november); Realtime Database in België (11 november); server, Firestore-regels en Realtime Database-regels van v0.32.10 uitgerold (12 november, `firebase deploy --only functions,firestore,database`; dat dekt ook de server van v0.32.9) | sleutel voor de twee hulpscripts en, optioneel, de TTL-regel (zie "Wat jij nog moet doen voor v0.32.9" hieronder); bij v0.33.2: één `firebase deploy` (de server, de regel voor het proeven, de meldingen en de herstelling van het live duel) en de Android-app toevoegen voor `google-services.json` (pushmeldingen in de app), zie "Wat jij moet doen bij v0.33.2" |
 | AdMob | account en betalingsprofiel geverifieerd, account goedgekeurd, app met twee blokken (Beloning, Tussenreclame), AVG-toestemmingsbericht gepubliceerd, je telefoon "GSM Pieter" als testapparaat (5 november); de echte codes staan in `native/bridge.js` en `capacitor.config.json` en zitten in de app (sinds 0.32.7) | belastinggegevens, inhoudsclassificatie PG, app-ads.txt, later koppelen aan Google Play, eventueel "Alternatieve toestemmingsverzameling" (deel B) |
 | RevenueCat | project, Google Play-app, public key in `bridge.js`, entitlements `plus`, `noads`, `pass` (23 oktober); JSON van het serviceaccount geüpload: **Valid credentials**; 9 producten geïmporteerd (`bundle_all` non-consumable, de andere consumable) naast de bestaande `noads` (non-consumable, aan `noads`) en `pass`; `plus_month:monthly` en `plus_year:yearly` aan `plus`; `pass` losgekoppeld van entitlement `pass` (de entitlement blijft, leeg); `don_t_slice_me_pro` is weg; Google-ontwikkelaarsmeldingen gekoppeld (testmelding ontvangen); 2 testaankopen `sap_3000` gelukt, zichtbaar bij Customers > Sandbox (12-13 november, deel G) | testaankoop Reclamevrij en "Aankopen herstellen" (deel G, stap 11). De Fruitpas per seizoen is beslist (15 november, keuze 2A): `pass` blijft aan geen entitlement hangen; niets te doen |
-| Pc | Node v24.21.0, npm, Git, firebase-tools 15.35.0, Android Studio met SDK en emulator "Medium Phone API 37.0", jbr-17 met het Norton-certificaat (23 oktober); je repo staat in `C:\Users\piete\dont-slice-me`; Capacitor 8-project, upload-sleutel (`C:\Users\piete\sleutels\dontsliceme-upload.jks`) en ondertekende bundels gebouwd (11-12 november, laatste versionCode 4) | bij elke nieuwe versie: `git pull`, `npm run sync`, `versionCode` +1 (v0.32.11 wordt versionCode 5, v0.32.12 versionCode 6, v0.32.13 versionCode 7, v0.32.14 versionCode 8, v0.32.15 versionCode 9, v0.32.16 versionCode 10; sla je v0.32.12 over, dan wordt v0.32.13 toch versionCode 7; sla je v0.32.12 of v0.32.13 over, dan wordt v0.32.14 toch versionCode 8; sla je v0.32.12, v0.32.13 of v0.32.14 over, dan wordt v0.32.15 toch versionCode 9; sla je een of meer van v0.32.12 tot en met v0.32.15 over, dan wordt v0.32.16 toch versionCode 10; v0.33.1 wordt versionCode 11, ook als je een of meer van v0.32.12 tot en met v0.32.16 oversloeg (v0.33.0 kwam nooit uit en kreeg geen versionCode)) |
+| Pc | Node v24.21.0, npm, Git, firebase-tools 15.35.0, Android Studio met SDK en emulator "Medium Phone API 37.0", jbr-17 met het Norton-certificaat (23 oktober); je repo staat in `C:\Users\piete\dont-slice-me`; Capacitor 8-project, upload-sleutel (`C:\Users\piete\sleutels\dontsliceme-upload.jks`) en ondertekende bundels gebouwd (11-12 november, laatste versionCode 4) | bij elke nieuwe versie: `git pull`, `npm run sync`, `versionCode` +1 (v0.32.11 wordt versionCode 5, v0.32.12 versionCode 6, v0.32.13 versionCode 7, v0.32.14 versionCode 8, v0.32.15 versionCode 9, v0.32.16 versionCode 10; sla je v0.32.12 over, dan wordt v0.32.13 toch versionCode 7; sla je v0.32.12 of v0.32.13 over, dan wordt v0.32.14 toch versionCode 8; sla je v0.32.12, v0.32.13 of v0.32.14 over, dan wordt v0.32.15 toch versionCode 9; sla je een of meer van v0.32.12 tot en met v0.32.15 over, dan wordt v0.32.16 toch versionCode 10; v0.33.1 wordt versionCode 11, ook als je een of meer van v0.32.12 tot en met v0.32.16 oversloeg (v0.33.0 kwam nooit uit en kreeg geen versionCode); v0.33.2 wordt versionCode 12, ook als je v0.33.1 oversloeg) |
 | GitHub | repo `dont-slice-me` met Pages (testlink), privacybeleid online (laatste versie met v0.32.10) | later de repo `pietertmortier-lab.github.io` voor app-ads.txt (deel B, stap 8) |
 
 ### Wat Claude nog in het spel moet herstellen (jij hoeft hier niets voor te doen)
@@ -225,6 +225,98 @@ heten Schimduel, Uitdaging (24 u) en Live duel; onder "Live duel" staat de knop 
 blijft: een sappot kan het sap van een rang betalen, nooit het level of de pluimen. Oude spellen laden gewoon; nieuw in het bewaarde
 spel zijn alleen de gegevens van de Eetzaal. Het privacybeleid en de voorwaarden blijven zoals ze waren.
 
+Wat jij moet doen bij v0.33.2 (18 november; Duels onder Spelen, de bonusrun, geen reclame op Ander fruit bij 0 hartjes, de
+Weekkeuring, alle meldingen en het live duel na "Nog een keer"; bevat v0.33.1 en ouder, dus je uploadt alleen v0.33.2). Deze keer
+is er **één `firebase deploy`** en zet je **één keer** het bestand `google-services.json` in de app. Doe de stappen in deze volgorde;
+elke stap is één handeling.
+- De `firebase deploy` brengt nu ook de herstelling van het live duel naar de server. Mislukt hij, dan werkt de app toch, maar zonder
+  proeven en zonder meldingen van vrienden; het live duel wacht dan na **Klaar** 4 tot 10 seconden, en na een duel waarin jullie
+  allebei de app afsloten, wacht de eerste uitnodiging een paar minuten (een kaart in de game zegt waarom). Stuur me dan wat er in
+  het opdrachtvenster staat.
+- Wat nog openstaat van vroeger, geldt nog: de stappen van `PLAY-CONSOLE-v0.32.15.md` (de namen van `sap_3000` en `sap_10000`,
+  `doubler_1h` op € 1,99) als je die nog niet deed, en stap 0 en 14 van `TESTLIJST-v0.32.13.md` als je v0.32.13 oversloeg.
+- In RevenueCat hoeft niets: v0.33.2 heeft geen nieuw product.
+
+Deel 1, de server (eerst; de oude app 0.33.1 werkt gewoon met de nieuwe server):
+1. Open een opdrachtvenster in de map `dont-slice-me`. Typ `git pull` en druk op Enter.
+2. Typ `cd native\tourney` en druk op Enter.
+3. Typ `firebase deploy --only functions,firestore:rules` en druk op Enter. (`npm install` is hier niet nodig: de server kreeg
+   geen nieuwe onderdelen. Zegt `firebase` toch dat er een module ontbreekt, typ dan eerst `npm install` en daarna deze stap
+   opnieuw.)
+   Je ziet onder meer dat de functie `tourney` bijgewerkt wordt (daarin zitten ook het proeven, de meldingen en de herstelling van
+   het live duel) en dat er een nieuwe functie `pnWeek` bijkomt (de toernooimeldingen in de browser), en op het einde "Deploy
+   complete!". De regels van de Realtime Database en de indexen blijven zoals ze waren; daarom staan ze niet in de lijst.
+
+Deel 2, het bestand `google-services.json` (één keer; zonder dit bestand werkt de app ook, maar zonder meldingen van vrienden):
+4. Open https://console.firebase.google.com en log in met `dont.slice.me@gmail.com`. Klik op het project **dont-slice-me**.
+5. Klik links bovenaan op het tandwiel naast **Projectoverzicht** en dan op **Projectinstellingen**.
+6. Blijf op het tabblad **Algemeen** en scrol naar **Je apps**. Klik op **App toevoegen** en dan op het **Android**-icoon.
+7. Typ bij **Android-pakketnaam** `com.dontsliceme.app`. Bij **App-bijnaam** mag je `Don't Slice Me Android` typen. Laat het veld
+   voor SHA-1 leeg. Klik **App registreren**.
+8. Klik **google-services.json downloaden**. Het bestand komt in je map Downloads.
+9. Klik **Volgende**, nog eens **Volgende** en dan **Doorgaan naar console**. (De stappen over de Firebase SDK hoef je niet te
+   doen: dat zit al in de app.)
+10. Verplaats `google-services.json` uit Downloads naar `C:\Users\piete\dont-slice-me\native\android\app\`. De naam moet precies
+    `google-services.json` zijn (niet `google-services (1).json`). Het bestand blijft buiten GitHub: `native/.gitignore` zorgt
+    daarvoor.
+
+Deel 3, geen exacte wekkers (één keer; de herinneringen komen niet op de minuut juist, dus de toestemming "Wekkers en
+herinneringen" hoort niet in de app):
+11. Open `C:\Users\piete\dont-slice-me\native\android\app\src\main\AndroidManifest.xml` in Kladblok.
+12. Zoek de regel die begint met `<manifest`. Staat daar nog geen `xmlns:tools`, zet dan net na `<manifest` een spatie en
+    `xmlns:tools="http://schemas.android.com/tools"`.
+13. Zet vlak boven de laatste regel (`</manifest>`) deze regel:
+    `<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />`
+14. Bewaar het bestand. (Hetzelfde staat in `native/README.md`, "Geen exacte wekkers in AndroidManifest.xml".)
+
+Deel 4, de app bouwen:
+15. Typ in het opdrachtvenster `cd ..` en druk op Enter. Je bent nu in de map `native`.
+16. Typ `npm install` en druk op Enter. Wacht tot het klaar is. (Dit haalt de nieuwe meldingsmodule
+    `@capacitor/local-notifications` 8.3.1.)
+17. Typ `npm run sync` en druk op Enter. Wacht tot het klaar is. Je ziet `app push (FCM): ON` en
+    `exact alarms (SCHEDULE_EXACT_ALARM): removed`.
+    - Staat er `app push (FCM): OFF`? Dan staat `google-services.json` niet op de juiste plek of met de verkeerde naam (stap 10),
+      of het is het bestand van een app met een andere pakketnaam dan `com.dontsliceme.app` (stap 7). De reden staat achter OFF.
+    - Staat er `NOT removed` of `WARNING`? Kijk dan stap 12 en 13 na.
+18. Open Android Studio. Open `app` > `build.gradle` (Module :app).
+19. Zet daar **`versionCode 12`** en **`versionName "0.33.2"`**. (Ook als je oudere versies oversloeg: 12.)
+20. Kijk in hetzelfde bestand helemaal onderaan: daar staat een blok met `com.google.gms.google-services` (Capacitor zette
+    dat er zelf in; het wordt alleen gebruikt als `google-services.json` er is). Staat het er niet, bouw dan niet verder en stuur
+    me een bericht.
+21. Klik bovenaan op **Sync Now** als die balk verschijnt.
+22. **Build** > **Generate Signed App Bundle or APK** > kies **Android App Bundle** > **Next**.
+23. Typ je wachtwoord (dezelfde sleutel als altijd) > **Next**.
+24. Kies **release** > **Create**. Je ziet rechtsonder "Generate Signed Bundle: ... successfully".
+
+Deel 5, uploaden naar de interne test:
+25. Play Console (log in met `dont.slice.me@gmail.com`): **Testen en releasen** > **Testen** > **Interne test** > **Nieuwe release
+    maken**.
+26. Sleep `native\android\app\release\app-release.aab` naar **App-bundels**. Je ziet: "12 (0.33.2)".
+27. Releaseopmerkingen: vervang alles in het vak door het blok "Voor v0.33.2 in de interne test" uit `store/winkelteksten.md` (van
+    `<nl-NL>` tot en met `</en-US>`).
+28. **Volgende** > **Opslaan en publiceren**. Wacht tot er "Beschikbaar voor interne testers" staat.
+
+Deel 6, Gegevensveiligheid in Play Console (er komt geen nieuw vinkje bij):
+29. Open in Play Console de pagina **App-content** (de link staat bovenaan `PLAY-FORMULIEREN.md`) en klik op
+    **Gegevensveiligheid**.
+30. Vergelijk met `PLAY-FORMULIEREN.md`, deel 8.2. Kijk vooral naar twee rijen: **Apparaat- of andere ID's** (verzameld, gedeeld,
+    verplicht, doelen Advertenties of marketing, Analyse, Fraudepreventie en App-functionaliteit) en **App-interacties**
+    (verzameld, gedeeld, verplicht, doelen App-functionaliteit, Advertenties of marketing, Analyse en Fraudepreventie).
+31. Staat alles zo? Dan verander je niets en verstuur je niets. Staat er iets anders, zet het zoals in de tabel, klik
+    **Opslaan** en verstuur het in het **Publicatieoverzicht**. De link naar het privacybeleid blijft dezelfde.
+
+Deel 7, je telefoons:
+32. Werk **allebei je telefoons** (S26+ en OnePlus 5) bij naar 0.33.2 via de Play Store. Kijk bij het tandwiel: "Versie v0.33.2".
+33. Testen: `TESTLIJST-v0.33.2.md` (korte tests van een paar minuten, met per test "ok / niet ok").
+Start je de gesloten test met v0.33.2, volg dan deel F; in stap 8 kies je "12 (0.33.2)" en de releaseopmerkingen van v0.33.2.
+Wat er in het spel verandert: Duels staat onder Spelen (Levels · Dagmes · Duels · Toernooi · Seizoen; onder Vrienden staan Vrienden
+en Rivalen); de bonusrun van de Jacht telt alleen voor het toernooi en na een bonusrun staat er "Nog een bonusrun · 1 ticket" of
+"Terug naar Toernooi", zonder Verder met een filmpje en zonder grote balk "LEVEL ..."; geen reclame meer op Ander fruit bij 0
+hartjes; de Weekkeuring van Chef Ada in je Eetzaal (borden, met "+1 bord" als een bord meetelt, drie oordelen, effecten de volgende
+week in gewone pogingen) en proeven bij vrienden; alle meldingen zoals je koos (1A, 2A, 3A, 4A, 5A, 6A, 7B); het live duel heeft ook
+na snel "Nog een keer" live beeld, en na het afsluiten van beide apps doet de knop **Live duel** nooit meer niets. Het privacybeleid
+is bijgewerkt (punt 5, 6a, 6b, 13 en 14). Oude spellen laden gewoon.
+
 Voor de **productie**:
 12. **[BESLIST, 15 november: 3A, gebouwd in v0.32.12]** De Fruitmanden met wisselende prijs zijn weg; alleen Alles-in-één
     (`bundle_all`) blijft (zie `store/producten-play.md`, deel B).
@@ -240,8 +332,10 @@ Voor de **productie**:
 1. **[GEDAAN]** Project, anonieme login, Firestore, Blaze-plan en de functies (laatste uitrol 10 november, live duel),
    de opruimregel voor `ghosts` (9 november) en het geheim `LIVEDUEL_VAPID` (10 november). Voer de regel met
    `generate-vapid-keys` **nooit** opnieuw uit: een nieuwe sleutel maakt alle meldingen ongeldig.
-2. Niets te doen voor de eerste test. Pushmeldingen in de app staan uit; die zetten we later samen aan
-   (Android-app toevoegen in Firebase, `google-services.json`, `FCM_READY = true`).
+2. Pushmeldingen in de app: vanaf v0.33.2. Je voegt één keer een Android-app toe in Firebase en zet `google-services.json` in
+   `native\android\app` (de stappen staan bij "Wat jij moet doen bij v0.33.2"). Dan kan de app meldingen sturen (elke speler
+   kiest zelf in de game); er is geen `FCM_READY` meer om te veranderen. Zonder het bestand werkt de app gewoon, zonder
+   meldingen van vrienden.
 
 ---
 
@@ -538,9 +632,9 @@ De gesloten test in Play Console:
 5. Tab **Testers** > **Google Groups** > typ `dont-slice-me-testers@googlegroups.com` > **Opslaan**.
 6. Vul **Feedback-URL of e-mailadres** in (`dont.slice.me@gmail.com`) > **Opslaan**.
 7. Tab **Landen/regio's**: kies minstens **België** en **Nederland** (en waar je testers wonen) > **Opslaan**.
-8. Tab **Releases** > **Nieuwe release maken** > **Toevoegen uit bibliotheek** > kies versie 1 (0.32.6) (of een
-   nieuwere) > releaseopmerkingen (hetzelfde blok als in deel E, stap 7) > **Opslaan** > **Wijzigingen ter
-   beoordeling sturen**.
+8. Tab **Releases** > **Nieuwe release maken** > **Toevoegen uit bibliotheek** > kies de nieuwste versie (met v0.33.2:
+   "12 (0.33.2)") > releaseopmerkingen: het blok van die versie uit `store/winkelteksten.md` (met v0.33.2 het blok "Voor v0.33.2
+   in de interne test", van `<nl-NL>` tot en met `</en-US>`) > **Opslaan** > **Wijzigingen ter beoordeling sturen**.
    Je ziet: "In beoordeling". De eerste keer duurt de controle door Google een paar uur tot enkele dagen.
 9. Zodra de status "Actief" is: tab **Testers** > **Link kopiëren** (opt-inlink).
 10. Stuur je testers het WhatsApp-bericht hieronder, met de twee links.
